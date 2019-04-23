@@ -17,3 +17,6 @@ phases:
 artifacts:
   files:
     - watchtower-service/build/libs/watchtower-service-0.1.jar
+cache:
+  paths:
+    - '/root/.m2/**/*'
