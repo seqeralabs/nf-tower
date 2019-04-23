@@ -1,15 +1,19 @@
 version: 0.2
 
 phases:
+  pre_build:
+    commands:
+      - $(aws ecr get-login --no-include-email --region eu-west-1)
+
   build:
     commands:
-      - echo Build started on `date`
       - "./gradlew assemble"
+      - "docker build -t watchtower-service:latest watchtower-service/"
+      - "docker tag watchtower-service:latest 195996028523.dkr.ecr.eu-west-1.amazonaws.com/nf-tower/watchtower-service:latest"
 
-artifacts:
-  files:
-    - watchtower-service/build/libs/watchtower-service-0.1.jar
-  discard-paths: yes
+  post_build:
+    commands:
+      - "docker push 195996028523.dkr.ecr.eu-west-1.amazonaws.com/nf-tower/watchtower-service:latest"
 
 cache:
   paths:
