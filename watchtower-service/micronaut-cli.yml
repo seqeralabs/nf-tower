@@ -1,0 +1,5 @@
+profile: service
+defaultPackage: watchtower.service
+---
+testFramework: spock
+sourceLanguage: groovy

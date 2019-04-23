@@ -1,0 +1,63 @@
+plugins {
+    id "io.spring.dependency-management" version "1.0.6.RELEASE"
+    id "groovy"
+    id "com.github.johnrengelman.shadow" version "4.0.2"
+    id "application"
+    id "com.google.cloud.tools.jib" version "0.9.9"
+}
+
+
+
+version "0.1"
+group "watchtower.service"
+
+repositories {
+    mavenCentral()
+    maven { url "https://jcenter.bintray.com" }
+}
+
+dependencyManagement {
+    imports {
+        mavenBom 'io.micronaut:micronaut-bom:1.1.0'
+    }
+}
+
+configurations {
+    // for dependencies that are needed for development only
+    developmentOnly 
+}
+
+dependencies {
+    compile "io.micronaut:micronaut-runtime-groovy"
+    compile "io.micronaut:micronaut-validation"
+    compile "io.micronaut.configuration:micronaut-mongo-reactive"
+    compile "io.swagger.core.v3:swagger-annotations"
+    compile "io.micronaut:micronaut-http-client"
+    compile "io.micronaut.configuration:micronaut-mongo-gorm"
+    compile "io.micronaut:micronaut-http-server-netty"
+    compile "io.micronaut:micronaut-management"
+    compileOnly "io.micronaut:micronaut-inject-groovy"
+    compileOnly "io.micronaut.configuration:micronaut-openapi"
+    runtime "ch.qos.logback:logback-classic:1.2.3"
+    testCompile("org.spockframework:spock-core") {
+        exclude group: "org.codehaus.groovy", module: "groovy-all"
+    }
+    testCompile "io.micronaut:micronaut-inject-groovy"
+    testCompile "io.micronaut.test:micronaut-test-spock:1.0.1"
+    testCompile "de.flapdoodle.embed:de.flapdoodle.embed.mongo:2.0.1"
+}
+
+test.classpath += configurations.developmentOnly
+
+mainClassName = "watchtower.service.Application"
+tasks.withType(GroovyCompile) {
+    groovyOptions.forkOptions.jvmArgs.add('-Dgroovy.parameters=true')
+}
+
+shadowJar {
+    mergeServiceFiles()
+}
+
+run.classpath += configurations.developmentOnly
+run.jvmArgs('-noverify', '-XX:TieredStopAtLevel=1', '-Dcom.sun.management.jmxremote')
+jib.to.image = 'gcr.io/watchtower-service/jib-image'
