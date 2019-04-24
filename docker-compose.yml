@@ -1,0 +1,31 @@
+version: "3.7"
+services:
+
+  mongo:
+    image: mongo
+    networks:
+      - backend
+    ports:
+      - 27017:27017
+
+  backend:
+    image: watchtower-service:latest
+    networks:
+      - frontend
+      - backend
+    ports:
+      - 8080:8080
+    environment:
+      MONGO_HOST: mongo
+      MONGO_PORT: 27017
+
+  frontend:
+    image: watchtower-gui:latest
+    networks:
+      - frontend
+    ports:
+      - 8000:80
+
+networks:
+  frontend: {}
+  backend: {}
