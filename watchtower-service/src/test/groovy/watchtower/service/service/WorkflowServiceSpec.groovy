@@ -21,12 +21,13 @@ class WorkflowServiceSpec extends Specification {
     @Shared
     WorkflowService workflowService = embeddedServer.applicationContext.getBean(WorkflowService)
 
+
     void "save a new workflow"() {
         given: 'create a worklow from the helper class'
         Workflow workflow1 = DomainCreator.createWorkflow()
 
         and: 'create a workflow from the service class'
-        Workflow workflow2 = workflowService.save('35cce421-4712-4da5-856b-6557635e543d', 'astonishing_majorana', 'completed', new Date())
+        Workflow workflow2 = workflowService.save('35cce421-4712-4da5-856b-6557635e543d', 'astonishing_majorana')
 
         expect: 'the workflows have been created'
         !workflow1.hasErrors()

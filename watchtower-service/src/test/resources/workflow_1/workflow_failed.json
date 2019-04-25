@@ -1,0 +1,81 @@
+{
+  "metadata": {
+    "parameters": {
+      "foo": "Hello",
+      "bar": "world",
+      "reads": "/Users/pditommaso/.nextflow/assets/nextflow-io/rnaseq-nf/data/ggal/*_{1,2}.fq",
+      "transcriptome": "/Users/pditommaso/.nextflow/assets/nextflow-io/rnaseq-nf/data/ggal/ggal_1_48850000_49020000.Ggal71.500bpflank.fa",
+      "outdir": "results",
+      "multiqc": "/Users/pditommaso/.nextflow/assets/nextflow-io/rnaseq-nf/multiqc"
+    },
+    "workflow": {
+      "start": "2019-04-23T09:28:52Z",
+      "projectDir": "/Users/pditommaso/.nextflow/assets/nextflow-io/rnaseq-nf",
+      "manifest": {
+        "nextflowVersion": null,
+        "defaultBranch": "master",
+        "version": null,
+        "homePage": null,
+        "gitmodules": null,
+        "description": "Proof of concept of a RNA-seq pipeline implemented with Nextflow",
+        "name": null,
+        "mainScript": "main.nf",
+        "author": "Paolo Di Tommaso"
+      },
+      "complete": "2019-04-23T09:29:14Z",
+      "profile": "standard",
+      "homeDir": "/Users/pditommaso",
+      "workDir": "/Users/pditommaso/Projects/nextflow/work",
+      "container": "nextflow/rnaseq-nf@sha256:e221e2511abb89a0cf8c32f6cd9b125fbfeb7f7c386a1f49299f48d7735faacd",
+      "commitId": "b9aefc67b461aa920bcb7c841ec3527dc192e8d1",
+      "errorMessage": "/Users/pditommaso/Projects/nextflow/work/d3/e083fe2875ca88cf6bbaecddc7d6b2/.command.sh: line 2: salmon: command not found",
+      "repository": "https://github.com/nextflow-io/rnaseq-nf.git",
+      "containerEngine": "docker",
+      "scriptFile": "/Users/pditommaso/.nextflow/assets/nextflow-io/rnaseq-nf/main.nf",
+      "userName": "pditommaso",
+      "launchDir": "/Users/pditommaso/Projects/nextflow",
+      "runName": "hopeful_swartz",
+      "configFiles": [
+        "/Users/pditommaso/.nextflow/config",
+        "/Users/pditommaso/.nextflow/assets/nextflow-io/rnaseq-nf/nextflow.config"
+      ],
+      "sessionId": "a36c5f5b-e0bd-4d83-9225-1a6e73930d7b",
+      "errorReport":  "Error executing process > 'index (ggal_1_48850000_49020000)'\n\nCaused by:\n  Process `index (ggal_1_48850000_49020000)` terminated with an error exit status (127)\n\nCommand executed:\n\n  salmon index --threads 1 -t ggal_1_48850000_49020000.Ggal71.500bpflank.fa -i index\n\nCommand exit status:\n  127\n\nCommand output:\n  (empty)\n\nCommand error:\n  .command.sh: line 2: salmon: command not found\n\nWork dir:\n  /Users/pditommaso/Projects/nextflow/work/d3/e083fe2875ca88cf6bbaecddc7d6b2\n\nTip: you can replicate the issue by changing to the process work dir and entering the command `bash .command.run`",
+      "scriptId": "eb9157ac2ddd358cd8ebf7cecce8c3eb",
+      "revision": "master",
+      "exitStatus": 0,
+      "commandLine": "nextflow run rnaseq-nf -with-docker --foo Hello --bar world -with-weblog 'http://localhost:8500'",
+      "nextflow": {
+        "version": "19.04.0",
+        "build": 5069,
+        "timestamp": "2019-04-17T06:25:42Z"
+      },
+      "stats": {
+        "computeTimeFmt": "(a few seconds)",
+        "cachedCount": 0,
+        "cachedDuration": 0,
+        "failedDuration": 0,
+        "succeedDuration": 38049,
+        "failedCount": 0,
+        "cachedPct": 0.0,
+        "cachedCountFmt": "0",
+        "succeedCountFmt": "6",
+        "failedPct": 0.0,
+        "failedCountFmt": "0",
+        "ignoredCountFmt": "0",
+        "ignoredCount": 0,
+        "succeedPct": 100.0,
+        "succeedCount": 6,
+        "ignoredPct": 0.0
+      },
+      "resume": false,
+      "success": false,
+      "scriptName": "main.nf",
+      "duration": 21540
+    }
+  },
+  "runId": "a36c5f5b-e0bd-4d83-9225-1a6e73930d7b",
+  "event": "completed",
+  "runName": "hopeful_swartz",
+  "utcTime": "2019-04-23T09:29:14Z"
+}
