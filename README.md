@@ -2,4 +2,10 @@
 
 Nextflow Tower system
 
+## Build the environment 
+
+    make build
+
 ## Running locally
+
+    make run
