@@ -2,8 +2,7 @@ package watchtower.service.domain
 
 import grails.gorm.annotation.Entity
 import groovy.transform.CompileDynamic
-import watchtower.service.pogo.TaskStatus
-import watchtower.service.pogo.WorkflowStatus
+import watchtower.service.pogo.enums.TaskStatus
 
 import java.time.Instant
 
@@ -60,8 +59,6 @@ class Task {
         process(nullable: true)
         tag(nullable: true)
         exit(nullable: true)
-        submitTime
-        startTime(nullable: true)
         completeTime(nullable: true)
         module(nullable: true)
         container(nullable: true)

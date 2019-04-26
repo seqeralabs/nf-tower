@@ -1,14 +1,26 @@
 package watchtower.service.util
 
+import watchtower.service.domain.Task
 import watchtower.service.domain.Workflow
+import watchtower.service.pogo.enums.WorkflowStatus
+
+import java.time.Instant
 
 class DomainCreator {
 
     static Workflow createWorkflow(Map fields = [:]) {
         fields.runId = fields.runId?: "35cce421-4712-4da5-856b-6557635e54${generateUniqueNamePart()}d"
         fields.runName = fields.runName ?: "astonishing_majorana${generateUniqueNamePart()}"
+        fields.currentStatus = fields.currentStatus ?: WorkflowStatus.SUCCEEDED
+        fields.submitTime = fields.submitTime ?: Instant.now()
+        fields.startTime = fields.startTime ?: fields.submitTime
 
         createInstance(Workflow.class, fields)
+    }
+
+    static void cleanupDatabase() {
+        Task.deleteAll(Task.list())
+        Workflow.deleteAll(Workflow.list())
     }
 
     /**
