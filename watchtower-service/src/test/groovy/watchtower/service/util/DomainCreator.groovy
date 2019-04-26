@@ -8,20 +8,26 @@ import java.time.Instant
 
 class DomainCreator {
 
-    static Workflow createWorkflow(Map fields = [:]) {
-        fields.runId = fields.runId?: "35cce421-4712-4da5-856b-6557635e54${generateUniqueNamePart()}d"
-        fields.runName = fields.runName ?: "astonishing_majorana${generateUniqueNamePart()}"
-        fields.currentStatus = fields.currentStatus ?: WorkflowStatus.SUCCEEDED
-        fields.submitTime = fields.submitTime ?: Instant.now()
-        fields.startTime = fields.startTime ?: fields.submitTime
+    Boolean save = true
+    Boolean validate = true
+    Boolean failOnError = true
+    Boolean withNewTransaction = false
+    
+     Workflow createWorkflow(Map fields = [:]) {
+        fields.runId = fields.containsKey('runId') ? fields.runId : "35cce421-4712-4da5-856b-6557635e54${generateUniqueNamePart()}d".toString()
+        fields.runName = fields.containsKey('runName') ? fields.runName : "astonishing_majorana${generateUniqueNamePart()}".toString()
+        fields.currentStatus = fields.containsKey('currentStatus') ? fields.currentStatus : WorkflowStatus.SUCCEEDED
+        fields.submitTime = fields.containsKey('submitTime') ? fields.submitTime : Instant.now()
+        fields.startTime = fields.containsKey('startTime') ? fields.startTime : fields.submitTime
 
-        createInstance(Workflow.class, fields)
+        createInstance(Workflow, fields)
     }
 
     static void cleanupDatabase() {
         Task.deleteAll(Task.list())
         Workflow.deleteAll(Workflow.list())
     }
+
 
     /**
      * Creates and persists an instance of a class in the database given their creation params
@@ -31,7 +37,7 @@ class DomainCreator {
      * @param validate if the instance to save needs to be validated (true by default)
      * @return the persisted instance
      */
-    private static def createInstance(Class clazz, Map params, Boolean validate = true) {
+    private  def createInstance(Class clazz, Map params) {
         Map regularParams = [:]
         Map listParams = [:]
         extractListsFromMap(params, regularParams, listParams)
@@ -41,7 +47,19 @@ class DomainCreator {
         listParams.each { String k, List v ->
             addAllInstances(instance, k, v)
         }
-        instance.save(validate: validate, failOnError: true)
+
+        if (!save) {
+            return instance
+        }
+        if (withNewTransaction) {
+            instance.withNewTransaction { instance.save(validate: validate, failOnError: failOnError) }
+            return instance
+        }
+
+        instance.save(validate: validate, failOnError: failOnError)
+        instance
+
+
     }
 
     /**
@@ -50,7 +68,7 @@ class DomainCreator {
      * @param collectionName the name of the collection property
      * @param collection the collection which contains the instances to add
      */
-    private static void addAllInstances(def instance, String collectionName, List collection) {
+    private  void addAllInstances(def instance, String collectionName, List collection) {
         collection?.each {
             instance."addTo${collectionName.capitalize()}"(it)
         }
@@ -62,7 +80,7 @@ class DomainCreator {
      * @param noLists the map to populate with entries whose value is a regular instance
      * @param lists noLists the map to populate with entries whose value is a list instance
      */
-    private static void extractListsFromMap(Map origin, Map noLists, Map lists) {
+    private  void extractListsFromMap(Map origin, Map noLists, Map lists) {
         origin?.each { k, v ->
             if (v instanceof List) {
                 lists."${k}" = v
@@ -76,7 +94,7 @@ class DomainCreator {
      * Generate a unique string in order to make a name distinguishable
      * @return a random string with a low probability of collision with other generated strings
      */
-    private static String generateUniqueNamePart() {
+    private  String generateUniqueNamePart() {
         "${UniqueIdentifierGenerator.generateUniqueId()}"
     }
 }
@@ -89,7 +107,7 @@ class UniqueIdentifierGenerator {
      * Generates an unique numeric id
      * @return an unique numeric id
      */
-    static long generateUniqueId() {
+     static long generateUniqueId() {
         uniqueIdentifier++
     }
 }

@@ -10,6 +10,7 @@ import spock.lang.AutoCleanup
 import spock.lang.Shared
 import spock.lang.Specification
 import watchtower.service.Application
+import watchtower.service.pogo.enums.TraceType
 import watchtower.service.pogo.enums.WorkflowStatus
 import watchtower.service.util.TracesJsonBank
 
@@ -50,6 +51,8 @@ class TraceControllerSpec extends Specification {
 
         then: 'the workflow has been saved succesfully'
         response.status == HttpStatus.CREATED
+        response.body().traceType == TraceType.WORKFLOW.toString()
+        response.body().entityId
     }
 
 }

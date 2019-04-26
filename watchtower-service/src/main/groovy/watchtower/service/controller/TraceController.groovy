@@ -33,11 +33,16 @@ class TraceController {
     @Post("/save")
     HttpResponse<String> save(@Body Map json) {
         Map result = traceService.createEntityByTrace(json)
-
         String jsonResult = new ObjectMapper().writeValueAsString(result)
 
-        HttpResponse.created(jsonResult)
-                    .contentType(MediaType.APPLICATION_JSON)
+        HttpResponse<String> response
+        if (result.error) {
+            response = HttpResponse.badRequest(jsonResult)
+        } else {
+            response = HttpResponse.created(jsonResult)
+        }
+
+        response.contentType(MediaType.APPLICATION_JSON)
     }
 
 }

@@ -33,7 +33,7 @@ abstract class WorkflowService {
     Workflow updateFromJson(Map workflowJson, WorkflowStatus workflowStatus) {
         Workflow existingWorkflow = get((String) workflowJson.runId, (String) workflowJson.runName as String)
         if (!existingWorkflow) {
-            throw new WorkflowNotExistsException()
+            throw new WorkflowNotExistsException("Can't update a non-existing workflow")
         }
 
         WorkflowTraceJsonUnmarshaller.populateWorkflowFields(workflowJson, workflowStatus, existingWorkflow)
