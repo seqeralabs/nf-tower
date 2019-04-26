@@ -2,7 +2,7 @@ package watchtower.service.domain
 
 import grails.gorm.annotation.Entity
 import groovy.transform.CompileDynamic
-import watchtower.service.pogo.WorkflowStatus
+import watchtower.service.pogo.enums.WorkflowStatus
 
 import java.time.Instant
 

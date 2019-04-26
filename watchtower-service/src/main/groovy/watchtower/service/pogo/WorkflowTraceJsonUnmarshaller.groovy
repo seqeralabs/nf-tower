@@ -1,19 +1,23 @@
 package watchtower.service.pogo
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import groovy.transform.CompileDynamic
+import groovy.transform.CompileStatic
 import watchtower.service.domain.Workflow
+import watchtower.service.pogo.enums.WorkflowStatus
 
 import java.time.Instant
 
-class WorkflowTraceJsonParser {
+@CompileStatic
+class WorkflowTraceJsonUnmarshaller {
 
     static WorkflowStatus identifyWorflowStatus(Map workflowJson) {
         WorkflowStatus workflowStatus = null
 
         if (workflowJson.event == 'started') {
-            workflowStatus = workflowJson.workflow.resume ? WorkflowStatus.RESUMED : WorkflowStatus.STARTED
+            workflowStatus = workflowJson.metadata['workflow']['resume'] ? WorkflowStatus.RESUMED : WorkflowStatus.STARTED
         } else if (workflowJson.event == 'completed') {
-            workflowStatus = workflowJson.workflow.success ? WorkflowStatus.SUCCEEDED : WorkflowStatus.FAILED
+            workflowStatus = workflowJson.metadata['workflow']['success'] ? WorkflowStatus.SUCCEEDED : WorkflowStatus.FAILED
         } else if (workflowJson.event == 'paused') {
             workflowStatus = WorkflowStatus.PAUSED
         }
@@ -21,13 +25,14 @@ class WorkflowTraceJsonParser {
         workflowStatus
     }
 
-    static Workflow populateWorkflowFields(Map workflowJson, WorkflowStatus workflowStatus, Workflow workflow) {
+    @CompileDynamic
+    static Workflow populateWorkflowFields(Map<String, Object> workflowJson, WorkflowStatus workflowStatus, Workflow workflow) {
         workflow.currentStatus = workflowStatus
         workflowJson.each { String k, def v ->
             if (k == 'utcTime') {
-                populateStatusTimestamp(v, workflowStatus, workflow)
+                populateStatusTimestamp((String) v, workflowStatus, workflow)
             } else if (k == 'metadata') {
-                populateMetaData(v, workflow)
+                populateMetaData((Map<String, Object>) v, workflow)
             } else {
                 workflow[k] = v
             }
@@ -36,27 +41,29 @@ class WorkflowTraceJsonParser {
         workflow
     }
 
-    private static void populateMetaData(Map workflowMetaData, Workflow workflow) {
+    @CompileDynamic
+    private static void populateMetaData(Map<String, Object> workflowMetaData, Workflow workflow) {
         workflowMetaData.each { String k, def v ->
             if (k == 'parameters') {
-                workflow[k] = new ObjectMapper().writeValueAsString(v)
+                workflow.parameters = new ObjectMapper().writeValueAsString(v)
             } else if (k == 'workflow') {
-                populateMainData(v, workflow)
+                populateMainData((Map<String, Object>) v, workflow)
             } else {
                 workflow[k] = v
             }
         }
     }
 
-    private static void populateMainData(Map workflowMainData, Workflow workflow) {
+    @CompileDynamic
+    private static void populateMainData(Map<String, Object> workflowMainData, Workflow workflow) {
         workflowMainData.each { String k, def v ->
             if (k == 'manifest') {
                 workflowMainData[k].each { String manifestPropertyKey, def manifestPropertyValue ->
-                    workflow."manifest${manifestPropertyKey}" = manifestPropertyValue
+                    workflow["manifest${manifestPropertyKey.capitalize()}"] = manifestPropertyValue
                 }
             } else if (k == 'nextflow') {
                 workflowMainData[k].each { String nextflowPropertyKey, def nextflowPropertyValue ->
-                    workflow."nextflow${nextflowPropertyKey}" = nextflowPropertyValue
+                    workflow["nextflow${nextflowPropertyKey.capitalize()}"] = nextflowPropertyValue
                 }
             } else if (k == 'stats') {
                 workflowMainData[k].each { String statsPropertyKey, def statsPropertyValue ->

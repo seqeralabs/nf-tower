@@ -1,4 +1,4 @@
-package watchtower.service.pogo
+package watchtower.service.pogo.enums
 
 enum TaskStatus {
 
