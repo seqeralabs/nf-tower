@@ -3,7 +3,7 @@ package watchtower.service.service
 import grails.gorm.services.Service
 import groovy.transform.CompileStatic
 import watchtower.service.domain.Workflow
-import watchtower.service.pogo.exceptions.WorkflowNotExistsException
+import watchtower.service.pogo.exceptions.NonExistingWorkflowException
 import watchtower.service.pogo.WorkflowTraceJsonUnmarshaller
 import watchtower.service.pogo.enums.WorkflowStatus
 
@@ -33,7 +33,7 @@ abstract class WorkflowService {
     Workflow updateFromJson(Map workflowJson, WorkflowStatus workflowStatus) {
         Workflow existingWorkflow = get((String) workflowJson.runId, (String) workflowJson.runName as String)
         if (!existingWorkflow) {
-            throw new WorkflowNotExistsException("Can't update a non-existing workflow")
+            throw new NonExistingWorkflowException("Can't update a non-existing workflow")
         }
 
         WorkflowTraceJsonUnmarshaller.populateWorkflowFields(workflowJson, workflowStatus, existingWorkflow)

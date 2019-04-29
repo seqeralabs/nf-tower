@@ -1,9 +1,9 @@
 package watchtower.service.service
 
-import groovy.transform.CompileStatic
+
 import watchtower.service.domain.Workflow
 import watchtower.service.pogo.enums.TraceType
-import watchtower.service.pogo.exceptions.WorkflowNotExistsException
+import watchtower.service.pogo.exceptions.NonExistingWorkflowException
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -33,7 +33,7 @@ class TraceService {
             } else {
                 result.entityId = workflow.id
             }
-        } catch (WorkflowNotExistsException e) {
+        } catch (NonExistingWorkflowException e) {
             result.error = e.message
         } catch (Exception e) {
             result.error = "Can't process JSON: check format"

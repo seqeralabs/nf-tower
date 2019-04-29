@@ -2,6 +2,7 @@ package watchtower.service.util
 
 import watchtower.service.domain.Task
 import watchtower.service.domain.Workflow
+import watchtower.service.pogo.enums.TaskStatus
 import watchtower.service.pogo.enums.WorkflowStatus
 
 import java.time.Instant
@@ -11,21 +12,32 @@ class DomainCreator {
     Boolean save = true
     Boolean validate = true
     Boolean failOnError = true
-    Boolean withNewTransaction = false
-    
-     Workflow createWorkflow(Map fields = [:]) {
+    Boolean withNewTransaction = true
+
+    static void cleanupDatabase() {
+        Task.deleteAll(Task.list())
+        Workflow.deleteAll(Workflow.list())
+    }
+
+    Workflow createWorkflow(Map fields = [:]) {
         fields.runId = fields.containsKey('runId') ? fields.runId : "35cce421-4712-4da5-856b-6557635e54${generateUniqueNamePart()}d".toString()
         fields.runName = fields.containsKey('runName') ? fields.runName : "astonishing_majorana${generateUniqueNamePart()}".toString()
-        fields.currentStatus = fields.containsKey('currentStatus') ? fields.currentStatus : WorkflowStatus.SUCCEEDED
+        fields.currentStatus = fields.containsKey('currentStatus') ? fields.currentStatus : WorkflowStatus.STARTED
         fields.submitTime = fields.containsKey('submitTime') ? fields.submitTime : Instant.now()
         fields.startTime = fields.containsKey('startTime') ? fields.startTime : fields.submitTime
 
         createInstance(Workflow, fields)
     }
 
-    static void cleanupDatabase() {
-        Task.deleteAll(Task.list())
-        Workflow.deleteAll(Workflow.list())
+    Task createTask(Map fields = [:]) {
+        fields.workflow = fields.containsKey('workflow') ? fields.workflow : createWorkflow()
+        fields.task_id = fields.containsKey('task_id') ? fields.task_id : 1
+        fields.name = fields.containsKey('name') ? fields.name : "taskName_${generateUniqueNamePart()}"
+        fields.hash = fields.containsKey('hash') ? fields.hash : "taskHash_${generateUniqueNamePart()}"
+        fields.currentStatus = fields.containsKey('currentStatus') ? fields.currentStatus : TaskStatus.SUBMITTED
+        fields.submitTime = fields.containsKey('submitTime') ? fields.submitTime : Instant.now()
+
+        createInstance(Task, fields)
     }
 
 
