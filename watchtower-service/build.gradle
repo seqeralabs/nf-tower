@@ -47,7 +47,8 @@ dependencies {
         exclude group: "org.codehaus.groovy", module: "groovy-all"
     }
     testCompile "io.micronaut.test:micronaut-test-spock:1.0.1"
-    testCompile "de.flapdoodle.embed:de.flapdoodle.embed.mongo:2.0.1"
+    testCompile "org.testcontainers:testcontainers:1.11.2"
+    testCompile "org.testcontainers:spock:1.11.2"
 }
 
 test.classpath += configurations.developmentOnly
