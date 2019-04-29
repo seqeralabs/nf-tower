@@ -84,6 +84,11 @@ class Workflow {
     Integer succeedCount
     Double ignoredPct
 
+
+    static mapping = {
+        version false
+    }
+
     static constraints = {
         runId(unique: 'runName')
 

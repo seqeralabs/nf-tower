@@ -20,7 +20,6 @@ abstract class TaskService {
     @Inject
     WorkflowService workflowService
 
-    abstract Task get(Workflow workflow, Long task_id)
 
     Task processTaskJsonTrace(Map taskJson) {
         TaskStatus taskStatus = TaskTraceJsonUnmarshaller.identifyTaskStatus(taskJson)
@@ -29,8 +28,7 @@ abstract class TaskService {
     }
 
     Task createFromJson(Map taskJson) {
-//        Workflow existingWorkflow = workflowService.get((String) taskJson.runId, (String) taskJson.runName)
-        Workflow existingWorkflow = Workflow.findByRunIdAndRunName((String) taskJson.runId, (String) taskJson.runName)
+        Workflow existingWorkflow = workflowService.get((String) taskJson.runId, (String) taskJson.runName)
         if (!existingWorkflow) {
             throw new NonExistingWorkflowException("Can't create task associated with non existing workflow")
         }
@@ -43,7 +41,7 @@ abstract class TaskService {
     }
 
     Task updateFromJson(Map taskJson, TaskStatus taskStatus) {
-        Workflow existingWorkflow = Workflow.findByRunIdAndRunName((String) taskJson.runId, (String) taskJson.runName)
+        Workflow existingWorkflow = workflowService.get((String) taskJson.runId, (String) taskJson.runName)
         Task existingTask = Task.findByWorkflowAndTask_id(existingWorkflow, (Long) taskJson.trace['task_id'])
         if (!existingTask) {
             throw new NonExistingTaskException("Can't update a non-existing workflow")

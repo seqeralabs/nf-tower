@@ -71,9 +71,14 @@ class Task {
     Long inv_ctxt
 
 
+    static mapping = {
+        version false
+    }
+
     static constraints = {
         task_id(unique: 'workflow')
 
+        workflow(nullable: true)
         process(nullable: true)
         tag(nullable: true)
         currentStatus(nullable: true)

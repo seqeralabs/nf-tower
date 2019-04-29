@@ -1,24 +1,31 @@
 package watchtower.service.controller
 
 import io.micronaut.http.HttpRequest
-import io.micronaut.runtime.server.EmbeddedServer
-import io.micronaut.test.annotation.MicronautTest
-import io.micronaut.http.client.RxHttpClient
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
+import io.micronaut.http.client.RxHttpClient
+import io.micronaut.runtime.server.EmbeddedServer
+import io.micronaut.test.annotation.MicronautTest
+import org.testcontainers.containers.FixedHostPortGenericContainer
+import org.testcontainers.containers.wait.strategy.Wait
+import org.testcontainers.spock.Testcontainers
 import spock.lang.AutoCleanup
 import spock.lang.Shared
 import spock.lang.Specification
-import watchtower.service.Application
 import watchtower.service.pogo.enums.TraceType
 import watchtower.service.pogo.enums.WorkflowStatus
 import watchtower.service.util.TracesJsonBank
 
 import javax.inject.Inject
 
-
-@MicronautTest(application=Application.class)
+@MicronautTest(packages = 'watchtower.service.domain')
+@Testcontainers
 class TraceControllerSpec extends Specification {
+
+    @Shared
+    FixedHostPortGenericContainer mongoDbContainer = new FixedHostPortGenericContainer("mongo:4.1")
+            .withFixedExposedPort(27018, 27017)
+            .waitingFor(Wait.forHttp('/'))
 
     @Inject
     EmbeddedServer embeddedServer
