@@ -8,7 +8,7 @@ import spock.lang.Shared
 import spock.lang.Specification
 import watchtower.service.Application
 import watchtower.service.domain.Workflow
-import watchtower.service.pogo.exceptions.WorkflowNotExistsException
+import watchtower.service.pogo.exceptions.NonExistingWorkflowException
 import watchtower.service.pogo.enums.WorkflowStatus
 import watchtower.service.util.DomainCreator
 import watchtower.service.util.TracesJsonBank
@@ -149,7 +149,7 @@ class WorkflowServiceSpec extends Specification {
         }
 
         then: "the workflow has been correctly saved"
-        thrown(WorkflowNotExistsException)
+        thrown(NonExistingWorkflowException)
     }
 
 }

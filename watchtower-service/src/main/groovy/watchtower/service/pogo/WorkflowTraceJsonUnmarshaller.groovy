@@ -26,7 +26,7 @@ class WorkflowTraceJsonUnmarshaller {
     }
 
     @CompileDynamic
-    static Workflow populateWorkflowFields(Map<String, Object> workflowJson, WorkflowStatus workflowStatus, Workflow workflow) {
+    static void populateWorkflowFields(Map<String, Object> workflowJson, WorkflowStatus workflowStatus, Workflow workflow) {
         workflow.currentStatus = workflowStatus
         workflowJson.each { String k, def v ->
             if (k == 'utcTime') {
@@ -37,8 +37,6 @@ class WorkflowTraceJsonUnmarshaller {
                 workflow[k] = v
             }
         }
-
-        workflow
     }
 
     @CompileDynamic
