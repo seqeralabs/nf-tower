@@ -1,8 +1,9 @@
 package watchtower.service.service
 
-
+import watchtower.service.domain.Task
 import watchtower.service.domain.Workflow
 import watchtower.service.pogo.enums.TraceType
+import watchtower.service.pogo.exceptions.NonExistingTaskException
 import watchtower.service.pogo.exceptions.NonExistingWorkflowException
 
 import javax.inject.Inject
@@ -14,10 +15,13 @@ class TraceService {
     @Inject
     WorkflowService workflowService
 
+    @Inject
+    TaskService taskService
+
     Map<String, Object> createEntityByTrace(Map<String, Object> traceJson) {
         TraceType traceType = identifyTrace(traceJson)
 
-        (traceType == TraceType.WORKFLOW) ? processWorkflowTrace(traceJson) : null
+        (traceType == TraceType.WORKFLOW) ? processWorkflowTrace(traceJson) : processTaskTrace(traceJson)
     }
 
     Map<String, Object> processWorkflowTrace(Map<String, Object> traceJson) {
@@ -42,6 +46,30 @@ class TraceService {
         result
     }
 
+    Map<String, Object> processTaskTrace(Map<String, Object> traceJson) {
+        Map<String, Object> result = [:]
+
+        result.traceType = TraceType.TASK
+        try {
+            Task task = taskService.processTaskJsonTrace(traceJson)
+
+            String errorMessage = checkTaskSaveErrors(task)
+            if (errorMessage) {
+                result.error = errorMessage
+            } else {
+                result.entityId = task.id
+            }
+        } catch (NonExistingWorkflowException e) {
+            result.error = e.message
+        } catch (NonExistingTaskException e) {
+            result.error = e.message
+        } catch (Exception e) {
+            result.error = "Can't process JSON: check format"
+        }
+
+        result
+    }
+
     private String checkWorkflowSaveErrors(Workflow workflow) {
         if (!workflow.hasErrors()) {
             return null
@@ -51,6 +79,18 @@ class TraceService {
         }
         if (workflow.errors.getFieldError('runId') ) {
             return "Can't start an existing workflow"
+        }
+    }
+
+    private String checkTaskSaveErrors(Task task) {
+        if (!task.hasErrors()) {
+            return null
+        }
+        if (task.errors.getFieldError('submitTime')) {
+            return "Can't start or complete a non-existing task"
+        }
+        if (task.errors.getFieldError('task_id') ) {
+            return "Can't submit a task which was already submitted"
         }
     }
 

@@ -3,37 +3,24 @@ package watchtower.service.service
 import io.micronaut.context.ApplicationContext
 import io.micronaut.runtime.server.EmbeddedServer
 import io.micronaut.test.annotation.MicronautTest
-import org.testcontainers.containers.FixedHostPortGenericContainer
-import org.testcontainers.containers.wait.strategy.Wait
-import org.testcontainers.spock.Testcontainers
 import spock.lang.AutoCleanup
 import spock.lang.Shared
-import spock.lang.Specification
 import watchtower.service.domain.Task
 import watchtower.service.pogo.enums.TaskStatus
 import watchtower.service.pogo.exceptions.NonExistingTaskException
 import watchtower.service.pogo.exceptions.NonExistingWorkflowException
+import watchtower.service.util.AbstractContainerBaseSpec
 import watchtower.service.util.DomainCreator
 import watchtower.service.util.TracesJsonBank
 
-@Testcontainers
 @MicronautTest(packages = 'watchtower.service.domain')
-class TaskServiceSpec extends Specification {
-
-    @Shared
-    FixedHostPortGenericContainer mongoDbContainer = new FixedHostPortGenericContainer("mongo:4.1")
-            .withFixedExposedPort(27018, 27017)
-            .waitingFor(Wait.forHttp('/'))
+class TaskServiceSpec extends AbstractContainerBaseSpec {
 
     @Shared @AutoCleanup
     EmbeddedServer embeddedServer = ApplicationContext.run(EmbeddedServer)
 
     @Shared
     TaskService taskService = embeddedServer.applicationContext.getBean(TaskService)
-
-    void cleanup() {
-        DomainCreator.cleanupDatabase()
-    }
 
 
     void "submit a task given a submit trace"() {

@@ -1,7 +1,6 @@
 package watchtower.service.service
 
 import grails.gorm.services.Service
-import groovy.transform.CompileStatic
 import watchtower.service.domain.Task
 import watchtower.service.domain.Workflow
 import watchtower.service.pogo.TaskTraceJsonUnmarshaller
@@ -14,7 +13,6 @@ import javax.inject.Singleton
 
 @Singleton
 @Service(Task)
-//@CompileStatic
 abstract class TaskService {
 
     @Inject

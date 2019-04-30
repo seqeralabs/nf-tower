@@ -4,9 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import watchtower.service.domain.Task
-import watchtower.service.domain.Workflow
 import watchtower.service.pogo.enums.TaskStatus
-import watchtower.service.pogo.enums.WorkflowStatus
 
 import java.time.Instant
 

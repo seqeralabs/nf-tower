@@ -3,36 +3,22 @@ package watchtower.service.service
 import io.micronaut.context.ApplicationContext
 import io.micronaut.runtime.server.EmbeddedServer
 import io.micronaut.test.annotation.MicronautTest
-import org.testcontainers.containers.FixedHostPortGenericContainer
-import org.testcontainers.containers.wait.strategy.Wait
-import org.testcontainers.spock.Testcontainers
 import spock.lang.AutoCleanup
 import spock.lang.Shared
-import spock.lang.Specification
 import watchtower.service.domain.Workflow
 import watchtower.service.pogo.enums.WorkflowStatus
 import watchtower.service.pogo.exceptions.NonExistingWorkflowException
-import watchtower.service.util.DomainCreator
+import watchtower.service.util.AbstractContainerBaseSpec
 import watchtower.service.util.TracesJsonBank
 
 @MicronautTest(packages = 'watchtower.service.domain')
-@Testcontainers
-class WorkflowServiceSpec extends Specification {
-
-    @Shared
-    FixedHostPortGenericContainer mongoDbContainer = new FixedHostPortGenericContainer("mongo:4.1")
-            .withFixedExposedPort(27018, 27017)
-            .waitingFor(Wait.forHttp('/'))
+class WorkflowServiceSpec extends AbstractContainerBaseSpec {
 
     @Shared @AutoCleanup
     EmbeddedServer embeddedServer = ApplicationContext.run(EmbeddedServer)
 
     @Shared
     WorkflowService workflowService = embeddedServer.applicationContext.getBean(WorkflowService)
-
-    void cleanup() {
-        DomainCreator.cleanupDatabase()
-    }
 
 
     void "start a workflow given a started trace"() {
