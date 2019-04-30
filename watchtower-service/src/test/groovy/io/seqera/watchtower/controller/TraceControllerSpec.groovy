@@ -7,6 +7,8 @@ import io.micronaut.http.client.RxHttpClient
 import io.micronaut.runtime.server.EmbeddedServer
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.watchtower.Application
+import io.seqera.watchtower.domain.Task
+import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.enums.TaskStatus
 import io.seqera.watchtower.util.DomainCreator
 import spock.lang.AutoCleanup
@@ -54,6 +56,9 @@ class TraceControllerSpec extends AbstractContainerBaseSpec {
         response.status == HttpStatus.CREATED
         response.body().traceType == TraceType.WORKFLOW.toString()
         response.body().entityId
+
+        and: 'the workflow is in the database'
+        Workflow.count() == 1
     }
 
     void "save a new task given a submit trace"() {
@@ -69,10 +74,13 @@ class TraceControllerSpec extends AbstractContainerBaseSpec {
                 Map.class
         )
 
-        then: 'the workflow has been saved succesfully'
+        then: 'the task has been saved succesfully'
         response.status == HttpStatus.CREATED
         response.body().traceType == TraceType.TASK.toString()
         response.body().entityId
+
+        and: 'the task is in the database'
+        Task.count() == 1
     }
 
 }

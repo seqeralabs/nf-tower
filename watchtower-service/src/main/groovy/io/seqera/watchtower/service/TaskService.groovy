@@ -1,6 +1,7 @@
 package io.seqera.watchtower.service
 
-import grails.gorm.services.Service
+
+import grails.gorm.transactions.Transactional
 import io.seqera.watchtower.domain.Task
 import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.TaskTraceJsonUnmarshaller
@@ -11,9 +12,9 @@ import io.seqera.watchtower.pogo.exceptions.NonExistingWorkflowException
 import javax.inject.Inject
 import javax.inject.Singleton
 
+@Transactional
 @Singleton
-@Service(Task)
-abstract class TaskService {
+class TaskService {
 
     @Inject
     WorkflowService workflowService
@@ -26,7 +27,7 @@ abstract class TaskService {
     }
 
     Task createFromJson(Map taskJson) {
-        Workflow existingWorkflow = workflowService.get((String) taskJson.runId, (String) taskJson.runName)
+        Workflow existingWorkflow = Workflow.findByRunIdAndRunName((String) taskJson.runId, (String) taskJson.runName)
         if (!existingWorkflow) {
             throw new NonExistingWorkflowException("Can't create task associated with non existing workflow")
         }
@@ -39,10 +40,14 @@ abstract class TaskService {
     }
 
     Task updateFromJson(Map taskJson, TaskStatus taskStatus) {
-        Workflow existingWorkflow = workflowService.get((String) taskJson.runId, (String) taskJson.runName)
+        Workflow existingWorkflow = Workflow.findByRunIdAndRunName((String) taskJson.runId, (String) taskJson.runName)
+        if (!existingWorkflow) {
+            throw new NonExistingWorkflowException("Can't find workflow associated with the task")
+        }
+
         Task existingTask = Task.findByWorkflowAndTask_id(existingWorkflow, (Long) taskJson.trace['task_id'])
         if (!existingTask) {
-            throw new NonExistingTaskException("Can't update a non-existing workflow")
+            throw new NonExistingTaskException("Can't update a non existing task")
         }
 
         TaskTraceJsonUnmarshaller.populateTaskFields(taskJson, taskStatus, existingTask)

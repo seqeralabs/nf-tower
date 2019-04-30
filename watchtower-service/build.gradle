@@ -9,7 +9,7 @@ plugins {
 
 
 version "0.1"
-group "watchtower.service"
+group "io.sequera.watchtower"
 
 repositories {
     mavenCentral()
@@ -53,7 +53,7 @@ dependencies {
 
 test.classpath += configurations.developmentOnly
 
-mainClassName = "watchtower.service.Application"
+mainClassName = "io.seqera.watchtower.Application"
 tasks.withType(GroovyCompile) {
     groovyOptions.forkOptions.jvmArgs.add('-Dgroovy.parameters=true')
 }
