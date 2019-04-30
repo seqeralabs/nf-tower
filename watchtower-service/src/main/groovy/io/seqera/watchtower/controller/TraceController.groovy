@@ -1,8 +1,8 @@
 package io.seqera.watchtower.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import grails.gorm.transactions.Transactional
 import groovy.transform.CompileStatic
+import groovy.util.logging.Slf4j
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.MediaType
@@ -11,16 +11,13 @@ import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Post
 import io.seqera.watchtower.service.TraceService
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 import javax.inject.Inject
 
 @Controller("/trace")
 @CompileStatic
+@Slf4j
 class TraceController {
-
-    private static final Logger LOG = LoggerFactory.getLogger(TraceService.class);
 
     @Inject
     TraceService traceService
@@ -33,9 +30,9 @@ class TraceController {
 
     @Post("/save")
     HttpResponse<String> save(@Body Map json) {
-        LOG.info("Receiving trace: ${json.inspect()}")
+        log.info("Receiving trace: ${json.inspect()}")
         Map result = traceService.createEntityByTrace(json)
-        LOG.info("Processed trace: ${result.inspect()}")
+        log.info("Processed trace: ${result.inspect()}")
         String jsonResult = new ObjectMapper().writeValueAsString(result)
 
         HttpResponse<String> response
