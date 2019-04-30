@@ -37,6 +37,7 @@ class WorkflowServiceSpec extends AbstractContainerBaseSpec {
         workflow.currentStatus == WorkflowStatus.STARTED
         workflow.submitTime
         !workflow.completeTime
+        Workflow.count() == 1
     }
 
     void "start a workflow given a started trace, then complete the workflow given a succeeded trace"() {
@@ -69,6 +70,7 @@ class WorkflowServiceSpec extends AbstractContainerBaseSpec {
         workflowSucceeded.currentStatus == WorkflowStatus.SUCCEEDED
         workflowSucceeded.submitTime
         workflowSucceeded.completeTime
+        Workflow.count() == 1
     }
 
     void "start a workflow given a started trace, then complete the workflow given a failed trace"() {
@@ -89,6 +91,7 @@ class WorkflowServiceSpec extends AbstractContainerBaseSpec {
         workflowStarted.currentStatus == WorkflowStatus.STARTED
         workflowStarted.submitTime
         !workflowStarted.completeTime
+        Workflow.count() == 1
 
         when: "unmarshall the failed JSON to a workflow"
         Workflow workflowFailed
@@ -101,6 +104,7 @@ class WorkflowServiceSpec extends AbstractContainerBaseSpec {
         workflowFailed.currentStatus == WorkflowStatus.FAILED
         workflowFailed.submitTime
         workflowFailed.completeTime
+        Workflow.count() == 1
     }
 
     void "start a workflow given a started trace, then try to start the same one"() {
@@ -121,6 +125,7 @@ class WorkflowServiceSpec extends AbstractContainerBaseSpec {
         workflowStarted1.currentStatus == WorkflowStatus.STARTED
         workflowStarted1.submitTime
         !workflowStarted1.completeTime
+        Workflow.count() == 1
 
         when: "unmarshall the started JSON to a second workflow"
         Workflow workflowStarted2

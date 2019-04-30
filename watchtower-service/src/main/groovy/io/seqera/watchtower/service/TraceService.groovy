@@ -18,6 +18,7 @@ class TraceService {
     @Inject
     TaskService taskService
 
+
     Map<String, Object> createEntityByTrace(Map<String, Object> traceJson) {
         TraceType traceType = identifyTrace(traceJson)
 

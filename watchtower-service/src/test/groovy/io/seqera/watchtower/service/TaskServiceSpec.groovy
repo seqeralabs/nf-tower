@@ -43,6 +43,7 @@ class TaskServiceSpec extends AbstractContainerBaseSpec {
         task.submitTime
         !task.startTime
         !task.completeTime
+        Task.count() == 1
     }
 
     void "submit a task given a submit trace, then start the task given a start trace, last complete the task given a success trace"() {
@@ -70,6 +71,7 @@ class TaskServiceSpec extends AbstractContainerBaseSpec {
         taskSubmitted.submitTime
         !taskSubmitted.startTime
         !taskSubmitted.completeTime
+        Task.count() == 1
 
         when: "unmarshall the started task trace"
         Task taskStarted
@@ -83,6 +85,7 @@ class TaskServiceSpec extends AbstractContainerBaseSpec {
         taskStarted.submitTime
         taskStarted.startTime
         !taskStarted.completeTime
+        Task.count() == 1
 
         when: "unmarshall the succeeded task trace"
         Task taskCompleted
@@ -96,6 +99,7 @@ class TaskServiceSpec extends AbstractContainerBaseSpec {
         taskStarted.submitTime
         taskStarted.startTime
         taskStarted.completeTime
+        Task.count() == 1
     }
 
     void "submit a task given a submit trace, then start the task given a start trace, last complete the task given a fail trace"() {
@@ -123,6 +127,9 @@ class TaskServiceSpec extends AbstractContainerBaseSpec {
         taskSubmitted.submitTime
         !taskSubmitted.startTime
         !taskSubmitted.completeTime
+        Task.count() == 1
+
+
 
         when: "unmarshall the started task trace"
         Task taskStarted
@@ -152,6 +159,7 @@ class TaskServiceSpec extends AbstractContainerBaseSpec {
         taskStarted.startTime
         taskStarted.completeTime
         taskStarted.error_action
+        Task.count() == 1
     }
 
     void "submit a task given a submit trace, then try to submit the same one"() {
@@ -171,6 +179,7 @@ class TaskServiceSpec extends AbstractContainerBaseSpec {
         taskSubmitted1.id
         taskSubmitted1.currentStatus == TaskStatus.SUBMITTED
         taskSubmitted1.submitTime
+        Task.count() == 1
 
         when: "unmarshall the submit JSON to a second task"
         Task taskSubmitted2

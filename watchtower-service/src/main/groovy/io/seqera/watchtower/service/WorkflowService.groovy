@@ -1,6 +1,8 @@
 package io.seqera.watchtower.service
 
 import grails.gorm.services.Service
+import grails.gorm.transactions.Transactional
+import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.WorkflowTraceJsonUnmarshaller
@@ -9,13 +11,15 @@ import io.seqera.watchtower.pogo.exceptions.NonExistingWorkflowException
 
 import javax.inject.Singleton
 
+@Transactional
 @Singleton
-@Service(Workflow)
 @CompileStatic
-abstract class WorkflowService {
+class WorkflowService {
 
-    abstract Workflow get(String runId, String runName)
-
+    @CompileDynamic
+    Workflow get(String runId, String runName) {
+        Workflow.findByRunIdAndRunName(runId, runName)
+    }
 
     Workflow processWorkflowJsonTrace(Map workflowJson) {
         WorkflowStatus workflowStatus = WorkflowTraceJsonUnmarshaller.identifyWorflowStatus(workflowJson)
