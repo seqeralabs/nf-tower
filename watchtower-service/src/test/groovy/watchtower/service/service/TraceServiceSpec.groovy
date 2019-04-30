@@ -3,37 +3,24 @@ package watchtower.service.service
 import io.micronaut.context.ApplicationContext
 import io.micronaut.runtime.server.EmbeddedServer
 import io.micronaut.test.annotation.MicronautTest
-import org.testcontainers.containers.FixedHostPortGenericContainer
-import org.testcontainers.containers.wait.strategy.Wait
-import org.testcontainers.spock.Testcontainers
 import spock.lang.AutoCleanup
 import spock.lang.Shared
-import spock.lang.Specification
 import spock.util.mop.ConfineMetaClassChanges
+import watchtower.service.domain.Task
 import watchtower.service.domain.Workflow
 import watchtower.service.pogo.enums.TraceType
 import watchtower.service.pogo.exceptions.NonExistingWorkflowException
+import watchtower.service.util.AbstractContainerBaseSpec
 import watchtower.service.util.DomainCreator
 
 @MicronautTest(packages = 'watchtower.service.domain')
-@Testcontainers
-class TraceServiceSpec extends Specification {
-
-    @Shared
-    FixedHostPortGenericContainer mongoDbContainer = new FixedHostPortGenericContainer("mongo:4.1")
-            .withFixedExposedPort(27018, 27017)
-            .waitingFor(Wait.forHttp('/'))
+class TraceServiceSpec extends AbstractContainerBaseSpec {
 
     @Shared @AutoCleanup
     EmbeddedServer embeddedServer = ApplicationContext.run(EmbeddedServer)
 
     @Shared
     TraceService traceService = embeddedServer.applicationContext.getBean(TraceService)
-
-
-    void cleanup() {
-        DomainCreator.cleanupDatabase()
-    }
 
 
     @ConfineMetaClassChanges([WorkflowService])
@@ -119,6 +106,59 @@ class TraceServiceSpec extends Specification {
         result.traceType == TraceType.WORKFLOW
         result.error == "Can't process JSON: check format"
         !result.entityId
+    }
+
+    @ConfineMetaClassChanges([TaskService])
+    void "process a successful task trace"() {
+        given: "mock the task JSON processor to return a successful task"
+        Task task = new DomainCreator().createTask()
+        traceService.taskService.metaClass.processTaskJsonTrace { Map taskJson ->
+            task
+        }
+
+        when: "process the task (we don't mind about the given JSON because the processor is mocked)"
+        Map result = traceService.processTaskTrace(null)
+
+        then: "the result indicates a successful processing"
+        result.traceType == TraceType.TASK
+        result.entityId
+        !result.error
+    }
+
+    @ConfineMetaClassChanges([TaskService])
+    void "process a task without submit time"() {
+        given: "mock the task JSON processor to return a task without submit time"
+        Task task = new DomainCreator(failOnError: false).createTask(submitTime: null)
+        traceService.taskService.metaClass.processTaskJsonTrace { Map taskJson ->
+            task
+        }
+
+        when: "process the task (we don't mind about the given JSON because the processor is mocked)"
+        Map result = traceService.processTaskTrace(null)
+
+        then: "the result indicates a successful processing"
+        result.traceType == TraceType.TASK
+        !result.entityId
+        result.error == "Can't start or complete a non-existing task"
+    }
+
+    @ConfineMetaClassChanges([TaskService])
+    void "process a task with the same task_id of a previous one for the same workflow"() {
+        given: "mock the task JSON processor to return a task with the same task_id of a previous one for the same workflow"
+        Workflow workflow = new DomainCreator().createWorkflow()
+        Task task1 = new DomainCreator().createTask(workflow: workflow)
+        Task task2 = new DomainCreator(failOnError: false).createTask(workflow: workflow, task_id: task1.task_id)
+        traceService.taskService.metaClass.processTaskJsonTrace { Map taskJson ->
+            task2
+        }
+
+        when: "process the task (we don't mind about the given JSON because the processor is mocked)"
+        Map result = traceService.processTaskTrace(null)
+
+        then: "the result indicates a successful processing"
+        result.traceType == TraceType.TASK
+        !result.entityId
+        result.error == "Can't submit a task which was already submitted"
     }
 
 

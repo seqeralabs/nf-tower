@@ -6,26 +6,19 @@ import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.RxHttpClient
 import io.micronaut.runtime.server.EmbeddedServer
 import io.micronaut.test.annotation.MicronautTest
-import org.testcontainers.containers.FixedHostPortGenericContainer
-import org.testcontainers.containers.wait.strategy.Wait
-import org.testcontainers.spock.Testcontainers
 import spock.lang.AutoCleanup
 import spock.lang.Shared
-import spock.lang.Specification
+import watchtower.service.pogo.enums.TaskStatus
 import watchtower.service.pogo.enums.TraceType
 import watchtower.service.pogo.enums.WorkflowStatus
+import watchtower.service.util.AbstractContainerBaseSpec
+import watchtower.service.util.DomainCreator
 import watchtower.service.util.TracesJsonBank
 
 import javax.inject.Inject
 
 @MicronautTest(packages = 'watchtower.service.domain')
-@Testcontainers
-class TraceControllerSpec extends Specification {
-
-    @Shared
-    FixedHostPortGenericContainer mongoDbContainer = new FixedHostPortGenericContainer("mongo:4.1")
-            .withFixedExposedPort(27018, 27017)
-            .waitingFor(Wait.forHttp('/'))
+class TraceControllerSpec extends AbstractContainerBaseSpec {
 
     @Inject
     EmbeddedServer embeddedServer
@@ -47,7 +40,7 @@ class TraceControllerSpec extends Specification {
     }
 
     void "save a new workflow given a start trace"() {
-        given: 'a workflow started JSON  trace'
+        given: 'a workflow started JSON trace'
         Map workflowStartedJsonTrace = TracesJsonBank.extractWorkflowJsonTrace(1, WorkflowStatus.STARTED)
 
         when: 'send a save request'
@@ -59,6 +52,25 @@ class TraceControllerSpec extends Specification {
         then: 'the workflow has been saved succesfully'
         response.status == HttpStatus.CREATED
         response.body().traceType == TraceType.WORKFLOW.toString()
+        response.body().entityId
+    }
+
+    void "save a new task given a submit trace"() {
+        given: 'a task submitted JSON trace'
+        Map taskSubmittedJsonTrace = TracesJsonBank.extractTaskJsonTrace(1, 1, TaskStatus.SUBMITTED)
+
+        and: 'a workflow associated with the task'
+        new DomainCreator().createWorkflow(runId: taskSubmittedJsonTrace.runId, runName: taskSubmittedJsonTrace.runName)
+
+        when: 'send a save request'
+        HttpResponse<Map> response = client.toBlocking().exchange(
+                HttpRequest.POST('/trace/save', taskSubmittedJsonTrace),
+                Map.class
+        )
+
+        then: 'the workflow has been saved succesfully'
+        response.status == HttpStatus.CREATED
+        response.body().traceType == TraceType.TASK.toString()
         response.body().entityId
     }
 
