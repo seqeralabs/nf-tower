@@ -9,3 +9,9 @@ Nextflow Tower system
 ## Running locally
 
     make run
+
+
+## Tower Mock Server 
+
+https://gist.github.com/pditommaso/847cac01446dc3bc57d7fe5d7a0227d1
+
