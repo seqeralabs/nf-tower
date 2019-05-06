@@ -2,6 +2,9 @@ package io.seqera.watchtower.service
 
 
 import grails.gorm.transactions.Transactional
+import groovy.transform.CompileDynamic
+import groovy.transform.TypeChecked
+import groovy.transform.TypeCheckingMode
 import io.seqera.watchtower.domain.Task
 import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.TaskTraceJsonUnmarshaller
@@ -26,6 +29,8 @@ class TaskService {
         taskStatus == TaskStatus.SUBMITTED ? createFromJson(taskJson) : updateFromJson(taskJson, taskStatus)
     }
 
+
+    @TypeChecked(value = TypeCheckingMode.SKIP)
     Task createFromJson(Map taskJson) {
         Workflow existingWorkflow = Workflow.findByRunIdAndRunName((String) taskJson.runId, (String) taskJson.runName)
         if (!existingWorkflow) {
@@ -39,6 +44,7 @@ class TaskService {
         newTask
     }
 
+    @TypeChecked(value = TypeCheckingMode.SKIP)
     Task updateFromJson(Map taskJson, TaskStatus taskStatus) {
         Workflow existingWorkflow = Workflow.findByRunIdAndRunName((String) taskJson.runId, (String) taskJson.runName)
         if (!existingWorkflow) {

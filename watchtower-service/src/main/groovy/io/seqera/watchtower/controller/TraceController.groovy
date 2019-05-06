@@ -1,7 +1,6 @@
 package io.seqera.watchtower.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
@@ -15,7 +14,6 @@ import io.seqera.watchtower.service.TraceService
 import javax.inject.Inject
 
 @Controller("/trace")
-@CompileStatic
 @Slf4j
 class TraceController {
 
