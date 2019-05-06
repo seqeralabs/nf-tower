@@ -42,10 +42,10 @@ class TraceServiceSpec extends AbstractContainerBaseSpec {
     }
 
     @ConfineMetaClassChanges([WorkflowService])
-    void "process a workflow trace to start a new workflow with the same runId+runName combination of a previous one"() {
-        given: "mock the workflow JSON processor to return a workflow with the same runId+runName combination as a previous one"
+    void "process a workflow trace to start a new workflow with the same sessionId+runName combination of a previous one"() {
+        given: "mock the workflow JSON processor to return a workflow with the same sessionId+runName combination as a previous one"
         Workflow workflow1 = new DomainCreator().createWorkflow()
-        Workflow workflow2 = new DomainCreator(failOnError: false).createWorkflow(runId: workflow1.runId, runName: workflow1.runName)
+        Workflow workflow2 = new DomainCreator(failOnError: false).createWorkflow(sessionId: workflow1.sessionId, runName: workflow1.runName)
         traceService.workflowService.metaClass.processWorkflowJsonTrace { Map workflowJson ->
             workflow2
         }
@@ -61,7 +61,7 @@ class TraceServiceSpec extends AbstractContainerBaseSpec {
 
     @ConfineMetaClassChanges([WorkflowService])
     void "process a workflow trace to start workflow without submitTime"() {
-        given: "mock the workflow JSON processor to return a workflow with the same runId+runName combination as a previous one"
+        given: "mock the workflow JSON processor to return a workflow without submitTime"
         Workflow workflow = new DomainCreator(failOnError: false).createWorkflow(submitTime: null)
         traceService.workflowService.metaClass.processWorkflowJsonTrace { Map workflowJson ->
             workflow
@@ -144,11 +144,11 @@ class TraceServiceSpec extends AbstractContainerBaseSpec {
     }
 
     @ConfineMetaClassChanges([TaskService])
-    void "process a task with the same task_id of a previous one for the same workflow"() {
-        given: "mock the task JSON processor to return a task with the same task_id of a previous one for the same workflow"
+    void "process a task with the same taskId of a previous one for the same workflow"() {
+        given: "mock the task JSON processor to return a task with the same taskId of a previous one for the same workflow"
         Workflow workflow = new DomainCreator().createWorkflow()
         Task task1 = new DomainCreator().createTask(workflow: workflow)
-        Task task2 = new DomainCreator(failOnError: false).createTask(workflow: workflow, task_id: task1.task_id)
+        Task task2 = new DomainCreator(failOnError: false).createTask(workflow: workflow, taskId: task1.taskId)
         traceService.taskService.metaClass.processTaskJsonTrace { Map taskJson ->
             task2
         }

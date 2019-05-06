@@ -10,17 +10,11 @@ import java.time.Instant
 class WorkflowTraceJsonUnmarshaller {
 
     static WorkflowStatus identifyWorflowStatus(Map workflowJson) {
-        WorkflowStatus workflowStatus = null
-
-        if (workflowJson.event == 'started') {
-            workflowStatus = workflowJson.metadata['workflow']['resume'] ? WorkflowStatus.RESUMED : WorkflowStatus.STARTED
-        } else if (workflowJson.event == 'completed') {
-            workflowStatus = workflowJson.metadata['workflow']['success'] ? WorkflowStatus.SUCCEEDED : WorkflowStatus.FAILED
-        } else if (workflowJson.event == 'paused') {
-            workflowStatus = WorkflowStatus.PAUSED
+        if (workflowJson.workflow['workflowId']) {
+            workflowJson.workflow['complete'] ? (workflowJson.workflow['success'] ? WorkflowStatus.SUCCEEDED : WorkflowStatus.FAILED) : (workflowJson.workflow['resume'] ? WorkflowStatus.RESUMED : WorkflowStatus.PAUSED)
+        } else {
+            WorkflowStatus.STARTED
         }
-
-        workflowStatus
     }
 
     @CompileDynamic
@@ -29,23 +23,8 @@ class WorkflowTraceJsonUnmarshaller {
         workflowJson.each { String k, def v ->
             if (k == 'utcTime') {
                 populateStatusTimestamp((String) v, workflowStatus, workflow)
-            } else if (k == 'metadata') {
-                populateMetaData((Map<String, Object>) v, workflow)
-            } else {
-                workflow[k] = v
-            }
-        }
-    }
-
-    @CompileDynamic
-    private static void populateMetaData(Map<String, Object> workflowMetaData, Workflow workflow) {
-        workflowMetaData.each { String k, def v ->
-            if (k == 'parameters') {
-                workflow.parameters = new ObjectMapper().writeValueAsString(v)
             } else if (k == 'workflow') {
                 populateMainData((Map<String, Object>) v, workflow)
-            } else {
-                workflow[k] = v
             }
         }
     }
@@ -53,7 +32,9 @@ class WorkflowTraceJsonUnmarshaller {
     @CompileDynamic
     private static void populateMainData(Map<String, Object> workflowMainData, Workflow workflow) {
         workflowMainData.each { String k, def v ->
-            if (k == 'manifest') {
+            if (k == 'params') {
+                workflow.params = new ObjectMapper().writeValueAsString(v)
+            } else if (k == 'manifest') {
                 workflowMainData[k].each { String manifestPropertyKey, def manifestPropertyValue ->
                     workflow["manifest${manifestPropertyKey.capitalize()}"] = manifestPropertyValue
                 }
@@ -67,10 +48,14 @@ class WorkflowTraceJsonUnmarshaller {
                 }
             } else if (k == 'configFiles') {
                 workflow[k] = new ObjectMapper().writeValueAsString(v)
-            } else {
+            } else if (!isIgnoredField(k)) {
                 workflow[k] = v
             }
         }
+    }
+
+    private static boolean isIgnoredField(String key) {
+        key == 'workflowId'
     }
 
     private static void populateStatusTimestamp(String timestamp, WorkflowStatus workflowStatus, Workflow workflow) {

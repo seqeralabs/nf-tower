@@ -24,7 +24,7 @@ class WorkflowServiceSpec extends AbstractContainerBaseSpec {
 
     void "start a workflow given a started trace"() {
         given: "a workflow JSON started trace"
-        Map workflowTraceJson = TracesJsonBank.extractWorkflowJsonTrace(1, WorkflowStatus.STARTED)
+        Map workflowTraceJson = TracesJsonBank.extractWorkflowJsonTrace(1, null, WorkflowStatus.STARTED)
 
         when: "unmarshall the JSON to a workflow"
         Workflow workflow
@@ -42,10 +42,7 @@ class WorkflowServiceSpec extends AbstractContainerBaseSpec {
 
     void "start a workflow given a started trace, then complete the workflow given a succeeded trace"() {
         given: "a workflow JSON started trace"
-        Map workflowStartedTraceJson = TracesJsonBank.extractWorkflowJsonTrace(1, WorkflowStatus.STARTED)
-
-        and: 'a workflow completed trace'
-        Map workflowSucceededTraceJson = TracesJsonBank.extractWorkflowJsonTrace(1, WorkflowStatus.SUCCEEDED)
+        Map workflowStartedTraceJson = TracesJsonBank.extractWorkflowJsonTrace(1, null, WorkflowStatus.STARTED)
 
         when: "unmarshall the JSON to a workflow"
         Workflow workflowStarted
@@ -59,7 +56,8 @@ class WorkflowServiceSpec extends AbstractContainerBaseSpec {
         workflowStarted.submitTime
         !workflowStarted.completeTime
 
-        when: "unmarshall the succeeded JSON to a workflow"
+        when: "given a workflow succeeded trace, unmarshall the succeeded JSON to a workflow"
+        Map workflowSucceededTraceJson = TracesJsonBank.extractWorkflowJsonTrace(1, workflowStarted.id, WorkflowStatus.SUCCEEDED)
         Workflow workflowSucceeded
         Workflow.withNewTransaction {
             workflowSucceeded = workflowService.processWorkflowJsonTrace(workflowSucceededTraceJson)
@@ -75,10 +73,7 @@ class WorkflowServiceSpec extends AbstractContainerBaseSpec {
 
     void "start a workflow given a started trace, then complete the workflow given a failed trace"() {
         given: "a workflow JSON started trace"
-        Map workflowStartedTraceJson = TracesJsonBank.extractWorkflowJsonTrace(1, WorkflowStatus.STARTED)
-
-        and: 'a workflow completed trace'
-        Map workflowFailedTraceJson = TracesJsonBank.extractWorkflowJsonTrace(1, WorkflowStatus.FAILED)
+        Map workflowStartedTraceJson = TracesJsonBank.extractWorkflowJsonTrace(1, null, WorkflowStatus.STARTED)
 
         when: "unmarshall the JSON to a workflow"
         Workflow workflowStarted
@@ -93,7 +88,8 @@ class WorkflowServiceSpec extends AbstractContainerBaseSpec {
         !workflowStarted.completeTime
         Workflow.count() == 1
 
-        when: "unmarshall the failed JSON to a workflow"
+        when: "given a workflow failed trace, unmarshall the failed JSON to a workflow"
+        Map workflowFailedTraceJson = TracesJsonBank.extractWorkflowJsonTrace(1, workflowStarted.id, WorkflowStatus.FAILED)
         Workflow workflowFailed
         Workflow.withNewTransaction {
             workflowFailed = workflowService.processWorkflowJsonTrace(workflowFailedTraceJson)
@@ -109,10 +105,7 @@ class WorkflowServiceSpec extends AbstractContainerBaseSpec {
 
     void "start a workflow given a started trace, then try to start the same one"() {
         given: "a workflow JSON started trace"
-        Map workflowStarted1TraceJson = TracesJsonBank.extractWorkflowJsonTrace(1, WorkflowStatus.STARTED)
-
-        and: 'a workflow completed trace'
-        Map workflowStarted2TraceJson = TracesJsonBank.extractWorkflowJsonTrace(1, WorkflowStatus.STARTED)
+        Map workflowStarted1TraceJson = TracesJsonBank.extractWorkflowJsonTrace(1, null, WorkflowStatus.STARTED)
 
         when: "unmarshall the JSON to a workflow"
         Workflow workflowStarted1
@@ -127,20 +120,24 @@ class WorkflowServiceSpec extends AbstractContainerBaseSpec {
         !workflowStarted1.completeTime
         Workflow.count() == 1
 
-        when: "unmarshall the started JSON to a second workflow"
+        when: "given a workflow started trace with the same workflowId, unmarshall the started JSON to a second workflow"
+        Map workflowStarted2TraceJson = TracesJsonBank.extractWorkflowJsonTrace(1, workflowStarted1.id, WorkflowStatus.STARTED)
         Workflow workflowStarted2
         Workflow.withNewTransaction {
             workflowStarted2 = workflowService.processWorkflowJsonTrace(workflowStarted2TraceJson)
         }
 
-        then: "the workflow can't be saved because a workflow with the same runId and runName already exists"
-        workflowStarted2.hasErrors()
-        workflowStarted2.errors.getFieldError('runId')
+        then: "the workflow status is treated as a pause, so the data is updated"
+        workflowStarted1.id == workflowStarted2.id
+        workflowStarted1.currentStatus == WorkflowStatus.PAUSED
+        workflowStarted1.submitTime
+        !workflowStarted1.completeTime
+        Workflow.count() == 1
     }
 
-    void "receive a succeeded trace without receiving a previous started trace"() {
+    void "receive a succeeded trace for a non existing workflow"() {
         given: "a workflow JSON started trace"
-        Map workflowSucceededTraceJson = TracesJsonBank.extractWorkflowJsonTrace(1, WorkflowStatus.SUCCEEDED)
+        Map workflowSucceededTraceJson = TracesJsonBank.extractWorkflowJsonTrace(1, 123, WorkflowStatus.SUCCEEDED)
 
         when: "unmarshall the JSON to a workflow"
         Workflow workflowSucceeded

@@ -20,7 +20,7 @@ class DomainCreator {
     }
 
     Workflow createWorkflow(Map fields = [:]) {
-        fields.runId = fields.containsKey('runId') ? fields.runId : "35cce421-4712-4da5-856b-6557635e54${generateUniqueNamePart()}d".toString()
+        fields.sessionId = fields.containsKey('sessionId') ? fields.sessionId : "35cce421-4712-4da5-856b-6557635e54${generateUniqueNamePart()}d".toString()
         fields.runName = fields.containsKey('runName') ? fields.runName : "astonishing_majorana${generateUniqueNamePart()}".toString()
         fields.currentStatus = fields.containsKey('currentStatus') ? fields.currentStatus : WorkflowStatus.STARTED
         fields.submitTime = fields.containsKey('submitTime') ? fields.submitTime : Instant.now()
@@ -31,7 +31,7 @@ class DomainCreator {
 
     Task createTask(Map fields = [:]) {
         fields.workflow = fields.containsKey('workflow') ? fields.workflow : createWorkflow()
-        fields.task_id = fields.containsKey('task_id') ? fields.task_id : 1
+        fields.taskId = fields.containsKey('taskId') ? fields.taskId : 1
         fields.name = fields.containsKey('name') ? fields.name : "taskName_${generateUniqueNamePart()}"
         fields.hash = fields.containsKey('hash') ? fields.hash : "taskHash_${generateUniqueNamePart()}"
         fields.currentStatus = fields.containsKey('currentStatus') ? fields.currentStatus : TaskStatus.SUBMITTED

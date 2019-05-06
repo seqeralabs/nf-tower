@@ -23,7 +23,7 @@ class Workflow {
     Instant completeTime
 
     //Multi-value fields (JSON encoded)
-    String parameters
+    String params
     String configFiles
     //Manifest fields
     String manifestNextflowVersion
@@ -41,7 +41,7 @@ class Workflow {
     String nextflowTimestamp
 
     //Identification fields
-    String runId
+    String sessionId
     String runName
     //Miscellaneous
     String complete
@@ -56,7 +56,6 @@ class Workflow {
     String userName
     String launchDir
     String projectDir
-    String sessionId
     String scriptId
     String revision
     String commandLine
@@ -90,10 +89,10 @@ class Workflow {
     }
 
     static constraints = {
-        runId(unique: 'runName')
+        sessionId(unique: 'runName')
 
         completeTime(nullable: true)
-        parameters(nullable: true)
+        params(nullable: true)
         configFiles(nullable: true)
         manifestNextflowVersion(nullable: true)
         manifestDefaultBranch(nullable: true)
@@ -119,7 +118,6 @@ class Workflow {
         userName(nullable: true)
         launchDir(nullable: true)
         projectDir(nullable: true)
-        sessionId(nullable: true)
         scriptId(nullable: true)
         revision(nullable: true)
         commandLine(nullable: true)
