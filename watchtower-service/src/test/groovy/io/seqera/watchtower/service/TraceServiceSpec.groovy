@@ -140,7 +140,7 @@ class TraceServiceSpec extends AbstractContainerBaseSpec {
         when: "process the task (we don't mind about the given JSON because the processor is mocked)"
         Map result = traceService.processTaskTrace(null)
 
-        then: "the result indicates a successful processing"
+        then: "the result indicates a failed processing"
         result.traceType == TraceType.TASK
         !result.entityId
         result.error == "Can't save a task without taskId"
