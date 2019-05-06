@@ -4,4 +4,4 @@ build:
 	docker build -t watchtower-gui:latest watchtower-gui/
 
 run:
-	docker-compose up
+	docker-compose up --build
