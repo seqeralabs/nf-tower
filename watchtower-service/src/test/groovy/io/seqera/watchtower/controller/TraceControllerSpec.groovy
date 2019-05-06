@@ -44,7 +44,7 @@ class TraceControllerSpec extends AbstractContainerBaseSpec {
 
     void "save a new workflow given a start trace"() {
         given: 'a workflow started JSON trace'
-        Map workflowStartedJsonTrace = TracesJsonBank.extractWorkflowJsonTrace(1, WorkflowStatus.STARTED)
+        Map workflowStartedJsonTrace = TracesJsonBank.extractWorkflowJsonTrace(1, null, WorkflowStatus.STARTED)
 
         when: 'send a save request'
         HttpResponse<Map> response = client.toBlocking().exchange(
@@ -62,11 +62,11 @@ class TraceControllerSpec extends AbstractContainerBaseSpec {
     }
 
     void "save a new task given a submit trace"() {
-        given: 'a task submitted JSON trace'
-        Map taskSubmittedJsonTrace = TracesJsonBank.extractTaskJsonTrace(1, 1, TaskStatus.SUBMITTED)
+        given: 'a workflow'
+        Workflow workflow = new DomainCreator().createWorkflow()
 
-        and: 'a workflow associated with the task'
-        new DomainCreator().createWorkflow(runId: taskSubmittedJsonTrace.runId, runName: taskSubmittedJsonTrace.runName)
+        and: 'a task submitted JSON trace'
+        Map taskSubmittedJsonTrace = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskStatus.SUBMITTED)
 
         when: 'send a save request'
         HttpResponse<Map> response = client.toBlocking().exchange(

@@ -1,30 +1,38 @@
 {
-  "trace": {
-    "task_id": 1,
+  "task": {
+    "taskId": 1,
     "status": "RUNNING",
-    "hash": "6c/8001bb",
-    "name": "index (ggal_1_48850000_49020000)",
+    "hash": "2e/a112fb",
+    "name": "sayHello (2)",
     "exit": 2147483647,
-    "submit": 1556011733493,
-    "start": 1556011733534,
-    "process": "index",
-    "tag": "ggal_1_48850000_49020000",
-    "module": [],
-    "container": "nextflow/rnaseq-nf@sha256:e221e2511abb89a0cf8c32f6cd9b125fbfeb7f7c386a1f49299f48d7735faacd",
+    "submit": 1557137060558,
+    "start": 1557137060587,
+    "process": "sayHello",
+    "tag": null,
+    "module": [
+
+    ],
+    "container": "nextflow/bash",
     "attempt": 1,
-    "script": "\n    salmon index --threads 1 -t ggal_1_48850000_49020000.Ggal71.500bpflank.fa -i index\n    ",
+    "script": "\n    echo 'Ciao world!'\n    ",
     "scratch": null,
-    "workdir": "/Users/pditommaso/Projects/nextflow/work/6c/8001bb0bafaa9dd14af01aae92f2be",
+    "workdir": "/home/salenda/Programs/nextflow/work/2e/a112fb713ff5adc7ec71a8f1a90153",
     "queue": null,
     "cpus": 1,
     "memory": null,
     "disk": null,
     "time": null,
     "env": null,
-    "native_id": 26849
+    "nativeId": 28417,
+    "workflowId": "12345"
   },
-  "runId": "a36c5f5b-e0bd-4d83-9225-1a6e73930d7b",
-  "event": "process_started",
-  "runName": "hopeful_swartz",
-  "utcTime": "2019-04-23T09:28:53Z"
+  "utcTime": "2019-05-06T10:04:20Z",
+  "progress": {
+    "running": 1,
+    "submitted": 2,
+    "failed": 0,
+    "pending": 1,
+    "succeeded": 0,
+    "cached": 0
+  }
 }

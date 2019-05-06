@@ -1,77 +1,62 @@
 {
-  "metadata": {
-    "parameters": {
-      "foo": "Hello",
-      "bar": "world"
+  "workflow": {
+    "start": "2019-05-06T10:04:20Z",
+    "projectDir": "/home/salenda/.nextflow/assets/nextflow-io/hello",
+    "manifest": {
+      "nextflowVersion": null,
+      "defaultBranch": "master",
+      "version": null,
+      "homePage": null,
+      "gitmodules": null,
+      "description": null,
+      "name": null,
+      "mainScript": "main.nf",
+      "author": null
     },
-    "workflow": {
-      "start": "2019-04-23T09:28:52Z",
-      "projectDir": "/Users/pditommaso/.nextflow/assets/nextflow-io/rnaseq-nf",
-      "manifest": {
-        "nextflowVersion": null,
-        "defaultBranch": "master",
-        "version": null,
-        "homePage": null,
-        "gitmodules": null,
-        "description": "Proof of concept of a RNA-seq pipeline implemented with Nextflow",
-        "name": null,
-        "mainScript": "main.nf",
-        "author": "Paolo Di Tommaso"
-      },
-      "complete": null,
-      "profile": "standard",
-      "homeDir": "/Users/pditommaso",
-      "workDir": "/Users/pditommaso/Projects/nextflow/work",
-      "container": "nextflow/rnaseq-nf@sha256:e221e2511abb89a0cf8c32f6cd9b125fbfeb7f7c386a1f49299f48d7735faacd",
-      "commitId": "b9aefc67b461aa920bcb7c841ec3527dc192e8d1",
-      "errorMessage": null,
-      "repository": "https://github.com/nextflow-io/rnaseq-nf.git",
-      "containerEngine": "docker",
-      "scriptFile": "/Users/pditommaso/.nextflow/assets/nextflow-io/rnaseq-nf/main.nf",
-      "userName": "pditommaso",
-      "launchDir": "/Users/pditommaso/Projects/nextflow",
-      "runName": "hopeful_swartz",
-      "configFiles": [
-        "/Users/pditommaso/.nextflow/config",
-        "/Users/pditommaso/.nextflow/assets/nextflow-io/rnaseq-nf/nextflow.config"
-      ],
-      "sessionId": "a36c5f5b-e0bd-4d83-9225-1a6e73930d7b",
-      "errorReport": null,
-      "scriptId": "eb9157ac2ddd358cd8ebf7cecce8c3eb",
-      "revision": "master",
-      "exitStatus": null,
-      "commandLine": "nextflow run rnaseq-nf -with-docker --foo Hello --bar world -with-weblog 'http://localhost:8500'",
-      "nextflow": {
-        "version": "19.04.0",
-        "build": 5069,
-        "timestamp": "2019-04-17T06:25:42Z"
-      },
-      "stats": {
-        "computeTimeFmt": "(a few seconds)",
-        "cachedCount": 0,
-        "cachedDuration": 0,
-        "failedDuration": 0,
-        "succeedDuration": 0,
-        "failedCount": 0,
-        "cachedPct": 0.0,
-        "cachedCountFmt": "0",
-        "succeedCountFmt": "0",
-        "failedPct": 0.0,
-        "failedCountFmt": "0",
-        "ignoredCountFmt": "0",
-        "ignoredCount": 0,
-        "succeedPct": 0.0,
-        "succeedCount": 0,
-        "ignoredPct": 0.0
-      },
-      "resume": false,
-      "success": false,
-      "scriptName": "main.nf",
-      "duration": null
-    }
+    "complete": null,
+    "profile": "standard",
+    "homeDir": "/home/salenda",
+    "workDir": "/home/salenda/Programs/nextflow/work",
+    "container": "nextflow/bash",
+    "commitId": "a9012339ce857d6ec7a078281813d8a93645a3e7",
+    "errorMessage": null,
+    "repository": "https://github.com/nextflow-io/hello.git",
+    "containerEngine": null,
+    "scriptFile": "/home/salenda/.nextflow/assets/nextflow-io/hello/main.nf",
+    "userName": "salenda",
+    "launchDir": "/home/salenda/Programs/nextflow",
+    "runName": "prickly_brenner",
+    "configFiles": [
+      "/home/salenda/.nextflow/assets/nextflow-io/hello/nextflow.config"
+    ],
+    "sessionId": "f56b8b10-b044-4d42-a7a3-769026f62283",
+    "errorReport": null,
+    "scriptId": "537c2298d228991eb8a3f7dc1001816f",
+    "revision": "master",
+    "exitStatus": null,
+    "commandLine": "./nextflow-19.05.0-TOWER-all run hello -with-tower",
+    "nextflow": {
+      "version": "19.05.0-TOWER",
+      "build": 5078,
+      "timestamp": "2019-05-05T16:30:00Z"
+    },
+    "resume": false,
+    "success": false,
+    "projectName": "nextflow-io/hello",
+    "scriptName": "main.nf",
+    "duration": null,
+    "params": {
+
+    },
+    "workflowId": null
   },
-  "runId": "a36c5f5b-e0bd-4d83-9225-1a6e73930d7b",
-  "event": "started",
-  "runName": "hopeful_swartz",
-  "utcTime": "2019-04-23T09:28:52Z"
+  "utcTime": "2019-05-06T10:04:20Z",
+  "progress": {
+    "running": 0,
+    "submitted": 0,
+    "failed": 0,
+    "pending": 0,
+    "succeeded": 0,
+    "cached": 0
+  }
 }

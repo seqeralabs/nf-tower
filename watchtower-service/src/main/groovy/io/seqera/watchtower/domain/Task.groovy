@@ -19,7 +19,7 @@ class Task {
     /**
      * The order of the task in the workflow
      */
-    Long task_id
+    Long taskId
     String hash
     String name
     String process
@@ -47,28 +47,28 @@ class Task {
     String env
 
 
-    String error_action
+    String errorAction
 
     Long exit
     Long duration
     Long realtime
-    Long native_id
+    Long nativeId
 
     Double cpuPercentage
     Double memPercentage
     Long rss
     Long vmem
-    Long peak_rss
-    Long peak_vmem
+    Long peakRss
+    Long peakVmem
     Long rchar
     Long wchar
     Long syscr
     Long syscw
-    Long read_bytes
-    Long write_bytes
+    Long readBytes
+    Long writeBytes
 
-    Long vol_ctxt
-    Long inv_ctxt
+    Long volCtxt
+    Long invCtxt
 
 
     static mapping = {
@@ -76,7 +76,7 @@ class Task {
     }
 
     static constraints = {
-        task_id(unique: 'workflow')
+        taskId(unique: 'workflow')
 
         workflow(nullable: true)
         process(nullable: true)
@@ -97,24 +97,24 @@ class Task {
         disk(nullable: true)
         time(nullable: true)
         env(nullable: true)
-        error_action(nullable: true)
+        errorAction(nullable: true)
         duration(nullable: true)
         realtime(nullable: true)
-        native_id(nullable: true)
+        nativeId(nullable: true)
         cpuPercentage(nullable: true)
         memPercentage(nullable: true)
         rss(nullable: true)
         vmem(nullable: true)
-        peak_rss(nullable: true)
-        peak_vmem(nullable: true)
+        peakRss(nullable: true)
+        peakVmem(nullable: true)
         rchar(nullable: true)
         wchar(nullable: true)
         syscr(nullable: true)
         syscw(nullable: true)
-        read_bytes(nullable: true)
-        write_bytes(nullable: true)
-        vol_ctxt(nullable: true)
-        inv_ctxt(nullable: true)
+        readBytes(nullable: true)
+        writeBytes(nullable: true)
+        volCtxt(nullable: true)
+        invCtxt(nullable: true)
     }
 
 }

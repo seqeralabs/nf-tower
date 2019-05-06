@@ -78,7 +78,7 @@ class TraceService {
         if (workflow.errors.getFieldError('submitTime') || workflow.errors.getFieldError('startTime')) {
             return "Can't complete a non-existing workflow"
         }
-        if (workflow.errors.getFieldError('runId') ) {
+        if (workflow.errors.getFieldError('sessionId') ) {
             return "Can't start an existing workflow"
         }
     }
@@ -90,13 +90,13 @@ class TraceService {
         if (task.errors.getFieldError('submitTime')) {
             return "Can't start or complete a non-existing task"
         }
-        if (task.errors.getFieldError('task_id') ) {
+        if (task.errors.getFieldError('taskId') ) {
             return "Can't submit a task which was already submitted"
         }
     }
 
     private static TraceType identifyTrace(Map<String, Object> traceJson) {
-        traceJson.trace ? TraceType.TASK : TraceType.WORKFLOW
+        traceJson.workflow ? TraceType.WORKFLOW : traceJson.task ? TraceType.TASK : null
     }
 
 }
