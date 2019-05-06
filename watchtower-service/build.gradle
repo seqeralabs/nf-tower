@@ -58,6 +58,9 @@ tasks.withType(GroovyCompile) {
     groovyOptions.forkOptions.jvmArgs.add('-Dgroovy.parameters=true')
 }
 
+//Only for the main (not test) source set
+compileGroovy.groovyOptions.configurationScript = file('src/groovyCompile/groovycConfig.groovy')
+
 shadowJar {
     mergeServiceFiles()
 }

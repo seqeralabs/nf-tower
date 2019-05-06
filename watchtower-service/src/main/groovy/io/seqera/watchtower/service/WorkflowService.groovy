@@ -1,9 +1,7 @@
 package io.seqera.watchtower.service
 
-import grails.gorm.services.Service
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
-import groovy.transform.CompileStatic
 import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.WorkflowTraceJsonUnmarshaller
 import io.seqera.watchtower.pogo.enums.WorkflowStatus
@@ -13,7 +11,6 @@ import javax.inject.Singleton
 
 @Transactional
 @Singleton
-@CompileStatic
 class WorkflowService {
 
     @CompileDynamic

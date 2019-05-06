@@ -2,13 +2,11 @@ package io.seqera.watchtower.pogo
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import groovy.transform.CompileDynamic
-import groovy.transform.CompileStatic
 import io.seqera.watchtower.domain.Task
 import io.seqera.watchtower.pogo.enums.TaskStatus
 
 import java.time.Instant
 
-@CompileStatic
 class TaskTraceJsonUnmarshaller {
 
     static TaskStatus identifyTaskStatus(Map workflowJson) {
