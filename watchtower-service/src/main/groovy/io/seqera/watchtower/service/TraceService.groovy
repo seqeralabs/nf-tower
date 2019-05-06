@@ -1,5 +1,6 @@
 package io.seqera.watchtower.service
 
+import groovy.transform.CompileDynamic
 import io.seqera.watchtower.domain.Task
 import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.enums.TraceType
@@ -10,6 +11,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
+@CompileDynamic
 class TraceService {
 
     @Inject

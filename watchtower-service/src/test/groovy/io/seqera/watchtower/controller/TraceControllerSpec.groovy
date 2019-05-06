@@ -54,7 +54,7 @@ class TraceControllerSpec extends AbstractContainerBaseSpec {
 
         then: 'the workflow has been saved succesfully'
         response.status == HttpStatus.CREATED
-        response.body().traceType == TraceType.WORKFLOW.toString()
+        response.body().traceType == TraceType.WORKFLOW.name()
         response.body().entityId
 
         and: 'the workflow is in the database'
@@ -76,7 +76,7 @@ class TraceControllerSpec extends AbstractContainerBaseSpec {
 
         then: 'the task has been saved succesfully'
         response.status == HttpStatus.CREATED
-        response.body().traceType == TraceType.TASK.toString()
+        response.body().traceType == TraceType.TASK.name()
         response.body().entityId
 
         and: 'the task is in the database'

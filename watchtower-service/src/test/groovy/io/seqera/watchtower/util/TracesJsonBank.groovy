@@ -9,7 +9,7 @@ class TracesJsonBank {
     private final static RESOURCES_DIR_PATH = 'src/test/resources'
 
     static Map extractWorkflowJsonTrace(Integer workflowOrder, Long workflowId, WorkflowStatus workflowStatus) {
-        String fileRelativePath = "workflow_${workflowOrder}/workflow_${workflowStatus.toString().toLowerCase()}.json"
+        String fileRelativePath = "workflow_${workflowOrder}/workflow_${workflowStatus.name().toLowerCase()}.json"
         File jsonFile = new File("${RESOURCES_DIR_PATH}/${fileRelativePath}")
 
         Map jsonTrace = new ObjectMapper().readValue(jsonFile, HashMap.class)
@@ -19,7 +19,7 @@ class TracesJsonBank {
     }
 
     static Map extractTaskJsonTrace(Integer workflowOrder, Integer taskOrder, Long workflowId, TaskStatus taskStatus) {
-        String fileRelativePath = "workflow_${workflowOrder}/task_${taskOrder}_${taskStatus.toString().toLowerCase()}.json"
+        String fileRelativePath = "workflow_${workflowOrder}/task_${taskOrder}_${taskStatus.name().toLowerCase()}.json"
         File jsonFile = new File("${RESOURCES_DIR_PATH}/${fileRelativePath}")
 
         Map jsonTrace = new ObjectMapper().readValue(jsonFile, HashMap.class)
