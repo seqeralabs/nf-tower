@@ -13,11 +13,6 @@ import javax.inject.Singleton
 @Singleton
 class WorkflowService {
 
-    @CompileDynamic
-    Workflow get(String runId, String runName) {
-        Workflow.findByRunIdAndRunName(runId, runName)
-    }
-
     Workflow processWorkflowJsonTrace(Map workflowJson) {
         WorkflowStatus workflowStatus = WorkflowTraceJsonUnmarshaller.identifyWorflowStatus(workflowJson)
 
