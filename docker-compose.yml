@@ -9,7 +9,8 @@ services:
       - 27017:27017
 
   backend:
-    image: watchtower-service:latest
+    build: ./watchtower-service
+#    image: watchtower-service:latest
     networks:
       - frontend
       - backend
@@ -20,7 +21,8 @@ services:
       MONGO_PORT: 27017
 
   frontend:
-    image: watchtower-gui:latest
+    build: ./watchtower-gui
+#    image: watchtower-gui:latest
     networks:
       - frontend
     ports:
