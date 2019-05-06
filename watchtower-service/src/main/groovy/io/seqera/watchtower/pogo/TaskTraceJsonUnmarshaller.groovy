@@ -38,7 +38,7 @@ class TaskTraceJsonUnmarshaller {
     }
 
     private static boolean isIgnoredField(String key, Task task) {
-        !task.hasProperty(key) || key == 'workflowId'
+        !task.hasProperty(key) || (key == 'workflowId')
     }
 
 }
