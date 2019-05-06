@@ -12,7 +12,7 @@ phases:
 
   build:
     commands:
-      - "./gradlew assemble"
+      - "./gradlew check assemble"
       - "docker build -t watchtower-service:latest watchtower-service/"
       - "docker tag watchtower-service:latest 195996028523.dkr.ecr.eu-west-1.amazonaws.com/nf-tower/watchtower-service:latest"
       - "docker build -t watchtower-gui:latest watchtower-gui/"
