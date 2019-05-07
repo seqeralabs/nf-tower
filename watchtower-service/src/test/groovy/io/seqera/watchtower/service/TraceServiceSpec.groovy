@@ -47,7 +47,7 @@ class TraceServiceSpec extends AbstractContainerBaseSpec {
         !result.error
     }
 
-    void "process a workflow trace to start a new workflow with the same sessionId+runName combination of a previous one"() {
+    void "process a workflow trace to try to start a new workflow with the same sessionId+runName combination of a previous one"() {
         given: "mock the workflow JSON processor to return a workflow with the same sessionId+runName combination as a previous one"
         Workflow workflow1 = new DomainCreator().createWorkflow()
         Workflow workflow2 = new DomainCreator(failOnError: false).createWorkflow(sessionId: workflow1.sessionId, runName: workflow1.runName)
@@ -62,7 +62,7 @@ class TraceServiceSpec extends AbstractContainerBaseSpec {
         !result.entityId
     }
 
-    void "process a workflow trace to start workflow without submitTime"() {
+    void "process a workflow trace to try to start workflow without submitTime"() {
         given: "mock the workflow JSON processor to return a workflow without submitTime"
         Workflow workflow = new DomainCreator(failOnError: false).createWorkflow(submitTime: null)
         workflowService.processWorkflowJsonTrace(_) >> workflow
@@ -72,7 +72,21 @@ class TraceServiceSpec extends AbstractContainerBaseSpec {
 
         then: "the result indicates an error"
         result.traceType == TraceType.WORKFLOW
-        result.error == "Can't save a workflow without startTime"
+        result.error.startsWith("Can't save a workflow without") && (result.error.endsWith("startTime") || result.error.endsWith("submitTime"))
+        !result.entityId
+    }
+
+    void "process a workflow trace to try to start workflow without progress summary"() {
+        given: "mock the workflow JSON processor to return a workflow without submitTime"
+        Workflow workflow = new DomainCreator(failOnError: false).createWorkflow(progressSummary: null)
+        workflowService.processWorkflowJsonTrace(_) >> workflow
+
+        when: "process the workflow (we don't mind about the given JSON because the processor is mocked)"
+        Map result = traceService.processWorkflowTrace(null)
+
+        then: "the result indicates an error"
+        result.traceType == TraceType.WORKFLOW
+        result.error == "Can't save a workflow without progressSummary"
         !result.entityId
     }
 
@@ -117,7 +131,7 @@ class TraceServiceSpec extends AbstractContainerBaseSpec {
         !result.error
     }
 
-    void "process a task without submit time"() {
+    void "process a task trace to try to submit a task without submit time"() {
         given: "mock the task JSON processor to return a task without submit time"
         Task task = new DomainCreator(failOnError: false).createTask(submitTime: null)
         taskService.processTaskJsonTrace(_) >> task
@@ -131,7 +145,7 @@ class TraceServiceSpec extends AbstractContainerBaseSpec {
         result.error == "Can't save a task without submitTime"
     }
 
-    void "process a task without task id"() {
+    void "process a task task trace to try to submit a task without taskId"() {
         given: "mock the task JSON processor to return a task without taskId"
         Workflow workflow = new DomainCreator().createWorkflow()
         Task task = new DomainCreator(failOnError: false).createTask(workflow: workflow, taskId: null)
@@ -146,7 +160,7 @@ class TraceServiceSpec extends AbstractContainerBaseSpec {
         result.error == "Can't save a task without taskId"
     }
 
-    void "process a task with the same taskId of a previous one for the same workflow"() {
+    void "process a task trace to try to submit a task with the same taskId of a previous one for the same workflow"() {
         given: "mock the task JSON processor to return a task with the same taskId of a previous one for the same workflow"
         Workflow workflow = new DomainCreator().createWorkflow()
         Task task1 = new DomainCreator().createTask(workflow: workflow)

@@ -1,8 +1,9 @@
 package io.seqera.watchtower.service
 
-
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.watchtower.Application
+import io.seqera.watchtower.domain.MagnitudeSummary
+import io.seqera.watchtower.domain.ProgressSummary
 import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.enums.WorkflowStatus
 import io.seqera.watchtower.pogo.exceptions.NonExistingWorkflowException
@@ -34,6 +35,10 @@ class WorkflowServiceSpec extends AbstractContainerBaseSpec {
         workflow.submitTime
         !workflow.completeTime
         Workflow.count() == 1
+
+        and: "the workflow has an associated progress object"
+        workflow.progressSummary.id
+        ProgressSummary.count() == 1
     }
 
     void "start a workflow given a started trace, then complete the workflow given a succeeded trace"() {
@@ -65,6 +70,12 @@ class WorkflowServiceSpec extends AbstractContainerBaseSpec {
         workflowSucceeded.submitTime
         workflowSucceeded.completeTime
         Workflow.count() == 1
+
+        and: "there is summary info"
+        workflowSucceeded.magnitudeSummaries.size() == 5
+        workflowSucceeded.magnitudeSummaries.taskLabel.every { it == 'sayHello' }
+        workflowSucceeded.magnitudeSummaries.name as Set == ['cpu', 'time', 'reads', 'writes', 'cpuUsage'] as Set
+        MagnitudeSummary.count() == 5
     }
 
     void "start a workflow given a started trace, then complete the workflow given a failed trace"() {
@@ -97,6 +108,12 @@ class WorkflowServiceSpec extends AbstractContainerBaseSpec {
         workflowFailed.submitTime
         workflowFailed.completeTime
         Workflow.count() == 1
+
+        and: "there is summary info"
+        workflowFailed.magnitudeSummaries.size() == 5
+        workflowFailed.magnitudeSummaries.taskLabel.every { it == 'sayHello' }
+        workflowFailed.magnitudeSummaries.name as Set == ['cpu', 'time', 'reads', 'writes', 'cpuUsage'] as Set
+        MagnitudeSummary.count() == 5
     }
 
     void "start a workflow given a started trace, then try to start the same one"() {
@@ -131,7 +148,7 @@ class WorkflowServiceSpec extends AbstractContainerBaseSpec {
         Workflow.count() == 1
     }
 
-    void "try to start a workflow without sessionId"() {
+    void "try to start a workflow given a started trace without sessionId"() {
         given: "a workflow JSON started trace without sessionId"
         Map workflowStartedTraceJson = TracesJsonBank.extractWorkflowJsonTrace(1, null, WorkflowStatus.STARTED)
         workflowStartedTraceJson.workflow.sessionId = null
@@ -148,7 +165,7 @@ class WorkflowServiceSpec extends AbstractContainerBaseSpec {
         Workflow.count() == 0
     }
 
-    void "receive a succeeded trace for a non existing workflow"() {
+    void "try to complete a workflow given a succeeded trace for a non existing workflow"() {
         given: "a workflow JSON started trace"
         Map workflowSucceededTraceJson = TracesJsonBank.extractWorkflowJsonTrace(1, 123, WorkflowStatus.SUCCEEDED)
 

@@ -2,6 +2,8 @@ package io.seqera.watchtower.pogo
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import groovy.transform.CompileDynamic
+import io.seqera.watchtower.domain.MagnitudeSummary
+import io.seqera.watchtower.domain.ProgressSummary
 import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.enums.WorkflowStatus
 
@@ -25,6 +27,10 @@ class WorkflowTraceJsonUnmarshaller {
                 populateStatusTimestamp((String) v, workflowStatus, workflow)
             } else if (k == 'workflow') {
                 populateMainData((Map<String, Object>) v, workflow)
+            } else if (k == 'progress') {
+                populateProgressData((Map<String, Object>) v, workflow)
+            } else if (k == 'summary') {
+                populateSummaryData((Map<String, Object>) v, workflow)
             }
         }
     }
@@ -51,6 +57,23 @@ class WorkflowTraceJsonUnmarshaller {
             } else if (!isIgnoredField(k, workflow)) {
                 workflow[k] = v
             }
+        }
+    }
+
+    @CompileDynamic
+    private static void populateProgressData(Map<String, Object> progressData, Workflow workflow) {
+        workflow.progressSummary = workflow.progressSummary ?: new ProgressSummary(workflow: workflow)
+
+        ProgressSummaryJsonUnmarshaller.populateProgressSummaryFields(progressData, workflow.progressSummary)
+    }
+
+    @CompileDynamic
+    private static void populateSummaryData(Map<String, Object> summaryData, Workflow workflow) {
+        List<MagnitudeSummary> magnitudeSummaries = MagnitudeSummaryJsonUnmarshaller.extractAllMagnitudeSummaries(summaryData)
+
+        magnitudeSummaries.each { MagnitudeSummary magnitudeSummary ->
+            magnitudeSummary.workflow = workflow
+            workflow.addToMagnitudeSummaries(magnitudeSummary)
         }
     }
 

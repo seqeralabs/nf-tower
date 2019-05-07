@@ -14,7 +14,9 @@ import java.time.Instant
  */
 class Workflow {
 
-    static hasMany = [tasks: Task]
+    static hasMany = [tasks: Task, magnitudeSummaries: MagnitudeSummary]
+
+    ProgressSummary progressSummary
 
     WorkflowStatus currentStatus
     //Timestamps
