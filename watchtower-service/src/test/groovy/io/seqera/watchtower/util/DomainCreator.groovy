@@ -1,5 +1,7 @@
 package io.seqera.watchtower.util
 
+import io.seqera.watchtower.domain.MagnitudeSummary
+import io.seqera.watchtower.domain.ProgressSummary
 import io.seqera.watchtower.domain.Task
 import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.enums.TaskStatus
@@ -15,21 +17,28 @@ class DomainCreator {
     Boolean withNewTransaction = true
 
     static void cleanupDatabase() {
+        ProgressSummary.deleteAll(ProgressSummary.list())
+        MagnitudeSummary.deleteAll(MagnitudeSummary.list())
         Task.deleteAll(Task.list())
         Workflow.deleteAll(Workflow.list())
     }
 
     Workflow createWorkflow(Map fields = [:]) {
+        Workflow workflow = new Workflow()
+
+        fields.progressSummary = fields.containsKey('progressSummary') ? fields.progressSummary : new DomainCreator(save: false).createProgressSummary(workflow: workflow)
         fields.sessionId = fields.containsKey('sessionId') ? fields.sessionId : "35cce421-4712-4da5-856b-6557635e54${generateUniqueNamePart()}d".toString()
         fields.runName = fields.containsKey('runName') ? fields.runName : "astonishing_majorana${generateUniqueNamePart()}".toString()
         fields.currentStatus = fields.containsKey('currentStatus') ? fields.currentStatus : WorkflowStatus.STARTED
         fields.submitTime = fields.containsKey('submitTime') ? fields.submitTime : Instant.now()
         fields.startTime = fields.containsKey('startTime') ? fields.startTime : fields.submitTime
 
-        createInstance(Workflow, fields)
+        populateInstance(workflow, fields)
     }
 
     Task createTask(Map fields = [:]) {
+        Task task = new Task()
+
         fields.workflow = fields.containsKey('workflow') ? fields.workflow : createWorkflow()
         fields.taskId = fields.containsKey('taskId') ? fields.taskId : 1
         fields.name = fields.containsKey('name') ? fields.name : "taskName_${generateUniqueNamePart()}"
@@ -37,25 +46,42 @@ class DomainCreator {
         fields.currentStatus = fields.containsKey('currentStatus') ? fields.currentStatus : TaskStatus.SUBMITTED
         fields.submitTime = fields.containsKey('submitTime') ? fields.submitTime : Instant.now()
 
-        createInstance(Task, fields)
+        populateInstance(task, fields)
+    }
+
+    ProgressSummary createProgressSummary(Map fields = [:]) {
+        ProgressSummary progressSummary = new ProgressSummary()
+
+        fields.workflow = fields.containsKey('workflow') ? fields.workflow : new DomainCreator(save: false).createWorkflow(progressSummary: progressSummary)
+        fields.running = fields.containsKey('running') ? fields.running : 0
+        fields.submitted = fields.containsKey('submitted') ? fields.submitted : 0
+        fields.failed = fields.containsKey('failed') ? fields.failed : 0
+        fields.pending = fields.containsKey('pending') ? fields.pending : 0
+        fields.succeeded = fields.containsKey('succeeded') ? fields.succeeded : 0
+        fields.cached = fields.containsKey('cached') ? fields.cached : 0
+
+        populateInstance(progressSummary, fields)
     }
 
 
     /**
-     * Creates and persists an instance of a class in the database given their creation params
+     * Populates and persists (if the meta params say so) an instance of a class in the database given their params
      * @param clazz the class to create the instance of
      * @param params the params to create the instance, it can contain lists too
      * @param persist if the instance to save is persisted in the database (true by default)
      * @param validate if the instance to save needs to be validated (true by default)
      * @return the persisted instance
      */
-    private  def createInstance(Class clazz, Map params) {
+    private def populateInstance(def instance, Map params) {
         Map regularParams = [:]
         Map listParams = [:]
         extractListsFromMap(params, regularParams, listParams)
 
-        def instance = clazz.newInstance(regularParams)
-
+        regularParams.each { String k, def v ->
+            if (instance.hasProperty(k)) {
+                instance[k] = v
+            }
+        }
         listParams.each { String k, List v ->
             addAllInstances(instance, k, v)
         }
@@ -70,8 +96,22 @@ class DomainCreator {
 
         instance.save(validate: validate, failOnError: failOnError)
         instance
+    }
 
-
+    /**
+     * Separates the entries whose value is a regular instance from the entries whose value is a list instance of a map
+     * @param params the map with all the params for an instance
+     * @param regularParams the map to populate with entries whose value is a regular instance
+     * @param listsParams noLists the map to populate with entries whose value is a list instance
+     */
+    private void extractListsFromMap(Map params, Map regularParams, Map listsParams) {
+        params?.each { k, v ->
+            if (v instanceof List) {
+                listsParams[k] = v
+            } else {
+                regularParams[k] = v
+            }
+        }
     }
 
     /**
@@ -80,25 +120,9 @@ class DomainCreator {
      * @param collectionName the name of the collection property
      * @param collection the collection which contains the instances to add
      */
-    private  void addAllInstances(def instance, String collectionName, List collection) {
+    private void addAllInstances(def instance, String collectionName, List collection) {
         collection?.each {
             instance."addTo${collectionName.capitalize()}"(it)
-        }
-    }
-
-    /**
-     * Separates the entries whose value is a regular instance from the entries whose value is a list instance of a map
-     * @param origin the map with all the instances
-     * @param noLists the map to populate with entries whose value is a regular instance
-     * @param lists noLists the map to populate with entries whose value is a list instance
-     */
-    private  void extractListsFromMap(Map origin, Map noLists, Map lists) {
-        origin?.each { k, v ->
-            if (v instanceof List) {
-                lists."${k}" = v
-            } else {
-                noLists."${k}" = v
-            }
         }
     }
 
@@ -106,7 +130,7 @@ class DomainCreator {
      * Generate a unique string in order to make a name distinguishable
      * @return a random string with a low probability of collision with other generated strings
      */
-    private  String generateUniqueNamePart() {
+    private String generateUniqueNamePart() {
         "${UniqueIdentifierGenerator.generateUniqueId()}"
     }
 }

@@ -3,6 +3,7 @@ package io.seqera.watchtower.service
 
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.watchtower.Application
+import io.seqera.watchtower.domain.ProgressSummary
 import io.seqera.watchtower.domain.Task
 import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.enums.TaskStatus
@@ -97,6 +98,16 @@ class TaskServiceSpec extends AbstractContainerBaseSpec {
         taskStarted.startTime
         taskStarted.completeTime
         Task.count() == 1
+
+        and: "the progress summary for the workflow has been updated"
+        taskStarted.workflow.progressSummary.id
+        taskStarted.workflow.progressSummary.running == 3
+        taskStarted.workflow.progressSummary.submitted == 0
+        taskStarted.workflow.progressSummary.failed == 0
+        taskStarted.workflow.progressSummary.pending == 0
+        taskStarted.workflow.progressSummary.succeeded == 1
+        taskStarted.workflow.progressSummary.cached == 0
+        ProgressSummary.count() == 1
     }
 
     void "submit a task given a submit trace, then start the task given a start trace, last complete the task given a fail trace"() {
@@ -127,8 +138,6 @@ class TaskServiceSpec extends AbstractContainerBaseSpec {
         !taskSubmitted.startTime
         !taskSubmitted.completeTime
         Task.count() == 1
-
-
 
         when: "unmarshall the started task trace"
         Task taskStarted
@@ -212,7 +221,7 @@ class TaskServiceSpec extends AbstractContainerBaseSpec {
         Task.count() == 0
     }
 
-    void "try to start a given task without a previous submit trace"() {
+    void "try to start a task not previously submitted given start trace"() {
         given: 'create the workflow for the task'
         Workflow workflow = new DomainCreator().createWorkflow()
 
@@ -230,7 +239,7 @@ class TaskServiceSpec extends AbstractContainerBaseSpec {
         Task.count() == 0
     }
 
-    void "receive a submitted trace for a non existing workflow"() {
+    void "try to submit a task given a submit trace for a non existing workflow"() {
         given: "a task submitted trace"
         Map taskSubmittedTraceJson = TracesJsonBank.extractTaskJsonTrace(1, 1, null, TaskStatus.SUBMITTED)
 

@@ -26,12 +26,25 @@ class TaskTraceJsonUnmarshaller {
     @CompileDynamic
     static void populateTaskFields(Map<String, Object> taskJson, TaskStatus taskStatus, Task task) {
         task.currentStatus = taskStatus
-        taskJson.task.each { String k, def v ->
+        taskJson.each { String k, def v ->
+            if (k == 'task') {
+                populateTaskMainData(v, task)
+            } else if (k == 'progress') {
+                ProgressSummaryJsonUnmarshaller.populateProgressSummaryFields(v, task.workflow.progressSummary)
+            } else if (!isIgnoredField(k, task)) {
+                task[k] = v
+            }
+        }
+    }
+
+    @CompileDynamic
+    private static void populateTaskMainData(Map<String, Object> taskDataJson, Task task) {
+        taskDataJson.each { String k, def v ->
             if (k == 'module') {
                 task[k] = new ObjectMapper().writeValueAsString(v)
             } else if (k == 'submit' || k == 'start' || k == 'complete') {
-                task."${k}Time" = v ? Instant.ofEpochMilli(v) : null
-            }   else if (!isIgnoredField(k, task)) {
+                task["${k}Time"] = v ? Instant.ofEpochMilli((Long) v) : null
+            } else if (!isIgnoredField(k, task)) {
                 task[k] = v
             }
         }
