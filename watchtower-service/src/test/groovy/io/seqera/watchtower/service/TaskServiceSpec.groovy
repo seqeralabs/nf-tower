@@ -1,7 +1,6 @@
 package io.seqera.watchtower.service
 
-import io.micronaut.context.ApplicationContext
-import io.micronaut.runtime.server.EmbeddedServer
+
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.watchtower.Application
 import io.seqera.watchtower.domain.Task
@@ -12,17 +11,14 @@ import io.seqera.watchtower.pogo.exceptions.NonExistingWorkflowException
 import io.seqera.watchtower.util.AbstractContainerBaseSpec
 import io.seqera.watchtower.util.DomainCreator
 import io.seqera.watchtower.util.TracesJsonBank
-import spock.lang.AutoCleanup
-import spock.lang.Shared
+
+import javax.inject.Inject
 
 @MicronautTest(application = Application.class)
 class TaskServiceSpec extends AbstractContainerBaseSpec {
 
-    @Shared @AutoCleanup
-    EmbeddedServer embeddedServer = ApplicationContext.run(EmbeddedServer)
-
-    @Shared
-    TaskService taskService = embeddedServer.applicationContext.getBean(TaskService)
+    @Inject
+    TaskService taskService
 
 
     void "submit a task given a submit trace"() {

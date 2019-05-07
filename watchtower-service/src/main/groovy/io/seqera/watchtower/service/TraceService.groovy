@@ -11,15 +11,18 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-@CompileDynamic
+//@CompileDynamic
 class TraceService {
 
-    @Inject
     WorkflowService workflowService
 
-    @Inject
     TaskService taskService
 
+    @Inject
+    TraceService(WorkflowService workflowService, TaskService taskService) {
+        this.workflowService = workflowService
+        this.taskService = taskService
+    }
 
     Map<String, Object> createEntityByTrace(Map<String, Object> traceJson) {
         TraceType traceType = identifyTrace(traceJson)

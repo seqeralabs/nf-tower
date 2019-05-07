@@ -1,25 +1,21 @@
 package io.seqera.watchtower.service
 
-import io.micronaut.context.ApplicationContext
-import io.micronaut.runtime.server.EmbeddedServer
+
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.watchtower.Application
 import io.seqera.watchtower.domain.Workflow
-import io.seqera.watchtower.pogo.exceptions.NonExistingWorkflowException
-import spock.lang.AutoCleanup
-import spock.lang.Shared
 import io.seqera.watchtower.pogo.enums.WorkflowStatus
+import io.seqera.watchtower.pogo.exceptions.NonExistingWorkflowException
 import io.seqera.watchtower.util.AbstractContainerBaseSpec
 import io.seqera.watchtower.util.TracesJsonBank
+
+import javax.inject.Inject
 
 @MicronautTest(application = Application.class)
 class WorkflowServiceSpec extends AbstractContainerBaseSpec {
 
-    @Shared @AutoCleanup
-    EmbeddedServer embeddedServer = ApplicationContext.run(EmbeddedServer)
-
-    @Shared
-    WorkflowService workflowService = embeddedServer.applicationContext.getBean(WorkflowService)
+    @Inject
+    WorkflowService workflowService
 
 
     void "start a workflow given a started trace"() {

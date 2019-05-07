@@ -16,9 +16,12 @@ import javax.inject.Singleton
 @Singleton
 class TaskService {
 
-    @Inject
     WorkflowService workflowService
 
+    @Inject
+    TaskService(WorkflowService workflowService) {
+        this.workflowService = workflowService
+    }
 
     Task processTaskJsonTrace(Map taskJson) {
         TaskStatus taskStatus = TaskTraceJsonUnmarshaller.identifyTaskStatus(taskJson)
