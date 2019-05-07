@@ -19,7 +19,6 @@ class WorkflowTraceJsonUnmarshaller {
         }
     }
 
-    @CompileDynamic
     static void populateWorkflowFields(Map<String, Object> workflowJson, WorkflowStatus workflowStatus, Workflow workflow) {
         workflow.currentStatus = workflowStatus
         workflowJson.each { String k, def v ->
@@ -60,16 +59,14 @@ class WorkflowTraceJsonUnmarshaller {
         }
     }
 
-    @CompileDynamic
     private static void populateProgressData(Map<String, Object> progressData, Workflow workflow) {
         workflow.progressSummary = workflow.progressSummary ?: new ProgressSummary(workflow: workflow)
 
         ProgressSummaryJsonUnmarshaller.populateProgressSummaryFields(progressData, workflow.progressSummary)
     }
 
-    @CompileDynamic
     private static void populateSummaryData(Map<String, Object> summaryData, Workflow workflow) {
-        List<MagnitudeSummary> magnitudeSummaries = MagnitudeSummaryJsonUnmarshaller.extractAllMagnitudeSummaries(summaryData)
+        Collection<MagnitudeSummary> magnitudeSummaries = MagnitudeSummaryJsonUnmarshaller.extractAllMagnitudeSummaries(summaryData)
 
         magnitudeSummaries.each { MagnitudeSummary magnitudeSummary ->
             magnitudeSummary.workflow = workflow

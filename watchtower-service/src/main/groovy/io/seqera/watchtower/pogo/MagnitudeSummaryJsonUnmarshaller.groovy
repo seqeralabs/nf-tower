@@ -6,10 +6,9 @@ import io.seqera.watchtower.domain.MagnitudeSummary
 class MagnitudeSummaryJsonUnmarshaller {
 
 
-    @CompileDynamic
-    static List<MagnitudeSummary> extractAllMagnitudeSummaries(Map<String, Object> magnitudeSummaryTasksJson) {
-        magnitudeSummaryTasksJson.findResults { Map.Entry<String, Object> entry ->
-            extractMagnitudeSummariesOfTask(entry.value, entry.key)
+    static Collection<MagnitudeSummary> extractAllMagnitudeSummaries(Map<String, Object> magnitudeSummaryTasksJson) {
+        (Collection<MagnitudeSummary>) magnitudeSummaryTasksJson.findResults { Map.Entry<String, Object> entry ->
+            extractMagnitudeSummariesOfTask((Map<String, Object>) entry.value, entry.key)
         }.flatten()
     }
 
