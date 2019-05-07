@@ -4,18 +4,16 @@ import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.RxHttpClient
-import io.micronaut.runtime.server.EmbeddedServer
+import io.micronaut.http.client.annotation.Client
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.watchtower.Application
 import io.seqera.watchtower.domain.Task
 import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.enums.TaskStatus
-import io.seqera.watchtower.util.DomainCreator
-import spock.lang.AutoCleanup
-import spock.lang.Shared
 import io.seqera.watchtower.pogo.enums.TraceType
 import io.seqera.watchtower.pogo.enums.WorkflowStatus
 import io.seqera.watchtower.util.AbstractContainerBaseSpec
+import io.seqera.watchtower.util.DomainCreator
 import io.seqera.watchtower.util.TracesJsonBank
 
 import javax.inject.Inject
@@ -24,14 +22,8 @@ import javax.inject.Inject
 class TraceControllerSpec extends AbstractContainerBaseSpec {
 
     @Inject
-    EmbeddedServer embeddedServer
-
-    @Shared @AutoCleanup
+    @Client('/')
     RxHttpClient client
-
-    void setup() {
-        client = embeddedServer.applicationContext.createBean(RxHttpClient, embeddedServer.getURL())
-    }
 
 
     void "test index"() {

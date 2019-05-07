@@ -17,8 +17,13 @@ import javax.inject.Inject
 @Slf4j
 class TraceController {
 
-    @Inject
     TraceService traceService
+
+    @Inject
+    TraceServiceImpl(TraceService traceService) {
+        this.traceService = traceService
+    }
+
 
     @Get("/")
     HttpStatus index() {
