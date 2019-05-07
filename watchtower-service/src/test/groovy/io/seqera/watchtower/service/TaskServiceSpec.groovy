@@ -188,7 +188,28 @@ class TaskServiceSpec extends AbstractContainerBaseSpec {
 
         then: "the task can't be saved because a task with the same taskId already exists for the same workflow"
         taskSubmitted2.hasErrors()
-        taskSubmitted2.errors.getFieldError('taskId')
+        taskSubmitted2.errors.getFieldError('taskId').code == 'unique'
+        Task.count() == 1
+    }
+
+    void "try to submit a task without taskId"() {
+        given: 'create the workflow for the task'
+        Workflow workflow = new DomainCreator().createWorkflow()
+
+        and: "a task submitted trace without taskId"
+        Map taskSubmittedTraceJson = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskStatus.SUBMITTED)
+        taskSubmittedTraceJson.task.taskId = null
+
+        when: "unmarshall the JSON to a task"
+        Task taskSubmitted
+        Task.withNewTransaction {
+            taskSubmitted = taskService.processTaskJsonTrace(taskSubmittedTraceJson)
+        }
+
+        then: "the task has a validation error"
+        taskSubmitted.hasErrors()
+        taskSubmitted.errors.getFieldError('taskId').code == 'nullable'
+        Task.count() == 0
     }
 
     void "try to start a given task without a previous submit trace"() {
@@ -206,6 +227,7 @@ class TaskServiceSpec extends AbstractContainerBaseSpec {
 
         then: "the task doesn't exist"
         thrown(NonExistingTaskException)
+        Task.count() == 0
     }
 
     void "receive a submitted trace for a non existing workflow"() {
@@ -218,8 +240,9 @@ class TaskServiceSpec extends AbstractContainerBaseSpec {
             taskSubmitted = taskService.processTaskJsonTrace(taskSubmittedTraceJson)
         }
 
-        then: "the workflow has been correctly saved"
+        then: "the workflow doesn't exist"
         thrown(NonExistingWorkflowException)
+        Task.count() == 0
     }
 
 }

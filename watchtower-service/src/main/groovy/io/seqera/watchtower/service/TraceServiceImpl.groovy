@@ -6,6 +6,7 @@ import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.enums.TraceType
 import io.seqera.watchtower.pogo.exceptions.NonExistingTaskException
 import io.seqera.watchtower.pogo.exceptions.NonExistingWorkflowException
+import org.springframework.validation.FieldError
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -79,11 +80,17 @@ class TraceServiceImpl implements TraceService {
         if (!workflow.hasErrors()) {
             return null
         }
-        if (workflow.errors.getFieldError('submitTime') || workflow.errors.getFieldError('startTime')) {
-            return "Can't complete a non-existing workflow"
+
+        List<FieldError> fieldErrors = workflow.errors.fieldErrors
+
+        FieldError nullableError = fieldErrors.find { it.code == 'nullable' }
+        if (nullableError) {
+            return "Can't save a workflow without ${nullableError.field}"
         }
-        if (workflow.errors.getFieldError('sessionId') ) {
-            return "Can't start an existing workflow"
+
+        FieldError uniqueError = fieldErrors.find { it.code == 'unique' }
+        if (uniqueError) {
+            return "Can't save a workflow with the same ${uniqueError.field} of another"
         }
     }
 
@@ -91,11 +98,17 @@ class TraceServiceImpl implements TraceService {
         if (!task.hasErrors()) {
             return null
         }
-        if (task.errors.getFieldError('submitTime')) {
-            return "Can't start or complete a non-existing task"
+
+        List<FieldError> fieldErrors = task.errors.fieldErrors
+
+        FieldError nullableError = fieldErrors.find { it.code == 'nullable' }
+        if (nullableError) {
+            return "Can't save a task without ${nullableError.field}"
         }
-        if (task.errors.getFieldError('taskId') ) {
-            return "Can't submit a task which was already submitted"
+
+        FieldError uniqueError = fieldErrors.find { it.code == 'unique' }
+        if (uniqueError) {
+            return "Can't save a task with the same ${uniqueError.field} of another"
         }
     }
 

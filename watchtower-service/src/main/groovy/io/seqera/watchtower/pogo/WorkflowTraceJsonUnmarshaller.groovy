@@ -48,14 +48,14 @@ class WorkflowTraceJsonUnmarshaller {
                 }
             } else if (k == 'configFiles') {
                 workflow[k] = new ObjectMapper().writeValueAsString(v)
-            } else if (!isIgnoredField(k)) {
+            } else if (!isIgnoredField(k, workflow)) {
                 workflow[k] = v
             }
         }
     }
 
-    private static boolean isIgnoredField(String key) {
-        key == 'workflowId'
+    private static boolean isIgnoredField(String key, Workflow workflow) {
+        !workflow.hasProperty(key) || (key == 'workflowId')
     }
 
     private static void populateStatusTimestamp(String timestamp, WorkflowStatus workflowStatus, Workflow workflow) {
