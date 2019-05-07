@@ -1,6 +1,5 @@
 package io.seqera.watchtower.service
 
-
 import io.micronaut.test.annotation.MicronautTest
 import io.micronaut.test.annotation.MockBean
 import io.seqera.watchtower.Application
@@ -10,7 +9,6 @@ import io.seqera.watchtower.pogo.enums.TraceType
 import io.seqera.watchtower.pogo.exceptions.NonExistingWorkflowException
 import io.seqera.watchtower.util.AbstractContainerBaseSpec
 import io.seqera.watchtower.util.DomainCreator
-import spock.lang.IgnoreRest
 
 import javax.inject.Inject
 
@@ -19,14 +17,14 @@ class TraceServiceSpec extends AbstractContainerBaseSpec {
 
     @Inject
     WorkflowService workflowService
-    @MockBean(WorkflowService)
+    @MockBean(WorkflowServiceImpl)
     WorkflowService workflowService() {
         Mock(WorkflowService)
     }
 
     @Inject
     TaskService taskService
-    @MockBean(TaskService)
+    @MockBean(TaskServiceImpl)
     TaskService taskService() {
         Mock(TaskService)
     }
@@ -35,13 +33,10 @@ class TraceServiceSpec extends AbstractContainerBaseSpec {
     TraceService traceService
 
 
-    @IgnoreRest
     void "process a successful workflow trace"() {
         given: "mock the workflow JSON processor to return a successful workflow"
         Workflow workflow = new DomainCreator().createWorkflow()
-        workflowService.processWorkflowJsonTrace(_) >> {
-            workflow
-        }
+        workflowService.processWorkflowJsonTrace(_) >> workflow
 
         when: "process the workflow (we don't mind about the given JSON because the processor is mocked)"
         Map result = traceService.processWorkflowTrace(null)
@@ -52,16 +47,11 @@ class TraceServiceSpec extends AbstractContainerBaseSpec {
         !result.error
     }
 
-    @IgnoreRest
     void "process a workflow trace to start a new workflow with the same sessionId+runName combination of a previous one"() {
         given: "mock the workflow JSON processor to return a workflow with the same sessionId+runName combination as a previous one"
         Workflow workflow1 = new DomainCreator().createWorkflow()
         Workflow workflow2 = new DomainCreator(failOnError: false).createWorkflow(sessionId: workflow1.sessionId, runName: workflow1.runName)
-
-        workflowService()
-        workflowService.processWorkflowJsonTrace(_) >> {
-            workflow2
-        }
+        workflowService.processWorkflowJsonTrace(_) >> workflow2
 
         when: "process the workflow (we don't mind about the given JSON because the processor is mocked)"
         Map result = traceService.processWorkflowTrace(null)
@@ -89,9 +79,7 @@ class TraceServiceSpec extends AbstractContainerBaseSpec {
     void "process a workflow trace, but throw a NonExistingWorkflow exception"() {
         given: "mock the workflow JSON processor to throw an exception"
         String exceptionMessage = 'message'
-        workflowService.processWorkflowJsonTrace(_) >> {
-            throw(new NonExistingWorkflowException(exceptionMessage))
-        }
+        workflowService.processWorkflowJsonTrace(_) >> { throw(new NonExistingWorkflowException(exceptionMessage)) }
 
         when: "process the workflow (we don't mind about the given JSON because the processor is mocked)"
         Map result = traceService.processWorkflowTrace(null)
