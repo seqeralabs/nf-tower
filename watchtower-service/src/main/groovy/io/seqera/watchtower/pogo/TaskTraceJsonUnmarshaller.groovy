@@ -31,14 +31,14 @@ class TaskTraceJsonUnmarshaller {
                 task[k] = new ObjectMapper().writeValueAsString(v)
             } else if (k == 'submit' || k == 'start' || k == 'complete') {
                 task."${k}Time" = v ? Instant.ofEpochMilli(v) : null
-            }   else if (!isIgnoredField(k)) {
+            }   else if (!isIgnoredField(k, task)) {
                 task[k] = v
             }
         }
     }
 
-    private static boolean isIgnoredField(String key) {
-        key == 'workflowId'
+    private static boolean isIgnoredField(String key, Task task) {
+        !task.hasProperty(key) || key == 'workflowId'
     }
 
 }

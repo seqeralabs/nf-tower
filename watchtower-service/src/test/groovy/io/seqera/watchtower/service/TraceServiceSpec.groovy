@@ -58,7 +58,7 @@ class TraceServiceSpec extends AbstractContainerBaseSpec {
 
         then: "the result indicates an error"
         result.traceType == TraceType.WORKFLOW
-        result.error == "Can't start an existing workflow"
+        result.error == "Can't save a workflow with the same sessionId of another"
         !result.entityId
     }
 
@@ -72,7 +72,7 @@ class TraceServiceSpec extends AbstractContainerBaseSpec {
 
         then: "the result indicates an error"
         result.traceType == TraceType.WORKFLOW
-        result.error == "Can't complete a non-existing workflow"
+        result.error == "Can't save a workflow without startTime"
         !result.entityId
     }
 
@@ -128,7 +128,22 @@ class TraceServiceSpec extends AbstractContainerBaseSpec {
         then: "the result indicates a successful processing"
         result.traceType == TraceType.TASK
         !result.entityId
-        result.error == "Can't start or complete a non-existing task"
+        result.error == "Can't save a task without submitTime"
+    }
+
+    void "process a task without task id"() {
+        given: "mock the task JSON processor to return a task without taskId"
+        Workflow workflow = new DomainCreator().createWorkflow()
+        Task task = new DomainCreator(failOnError: false).createTask(workflow: workflow, taskId: null)
+        taskService.processTaskJsonTrace(_) >> task
+
+        when: "process the task (we don't mind about the given JSON because the processor is mocked)"
+        Map result = traceService.processTaskTrace(null)
+
+        then: "the result indicates a successful processing"
+        result.traceType == TraceType.TASK
+        !result.entityId
+        result.error == "Can't save a task without taskId"
     }
 
     void "process a task with the same taskId of a previous one for the same workflow"() {
@@ -144,7 +159,7 @@ class TraceServiceSpec extends AbstractContainerBaseSpec {
         then: "the result indicates a successful processing"
         result.traceType == TraceType.TASK
         !result.entityId
-        result.error == "Can't submit a task which was already submitted"
+        result.error == "Can't save a task with the same taskId of another"
     }
 
 }

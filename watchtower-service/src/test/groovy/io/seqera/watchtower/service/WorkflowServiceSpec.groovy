@@ -131,6 +131,23 @@ class WorkflowServiceSpec extends AbstractContainerBaseSpec {
         Workflow.count() == 1
     }
 
+    void "try to start a workflow without sessionId"() {
+        given: "a workflow JSON started trace without sessionId"
+        Map workflowStartedTraceJson = TracesJsonBank.extractWorkflowJsonTrace(1, null, WorkflowStatus.STARTED)
+        workflowStartedTraceJson.workflow.sessionId = null
+
+        when: "unmarshall the JSON to a workflow"
+        Workflow workflowStarted
+        Workflow.withNewTransaction {
+            workflowStarted = workflowService.processWorkflowJsonTrace(workflowStartedTraceJson)
+        }
+
+        then: "the workflow has validation errors"
+        workflowStarted.hasErrors()
+        workflowStarted.errors.getFieldError('sessionId').code == 'nullable'
+        Workflow.count() == 0
+    }
+
     void "receive a succeeded trace for a non existing workflow"() {
         given: "a workflow JSON started trace"
         Map workflowSucceededTraceJson = TracesJsonBank.extractWorkflowJsonTrace(1, 123, WorkflowStatus.SUCCEEDED)
