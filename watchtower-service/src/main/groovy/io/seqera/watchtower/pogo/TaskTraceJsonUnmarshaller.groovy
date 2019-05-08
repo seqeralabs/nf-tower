@@ -29,7 +29,7 @@ class TaskTraceJsonUnmarshaller {
             if (k == 'task') {
                 populateTaskMainData((Map<String, Object>) v, task)
             } else if (k == 'progress') {
-                ProgressSummaryJsonUnmarshaller.populateProgressSummaryFields((Map<String, Object>) v, task.workflow.progressSummary)
+                WorkflowTraceJsonUnmarshaller.populateProgressData((Map<String, Object>) v, task.workflow)
             }
         }
     }

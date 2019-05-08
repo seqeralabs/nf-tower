@@ -41,7 +41,7 @@ class TraceServiceImpl implements TraceService {
             if (errorMessage) {
                 result.error = errorMessage
             } else {
-                result.entityId = workflow.id
+                result.workflowId = workflow.id
             }
         } catch (NonExistingWorkflowException e) {
             result.error = e.message
@@ -63,7 +63,7 @@ class TraceServiceImpl implements TraceService {
             if (errorMessage) {
                 result.error = errorMessage
             } else {
-                result.entityId = task.id
+                result.workflowId = task.workflowId
             }
         } catch (NonExistingWorkflowException e) {
             result.error = e.message

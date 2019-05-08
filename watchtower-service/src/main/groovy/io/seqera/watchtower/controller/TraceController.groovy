@@ -36,6 +36,7 @@ class TraceController {
         log.info("Receiving trace: ${json.inspect()}")
         Map result = traceService.createEntityByTrace(json)
         log.info("Processed trace: ${result.inspect()}")
+
         String jsonResult = new ObjectMapper().writeValueAsString(result)
 
         HttpResponse<String> response
