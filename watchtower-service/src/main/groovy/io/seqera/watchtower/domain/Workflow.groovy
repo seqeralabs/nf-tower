@@ -16,9 +16,16 @@ class Workflow {
 
     static hasMany = [tasks: Task, magnitudeSummaries: MagnitudeSummary]
 
-    ProgressSummary progressSummary
-
     WorkflowStatus currentStatus
+
+    //Tasks progress data
+    Integer running
+    Integer submitted
+    Integer failed
+    Integer pending
+    Integer succeeded
+    Integer cached
+
     //Timestamps
     Instant submitTime
     Instant startTime //TODO For now, submitTime and startTime are the same, when using Launchpad they would differ.

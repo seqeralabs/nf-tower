@@ -1,7 +1,6 @@
 package io.seqera.watchtower.util
 
 import io.seqera.watchtower.domain.MagnitudeSummary
-import io.seqera.watchtower.domain.ProgressSummary
 import io.seqera.watchtower.domain.Task
 import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.enums.TaskStatus
@@ -17,7 +16,6 @@ class DomainCreator {
     Boolean withNewTransaction = true
 
     static void cleanupDatabase() {
-        ProgressSummary.deleteAll(ProgressSummary.list())
         MagnitudeSummary.deleteAll(MagnitudeSummary.list())
         Task.deleteAll(Task.list())
         Workflow.deleteAll(Workflow.list())
@@ -26,12 +24,17 @@ class DomainCreator {
     Workflow createWorkflow(Map fields = [:]) {
         Workflow workflow = new Workflow()
 
-        fields.progressSummary = fields.containsKey('progressSummary') ? fields.progressSummary : new DomainCreator(save: false).createProgressSummary(workflow: workflow)
         fields.sessionId = fields.containsKey('sessionId') ? fields.sessionId : "35cce421-4712-4da5-856b-6557635e54${generateUniqueNamePart()}d".toString()
         fields.runName = fields.containsKey('runName') ? fields.runName : "astonishing_majorana${generateUniqueNamePart()}".toString()
         fields.currentStatus = fields.containsKey('currentStatus') ? fields.currentStatus : WorkflowStatus.STARTED
         fields.submitTime = fields.containsKey('submitTime') ? fields.submitTime : Instant.now()
         fields.startTime = fields.containsKey('startTime') ? fields.startTime : fields.submitTime
+        fields.running = fields.containsKey('running') ? fields.running : 0
+        fields.submitted = fields.containsKey('submitted') ? fields.submitted : 0
+        fields.failed = fields.containsKey('failed') ? fields.failed : 0
+        fields.pending = fields.containsKey('pending') ? fields.pending : 0
+        fields.succeeded = fields.containsKey('succeeded') ? fields.succeeded : 0
+        fields.cached = fields.containsKey('cached') ? fields.cached : 0
 
         populateInstance(workflow, fields)
     }
@@ -47,20 +50,6 @@ class DomainCreator {
         fields.submitTime = fields.containsKey('submitTime') ? fields.submitTime : Instant.now()
 
         populateInstance(task, fields)
-    }
-
-    ProgressSummary createProgressSummary(Map fields = [:]) {
-        ProgressSummary progressSummary = new ProgressSummary()
-
-        fields.workflow = fields.containsKey('workflow') ? fields.workflow : new DomainCreator(save: false).createWorkflow(progressSummary: progressSummary)
-        fields.running = fields.containsKey('running') ? fields.running : 0
-        fields.submitted = fields.containsKey('submitted') ? fields.submitted : 0
-        fields.failed = fields.containsKey('failed') ? fields.failed : 0
-        fields.pending = fields.containsKey('pending') ? fields.pending : 0
-        fields.succeeded = fields.containsKey('succeeded') ? fields.succeeded : 0
-        fields.cached = fields.containsKey('cached') ? fields.cached : 0
-
-        populateInstance(progressSummary, fields)
     }
 
 

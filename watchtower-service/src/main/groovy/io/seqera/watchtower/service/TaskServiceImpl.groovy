@@ -32,7 +32,7 @@ class TaskServiceImpl implements TaskService {
 
     @CompileDynamic
     private Task createFromJson(Map taskJson) {
-        Workflow existingWorkflow = Workflow.get((Long) taskJson.task['workflowId'])
+        Workflow existingWorkflow = Workflow.get(taskJson.task['workflowId'])
         if (!existingWorkflow) {
             throw new NonExistingWorkflowException("Can't create task associated with non existing workflow")
         }
@@ -46,7 +46,7 @@ class TaskServiceImpl implements TaskService {
 
     @CompileDynamic
     private Task updateFromJson(Map taskJson, TaskStatus taskStatus) {
-        Workflow existingWorkflow = Workflow.get((Long) taskJson.task['workflowId'])
+        Workflow existingWorkflow = Workflow.get(taskJson.task['workflowId'])
         if (!existingWorkflow) {
             throw new NonExistingWorkflowException("Can't find workflow associated with the task")
         }

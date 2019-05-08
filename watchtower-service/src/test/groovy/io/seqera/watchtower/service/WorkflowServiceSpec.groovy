@@ -3,7 +3,6 @@ package io.seqera.watchtower.service
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.watchtower.Application
 import io.seqera.watchtower.domain.MagnitudeSummary
-import io.seqera.watchtower.domain.ProgressSummary
 import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.enums.WorkflowStatus
 import io.seqera.watchtower.pogo.exceptions.NonExistingWorkflowException
@@ -36,9 +35,13 @@ class WorkflowServiceSpec extends AbstractContainerBaseSpec {
         !workflow.completeTime
         Workflow.count() == 1
 
-        and: "the workflow has an associated progress object"
-        workflow.progressSummary.id
-        ProgressSummary.count() == 1
+        and: "the tasks progress info is populated"
+        workflow.running == 0
+        workflow.submitted == 0
+        workflow.failed == 0
+        workflow.pending == 0
+        workflow.succeeded == 0
+        workflow.cached == 0
     }
 
     void "start a workflow given a started trace, then complete the workflow given a succeeded trace"() {
@@ -76,6 +79,14 @@ class WorkflowServiceSpec extends AbstractContainerBaseSpec {
         workflowSucceeded.magnitudeSummaries.taskLabel.every { it == 'sayHello' }
         workflowSucceeded.magnitudeSummaries.name as Set == ['cpu', 'time', 'reads', 'writes', 'cpuUsage'] as Set
         MagnitudeSummary.count() == 5
+
+        and: "the progress info has been updated"
+        workflowSucceeded.running == 0
+        workflowSucceeded.submitted == 0
+        workflowSucceeded.failed == 0
+        workflowSucceeded.pending == 0
+        workflowSucceeded.succeeded == 4
+        workflowSucceeded.cached == 0
     }
 
     void "start a workflow given a started trace, then complete the workflow given a failed trace"() {

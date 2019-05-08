@@ -3,7 +3,6 @@ package io.seqera.watchtower.pogo
 import com.fasterxml.jackson.databind.ObjectMapper
 import groovy.transform.CompileDynamic
 import io.seqera.watchtower.domain.MagnitudeSummary
-import io.seqera.watchtower.domain.ProgressSummary
 import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.enums.WorkflowStatus
 
@@ -35,6 +34,15 @@ class WorkflowTraceJsonUnmarshaller {
     }
 
     @CompileDynamic
+    static void populateProgressData(Map<String, Object> progressData, Workflow workflow) {
+        progressData.each { String k, def v ->
+            if (!isIgnoredField(k, workflow)) {
+                workflow[k] = v
+            }
+        }
+    }
+
+    @CompileDynamic
     private static void populateMainData(Map<String, Object> workflowMainData, Workflow workflow) {
         workflowMainData.each { String k, def v ->
             if (k == 'params') {
@@ -57,12 +65,6 @@ class WorkflowTraceJsonUnmarshaller {
                 workflow[k] = v
             }
         }
-    }
-
-    private static void populateProgressData(Map<String, Object> progressData, Workflow workflow) {
-        workflow.progressSummary = workflow.progressSummary ?: new ProgressSummary(workflow: workflow)
-
-        ProgressSummaryJsonUnmarshaller.populateProgressSummaryFields(progressData, workflow.progressSummary)
     }
 
     private static void populateSummaryData(Map<String, Object> summaryData, Workflow workflow) {

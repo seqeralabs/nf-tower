@@ -43,7 +43,7 @@ class TraceServiceSpec extends AbstractContainerBaseSpec {
 
         then: "the result indicates a successful processing"
         result.traceType == TraceType.WORKFLOW
-        result.entityId
+        result.workflowId
         !result.error
     }
 
@@ -76,9 +76,9 @@ class TraceServiceSpec extends AbstractContainerBaseSpec {
         !result.entityId
     }
 
-    void "process a workflow trace to try to start workflow without progress summary"() {
+    void "process a workflow trace to try to start workflow without progress info"() {
         given: "mock the workflow JSON processor to return a workflow without submitTime"
-        Workflow workflow = new DomainCreator(failOnError: false).createWorkflow(progressSummary: null)
+        Workflow workflow = new DomainCreator(failOnError: false).createWorkflow(running: null, submitted: null, failed: null, pending: null, succeeded: null, cached: null)
         workflowService.processWorkflowJsonTrace(_) >> workflow
 
         when: "process the workflow (we don't mind about the given JSON because the processor is mocked)"
@@ -86,7 +86,7 @@ class TraceServiceSpec extends AbstractContainerBaseSpec {
 
         then: "the result indicates an error"
         result.traceType == TraceType.WORKFLOW
-        result.error == "Can't save a workflow without progressSummary"
+        result.error.startsWith("Can't save a workflow without") && (result.error.endsWith("running") || result.error.endsWith("submitted") || result.error.endsWith("failed") || result.error.endsWith("pending") || result.error.endsWith("succeeded") || result.error.endsWith("cached"))
         !result.entityId
     }
 
@@ -127,7 +127,7 @@ class TraceServiceSpec extends AbstractContainerBaseSpec {
 
         then: "the result indicates a successful processing"
         result.traceType == TraceType.TASK
-        result.entityId
+        result.workflowId
         !result.error
     }
 

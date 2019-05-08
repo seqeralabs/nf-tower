@@ -3,7 +3,6 @@ package io.seqera.watchtower.service
 
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.watchtower.Application
-import io.seqera.watchtower.domain.ProgressSummary
 import io.seqera.watchtower.domain.Task
 import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.enums.TaskStatus
@@ -99,15 +98,13 @@ class TaskServiceSpec extends AbstractContainerBaseSpec {
         taskStarted.completeTime
         Task.count() == 1
 
-        and: "the progress summary for the workflow has been updated"
-        taskStarted.workflow.progressSummary.id
-        taskStarted.workflow.progressSummary.running == 3
-        taskStarted.workflow.progressSummary.submitted == 0
-        taskStarted.workflow.progressSummary.failed == 0
-        taskStarted.workflow.progressSummary.pending == 0
-        taskStarted.workflow.progressSummary.succeeded == 1
-        taskStarted.workflow.progressSummary.cached == 0
-        ProgressSummary.count() == 1
+        and: "the progress info for the workflow has been updated"
+        taskStarted.workflow.running == 3
+        taskStarted.workflow.submitted == 0
+        taskStarted.workflow.failed == 0
+        taskStarted.workflow.pending == 0
+        taskStarted.workflow.succeeded == 1
+        taskStarted.workflow.cached == 0
     }
 
     void "submit a task given a submit trace, then start the task given a start trace, last complete the task given a fail trace"() {
