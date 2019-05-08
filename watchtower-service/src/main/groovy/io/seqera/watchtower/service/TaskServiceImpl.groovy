@@ -58,6 +58,7 @@ class TaskServiceImpl implements TaskService {
 
         TaskTraceJsonUnmarshaller.populateTaskFields(taskJson, taskStatus, existingTask)
 
+        existingWorkflow.save()
         existingTask.save()
         existingTask
     }
