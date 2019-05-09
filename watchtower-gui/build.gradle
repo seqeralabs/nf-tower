@@ -13,3 +13,6 @@ task buildFrontend(type: NpmTask) {
     args = ['run', 'ng', 'build']
 }
 
+task runFrontend(type: NpmTask) {
+  args = ['run', 'start']
+}

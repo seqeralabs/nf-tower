@@ -1,11 +1,13 @@
 import {Manifest} from "./manifest";
 import {Nextflow} from "./nextflow";
 import {Stats} from "./stats";
+import {Duration, Moment} from "moment";
+import {WorkflowStatus} from "./workflow-status.enum";
 
 export interface WorkflowData {
 
   workflowId: string;
-  status: string;
+  status: WorkflowStatus;
 
   runName: string;
   sessionId: string;
@@ -14,9 +16,9 @@ export interface WorkflowData {
   nextflow: Nextflow;
   stats: Stats;
 
-  submitTime: Date;
-  startTime: Date;
-  completeTime?: Date;
+  submitTime: Moment;
+  startTime: Moment;
+  completeTime?: Moment;
 
   projectDir: string;
   profile: string;
@@ -37,7 +39,7 @@ export interface WorkflowData {
   success: boolean;
   projectName: string;
   scriptName: string;
-  duration: number;
+  duration: Duration;
 
   errorMessage?: any;
   errorReport?: any;

@@ -19,7 +19,7 @@ class WorkflowTraceJsonUnmarshaller {
     }
 
     static void populateWorkflowFields(Map<String, Object> workflowJson, WorkflowStatus workflowStatus, Workflow workflow) {
-        workflow.currentStatus = workflowStatus
+        workflow.status = workflowStatus
         workflowJson.each { String k, def v ->
             if (k == 'utcTime') {
                 populateStatusTimestamp((String) v, workflowStatus, workflow)
@@ -77,7 +77,7 @@ class WorkflowTraceJsonUnmarshaller {
     }
 
     private static boolean isIgnoredField(String key, Workflow workflow) {
-        !workflow.hasProperty(key) || (key == 'workflowId')
+        !workflow.hasProperty(key) || (key == 'workflowId') || (key == 'status')
     }
 
     private static void populateStatusTimestamp(String timestamp, WorkflowStatus workflowStatus, Workflow workflow) {

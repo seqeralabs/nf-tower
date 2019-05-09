@@ -26,7 +26,7 @@ class DomainCreator {
 
         fields.sessionId = fields.containsKey('sessionId') ? fields.sessionId : "35cce421-4712-4da5-856b-6557635e54${generateUniqueNamePart()}d".toString()
         fields.runName = fields.containsKey('runName') ? fields.runName : "astonishing_majorana${generateUniqueNamePart()}".toString()
-        fields.currentStatus = fields.containsKey('currentStatus') ? fields.currentStatus : WorkflowStatus.STARTED
+        fields.status = fields.containsKey('status') ? fields.status : WorkflowStatus.STARTED
         fields.submitTime = fields.containsKey('submitTime') ? fields.submitTime : Instant.now()
         fields.startTime = fields.containsKey('startTime') ? fields.startTime : fields.submitTime
 

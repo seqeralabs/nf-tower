@@ -16,7 +16,7 @@ class Workflow {
 
     static hasMany = [tasks: Task, magnitudeSummaries: MagnitudeSummary]
 
-    WorkflowStatus currentStatus
+    WorkflowStatus status
 
     //Tasks progress data
     Integer running
