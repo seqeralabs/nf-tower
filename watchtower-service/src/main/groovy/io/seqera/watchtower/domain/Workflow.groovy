@@ -65,10 +65,11 @@ class Workflow {
     String userName
     String launchDir
     String projectDir
+    String projectName
     String scriptId
+    String scriptName
     String revision
     String commandLine
-    String scriptName
     Integer exitStatus
     Long duration
     //Fail-related fields
@@ -116,21 +117,7 @@ class Workflow {
         nextflowBuild(nullable: true)
         nextflowTimestamp(nullable: true)
         complete(nullable: true)
-        profile(nullable: true)
-        homeDir(nullable: true)
-        workDir(nullable: true)
-        container(nullable: true)
-        commitId(nullable: true)
-        repository(nullable: true)
         containerEngine(nullable: true)
-        scriptFile(nullable: true)
-        userName(nullable: true)
-        launchDir(nullable: true)
-        projectDir(nullable: true)
-        scriptId(nullable: true)
-        revision(nullable: true)
-        commandLine(nullable: true)
-        scriptName(nullable: true)
         exitStatus(nullable: true)
         duration(nullable: true)
         errorReport(nullable: true)

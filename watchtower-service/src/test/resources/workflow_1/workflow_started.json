@@ -1,7 +1,7 @@
 {
   "workflow": {
     "start": "2019-05-06T10:04:20Z",
-    "projectDir": "/home/salenda/.nextflow/assets/nextflow-io/hello",
+    "projectDir": "/home/user/.nextflow/assets/nextflow-io/hello",
     "manifest": {
       "nextflowVersion": null,
       "defaultBranch": "master",
@@ -15,19 +15,19 @@
     },
     "complete": null,
     "profile": "standard",
-    "homeDir": "/home/salenda",
-    "workDir": "/home/salenda/Programs/nextflow/work",
+    "homeDir": "/home/user",
+    "workDir": "/home/user/Programs/nextflow/work",
     "container": "nextflow/bash",
     "commitId": "a9012339ce857d6ec7a078281813d8a93645a3e7",
     "errorMessage": null,
     "repository": "https://github.com/nextflow-io/hello.git",
     "containerEngine": null,
-    "scriptFile": "/home/salenda/.nextflow/assets/nextflow-io/hello/main.nf",
-    "userName": "salenda",
-    "launchDir": "/home/salenda/Programs/nextflow",
+    "scriptFile": "/home/user/.nextflow/assets/nextflow-io/hello/main.nf",
+    "userName": "user",
+    "launchDir": "/home/user/Programs/nextflow",
     "runName": "prickly_brenner",
     "configFiles": [
-      "/home/salenda/.nextflow/assets/nextflow-io/hello/nextflow.config"
+      "/home/user/.nextflow/assets/nextflow-io/hello/nextflow.config"
     ],
     "sessionId": "f56b8b10-b044-4d42-a7a3-769026f62283",
     "errorReport": null,

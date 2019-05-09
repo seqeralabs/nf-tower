@@ -16,7 +16,7 @@
     "attempt": 1,
     "script": "\n    echo 'Ciao world!'\n    ",
     "scratch": null,
-    "workdir": "/home/salenda/Programs/nextflow/work/2e/a112fb713ff5adc7ec71a8f1a90153",
+    "workdir": "/home/user/Programs/nextflow/work/2e/a112fb713ff5adc7ec71a8f1a90153",
     "queue": null,
     "cpus": 1,
     "memory": null,

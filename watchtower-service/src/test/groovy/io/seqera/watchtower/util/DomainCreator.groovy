@@ -29,6 +29,23 @@ class DomainCreator {
         fields.currentStatus = fields.containsKey('currentStatus') ? fields.currentStatus : WorkflowStatus.STARTED
         fields.submitTime = fields.containsKey('submitTime') ? fields.submitTime : Instant.now()
         fields.startTime = fields.containsKey('startTime') ? fields.startTime : fields.submitTime
+
+        fields.projectDir = fields.containsKey('projectDir') ? fields.projectDir : "/home/user/.nextflow/assets/nextflow-io/hello"
+        fields.profile = fields.containsKey('profile') ? fields.profile : "standard"
+        fields.homeDir = fields.containsKey('homeDir') ? fields.homeDir : "/home/user"
+        fields.workDir = fields.containsKey('workDir') ? fields.workDir : "/home/user/Programs/nextflow/work"
+        fields.container = fields.containsKey('container') ? fields.container : "nextflow/bash"
+        fields.commitId = fields.containsKey('commitId') ? fields.commitId : "a9012339ce857d6ec7a078281813d8a93645a3e7"
+        fields.repository = fields.containsKey('repository') ? fields.repository : "https://github.com/nextflow-io/hello.git"
+        fields.scriptFile = fields.containsKey('scriptFile') ? fields.scriptFile : "/home/user/.nextflow/assets/nextflow-io/hello/main.nf"
+        fields.userName = fields.containsKey('userName') ? fields.userName : "user"
+        fields.launchDir = fields.containsKey('launchDir') ? fields.launchDir : "/home/user/Programs/nextflow"
+        fields.scriptId = fields.containsKey('scriptId') ? fields.scriptId : "537c2298d228991eb8a3f7dc1001816f"
+        fields.revision = fields.containsKey('revision') ? fields.revision : "master"
+        fields.commandLine = fields.containsKey('commandLine') ? fields.commandLine : "./nextflow-19.05.0-TOWER-all run hello -with-tower"
+        fields.projectName = fields.containsKey('projectName') ? fields.projectName : "nextflow-io/hello"
+        fields.scriptName = fields.containsKey('scriptName') ? fields.scriptName : "main.nf"
+
         fields.running = fields.containsKey('running') ? fields.running : 0
         fields.submitted = fields.containsKey('submitted') ? fields.submitted : 0
         fields.failed = fields.containsKey('failed') ? fields.failed : 0
