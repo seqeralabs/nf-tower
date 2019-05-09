@@ -3,7 +3,7 @@ package io.seqera.watchtower.service
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
 import io.seqera.watchtower.domain.Workflow
-import io.seqera.watchtower.pogo.WorkflowTraceJsonUnmarshaller
+import io.seqera.watchtower.pogo.unmarshaller.WorkflowTraceJsonUnmarshaller
 import io.seqera.watchtower.pogo.enums.WorkflowStatus
 import io.seqera.watchtower.pogo.exceptions.NonExistingWorkflowException
 
@@ -12,6 +12,11 @@ import javax.inject.Singleton
 @Transactional
 @Singleton
 class WorkflowServiceImpl implements WorkflowService {
+
+    @CompileDynamic
+    Workflow get(Serializable id) {
+        Workflow.get(id)
+    }
 
     Workflow processWorkflowJsonTrace(Map workflowJson) {
         WorkflowStatus workflowStatus = WorkflowTraceJsonUnmarshaller.identifyWorflowStatus(workflowJson)

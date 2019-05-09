@@ -20,7 +20,7 @@ class TraceController {
     TraceService traceService
 
     @Inject
-    TraceServiceImpl(TraceService traceService) {
+    TraceController(TraceService traceService) {
         this.traceService = traceService
     }
 

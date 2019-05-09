@@ -1,4 +1,4 @@
-package io.seqera.watchtower.pogo
+package io.seqera.watchtower.pogo.unmarshaller
 
 import groovy.transform.CompileDynamic
 import io.seqera.watchtower.domain.MagnitudeSummary
