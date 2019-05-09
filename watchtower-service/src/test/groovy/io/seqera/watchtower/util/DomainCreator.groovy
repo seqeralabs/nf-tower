@@ -52,6 +52,27 @@ class DomainCreator {
         populateInstance(task, fields)
     }
 
+    MagnitudeSummary createMagnitudeSummary(Map fields = [:]) {
+        MagnitudeSummary magnitudeSummary = new MagnitudeSummary()
+
+        fields.name = fields.containsKey('name') ? fields.name : "magnitude_${generateUniqueNamePart()}"
+        fields.taskLabel = fields.containsKey('taskLabel') ? fields.taskLabel : "task_${generateUniqueNamePart()}"
+        fields.mean = fields.containsKey('mean') ? fields.mean : 0.0
+        fields.min = fields.containsKey('min') ? fields.min : 0.0
+        fields.q1 = fields.containsKey('q1') ? fields.q1 : 0.0
+        fields.q2 = fields.containsKey('q2') ? fields.q2 : 0.0
+        fields.q2 = fields.containsKey('q2') ? fields.q2 : 0.0
+        fields.q3 = fields.containsKey('q3') ? fields.q3 : 0.0
+        fields.max = fields.containsKey('max') ? fields.max : 0.0
+        fields.minLabel = fields.containsKey('minLabel') ? fields.minLabel : 'minLabel'
+        fields.maxLabel = fields.containsKey('maxLabel') ? fields.maxLabel : 'maxLabel'
+        fields.q1Label = fields.containsKey('q1Label') ? fields.q1Label : 'q1Label'
+        fields.q2Label = fields.containsKey('q2Label') ? fields.q2Label : 'q2Label'
+        fields.q3Label = fields.containsKey('q3Label') ? fields.q3Label : 'q3Label'
+
+        populateInstance(magnitudeSummary, fields)
+    }
+
 
     /**
      * Populates and persists (if the meta params say so) an instance of a class in the database given their params

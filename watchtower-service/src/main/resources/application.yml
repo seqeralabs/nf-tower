@@ -2,3 +2,7 @@
 micronaut:
   application:
     name: watchtower-service
+
+jackson:
+  serialization:
+    writeDatesAsTimestamps: false

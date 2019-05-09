@@ -1,4 +1,4 @@
-package io.seqera.watchtower.pogo
+package io.seqera.watchtower.pogo.unmarshaller
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import groovy.transform.CompileDynamic
