@@ -30,7 +30,7 @@ class WorkflowServiceSpec extends AbstractContainerBaseSpec {
 
         then: "the workflow has been correctly saved"
         workflow.id
-        workflow.currentStatus == WorkflowStatus.STARTED
+        workflow.status == WorkflowStatus.STARTED
         workflow.submitTime
         !workflow.completeTime
         Workflow.count() == 1
@@ -56,7 +56,7 @@ class WorkflowServiceSpec extends AbstractContainerBaseSpec {
 
         then: "the workflow has been correctly saved"
         workflowStarted.id
-        workflowStarted.currentStatus == WorkflowStatus.STARTED
+        workflowStarted.status == WorkflowStatus.STARTED
         workflowStarted.submitTime
         !workflowStarted.completeTime
 
@@ -69,7 +69,7 @@ class WorkflowServiceSpec extends AbstractContainerBaseSpec {
 
         then: "the workflow has been completed"
         workflowStarted.id == workflowSucceeded.id
-        workflowSucceeded.currentStatus == WorkflowStatus.SUCCEEDED
+        workflowSucceeded.status == WorkflowStatus.SUCCEEDED
         workflowSucceeded.submitTime
         workflowSucceeded.completeTime
         Workflow.count() == 1
@@ -101,7 +101,7 @@ class WorkflowServiceSpec extends AbstractContainerBaseSpec {
 
         then: "the workflow has been correctly saved"
         workflowStarted.id
-        workflowStarted.currentStatus == WorkflowStatus.STARTED
+        workflowStarted.status == WorkflowStatus.STARTED
         workflowStarted.submitTime
         !workflowStarted.completeTime
         Workflow.count() == 1
@@ -115,7 +115,7 @@ class WorkflowServiceSpec extends AbstractContainerBaseSpec {
 
         then: "the workflow has been completed"
         workflowStarted.id == workflowFailed.id
-        workflowFailed.currentStatus == WorkflowStatus.FAILED
+        workflowFailed.status == WorkflowStatus.FAILED
         workflowFailed.submitTime
         workflowFailed.completeTime
         Workflow.count() == 1
@@ -139,7 +139,7 @@ class WorkflowServiceSpec extends AbstractContainerBaseSpec {
 
         then: "the workflow has been correctly saved"
         workflowStarted1.id
-        workflowStarted1.currentStatus == WorkflowStatus.STARTED
+        workflowStarted1.status == WorkflowStatus.STARTED
         workflowStarted1.submitTime
         !workflowStarted1.completeTime
         Workflow.count() == 1
@@ -153,7 +153,7 @@ class WorkflowServiceSpec extends AbstractContainerBaseSpec {
 
         then: "the workflow status is treated as a pause, so the data is updated"
         workflowStarted1.id == workflowStarted2.id
-        workflowStarted1.currentStatus == WorkflowStatus.PAUSED
+        workflowStarted1.status == WorkflowStatus.PAUSED
         workflowStarted1.submitTime
         !workflowStarted1.completeTime
         Workflow.count() == 1

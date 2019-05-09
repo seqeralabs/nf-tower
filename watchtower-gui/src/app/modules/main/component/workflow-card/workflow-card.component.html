@@ -2,12 +2,12 @@
   <div class="col s12">
     <div class="card grey lighten-5">
       <div class="card-content">
-          <span class="card-title">
-            <span class="mdi mdi-progress-check"></span> {{workflow.data.projectName}}
+          <span class="card-title" [ngClass]="{'success__text': workflow.isSuccessful, 'start__text': workflow.isStarted, 'fail__text': workflow.isFailed}">
+            <span class="mdi" [ngClass]="{'mdi-check-circle-outline': workflow.isSuccessful, 'mdi-progress-check': workflow.isStarted, 'mdi-alert-circle-outline': workflow.isFailed}"></span> {{workflow.data.projectName}}
           </span>
         <p><span class="mdi mdi-run"></span> {{workflow.data.runName}}</p>
-        <p><span class="mdi mdi-clock-outline"></span> Duration: <!--1h 23m 42s-->{{workflow.data.duration}}</p>
-        <p><span class="mdi mdi-calendar"></span> Started: <!--Tue Apr 23 18:12:00-->{{workflow.data.startTime}}</p>
+        <p><span class="mdi mdi-clock-outline"></span> Duration: {{workflow.data.duration.humanize()}} <!--1h 23m 42s. TODO: Improve precision @see https://github.com/moment/moment/issues/348 --></p>
+        <p><span class="mdi mdi-calendar"></span> Started: {{workflow.data.startTime.format("ddd MMM D YYYY hh:mm:ss")}}</p>
       </div>
     </div>
   </div>
