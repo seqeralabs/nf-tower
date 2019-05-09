@@ -27,6 +27,19 @@ class WorkflowController {
     }
 
 
+    @Get("/list")
+    @Transactional
+    HttpResponse<List> list() {
+        Workflow workflow = workflowService.get(1)
+
+        if (!workflow) {
+            return HttpResponse.notFound()
+        }
+
+        List json = [WorkflowJsonMarshaller.generateJson(workflow)]
+        HttpResponse.ok(json)
+    }
+
     @Get("/{id}")
     @Transactional
     HttpResponse<Map> get(Long id) {
