@@ -1,0 +1,44 @@
+@import "./src/assets/variables";
+
+.multi-progress-bar {
+  width: 100%;
+  height: 35px;
+  display: flex;
+}
+
+.segment {
+
+  padding: 10px 0 10px 5px;
+  color: white;
+
+  .figure {
+    font-weight: bold;
+    font-size: 1.2em;
+  }
+
+  &.running {
+    background-color: $started-blue;
+  }
+
+  &.submitted {
+    background-color: $submitted-orange;
+  }
+
+  &.failed {
+    background-color: $failed-red;
+  }
+
+  &.pending {
+    background-color: $pending-purple;
+  }
+
+  &.succeeded {
+    background-color: $succeed-green;
+  }
+
+  &.cached {
+    background-color: $cached-grey;
+  }
+}
+
+
