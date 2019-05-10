@@ -8,6 +8,7 @@ import { HeaderComponent } from './component/header/header.component';
 import { CentralComponent } from './component/central/central.component';
 import {HttpClientModule} from "@angular/common/http";
 import { WorkflowCardComponent } from './component/workflow-card/workflow-card.component';
+import { WorkflowDetailComponent } from './component/workflow-detail/workflow-detail.component';
 
 @NgModule({
   declarations: [
@@ -15,7 +16,8 @@ import { WorkflowCardComponent } from './component/workflow-card/workflow-card.c
     SidebarComponent,
     HeaderComponent,
     CentralComponent,
-    WorkflowCardComponent
+    WorkflowCardComponent,
+    WorkflowDetailComponent
   ],
   imports: [
     BrowserModule,

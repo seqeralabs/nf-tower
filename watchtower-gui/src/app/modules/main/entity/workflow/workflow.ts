@@ -1,7 +1,8 @@
 import {WorkflowData} from "./workflow-data";
 import {Progress} from "./progress";
-import * as moment from "moment";
 import {WorkflowStatus} from "./workflow-status.enum";
+import {HumanizeDuration, HumanizeDurationLanguage, ILanguage} from "humanize-duration-ts";
+import * as dateFormat from "date-fns/format";
 
 export class Workflow {
 
@@ -10,10 +11,6 @@ export class Workflow {
 
   constructor(json: any) {
     json.workflow.status = WorkflowStatus[json.workflow.status];
-    json.workflow.submitTime = moment(json.workflow.submitTime);
-    json.workflow.startTime = moment(json.workflow.startTime);
-    json.workflow.completeTime = json.workflow.completeTime ? moment(json.workflow.completeTime) : null;
-    json.workflow.duration = moment.duration(json.workflow.duration, 'seconds');
 
     this.data = <WorkflowData> json.workflow;
     this.progress = <Progress> json.progress;
@@ -32,5 +29,15 @@ export class Workflow {
     return (this.data.status === WorkflowStatus.FAILED);
   }
 
+  get humanizedDuration(): string {
+    let language: HumanizeDurationLanguage  = new HumanizeDurationLanguage();
+    language.addLanguage('short', <ILanguage> {y: () => 'y', mo: () => 'mo', w: () => 'w', d: () => 'd', h: () => 'h', m: () => 'm', s: () => 's'});
+
+    return new HumanizeDuration(language).humanize(this.data.duration * 1000, {language: 'short', delimiter: ' '});
+  }
+
+  getWorkflowStartDateFormatted(format: string): string {
+    return dateFormat(this.data.startTime, format);
+  }
 
 }
