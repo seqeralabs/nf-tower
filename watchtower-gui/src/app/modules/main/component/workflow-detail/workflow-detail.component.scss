@@ -1,0 +1,34 @@
+@import "./src/assets/variables";
+
+.mdi-check-circle-outline {
+  color: $succeed-green;
+}
+
+.mdi-alert-circle-outline {
+  color: $failed-red
+}
+
+.command-line {
+  background: lightgrey;
+  padding: 5px 0 30px;
+}
+
+
+
+@keyframes spinner {
+  to {transform: rotate(360deg);}
+}
+
+.spinner:before {
+  content: '';
+  box-sizing: border-box;
+  width: 20px;
+  height: 20px;
+  margin-top: -10px;
+  margin-left: -10px;
+  border-radius: 50%;
+  border-top: 2px solid $started-blue;
+  border-right: 2px solid transparent;
+  animation: spinner .6s linear infinite;
+}
+
