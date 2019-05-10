@@ -17,10 +17,10 @@
   </div>
   <div class="row">
     <div class="col s6 mdi mdi-server"> {{workflow.data.workDir}}</div>
-    <div class="col s6 mdi mdi-desktop-classic"> {{workflow.data.stats.computeTimeFmt}} CPU time</div>
+    <div class="col s6 mdi mdi-desktop-classic"> CPU time: {{workflow.data.stats.computeTimeFmt}}</div>
   </div>
   <div class="row">
-    <div class="col s6 mdi mdi-docker"> {{workflow.data.container}} ({{workflow.data.containerEngine}})</div>
+    <div class="col s6 mdi mdi-docker"> {{workflow.data.container}} ({{workflow.data.containerEngine ? workflow.data.containerEngine : 'unknown'}})</div>
     <div class="col s6 mdi mdi-account"> {{workflow.data.userName}}</div>
   </div>
 
@@ -28,6 +28,12 @@
     <div class="col s12">
       <p>Command line<p>
       <code class="col s12 command-line">{{workflow.data.commandLine}}</code>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col s12">
+      <wt-multicolored-progress-bar [progress]="workflow.progress"></wt-multicolored-progress-bar>
     </div>
   </div>
 </div>

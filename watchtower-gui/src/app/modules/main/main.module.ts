@@ -9,6 +9,7 @@ import { CentralComponent } from './component/central/central.component';
 import {HttpClientModule} from "@angular/common/http";
 import { WorkflowCardComponent } from './component/workflow-card/workflow-card.component';
 import { WorkflowDetailComponent } from './component/workflow-detail/workflow-detail.component';
+import { MulticoloredProgressBarComponent } from './component/multicolored-progress-bar/multicolored-progress-bar.component';
 
 @NgModule({
   declarations: [
@@ -17,7 +18,8 @@ import { WorkflowDetailComponent } from './component/workflow-detail/workflow-de
     HeaderComponent,
     CentralComponent,
     WorkflowCardComponent,
-    WorkflowDetailComponent
+    WorkflowDetailComponent,
+    MulticoloredProgressBarComponent
   ],
   imports: [
     BrowserModule,
