@@ -53,4 +53,14 @@ class TraceController {
         response.contentType(MediaType.APPLICATION_JSON)
     }
 
+    @Post("/workflow")
+    HttpResponse<TraceWorkflowResponse> save(@Body TraceWorkflowRequest trace) {
+        log.info "+++ TRACE=$trace"
+
+        def resp = new TraceWorkflowResponse()
+        resp.status = 'OK'
+        resp.workflowId = '1234'
+        return HttpResponse.ok(resp)
+    }
+
 }
