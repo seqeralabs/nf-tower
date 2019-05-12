@@ -10,7 +10,7 @@ import java.time.Instant
 
 class WorkflowTraceJsonUnmarshaller {
 
-    static WorkflowStatus identifyWorflowStatus(Map workflowJson) {
+    static WorkflowStatus identifyWorkflowStatus(Map workflowJson) {
         if (workflowJson.workflow['workflowId']) {
             workflowJson.workflow['complete'] ? (workflowJson.workflow['success'] ? WorkflowStatus.SUCCEEDED : WorkflowStatus.FAILED) : (workflowJson.workflow['resume'] ? WorkflowStatus.RESUMED : WorkflowStatus.PAUSED)
         } else {
