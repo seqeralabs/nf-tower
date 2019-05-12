@@ -44,7 +44,7 @@ class TraceControllerSpec extends AbstractContainerBaseSpec {
                 Map.class
         )
 
-        then: 'the workflow has been saved succesfully'
+        then: 'the workflow has been saved successfully'
         response.status == HttpStatus.CREATED
         response.body().traceType == TraceType.WORKFLOW.name()
         response.body().workflowId
@@ -66,7 +66,7 @@ class TraceControllerSpec extends AbstractContainerBaseSpec {
                 Map.class
         )
 
-        then: 'the task has been saved succesfully'
+        then: 'the task has been saved successfully'
         response.status == HttpStatus.CREATED
         response.body().traceType == TraceType.TASK.name()
         response.body().workflowId

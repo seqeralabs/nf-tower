@@ -19,7 +19,7 @@ class WorkflowServiceImpl implements WorkflowService {
     }
 
     Workflow processWorkflowJsonTrace(Map workflowJson) {
-        WorkflowStatus workflowStatus = WorkflowTraceJsonUnmarshaller.identifyWorflowStatus(workflowJson)
+        WorkflowStatus workflowStatus = WorkflowTraceJsonUnmarshaller.identifyWorkflowStatus(workflowJson)
 
         workflowStatus == WorkflowStatus.STARTED ? createFromJson(workflowJson) : updateFromJson(workflowJson, workflowStatus)
     }
