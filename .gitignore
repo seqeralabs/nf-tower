@@ -6,6 +6,7 @@ work/
 build/
 target/
 out/
+**/bin/
 .idea
 *.iml
 *.ipr
