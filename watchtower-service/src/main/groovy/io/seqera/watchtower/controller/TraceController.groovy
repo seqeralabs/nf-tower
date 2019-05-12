@@ -13,6 +13,10 @@ import io.seqera.watchtower.service.TraceService
 
 import javax.inject.Inject
 
+/**
+ * Implements the `trace` API
+ *
+ */
 @Controller("/trace")
 @Slf4j
 class TraceController {

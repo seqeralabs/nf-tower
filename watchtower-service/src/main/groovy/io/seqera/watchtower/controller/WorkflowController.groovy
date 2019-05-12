@@ -12,6 +12,9 @@ import io.seqera.watchtower.service.WorkflowService
 
 import javax.inject.Inject
 
+/**
+ * Implements the `workflow` API
+ */
 @Controller("/workflow")
 @Slf4j
 class WorkflowController {
