@@ -1,8 +1,7 @@
 <div *ngIf="workflow">
   <h4>
     <a [href]="workflow.data.repository" target="_blank">{{workflow.data.projectName}}</a>&nbsp;
-    <span [ngClass]="{'spinner': workflow.isStarted, 'mdi': (workflow.isSuccessful || workflow.isFailed), 'mdi-check-circle-outline': workflow.isSuccessful, 'mdi-alert-circle-outline': workflow.isFailed}"></span>
-
+    <span [ngClass]="{'spinner': workflow.isStarted, 'mdi': (workflow.isCompleted), 'mdi-check-circle-outline': workflow.isSuccessful, 'mdi-alert-circle-outline': workflow.isFailed}"></span>
   </h4>
 
   <h5><span class="mdi mdi-run"></span>{{workflow.data.runName}}</h5>
@@ -17,7 +16,7 @@
   </div>
   <div class="row">
     <div class="col s6 mdi mdi-server"> {{workflow.data.workDir}}</div>
-    <div class="col s6 mdi mdi-desktop-classic"> CPU time: {{workflow.data.stats.computeTimeFmt}}</div>
+    <div class="col s6 mdi mdi-desktop-classic"> CPU time: {{workflow.data.stats?.computeTimeFmt ? workflow.data.stats.computeTimeFmt : 'unknown'}}</div>
   </div>
   <div class="row">
     <div class="col s6 mdi mdi-docker"> {{workflow.data.container}} ({{workflow.data.containerEngine ? workflow.data.containerEngine : 'unknown'}})</div>
