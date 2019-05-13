@@ -29,6 +29,10 @@ export class Workflow {
     return (this.data.status === WorkflowStatus.FAILED);
   }
 
+  get isCompleted(): boolean {
+    return (this.isSuccessful || this.isFailed);
+  }
+
   get humanizedDuration(): string {
     let language: HumanizeDurationLanguage  = new HumanizeDurationLanguage();
     language.addLanguage('short', <ILanguage> {y: () => 'y', mo: () => 'mo', w: () => 'w', d: () => 'd', h: () => 'h', m: () => 'm', s: () => 's'});

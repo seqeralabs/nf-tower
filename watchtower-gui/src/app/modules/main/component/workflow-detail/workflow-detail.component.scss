@@ -22,10 +22,9 @@
 .spinner:before {
   content: '';
   box-sizing: border-box;
+  position: absolute;
   width: 20px;
   height: 20px;
-  margin-top: -10px;
-  margin-left: -10px;
   border-radius: 50%;
   border-top: 2px solid $started-blue;
   border-right: 2px solid transparent;
