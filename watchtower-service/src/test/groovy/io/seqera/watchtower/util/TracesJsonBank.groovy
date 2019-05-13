@@ -143,7 +143,7 @@ class NextflowSimulator {
 
         Random random = new Random()
         int nTakenElementsSubmitted = 0, nTakenElementsRunning = 0, nTakenElementsCompleted = 0
-        while (!taskSubmittedJsonFiles.isEmpty() && !taskRunningJsonFiles.isEmpty() && !taskCompletedJsonFiles.isEmpty()) {
+        while (!taskSubmittedJsonFiles.isEmpty() || !taskRunningJsonFiles.isEmpty() || !taskCompletedJsonFiles.isEmpty()) {
             int maxElementsSubmittedToTake = random.nextInt(taskSubmittedJsonFiles.size() + 1)
             maxElementsSubmittedToTake.times {
                 File jsonFile = taskSubmittedJsonFiles.first()
