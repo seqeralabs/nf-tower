@@ -33,7 +33,7 @@ export class Workflow {
     let language: HumanizeDurationLanguage  = new HumanizeDurationLanguage();
     language.addLanguage('short', <ILanguage> {y: () => 'y', mo: () => 'mo', w: () => 'w', d: () => 'd', h: () => 'h', m: () => 'm', s: () => 's'});
 
-    return new HumanizeDuration(language).humanize(this.data.duration * 1000, {language: 'short', delimiter: ' '});
+    return new HumanizeDuration(language).humanize(this.data.duration, {language: 'short', delimiter: ' '});
   }
 
   getWorkflowStartDateFormatted(format: string): string {

@@ -1,6 +1,6 @@
 <div *ngIf="workflow">
   <h4>
-    {{workflow.data.runName}} / <a [href]="workflow.data.repository" target="_blank">{{workflow.data.projectName}}</a>&nbsp;
+    <a [href]="workflow.data.repository" target="_blank">{{workflow.data.projectName}}</a>&nbsp;
     <span [ngClass]="{'spinner': workflow.isStarted, 'mdi': (workflow.isSuccessful || workflow.isFailed), 'mdi-check-circle-outline': workflow.isSuccessful, 'mdi-alert-circle-outline': workflow.isFailed}"></span>
 
   </h4>

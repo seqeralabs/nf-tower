@@ -18,6 +18,11 @@ class WorkflowServiceImpl implements WorkflowService {
         Workflow.get(id)
     }
 
+    List<Workflow> list() {
+        Workflow.list()
+    }
+
+
     Workflow processWorkflowJsonTrace(Map workflowJson) {
         WorkflowStatus workflowStatus = WorkflowTraceJsonUnmarshaller.identifyWorkflowStatus(workflowJson)
 

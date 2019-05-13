@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import {Workflow} from "../../entity/workflow/workflow";
-import {Observable} from "rxjs";
 import {WorkflowService} from "../../service/workflow.service";
 import {ActivatedRoute} from "@angular/router";
+import {ParamMap} from "@angular/router/src/shared";
 
 @Component({
   selector: 'wt-workflow-detail',
@@ -16,11 +16,16 @@ export class WorkflowDetailComponent implements OnInit {
   constructor(private workflowService: WorkflowService, private route: ActivatedRoute) { }
 
   ngOnInit() {
-    this.fetchWorkflow();
+    this.route.paramMap.subscribe((params: ParamMap) => {
+        console.log('Getting params');
+        const workflowId: string = params.get('id');
+        this.fetchWorkflow(workflowId);
+      }
+    );
   }
 
-  fetchWorkflow(): void {
-    const workflowId: string = this.route.snapshot.paramMap.get('id');
+  fetchWorkflow(workflowId: string | number): void {
+    console.log(`Fetching workflow ${workflowId}`);
 
     this.workflowService.getWorkflow(workflowId).subscribe((workflow: Workflow) => this.workflow = workflow)
   }
