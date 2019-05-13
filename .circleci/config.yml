@@ -1,0 +1,17 @@
+version: 2
+jobs:
+  build:
+    machine: true
+    environment:
+        GRADLE_OPTS: -Dorg.gradle.daemon=false
+    steps:
+      - checkout
+      - run: ./gradlew check assemble
+      - run: docker build -t watchtower-service:latest watchtower-service/
+      - run: docker build -t watchtower-gui:latest watchtower-gui/
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build
