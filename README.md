@@ -10,6 +10,15 @@ Nextflow Tower system
 
     make run
 
+## Basic use case
+
+Load data from nextflow:
+
+    ./nextflow-19.05.0-TOWER-all run hello -with-tower http://localhost:8000/api/trace/save
+    
+Navigate to GUI in `http://localhost:8000`.
+
+Play around.
 
 ## Tower Mock Server 
 
