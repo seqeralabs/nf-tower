@@ -4,7 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import io.seqera.watchtower.domain.MagnitudeSummary
 import io.seqera.watchtower.domain.Workflow
 
-class WorkflowJsonMarshaller {
+class WorkflowTraceJsonMarshaller {
+
+    static List<Map> generateJsonForList(List<Workflow> workflows) {
+        workflows.collect { Workflow workflow ->
+            generateJson(workflow)
+        }
+    }
 
     static Map generateJson(Workflow workflow) {
         Map json = [workflow: [workflowId: workflow.id, manifest: [:], nextflow: [:], stats: [:]], progress: [:]]

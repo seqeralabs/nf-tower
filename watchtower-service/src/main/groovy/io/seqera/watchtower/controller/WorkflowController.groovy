@@ -7,7 +7,7 @@ import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
 import io.seqera.watchtower.domain.Workflow
-import io.seqera.watchtower.pogo.marshaller.WorkflowJsonMarshaller
+import io.seqera.watchtower.pogo.marshaller.WorkflowTraceJsonMarshaller
 import io.seqera.watchtower.service.WorkflowService
 
 import javax.inject.Inject
@@ -29,15 +29,10 @@ class WorkflowController {
 
     @Get("/list")
     @Transactional
-    HttpResponse<List> list() {
-        Workflow workflow = workflowService.get(1)
-
-        if (!workflow) {
-            return HttpResponse.notFound()
-        }
-
-        List json = [WorkflowJsonMarshaller.generateJson(workflow)]
-        HttpResponse.ok(json)
+    HttpResponse<List<Map>> list() {
+        List<Workflow> workflows = workflowService.list()
+        List<Map> jsonList = WorkflowTraceJsonMarshaller.generateJsonForList(workflows)
+        HttpResponse.ok(jsonList)
     }
 
     @Get("/{id}")
@@ -49,7 +44,7 @@ class WorkflowController {
             return HttpResponse.notFound()
         }
 
-        Map json = WorkflowJsonMarshaller.generateJson(workflow)
+        Map json = WorkflowTraceJsonMarshaller.generateJson(workflow)
         HttpResponse.ok(json)
     }
 

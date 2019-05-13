@@ -6,6 +6,8 @@ interface WorkflowService {
 
     Workflow get(Serializable id)
 
+    List<Workflow> list()
+
     Workflow processWorkflowJsonTrace(Map workflowJson)
 
 }

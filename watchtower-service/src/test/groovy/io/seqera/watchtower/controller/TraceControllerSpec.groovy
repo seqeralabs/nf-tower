@@ -15,6 +15,7 @@ import io.seqera.watchtower.pogo.enums.WorkflowStatus
 import io.seqera.watchtower.util.AbstractContainerBaseSpec
 import io.seqera.watchtower.util.DomainCreator
 import io.seqera.watchtower.util.TracesJsonBank
+import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper
 
 import javax.inject.Inject
 
@@ -86,7 +87,34 @@ class TraceControllerSpec extends AbstractContainerBaseSpec {
         then:
         resp.body().status == 'OK'
         resp.body().workflowId == '1234'
+    }
 
+    void "save traces simulated from a complete sequence"() {
+        given: 'a JSON trace sequence'
+        List<File> jsonFileSequence = TracesJsonBank.simulateNextflowWithTowerJsonSequence(2)
+
+        when: 'send a save request for each trace'
+        HttpResponse<Map> lastResponse
+        ObjectMapper mapper = new ObjectMapper()
+        jsonFileSequence.eachWithIndex { File jsonFile, int index ->
+            Map jsonMap = mapper.readValue(jsonFile, Map.class)
+            if (index > 0) {
+                if (jsonMap.task) {
+                    jsonMap.task.workflowId = lastResponse.body().workflowId
+                } else if (jsonMap.workflow)
+                    jsonMap.workflow.workflowId = lastResponse.body().workflowId
+            }
+
+            lastResponse = client.toBlocking().exchange(HttpRequest.POST('/trace/save', jsonMap), Map.class)
+        }
+
+        and: 'get the saved workflow'
+        Workflow workflow = Workflow.get(lastResponse.body().workflowId)
+
+        then: 'the workflow and its tasks have been saved'
+        workflow
+        workflow.tasks.size() == 2
+        workflow.status == WorkflowStatus.SUCCEEDED
     }
 
 }

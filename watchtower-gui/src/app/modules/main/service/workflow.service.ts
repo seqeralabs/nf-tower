@@ -46,7 +46,7 @@ export class WorkflowService {
 
   getWorkflow(id: string | number): Observable<Workflow> {
     if (!this.isWorkflowsCacheEmpty()) {
-      console.log('Getting workflow from cache');
+      console.log(`Getting workflow ${id} from cache`);
       let workflow: Workflow = this.workflowsByIdCache.get(id);
       if (workflow) {
         return of(workflow);
@@ -57,6 +57,7 @@ export class WorkflowService {
   }
 
   private requestWorkflow(id: string | number): Observable<Workflow> {
+    console.log(`Requesting workflow ${id}`);
     const url: string = `${endpointUrl}/${id}`;
 
     return this.http.get(url).pipe(
