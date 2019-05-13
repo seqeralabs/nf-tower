@@ -16,6 +16,7 @@ import io.seqera.watchtower.util.AbstractContainerBaseSpec
 import io.seqera.watchtower.util.DomainCreator
 import io.seqera.watchtower.util.TracesJsonBank
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper
+import spock.lang.Ignore
 
 import javax.inject.Inject
 
@@ -76,6 +77,7 @@ class TraceControllerSpec extends AbstractContainerBaseSpec {
         Task.count() == 1
     }
 
+<<<<<<< HEAD
     def 'should trace a workflow request' () {
         given:
         def req = new File('src/test/resources/workflow_1/workflow_started.json').text
@@ -89,6 +91,9 @@ class TraceControllerSpec extends AbstractContainerBaseSpec {
         resp.body().workflowId == '1234'
     }
 
+=======
+    @Ignore
+>>>>>>> Ignore the simulator test for now
     void "save traces simulated from a complete sequence"() {
         given: 'a JSON trace sequence'
         List<File> jsonFileSequence = TracesJsonBank.simulateNextflowWithTowerJsonSequence(2)
