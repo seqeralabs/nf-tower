@@ -6,13 +6,11 @@ import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
 import io.seqera.watchtower.domain.Workflow
-import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowRequest
 import io.seqera.watchtower.pogo.exchange.workflow.WorkflowGet
 import io.seqera.watchtower.pogo.exchange.workflow.WorkflowList
 import io.seqera.watchtower.service.WorkflowService
 
 import javax.inject.Inject
-import java.time.Instant
 
 /**
  * Implements the `workflow` API
@@ -37,7 +35,6 @@ class WorkflowController {
         List<WorkflowGet> result = workflows.collect {
             buildWorkflowGetResponse(it)
         }
-
         HttpResponse.ok(new WorkflowList(workflows: result))
     }
 
@@ -49,7 +46,6 @@ class WorkflowController {
         if (!workflow) {
             return HttpResponse.notFound()
         }
-
         HttpResponse.ok(buildWorkflowGetResponse(workflow))
     }
 
