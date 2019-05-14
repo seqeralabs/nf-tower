@@ -1,6 +1,7 @@
 package io.seqera.watchtower.controller
 
 import com.fasterxml.jackson.annotation.JsonSetter
+import io.seqera.watchtower.domain.SummaryEntry
 import io.seqera.watchtower.domain.Task
 import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.enums.TraceType
@@ -23,7 +24,7 @@ class TraceWorkflowRequest {
 
     Instant utcTime
     Progress progress
-    Map summary
+    List<SummaryEntry> summary
 
     TraceType getTraceType() {
         workflow ? TraceType.WORKFLOW : task ? TraceType.TASK : TraceType.INVALID

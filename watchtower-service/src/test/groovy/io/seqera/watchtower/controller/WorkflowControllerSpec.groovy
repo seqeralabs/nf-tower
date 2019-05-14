@@ -27,10 +27,12 @@ class WorkflowControllerSpec extends AbstractContainerBaseSpec {
 
     void "get a workflow"() {
         given: "a workflow with some summaries"
-        Workflow workflow = new DomainCreator().createWorkflow(
+        DomainCreator domainCreator = new DomainCreator()
+        Workflow workflow = domainCreator.createWorkflow(
             manifest: new Manifest(defaultBranch: 'master'),
             stats: new Stats(computeTimeFmt: '(a few seconds)'),
-            nextflow: new NextflowMeta(version: "19.05.0-TOWER")
+            nextflow: new NextflowMeta(version: "19.05.0-TOWER"),
+            summaryEntries: [domainCreator.createSummaryEntry(), domainCreator.createSummaryEntry()]
         )
 
         and: "perform the request to obtain the workflow"
@@ -45,6 +47,7 @@ class WorkflowControllerSpec extends AbstractContainerBaseSpec {
         response.body().workflow.stats
         response.body().workflow.nextflow
         response.body().workflow.manifest
+        response.body().summary.size() == 2
     }
 
     void "try to get a non-existing workflow"() {

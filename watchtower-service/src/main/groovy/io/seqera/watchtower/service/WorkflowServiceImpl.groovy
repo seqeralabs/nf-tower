@@ -3,6 +3,7 @@ package io.seqera.watchtower.service
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
 import io.seqera.watchtower.controller.TraceWorkflowRequest
+import io.seqera.watchtower.domain.SummaryEntry
 import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.exceptions.NonExistingWorkflowException
 
@@ -23,7 +24,7 @@ class WorkflowServiceImpl implements WorkflowService {
 
 
     Workflow processWorkflowJsonTrace(TraceWorkflowRequest traceWorkflowRequest) {
-        traceWorkflowRequest.workflow.checkIsStarted() ? createFromJson(traceWorkflowRequest.workflow) : updateFromJson(traceWorkflowRequest.workflow)
+        traceWorkflowRequest.workflow.checkIsStarted() ? createFromJson(traceWorkflowRequest.workflow) : updateFromJson(traceWorkflowRequest.workflow, traceWorkflowRequest.summary)
     }
 
     private Workflow createFromJson(Workflow workflow) {
@@ -34,12 +35,13 @@ class WorkflowServiceImpl implements WorkflowService {
     }
 
     @CompileDynamic
-    private Workflow updateFromJson(Workflow workflow) {
+    private Workflow updateFromJson(Workflow workflow, List<SummaryEntry> summary) {
         Workflow existingWorkflow = Workflow.get(workflow.workflowId)
         if (!existingWorkflow) {
             throw new NonExistingWorkflowException("Can't update a non-existing workflow")
         }
 
+        associateSummaryEntries(existingWorkflow, summary)
         updateChangeableFields(workflow, existingWorkflow)
 
         existingWorkflow.save()
@@ -57,6 +59,12 @@ class WorkflowServiceImpl implements WorkflowService {
         workflowToUpdate.errorReport = originalWorkflow.errorReport
 
         workflowToUpdate.stats = originalWorkflow.stats
+    }
+
+    private void associateSummaryEntries(Workflow workflow, List<SummaryEntry> summary) {
+        summary.each { SummaryEntry summaryEntry ->
+            workflow.addToSummaryEntries(summaryEntry)
+        }
     }
 
 }
