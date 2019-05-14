@@ -3,6 +3,7 @@ package io.seqera.watchtower.controller
 import com.fasterxml.jackson.annotation.JsonSetter
 import io.seqera.watchtower.domain.Task
 import io.seqera.watchtower.domain.Workflow
+import io.seqera.watchtower.pogo.enums.TraceType
 
 import java.time.Instant
 
@@ -23,6 +24,10 @@ class TraceWorkflowRequest {
     Instant utcTime
     Progress progress
     Map summary
+
+    TraceType getTraceType() {
+        workflow ? TraceType.WORKFLOW : task ? TraceType.TASK : TraceType.INVALID
+    }
 
     @JsonSetter('utcTime')
     void deserializeCompleteInstant(String utcTimestamp) {

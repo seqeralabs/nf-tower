@@ -1,6 +1,7 @@
 package io.seqera.watchtower.service
 
 import io.seqera.watchtower.controller.TraceWorkflowRequest
+import io.seqera.watchtower.controller.TraceWorkflowResponse
 import io.seqera.watchtower.domain.Task
 import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.enums.TraceType
@@ -24,14 +25,12 @@ class TraceServiceImpl implements TraceService {
         this.taskService = taskService
     }
 
-    Map<String, Object> createEntityByTrace(Map<String, Object> traceJson) {
-        TraceType traceType = identifyTrace(traceJson)
-
-        (traceType == TraceType.WORKFLOW) ? processWorkflowTrace(traceJson) : processTaskTrace(traceJson)
+    TraceWorkflowResponse createEntityByTrace(TraceWorkflowRequest trace) {
+        (trace.traceType == TraceType.WORKFLOW) ? processWorkflowTrace(trace) : (trace.traceType == TraceType.TASK) ? processTaskTrace(trace) : null
     }
 
-    Map<String, Object> processWorkflowTrace(Map<String, Object> traceJson) {
-        Map<String, Object> result = [:]
+    TraceWorkflowResponse processWorkflowTrace(TraceWorkflowRequest traceJson) {
+        TraceWorkflowResponse result = new TraceWorkflowResponse()
 
         result.traceType = TraceType.WORKFLOW
         try {
@@ -39,38 +38,38 @@ class TraceServiceImpl implements TraceService {
 
             String errorMessage = checkWorkflowSaveErrors(workflow)
             if (errorMessage) {
-                result.error = errorMessage
+                result.message = errorMessage
             } else {
                 result.workflowId = workflow.id
             }
         } catch (NonExistingWorkflowException e) {
-            result.error = e.message
+            result.message = e.message
         } catch (Exception e) {
-            result.error = "Can't process JSON: check format"
+            result.message = "Can't process JSON: check format"
         }
 
         result
     }
 
-    Map<String, Object> processTaskTrace(Map<String, Object> traceJson) {
-        Map<String, Object> result = [:]
+    TraceWorkflowResponse processTaskTrace(TraceWorkflowRequest trace) {
+        TraceWorkflowResponse result = new TraceWorkflowResponse()
 
         result.traceType = TraceType.TASK
         try {
-            Task task = taskService.processTaskJsonTrace(traceJson as TraceWorkflowRequest)
+            Task task = taskService.processTaskJsonTrace(trace as TraceWorkflowRequest)
 
             String errorMessage = checkTaskSaveErrors(task)
             if (errorMessage) {
-                result.error = errorMessage
+                result.message = errorMessage
             } else {
-                result.workflowId = task.workflowId
+                result.workflowId = task.workflow.id
             }
         } catch (NonExistingWorkflowException e) {
-            result.error = e.message
+            result.message = e.message
         } catch (NonExistingTaskException e) {
-            result.error = e.message
+            result.message = e.message
         } catch (Exception e) {
-            result.error = "Can't process JSON: check format"
+            result.message = "Can't process JSON: check format"
         }
 
         result
@@ -92,6 +91,8 @@ class TraceServiceImpl implements TraceService {
         if (uniqueError) {
             return "Can't save a workflow with the same ${uniqueError.field} of another"
         }
+
+        null
     }
 
     private String checkTaskSaveErrors(Task task) {
@@ -110,10 +111,8 @@ class TraceServiceImpl implements TraceService {
         if (uniqueError) {
             return "Can't save a task with the same ${uniqueError.field} of another"
         }
-    }
 
-    private static TraceType identifyTrace(Map<String, Object> traceJson) {
-        traceJson.workflow ? TraceType.WORKFLOW : traceJson.task ? TraceType.TASK : null
+        null
     }
 
 }
