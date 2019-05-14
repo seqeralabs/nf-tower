@@ -1,30 +1,39 @@
 package io.seqera.watchtower.domain
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import grails.gorm.annotation.Entity
+import groovy.transform.CompileDynamic
+
+
 /**
  * Model workflow stats
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
+@Entity
+@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version'])
+@CompileDynamic
 class Stats {
 
     String computeTimeFmt
 
-    int cachedCount
-    int failedCount
-    int ignoredCount
-    int succeedCount
+    Integer cachedCount
+    Integer failedCount
+    Integer ignoredCount
+    Integer succeedCount
 
     String cachedCountFmt
     String succeedCountFmt
     String failedCountFmt
     String ignoredCountFmt
 
-    float cachedPct
-    float failedPct
-    float succeedPct
-    float ignoredPct
+    Float cachedPct
+    Float failedPct
+    Float succeedPct
+    Float ignoredPct
 
-    long cachedDuration
-    long failedDuration
-    long succeedDuration
+    Long cachedDuration
+    Long failedDuration
+    Long succeedDuration
+
 }

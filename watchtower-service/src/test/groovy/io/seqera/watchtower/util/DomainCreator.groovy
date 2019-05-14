@@ -27,8 +27,8 @@ class DomainCreator {
         fields.sessionId = fields.containsKey('sessionId') ? fields.sessionId : "35cce421-4712-4da5-856b-6557635e54${generateUniqueNamePart()}d".toString()
         fields.runName = fields.containsKey('runName') ? fields.runName : "astonishing_majorana${generateUniqueNamePart()}".toString()
         fields.status = fields.containsKey('status') ? fields.status : WorkflowStatus.STARTED
-        fields.submitTime = fields.containsKey('submitTime') ? fields.submitTime : Instant.now()
-        fields.startTime = fields.containsKey('startTime') ? fields.startTime : fields.submitTime
+        fields.submit = fields.containsKey('submit') ? fields.submit : Instant.now()
+        fields.start = fields.containsKey('start') ? fields.start : fields.submit
 
         fields.projectDir = fields.containsKey('projectDir') ? fields.projectDir : "/home/user/.nextflow/assets/nextflow-io/hello"
         fields.profile = fields.containsKey('profile') ? fields.profile : "standard"

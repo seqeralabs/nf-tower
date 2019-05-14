@@ -8,13 +8,14 @@ import groovy.transform.CompileDynamic
 
 import java.time.Instant
 
-@Entity
-@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version', 'configFiles'])
-@CompileDynamic
+
 /**
  * Workflow info.
  * @see https://www.nextflow.io/docs/latest/tracing.html#execution-report
  */
+@Entity
+@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version'])
+@CompileDynamic
 class Workflow {
 
     static hasMany = [tasks: Task, magnitudeSummaries: MagnitudeSummary]

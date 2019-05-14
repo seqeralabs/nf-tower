@@ -1,5 +1,9 @@
 package io.seqera.watchtower.domain
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import grails.gorm.annotation.Entity
+import groovy.transform.CompileDynamic
+
 /**
  * Model workflow progress counters
  *
@@ -7,11 +11,11 @@ package io.seqera.watchtower.domain
  */
 class Progress {
 
-    int running
-    int submitted
-    int failed
-    int pending
-    int succeeded
-    int cached
+    Integer running
+    Integer submitted
+    Integer failed
+    Integer pending
+    Integer succeeded
+    Integer cached
 
 }

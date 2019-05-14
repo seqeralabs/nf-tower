@@ -1,5 +1,6 @@
 package io.seqera.watchtower.domain
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import grails.gorm.annotation.Entity
 import groovy.transform.CompileDynamic
 
@@ -9,6 +10,7 @@ import groovy.transform.CompileDynamic
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
 @Entity
+@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version'])
 @CompileDynamic
 class Manifest {
 

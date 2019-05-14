@@ -57,7 +57,7 @@ class TraceServiceImpl implements TraceService {
 
         result.traceType = TraceType.TASK
         try {
-            Task task = taskService.processTaskJsonTrace(traceJson)
+            Task task = taskService.processTaskJsonTrace(traceJson as TraceWorkflowRequest)
 
             String errorMessage = checkTaskSaveErrors(task)
             if (errorMessage) {

@@ -24,7 +24,7 @@ class TaskTraceJsonUnmarshaller {
     }
 
     static void populateTaskFields(Map<String, Object> taskJson, TaskStatus taskStatus, Task task) {
-        task.currentStatus = taskStatus
+        task.status = taskStatus
         taskJson.each { String k, def v ->
             if (k == 'task') {
                 populateTaskMainData((Map<String, Object>) v, task)

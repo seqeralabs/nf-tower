@@ -2,7 +2,6 @@ package io.seqera.watchtower.util
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.seqera.watchtower.controller.TraceWorkflowRequest
-import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.enums.TaskStatus
 import io.seqera.watchtower.pogo.enums.WorkflowStatus
 
@@ -20,14 +19,14 @@ class TracesJsonBank {
         workflowTrace
     }
 
-    static Map extractTaskJsonTrace(Integer workflowOrder, Integer taskOrder, Long workflowId, TaskStatus taskStatus) {
+    static TraceWorkflowRequest extractTaskJsonTrace(Integer workflowOrder, Integer taskOrder, Long workflowId, TaskStatus taskStatus) {
         String fileRelativePath = "workflow_${workflowOrder}/task_${taskOrder}_${taskStatus.name().toLowerCase()}.json"
         File jsonFile = new File("${RESOURCES_DIR_PATH}/${fileRelativePath}")
 
-        Map jsonTrace = new ObjectMapper().readValue(jsonFile, HashMap.class)
-        jsonTrace.task.workflowId = workflowId
+        TraceWorkflowRequest taskTrace = new ObjectMapper().readValue(jsonFile, TraceWorkflowRequest.class)
+        taskTrace.task.workflowId = workflowId
 
-        jsonTrace
+        taskTrace
     }
 
     static List<File> simulateNextflowWithTowerJsonSequence(Integer workflowOrder) {
