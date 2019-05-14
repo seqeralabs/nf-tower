@@ -26,7 +26,6 @@ class DomainCreator {
 
         fields.sessionId = fields.containsKey('sessionId') ? fields.sessionId : "35cce421-4712-4da5-856b-6557635e54${generateUniqueNamePart()}d".toString()
         fields.runName = fields.containsKey('runName') ? fields.runName : "astonishing_majorana${generateUniqueNamePart()}".toString()
-        fields.status = fields.containsKey('status') ? fields.status : WorkflowStatus.STARTED
         fields.submit = fields.containsKey('submit') ? fields.submit : Instant.now()
         fields.start = fields.containsKey('start') ? fields.start : fields.submit
 
@@ -45,13 +44,6 @@ class DomainCreator {
         fields.commandLine = fields.containsKey('commandLine') ? fields.commandLine : "./nextflow-19.05.0-TOWER-all run hello -with-tower"
         fields.projectName = fields.containsKey('projectName') ? fields.projectName : "nextflow-io/hello"
         fields.scriptName = fields.containsKey('scriptName') ? fields.scriptName : "main.nf"
-
-        fields.running = fields.containsKey('running') ? fields.running : 0
-        fields.submitted = fields.containsKey('submitted') ? fields.submitted : 0
-        fields.failed = fields.containsKey('failed') ? fields.failed : 0
-        fields.pending = fields.containsKey('pending') ? fields.pending : 0
-        fields.succeeded = fields.containsKey('succeeded') ? fields.succeeded : 0
-        fields.cached = fields.containsKey('cached') ? fields.cached : 0
 
         populateInstance(workflow, fields)
     }

@@ -11,6 +11,7 @@ import io.seqera.watchtower.pogo.marshaller.WorkflowTraceJsonMarshaller
 import io.seqera.watchtower.service.WorkflowService
 
 import javax.inject.Inject
+import java.time.Instant
 
 /**
  * Implements the `workflow` API
@@ -29,23 +30,26 @@ class WorkflowController {
 
     @Get("/list")
     @Transactional
-    HttpResponse<List<Map>> list() {
+    HttpResponse<List<TraceWorkflowRequest>> list() {
         List<Workflow> workflows = workflowService.list()
-        List<Map> jsonList = WorkflowTraceJsonMarshaller.generateJsonForList(workflows)
-        HttpResponse.ok(jsonList)
+
+        List<TraceWorkflowRequest> result = workflows.collect {
+            new TraceWorkflowRequest(workflow: it, utcTime: Instant.now())
+        }
+
+        HttpResponse.ok(result)
     }
 
     @Get("/{id}")
     @Transactional
-    HttpResponse<Map> get(Long id) {
+    HttpResponse<TraceWorkflowRequest> get(Long id) {
         Workflow workflow = workflowService.get(id)
 
         if (!workflow) {
             return HttpResponse.notFound()
         }
 
-        Map json = WorkflowTraceJsonMarshaller.generateJson(workflow)
-        HttpResponse.ok(json)
+        HttpResponse.ok(new TraceWorkflowRequest(workflow: workflow, utcTime: Instant.now()))
     }
 
 
