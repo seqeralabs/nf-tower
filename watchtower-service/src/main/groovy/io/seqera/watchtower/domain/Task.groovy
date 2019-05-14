@@ -1,20 +1,25 @@
 package io.seqera.watchtower.domain
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonSetter
+import com.fasterxml.jackson.databind.ObjectMapper
 import grails.gorm.annotation.Entity
 import groovy.transform.CompileDynamic
 import io.seqera.watchtower.pogo.enums.TaskStatus
 
 import java.time.Instant
 
-@Entity
-@CompileDynamic
 /**
  * Workflow task info.
  * @see https://www.nextflow.io/docs/latest/tracing.html#execution-report
  */
+@Entity
+@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version'])
+@CompileDynamic
 class Task {
 
     static belongsTo = [workflow: Workflow]
+    String workflowId
 
     /**
      * The order of the task in the workflow
@@ -25,13 +30,16 @@ class Task {
     String process
     String tag
 
-    TaskStatus currentStatus
+    TaskStatus status
 
-    Instant submitTime
-    Instant startTime
-    Instant completeTime
+    Instant submit
+    Instant start
+    Instant complete
 
-    String module //Multi-value field (encoded as JSON)
+    /**
+     * Multi-value field encoded as JSON
+     */
+    String module
 
     String container
     Integer attempt
@@ -46,7 +54,6 @@ class Task {
     String time
     String env
 
-
     String errorAction
 
     Long exit
@@ -54,8 +61,8 @@ class Task {
     Long realtime
     Long nativeId
 
-    Double cpuPercentage
-    Double memPercentage
+    Double pcpu
+    Double pmem
     Long rss
     Long vmem
     Long peakRss
@@ -70,6 +77,43 @@ class Task {
     Long volCtxt
     Long invCtxt
 
+    boolean checkIsSubmitted() {
+        status == TaskStatus.SUBMITTED
+    }
+
+    boolean checkIsRunning() {
+        status == TaskStatus.RUNNING
+    }
+
+    boolean checkIsSucceeded() {
+        (status == TaskStatus.COMPLETED) && !errorAction
+    }
+
+    boolean checkIsFailed() {
+        (status == TaskStatus.COMPLETED) && errorAction
+    }
+
+    @JsonSetter('submit')
+    void deserializeSubmitInstant(Long submitEpoch) {
+        submit = submitEpoch ? Instant.ofEpochMilli(submitEpoch) : null
+    }
+
+    @JsonSetter('start')
+    void deserializeStartInstant(Long startEpoch) {
+        start = startEpoch ? Instant.ofEpochMilli(startEpoch) : null
+    }
+
+    @JsonSetter('complete')
+    void deserializeCompleteInstant(Long completeEpoch) {
+        complete = completeEpoch ? Instant.ofEpochMilli(completeEpoch) : null
+    }
+
+    @JsonSetter('module')
+    void deserializeModuleJson(List<String> moduleList) {
+        module = moduleList ? new ObjectMapper().writeValueAsString(moduleList) : null
+    }
+
+    static transients = ['workflowId']
 
     static mapping = {
         version false
@@ -78,13 +122,11 @@ class Task {
     static constraints = {
         taskId(unique: 'workflow')
 
-        workflow(nullable: true)
         process(nullable: true)
         tag(nullable: true)
-        currentStatus(nullable: true)
         exit(nullable: true)
-        startTime(nullable: true)
-        completeTime(nullable: true)
+        start(nullable: true)
+        complete(nullable: true)
         module(nullable: true)
         container(nullable: true)
         attempt(nullable: true)
@@ -101,8 +143,8 @@ class Task {
         duration(nullable: true)
         realtime(nullable: true)
         nativeId(nullable: true)
-        cpuPercentage(nullable: true)
-        memPercentage(nullable: true)
+        pcpu(nullable: true)
+        pmem(nullable: true)
         rss(nullable: true)
         vmem(nullable: true)
         peakRss(nullable: true)

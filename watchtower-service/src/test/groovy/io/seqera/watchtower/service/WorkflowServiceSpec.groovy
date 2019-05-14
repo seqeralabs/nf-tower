@@ -74,13 +74,13 @@ class WorkflowServiceSpec extends AbstractContainerBaseSpec {
 //        workflowSucceeded.magnitudeSummaries.name as Set == ['cpu', 'time', 'reads', 'writes', 'cpuUsage'] as Set
 //        MagnitudeSummary.count() == 5
 
-        and: "the progress info has been updated"
-//        workflowSucceeded.running == 0
-//        workflowSucceeded.submitted == 0
-//        workflowSucceeded.checkIsFailed() == 0
-//        workflowSucceeded.pending == 0
-//        workflowSucceeded.checkIsSucceeded() == 4
-//        workflowSucceeded.cached == 0
+        and: "the trace has progress info"
+        workflowSucceededTraceJson.progress.running == 0
+        workflowSucceededTraceJson.progress.submitted == 0
+        workflowSucceededTraceJson.progress.failed == 0
+        workflowSucceededTraceJson.progress.pending == 0
+        workflowSucceededTraceJson.progress.succeeded == 4
+        workflowSucceededTraceJson.progress.cached == 0
     }
 
     void "start a workflow given a started trace, then complete the workflow given a failed trace"() {
@@ -145,12 +145,9 @@ class WorkflowServiceSpec extends AbstractContainerBaseSpec {
             workflowStarted2 = workflowService.processWorkflowJsonTrace(workflowStarted2TraceJson)
         }
 
-        then: "the workflow status is treated as a pause, so the data is updated"
-//        workflowStarted1.id == workflowStarted2.id
-//        workflowStarted1.status == WorkflowStatus.PAUSED
-//        workflowStarted1.submitTime
-//        !workflowStarted1.completeTime
-//        Workflow.count() == 1
+        then: "the second workflow is treated as a new one, and sessionId/runName combination cannot be repeated"
+        workflowStarted2.errors.getFieldError('sessionId').code == 'unique'
+        Workflow.count() == 1
     }
 
     void "try to start a workflow given a started trace without sessionId"() {

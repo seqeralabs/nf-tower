@@ -1,5 +1,6 @@
 package io.seqera.watchtower.domain
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonSetter
 import grails.gorm.annotation.Entity
 import groovy.transform.CompileDynamic
@@ -12,6 +13,7 @@ import java.time.Instant
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
 @Entity
+@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version'])
 @CompileDynamic
 class NextflowMeta {
     String version

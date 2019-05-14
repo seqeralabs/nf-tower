@@ -1,13 +1,14 @@
 package io.seqera.watchtower.controller
 
 import com.fasterxml.jackson.annotation.JsonSetter
+import io.seqera.watchtower.domain.Task
 import io.seqera.watchtower.domain.Workflow
 
 import java.time.Instant
 
 import groovy.transform.ToString
 import io.seqera.watchtower.domain.Progress
-import io.seqera.watchtower.domain.WorkflowObj
+
 /**
  * Model a Trace workflow request
  *
@@ -16,7 +17,9 @@ import io.seqera.watchtower.domain.WorkflowObj
 @ToString
 class TraceWorkflowRequest {
 
+    Task task
     Workflow workflow
+
     Instant utcTime
     Progress progress
     Map summary
