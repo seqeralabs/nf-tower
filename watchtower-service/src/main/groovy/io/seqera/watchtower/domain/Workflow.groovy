@@ -18,7 +18,7 @@ import java.time.Instant
 @CompileDynamic
 class Workflow {
 
-    static hasMany = [tasks: Task, magnitudeSummaries: MagnitudeSummary]
+    static hasMany = [tasks: Task, summaryEntries: SummaryEntry]
 
     Instant submit
     Instant start //TODO For now, submitTime and startTime are the same, when using Launchpad they would differ.
@@ -27,7 +27,6 @@ class Workflow {
     Boolean resume
     Boolean success
 
-    String workflowId
     String sessionId
 
     String projectDir
@@ -60,6 +59,9 @@ class Workflow {
     Manifest manifest
     NextflowMeta nextflow
     Stats stats
+
+    String workflowId
+
 
     static embedded = ['manifest', 'nextflow', 'stats']
 

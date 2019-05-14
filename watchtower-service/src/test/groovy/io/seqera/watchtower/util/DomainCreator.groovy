@@ -1,10 +1,7 @@
 package io.seqera.watchtower.util
 
-import io.seqera.watchtower.domain.MagnitudeSummary
-import io.seqera.watchtower.domain.Task
-import io.seqera.watchtower.domain.Workflow
+import io.seqera.watchtower.domain.*
 import io.seqera.watchtower.pogo.enums.TaskStatus
-import io.seqera.watchtower.pogo.enums.WorkflowStatus
 
 import java.time.Instant
 
@@ -16,7 +13,7 @@ class DomainCreator {
     Boolean withNewTransaction = true
 
     static void cleanupDatabase() {
-        MagnitudeSummary.deleteAll(MagnitudeSummary.list())
+        SummaryEntry.deleteAll(SummaryEntry.list())
         Task.deleteAll(Task.list())
         Workflow.deleteAll(Workflow.list())
     }
@@ -45,7 +42,7 @@ class DomainCreator {
         fields.projectName = fields.containsKey('projectName') ? fields.projectName : "nextflow-io/hello"
         fields.scriptName = fields.containsKey('scriptName') ? fields.scriptName : "main.nf"
 
-        populateInstance(workflow, fields)
+        createInstance(workflow, fields)
     }
 
     Task createTask(Map fields = [:]) {
@@ -58,14 +55,21 @@ class DomainCreator {
         fields.status = fields.containsKey('currentStatus') ? fields.currentStatus : TaskStatus.SUBMITTED
         fields.submit = fields.containsKey('submit') ? fields.submit : Instant.now()
 
-        populateInstance(task, fields)
+        createInstance(task, fields)
     }
 
-    MagnitudeSummary createMagnitudeSummary(Map fields = [:]) {
-        MagnitudeSummary magnitudeSummary = new MagnitudeSummary()
+    SummaryEntry createSummaryEntry(Map fields = [:]) {
+        SummaryEntry summaryEntry = new SummaryEntry()
 
         fields.name = fields.containsKey('name') ? fields.name : "magnitude_${generateUniqueNamePart()}"
-        fields.taskLabel = fields.containsKey('taskLabel') ? fields.taskLabel : "task_${generateUniqueNamePart()}"
+        fields.cpu = fields.containsKey('cpu') ? fields.cpu : embedSummaryData()
+
+        createInstance(summaryEntry, fields)
+    }
+
+    SummaryData embedSummaryData(Map fields = [:]) {
+        SummaryData summaryData = new SummaryData()
+
         fields.mean = fields.containsKey('mean') ? fields.mean : 0.0
         fields.min = fields.containsKey('min') ? fields.min : 0.0
         fields.q1 = fields.containsKey('q1') ? fields.q1 : 0.0
@@ -79,9 +83,8 @@ class DomainCreator {
         fields.q2Label = fields.containsKey('q2Label') ? fields.q2Label : 'q2Label'
         fields.q3Label = fields.containsKey('q3Label') ? fields.q3Label : 'q3Label'
 
-        populateInstance(magnitudeSummary, fields)
+        populateInstance(summaryData, fields)
     }
-
 
     /**
      * Populates and persists (if the meta params say so) an instance of a class in the database given their params
@@ -91,6 +94,11 @@ class DomainCreator {
      * @param validate if the instance to save needs to be validated (true by default)
      * @return the persisted instance
      */
+    private def createInstance(def instance, Map params) {
+        populateInstance(instance, params)
+        persistInstance(instance)
+    }
+
     private def populateInstance(def instance, Map params) {
         Map regularParams = [:]
         Map listParams = [:]
@@ -105,6 +113,10 @@ class DomainCreator {
             addAllInstances(instance, k, v)
         }
 
+        instance
+    }
+
+    private def persistInstance(def instance) {
         if (!save) {
             return instance
         }

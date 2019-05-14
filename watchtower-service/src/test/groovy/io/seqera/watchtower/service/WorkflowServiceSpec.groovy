@@ -3,13 +3,12 @@ package io.seqera.watchtower.service
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.watchtower.Application
 import io.seqera.watchtower.controller.TraceWorkflowRequest
-import io.seqera.watchtower.domain.MagnitudeSummary
+import io.seqera.watchtower.domain.SummaryEntry
 import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.enums.WorkflowStatus
 import io.seqera.watchtower.pogo.exceptions.NonExistingWorkflowException
 import io.seqera.watchtower.util.AbstractContainerBaseSpec
 import io.seqera.watchtower.util.TracesJsonBank
-import spock.lang.IgnoreRest
 
 import javax.inject.Inject
 
@@ -69,10 +68,14 @@ class WorkflowServiceSpec extends AbstractContainerBaseSpec {
         Workflow.count() == 1
 
         and: "there is summary info"
-//        workflowSucceeded.magnitudeSummaries.size() == 5
-//        workflowSucceeded.magnitudeSummaries.taskLabel.every { it == 'sayHello' }
-//        workflowSucceeded.magnitudeSummaries.name as Set == ['cpu', 'time', 'reads', 'writes', 'cpuUsage'] as Set
-//        MagnitudeSummary.count() == 5
+        workflowSucceeded.summaryEntries.size() == 1
+        workflowSucceeded.summaryEntries.first().name == 'sayHello'
+        workflowSucceeded.summaryEntries.first().cpu
+        workflowSucceeded.summaryEntries.first().time
+        workflowSucceeded.summaryEntries.first().reads
+        workflowSucceeded.summaryEntries.first().writes
+        workflowSucceeded.summaryEntries.first().cpuUsage
+        SummaryEntry.count() == 1
 
         and: "the trace has progress info"
         workflowSucceededTraceJson.progress.running == 0
@@ -115,10 +118,14 @@ class WorkflowServiceSpec extends AbstractContainerBaseSpec {
         Workflow.count() == 1
 
         and: "there is summary info"
-//        workflowFailed.magnitudeSummaries.size() == 5
-//        workflowFailed.magnitudeSummaries.taskLabel.every { it == 'sayHello' }
-//        workflowFailed.magnitudeSummaries.name as Set == ['cpu', 'time', 'reads', 'writes', 'cpuUsage'] as Set
-//        MagnitudeSummary.count() == 5
+        workflowFailed.summaryEntries.size() == 1
+        workflowFailed.summaryEntries.first().name == 'sayHello'
+        workflowFailed.summaryEntries.first().cpu
+        workflowFailed.summaryEntries.first().time
+        workflowFailed.summaryEntries.first().reads
+        workflowFailed.summaryEntries.first().writes
+        workflowFailed.summaryEntries.first().cpuUsage
+        SummaryEntry.count() == 1
     }
 
     void "start a workflow given a started trace, then try to start the same one"() {
