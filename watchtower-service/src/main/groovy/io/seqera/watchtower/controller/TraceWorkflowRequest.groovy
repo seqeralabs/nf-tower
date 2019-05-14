@@ -1,5 +1,8 @@
 package io.seqera.watchtower.controller
 
+import com.fasterxml.jackson.annotation.JsonSetter
+import io.seqera.watchtower.domain.Workflow
+
 import java.time.Instant
 
 import groovy.transform.ToString
@@ -13,9 +16,14 @@ import io.seqera.watchtower.domain.WorkflowObj
 @ToString
 class TraceWorkflowRequest {
 
-    WorkflowObj workflow
+    Workflow workflow
     Instant utcTime
     Progress progress
     Map summary
+
+    @JsonSetter('utcTime')
+    void deserializeCompleteInstant(String utcTimestamp) {
+        utcTime = utcTimestamp ? Instant.parse(utcTimestamp) : null
+    }
 
 }

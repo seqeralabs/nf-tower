@@ -101,9 +101,9 @@ class TaskServiceSpec extends AbstractContainerBaseSpec {
         and: "the progress info for the workflow has been updated"
         taskStarted.workflow.running == 3
         taskStarted.workflow.submitted == 0
-        taskStarted.workflow.failed == 0
+        taskStarted.workflow.checkIsFailed() == 0
         taskStarted.workflow.pending == 0
-        taskStarted.workflow.succeeded == 1
+        taskStarted.workflow.checkIsSucceeded() == 1
         taskStarted.workflow.cached == 0
     }
 

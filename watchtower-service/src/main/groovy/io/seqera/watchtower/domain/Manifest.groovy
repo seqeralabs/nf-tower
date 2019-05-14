@@ -1,10 +1,15 @@
 package io.seqera.watchtower.domain
 
+import grails.gorm.annotation.Entity
+import groovy.transform.CompileDynamic
+
 /**
  * Model workflow manifest attribute
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
+@Entity
+@CompileDynamic
 class Manifest {
 
     String nextflowVersion
@@ -16,5 +21,17 @@ class Manifest {
     String name
     String mainScript
     String author
+
+    static constraints = {
+        nextflowVersion(nullable: true)
+        defaultBranch(nullable: true)
+        version(nullable: true)
+        homePage(nullable: true)
+        gitmodules(nullable: true)
+        description(nullable: true)
+        name(nullable: true)
+        mainScript(nullable: true)
+        author(nullable: true)
+    }
 
 }

@@ -19,7 +19,7 @@ class WorkflowTraceJsonUnmarshaller {
     }
 
     static void populateWorkflowFields(Map<String, Object> workflowJson, WorkflowStatus workflowStatus, Workflow workflow) {
-        workflow.status = workflowStatus
+//        workflow.status = workflowStatus
         workflowJson.each { String k, def v ->
             if (k == 'utcTime') {
                 populateStatusTimestamp((String) v, workflowStatus, workflow)
@@ -84,12 +84,12 @@ class WorkflowTraceJsonUnmarshaller {
         Instant instant = Instant.parse(timestamp)
 
         if (workflowStatus == WorkflowStatus.STARTED) {
-            workflow.submitTime = instant
-            workflow.startTime = instant
+//            workflow.submitTime = instant
+//            workflow.startTime = instant
         } else if (workflowStatus == WorkflowStatus.RESUMED) {
-            workflow.startTime = instant
+//            workflow.startTime = instant
         } else if (workflowStatus == WorkflowStatus.SUCCEEDED || workflowStatus == WorkflowStatus.FAILED) {
-            workflow.completeTime = instant
+//            workflow.completeTime = instant
         }
     }
 

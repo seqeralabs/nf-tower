@@ -1,12 +1,15 @@
 package io.seqera.watchtower.domain
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonSetter
+import com.fasterxml.jackson.databind.ObjectMapper
 import grails.gorm.annotation.Entity
 import groovy.transform.CompileDynamic
-import io.seqera.watchtower.pogo.enums.WorkflowStatus
 
 import java.time.Instant
 
 @Entity
+@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version', 'configFiles'])
 @CompileDynamic
 /**
  * Workflow info.
@@ -16,128 +19,101 @@ class Workflow {
 
     static hasMany = [tasks: Task, magnitudeSummaries: MagnitudeSummary]
 
-    WorkflowStatus status
+    Instant submit
+    Instant start //TODO For now, submitTime and startTime are the same, when using Launchpad they would differ.
+    Instant complete
 
-    //Tasks progress data
-    Integer running
-    Integer submitted
-    Integer failed
-    Integer pending
-    Integer succeeded
-    Integer cached
+    Boolean resume
+    Boolean success
 
-    //Timestamps
-    Instant submitTime
-    Instant startTime //TODO For now, submitTime and startTime are the same, when using Launchpad they would differ.
-    Instant completeTime
-
-    //Multi-value fields (JSON encoded)
-    String params
-    String configFiles
-    //Manifest fields
-    String manifestNextflowVersion
-    String manifestDefaultBranch
-    String manifestVersion
-    String manifestHomePage
-    String manifestGitmodules
-    String manifestDescription
-    String manifestName
-    String manifestMainScript
-    String manifestAuthor
-    //Nextflow info fields
-    String nextflowVersion
-    Integer nextflowBuild
-    String nextflowTimestamp
-
-    //Identification fields
+    String workflowId
     String sessionId
-    String runName
-    //Miscellaneous
-    String complete
+
+    String projectDir
     String profile
     String homeDir
     String workDir
     String container
     String commitId
+    String errorMessage
     String repository
     String containerEngine
     String scriptFile
     String userName
     String launchDir
-    String projectDir
-    String projectName
-    String scriptId
-    String scriptName
-    String revision
-    String commandLine
-    Integer exitStatus
-    Long duration
-    //Fail-related fields
+    String runName
     String errorReport
-    String errorMessage
-    //Stats fields
-    String computeTimeFmt
-    Integer cachedCount
-    Long cachedDuration
-    Long failedDuration
-    Long succeedDuration
-    Integer failedCount
-    Double cachedPct
-    String cachedCountFmt
-    String succeedCountFmt
-    Double failedPct
-    String failedCountFmt
-    String ignoredCountFmt
-    Integer ignoredCount
-    Double succeedPct
-    Integer succeedCount
-    Double ignoredPct
+    String scriptId
+    String revision
+    String exitStatus
+    String commandLine
+    String projectName
+    String scriptName
 
+    Long duration
 
-    static mapping = {
-        version false
+    //Multivalue properties
+    String configFiles
+    Map params
+
+    Manifest manifest
+    NextflowMeta nextflow
+    Stats stats
+
+    static embedded = ['manifest', 'nextflow', 'stats']
+
+    static transients = ['workflowId']
+
+    boolean checkIsStarted() {
+        (complete == null)
+    }
+
+    boolean checkIsSucceeded() {
+        complete && success
+    }
+
+    boolean checkIsFailed() {
+        complete && (success != null) && !success
+    }
+
+    @JsonSetter('start')
+    void deserializeStartInstant(String startTimestamp) {
+        start = startTimestamp ? Instant.parse(startTimestamp) : null
+    }
+
+    @JsonSetter('complete')
+    void deserializeCompleteInstant(String completeTimestamp) {
+        complete = completeTimestamp ? Instant.parse(completeTimestamp) : null
+    }
+
+    @JsonSetter('configFiles')
+    void deserializeConfigFilesJson(List<String> configFilesList) {
+        configFiles = configFilesList ? new ObjectMapper().writeValueAsString(configFilesList) : null
     }
 
     static constraints = {
         sessionId(unique: 'runName')
 
-        completeTime(nullable: true)
+        resume(nullable: true)
+        success(nullable: true)
+        complete(nullable: true)
+
         params(nullable: true)
         configFiles(nullable: true)
-        manifestNextflowVersion(nullable: true)
-        manifestDefaultBranch(nullable: true)
-        manifestVersion(nullable: true)
-        manifestHomePage(nullable: true)
-        manifestGitmodules(nullable: true)
-        manifestDescription(nullable: true)
-        manifestName(nullable: true)
-        manifestMainScript(nullable: true)
-        manifestAuthor(nullable: true)
-        nextflowVersion(nullable: true)
-        nextflowBuild(nullable: true)
-        nextflowTimestamp(nullable: true)
-        complete(nullable: true)
         containerEngine(nullable: true)
         exitStatus(nullable: true)
         duration(nullable: true)
         errorReport(nullable: true)
         errorMessage(nullable: true)
-        computeTimeFmt(nullable: true)
-        cachedCount(nullable: true)
-        cachedDuration(nullable: true)
-        failedDuration(nullable: true)
-        succeedDuration(nullable: true)
-        failedCount(nullable: true)
-        cachedPct(nullable: true)
-        cachedCountFmt(nullable: true)
-        succeedCountFmt(nullable: true)
-        failedPct(nullable: true)
-        failedCountFmt(nullable: true)
-        ignoredCountFmt(nullable: true)
-        ignoredCount(nullable: true)
-        succeedPct(nullable: true)
-        succeedCount(nullable: true)
-        ignoredPct(nullable: true)
+
+        manifest(nullable: true)
+        nextflow(nullable: true)
+        stats(nullable: true)
+    }
+
+
+    static mapping = {
+        version false
     }
 
 }
