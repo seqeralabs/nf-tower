@@ -1,5 +1,6 @@
 package io.seqera.watchtower.service
 
+import io.seqera.watchtower.controller.TraceWorkflowRequest
 import io.seqera.watchtower.domain.Workflow
 
 interface WorkflowService {
@@ -8,6 +9,6 @@ interface WorkflowService {
 
     List<Workflow> list()
 
-    Workflow processWorkflowJsonTrace(Map workflowJson)
+    Workflow processWorkflowJsonTrace(TraceWorkflowRequest traceWorkflowRequest)
 
 }

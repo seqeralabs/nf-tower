@@ -1,6 +1,6 @@
 package io.seqera.watchtower.service
 
-
+import io.seqera.watchtower.controller.TraceWorkflowRequest
 import io.seqera.watchtower.domain.Task
 import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.enums.TraceType
@@ -35,7 +35,7 @@ class TraceServiceImpl implements TraceService {
 
         result.traceType = TraceType.WORKFLOW
         try {
-            Workflow workflow = workflowService.processWorkflowJsonTrace(traceJson)
+            Workflow workflow = workflowService.processWorkflowJsonTrace(traceJson as TraceWorkflowRequest)
 
             String errorMessage = checkWorkflowSaveErrors(workflow)
             if (errorMessage) {
