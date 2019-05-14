@@ -1,5 +1,6 @@
 package io.seqera.watchtower.domain
 
+import com.fasterxml.jackson.annotation.JsonGetter
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonSetter
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -111,6 +112,22 @@ class Task {
     @JsonSetter('module')
     void deserializeModuleJson(List<String> moduleList) {
         module = moduleList ? new ObjectMapper().writeValueAsString(moduleList) : null
+    }
+
+
+    @JsonGetter('submit')
+    Long serializeSubmitInstant() {
+        submit?.toEpochMilli()
+    }
+
+    @JsonGetter('start')
+    Long serializeStartInstant() {
+        start?.toEpochMilli()
+    }
+
+    @JsonGetter('complete')
+    Long serializeCompleteInstant() {
+        complete?.toEpochMilli()
     }
 
     static transients = ['workflowId']

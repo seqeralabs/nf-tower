@@ -38,17 +38,17 @@ class TraceControllerSpec extends AbstractContainerBaseSpec {
 
     void "save a new workflow given a start trace"() {
         given: 'a workflow started JSON trace'
-        Map workflowStartedJsonTrace = TracesJsonBank.extractWorkflowJsonTrace(1, null, WorkflowStatus.STARTED)
+        TraceWorkflowRequest workflowStartedJsonTrace = TracesJsonBank.extractWorkflowJsonTrace(1, null, WorkflowStatus.STARTED)
 
         when: 'send a save request'
-        HttpResponse<Map> response = client.toBlocking().exchange(
+        HttpResponse<TraceWorkflowResponse> response = client.toBlocking().exchange(
                 HttpRequest.POST('/trace/save', workflowStartedJsonTrace),
-                Map.class
+                TraceWorkflowResponse.class
         )
 
         then: 'the workflow has been saved successfully'
         response.status == HttpStatus.CREATED
-        response.body().traceType == TraceType.WORKFLOW.name()
+        response.body().traceType == TraceType.WORKFLOW
         response.body().workflowId
 
         and: 'the workflow is in the database'
@@ -60,34 +60,21 @@ class TraceControllerSpec extends AbstractContainerBaseSpec {
         Workflow workflow = new DomainCreator().createWorkflow()
 
         and: 'a task submitted JSON trace'
-        Map taskSubmittedJsonTrace = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskStatus.SUBMITTED)
+        TraceWorkflowRequest taskSubmittedJsonTrace = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskStatus.SUBMITTED)
 
         when: 'send a save request'
-        HttpResponse<Map> response = client.toBlocking().exchange(
+        HttpResponse<TraceWorkflowResponse> response = client.toBlocking().exchange(
                 HttpRequest.POST('/trace/save', taskSubmittedJsonTrace),
-                Map.class
+                TraceWorkflowResponse.class
         )
 
         then: 'the task has been saved successfully'
         response.status == HttpStatus.CREATED
-        response.body().traceType == TraceType.TASK.name()
+        response.body().traceType == TraceType.TASK
         response.body().workflowId
 
         and: 'the task is in the database'
         Task.count() == 1
-    }
-
-    def 'should trace a workflow request' () {
-        given:
-        def req = new File('src/test/resources/workflow_1/workflow_started.json').text
-
-        when:
-        def post = HttpRequest.POST('/trace/workflow', req)
-        def resp = client.toBlocking().exchange(post, TraceWorkflowResponse)
-
-        then:
-        resp.body().status == 'OK'
-        resp.body().workflowId == '1234'
     }
 
     @Ignore

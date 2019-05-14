@@ -36,31 +36,19 @@ class TraceController {
 
 
     @Post("/save")
-    HttpResponse<String> save(@Body Map json) {
-        log.info("Receiving trace: ${json.inspect()}")
-        TraceWorkflowResponse result = traceService.createEntityByTrace(json as TraceWorkflowRequest)
-        log.info("Processed trace: ${result.inspect()}")
+    HttpResponse<TraceWorkflowResponse> save(@Body TraceWorkflowRequest trace) {
+        log.info("Receiving trace: ${trace.inspect()}")
+        TraceWorkflowResponse traceResponse = traceService.createEntityByTrace(trace)
+        log.info("Processed trace: ${trace.inspect()}")
 
-        String jsonResult = new ObjectMapper().writeValueAsString(result)
-
-        HttpResponse<String> response
-        if (result.message) {
-            response = HttpResponse.badRequest(jsonResult)
+        HttpResponse<TraceWorkflowResponse> response
+        if (traceResponse.message) {
+            response = HttpResponse.badRequest(traceResponse)
         } else {
-            response = HttpResponse.created(jsonResult)
+            response = HttpResponse.created(traceResponse)
         }
 
-        response.contentType(MediaType.APPLICATION_JSON)
-    }
-
-    @Post("/workflow")
-    HttpResponse<TraceWorkflowResponse> save(@Body TraceWorkflowRequest trace) {
-        log.info "+++ TRACE=$trace"
-
-        def resp = new TraceWorkflowResponse()
-        resp.status = 'OK'
-        resp.workflowId = '1234'
-        return HttpResponse.ok(resp)
+        response
     }
 
 }
