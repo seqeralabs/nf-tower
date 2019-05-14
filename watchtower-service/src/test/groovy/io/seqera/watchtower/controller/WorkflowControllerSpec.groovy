@@ -8,6 +8,9 @@ import io.micronaut.http.client.annotation.Client
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.watchtower.Application
+import io.seqera.watchtower.domain.Manifest
+import io.seqera.watchtower.domain.NextflowMeta
+import io.seqera.watchtower.domain.Stats
 import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.util.AbstractContainerBaseSpec
 import io.seqera.watchtower.util.DomainCreator
@@ -25,16 +28,15 @@ class WorkflowControllerSpec extends AbstractContainerBaseSpec {
     void "get a workflow"() {
         given: "a workflow with some summaries"
         Workflow workflow = new DomainCreator().createWorkflow(
-            manifestDefaultBranch: 'master',
-            computeTimeFmt: 0,
-            nextflowVersion: '19.05.0-TOWER',
-            magnitudeSummaries: [new DomainCreator(save: false).createMagnitudeSummary(), new DomainCreator(save: false).createMagnitudeSummary()]
+            manifest: new Manifest(defaultBranch: 'master'),
+            stats: new Stats(computeTimeFmt: '(a few seconds)'),
+            nextflow: new NextflowMeta(version: "19.05.0-TOWER")
         )
 
         and: "perform the request to obtain the workflow"
-        HttpResponse<Map> response = client.toBlocking().exchange(
+        HttpResponse<TraceWorkflowRequest> response = client.toBlocking().exchange(
                 HttpRequest.GET("/workflow/${workflow.id}"),
-                Map.class
+                TraceWorkflowRequest.class
         )
 
         expect: "the workflow data is properly obtained"
@@ -43,14 +45,13 @@ class WorkflowControllerSpec extends AbstractContainerBaseSpec {
         response.body().workflow.stats
         response.body().workflow.nextflow
         response.body().workflow.manifest
-        response.body().progress
     }
 
     void "try to get a non-existing workflow"() {
         when: "perform the request to obtain a non-existing workflow"
         client.toBlocking().exchange(
                 HttpRequest.GET("/workflow/100"),
-                Map.class
+                TraceWorkflowRequest.class
         )
 
         then: "a 404 response is obtained"

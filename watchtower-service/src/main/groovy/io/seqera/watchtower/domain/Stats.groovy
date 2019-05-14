@@ -36,4 +36,22 @@ class Stats {
     Long failedDuration
     Long succeedDuration
 
+    static constraints = {
+        cachedCount(nullable: true)
+        failedCount(nullable: true)
+        ignoredCount(nullable: true)
+        succeedCount(nullable: true)
+        cachedCountFmt(nullable: true)
+        succeedCountFmt(nullable: true)
+        failedCountFmt(nullable: true)
+        ignoredCountFmt(nullable: true)
+        cachedPct(nullable: true)
+        failedPct(nullable: true)
+        succeedPct(nullable: true)
+        ignoredPct(nullable: true)
+        cachedDuration(nullable: true)
+        failedDuration(nullable: true)
+        succeedDuration(nullable: true)
+    }
+
 }
