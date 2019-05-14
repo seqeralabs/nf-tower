@@ -2,6 +2,6 @@ package io.seqera.watchtower.pogo.enums
 
 enum TraceType {
 
-    WORKFLOW, TASK
+    WORKFLOW, TASK, INVALID
 
 }

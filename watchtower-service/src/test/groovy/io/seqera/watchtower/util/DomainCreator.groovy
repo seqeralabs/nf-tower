@@ -63,8 +63,8 @@ class DomainCreator {
         fields.taskId = fields.containsKey('taskId') ? fields.taskId : 1
         fields.name = fields.containsKey('name') ? fields.name : "taskName_${generateUniqueNamePart()}"
         fields.hash = fields.containsKey('hash') ? fields.hash : "taskHash_${generateUniqueNamePart()}"
-        fields.currentStatus = fields.containsKey('currentStatus') ? fields.currentStatus : TaskStatus.SUBMITTED
-        fields.submitTime = fields.containsKey('submitTime') ? fields.submitTime : Instant.now()
+        fields.status = fields.containsKey('currentStatus') ? fields.currentStatus : TaskStatus.SUBMITTED
+        fields.submit = fields.containsKey('submit') ? fields.submit : Instant.now()
 
         populateInstance(task, fields)
     }

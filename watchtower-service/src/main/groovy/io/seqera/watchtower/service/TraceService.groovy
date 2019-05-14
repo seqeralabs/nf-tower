@@ -1,12 +1,15 @@
 package io.seqera.watchtower.service
 
+import io.seqera.watchtower.controller.TraceWorkflowRequest
+import io.seqera.watchtower.controller.TraceWorkflowResponse
+
 interface TraceService {
 
-    Map<String, Object> createEntityByTrace(Map<String, Object> traceJson)
+    TraceWorkflowResponse createEntityByTrace(TraceWorkflowRequest traceJson)
 
-    Map<String, Object> processWorkflowTrace(Map<String, Object> traceJson)
+    TraceWorkflowResponse processWorkflowTrace(TraceWorkflowRequest traceJson)
 
-    Map<String, Object> processTaskTrace(Map<String, Object> traceJson)
+    TraceWorkflowResponse processTaskTrace(TraceWorkflowRequest traceJson)
 
 }
 

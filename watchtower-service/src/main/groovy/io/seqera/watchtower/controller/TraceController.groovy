@@ -38,13 +38,13 @@ class TraceController {
     @Post("/save")
     HttpResponse<String> save(@Body Map json) {
         log.info("Receiving trace: ${json.inspect()}")
-        Map result = traceService.createEntityByTrace(json)
+        TraceWorkflowResponse result = traceService.createEntityByTrace(json as TraceWorkflowRequest)
         log.info("Processed trace: ${result.inspect()}")
 
         String jsonResult = new ObjectMapper().writeValueAsString(result)
 
         HttpResponse<String> response
-        if (result.error) {
+        if (result.message) {
             response = HttpResponse.badRequest(jsonResult)
         } else {
             response = HttpResponse.created(jsonResult)
