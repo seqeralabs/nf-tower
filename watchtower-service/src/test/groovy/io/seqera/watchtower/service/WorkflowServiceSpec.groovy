@@ -1,5 +1,6 @@
 package io.seqera.watchtower.service
 
+import grails.gorm.transactions.Transactional
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.watchtower.Application
 import io.seqera.watchtower.controller.TraceWorkflowRequest
@@ -13,6 +14,7 @@ import io.seqera.watchtower.util.TracesJsonBank
 import javax.inject.Inject
 
 @MicronautTest(application = Application.class)
+@Transactional
 class WorkflowServiceSpec extends AbstractContainerBaseSpec {
 
     @Inject

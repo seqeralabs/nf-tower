@@ -15,7 +15,7 @@ import java.time.Instant
  * @see https://www.nextflow.io/docs/latest/tracing.html#execution-report
  */
 @Entity
-@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version', 'workflow'])
+@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'workflow'])
 @CompileDynamic
 class Task {
 

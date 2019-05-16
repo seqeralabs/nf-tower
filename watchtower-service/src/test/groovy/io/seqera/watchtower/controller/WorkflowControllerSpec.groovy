@@ -1,5 +1,6 @@
 package io.seqera.watchtower.controller
 
+import grails.gorm.transactions.Transactional
 import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
@@ -19,6 +20,7 @@ import io.seqera.watchtower.util.DomainCreator
 import javax.inject.Inject
 
 @MicronautTest(application = Application.class)
+@Transactional
 class WorkflowControllerSpec extends AbstractContainerBaseSpec {
 
     @Inject
@@ -32,7 +34,7 @@ class WorkflowControllerSpec extends AbstractContainerBaseSpec {
         Workflow workflow = domainCreator.createWorkflow(
             manifest: new Manifest(defaultBranch: 'master'),
             stats: new Stats(computeTimeFmt: '(a few seconds)'),
-            nextflow: new NextflowMeta(version: "19.05.0-TOWER"),
+            nextflow: new NextflowMeta(nextflowVersion: "19.05.0-TOWER"),
             summaryEntries: [domainCreator.createSummaryEntry(), domainCreator.createSummaryEntry()],
             progress: new Progress(running: 0, submitted: 0, failed: 0, pending: 0, succeeded: 0, cached: 0)
         )

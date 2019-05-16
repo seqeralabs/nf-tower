@@ -1,5 +1,6 @@
 package io.seqera.watchtower.controller
 
+import grails.gorm.transactions.Transactional
 import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
@@ -21,6 +22,7 @@ import spock.lang.Ignore
 import javax.inject.Inject
 
 @MicronautTest(application = Application.class)
+@Transactional
 class TraceControllerSpec extends AbstractContainerBaseSpec {
 
     @Inject

@@ -1,6 +1,6 @@
 package io.seqera.watchtower.service
 
-
+import grails.gorm.transactions.Transactional
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.watchtower.Application
 import io.seqera.watchtower.controller.TraceWorkflowRequest
@@ -16,6 +16,7 @@ import io.seqera.watchtower.util.TracesJsonBank
 import javax.inject.Inject
 
 @MicronautTest(application = Application.class)
+@Transactional
 class TaskServiceSpec extends AbstractContainerBaseSpec {
 
     @Inject
@@ -86,7 +87,7 @@ class TaskServiceSpec extends AbstractContainerBaseSpec {
         }
 
         then: "the task has been started"
-        taskSubmitted.id == taskStarted.id
+        taskStarted.id == taskSubmitted.id
         taskStarted.checkIsRunning()
         taskStarted.submit
         taskStarted.start
@@ -100,20 +101,20 @@ class TaskServiceSpec extends AbstractContainerBaseSpec {
         }
 
         then: "the task has been started"
-        taskSubmitted.id == taskCompleted.id
-        taskStarted.checkIsSucceeded()
-        taskStarted.submit
-        taskStarted.start
-        taskStarted.complete
+        taskCompleted.id == taskSubmitted.id
+        taskCompleted.checkIsSucceeded()
+        taskCompleted.submit
+        taskCompleted.start
+        taskCompleted.complete
         Task.count() == 1
 
         and: "the workflow progress info was updated"
-        taskStarted.workflow.progress.running == 3
-        taskStarted.workflow.progress.submitted == 0
-        taskStarted.workflow.progress.failed == 0
-        taskStarted.workflow.progress.pending == 0
-        taskStarted.workflow.progress.succeeded == 1
-        taskStarted.workflow.progress.cached == 0
+        taskCompleted.workflow.progress.running == 3
+        taskCompleted.workflow.progress.submitted == 0
+        taskCompleted.workflow.progress.failed == 0
+        taskCompleted.workflow.progress.pending == 0
+        taskCompleted.workflow.progress.succeeded == 1
+        taskCompleted.workflow.progress.cached == 0
     }
 
     void "submit a task given a submit trace, then start the task given a start trace, last complete the task given a fail trace"() {
@@ -150,7 +151,7 @@ class TaskServiceSpec extends AbstractContainerBaseSpec {
         }
 
         then: "the task has been started"
-        taskSubmitted.id == taskStarted.id
+        taskStarted.id == taskSubmitted.id
         Task.count()
 
         taskStarted.checkIsRunning()
@@ -165,21 +166,21 @@ class TaskServiceSpec extends AbstractContainerBaseSpec {
         }
 
         then: "the task has been started"
-        taskSubmitted.id == taskCompleted.id
-        taskStarted.checkIsFailed()
-        taskStarted.submit
-        taskStarted.start
-        taskStarted.complete
-        taskStarted.errorAction
+        taskCompleted.id == taskSubmitted.id
+        taskCompleted.checkIsFailed()
+        taskCompleted.submit
+        taskCompleted.start
+        taskCompleted.complete
+        taskCompleted.errorAction
         Task.count() == 1
 
         and: "the workflow progress info was updated"
-        taskStarted.workflow.progress.running == 3
-        taskStarted.workflow.progress.submitted == 0
-        taskStarted.workflow.progress.failed == 0
-        taskStarted.workflow.progress.pending == 0
-        taskStarted.workflow.progress.succeeded == 1
-        taskStarted.workflow.progress.cached == 0
+        taskCompleted.workflow.progress.running == 3
+        taskCompleted.workflow.progress.submitted == 0
+        taskCompleted.workflow.progress.failed == 0
+        taskCompleted.workflow.progress.pending == 0
+        taskCompleted.workflow.progress.succeeded == 1
+        taskCompleted.workflow.progress.cached == 0
     }
 
     void "submit a task given a submit trace, then try to submit the same one"() {

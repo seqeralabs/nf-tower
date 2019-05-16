@@ -1,5 +1,6 @@
 package io.seqera.watchtower.domain
 
+import com.fasterxml.jackson.annotation.JsonGetter
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonSetter
 import grails.gorm.annotation.Entity
@@ -13,10 +14,11 @@ import java.time.Instant
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
 @Entity
-@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version'])
+@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached'])
 @CompileDynamic
 class NextflowMeta {
-    String version
+
+    String nextflowVersion
     String build
     Instant timestamp
 
@@ -25,10 +27,25 @@ class NextflowMeta {
         timestamp = timestampText ? Instant.parse(timestampText) : null
     }
 
+    @JsonSetter('version')
+    void deserializeNextflowVersion(String version) {
+        nextflowVersion = version
+    }
+
+    @JsonGetter('version')
+    String serializeNextflowVersion() {
+        nextflowVersion
+    }
+
+
     static constraints = {
-        version(nullable: true)
+        nextflowVersion(nullable: true)
         build(nullable: true)
         timestamp(nullable: true)
+    }
+
+    static mapping = {
+        version false
     }
 
 }
