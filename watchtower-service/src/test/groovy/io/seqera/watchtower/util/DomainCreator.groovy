@@ -13,9 +13,11 @@ class DomainCreator {
     Boolean withNewTransaction = true
 
     static void cleanupDatabase() {
-        SummaryEntry.deleteAll(SummaryEntry.list())
-        Task.deleteAll(Task.list())
-        Workflow.deleteAll(Workflow.list())
+        Workflow.withNewTransaction {
+            SummaryEntry.deleteAll(SummaryEntry.list())
+            Task.deleteAll(Task.list())
+            Workflow.deleteAll(Workflow.list())
+        }
     }
 
     Workflow createWorkflow(Map fields = [:]) {

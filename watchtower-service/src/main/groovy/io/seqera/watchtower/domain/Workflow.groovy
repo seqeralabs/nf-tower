@@ -15,7 +15,7 @@ import java.time.Instant
  * @see https://www.nextflow.io/docs/latest/tracing.html#execution-report
  */
 @Entity
-@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version', 'tasks', 'summaryEntries', 'progress'])
+@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'tasks', 'summaryEntries', 'progress'])
 @CompileDynamic
 class Workflow {
 
@@ -56,9 +56,9 @@ class Workflow {
 
     Long duration
 
-    //Multivalue properties
+    //Multivalue properties encoded as JSON
     String configFiles
-    Map params
+    String params
 
     Manifest manifest
     NextflowMeta nextflow
@@ -98,10 +98,25 @@ class Workflow {
         configFiles = configFilesList ? new ObjectMapper().writeValueAsString(configFilesList) : null
     }
 
+    @JsonSetter('params')
+    void deserializeParamsJson(Map paramsMap) {
+        params = paramsMap ? new ObjectMapper().writeValueAsString(paramsMap) : null
+    }
+
 
     @JsonGetter('relatedWorkflowId')
     String serializeWorkflowId() {
         id?.toString() ?: workflowId
+    }
+
+    @JsonGetter('configFiles')
+    def serializeConfigFiles() {
+        configFiles ? new ObjectMapper().readValue(configFiles, Object.class) : null
+    }
+
+    @JsonGetter('params')
+    def serializeParams() {
+        params ? new ObjectMapper().readValue(params, Object.class) : null
     }
 
 
@@ -129,6 +144,7 @@ class Workflow {
 
     static mapping = {
         version false
+        errorReport type: 'text'
     }
 
 }
