@@ -47,7 +47,7 @@ class WorkflowController {
             return HttpResponse.notFound()
         }
 
-        HttpResponse.ok(new TraceWorkflowRequest(workflow: workflow, summary: workflow.summaryEntries as List, utcTime: Instant.now()))
+        HttpResponse.ok(new TraceWorkflowRequest(workflow: workflow, summary: workflow.summaryEntries as List, progress: workflow.progress, utcTime: Instant.now()))
     }
 
 

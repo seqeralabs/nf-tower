@@ -42,6 +42,14 @@ class TaskServiceSpec extends AbstractContainerBaseSpec {
         !task.start
         !task.complete
         Task.count() == 1
+
+        and: "the workflow progress info was updated"
+        task.workflow.progress.running == 0
+        task.workflow.progress.submitted == 1
+        task.workflow.progress.failed == 0
+        task.workflow.progress.pending == 3
+        task.workflow.progress.succeeded == 0
+        task.workflow.progress.cached == 0
     }
 
     void "submit a task given a submit trace, then start the task given a start trace, last complete the task given a success trace"() {
@@ -99,13 +107,13 @@ class TaskServiceSpec extends AbstractContainerBaseSpec {
         taskStarted.complete
         Task.count() == 1
 
-        and: "the trace has progress info"
-        taskSucceededTraceJson.progress.running == 3
-        taskSucceededTraceJson.progress.submitted == 0
-        taskSucceededTraceJson.progress.failed == 0
-        taskSucceededTraceJson.progress.pending == 0
-        taskSucceededTraceJson.progress.succeeded == 1
-        taskSucceededTraceJson.progress.cached == 0
+        and: "the workflow progress info was updated"
+        taskStarted.workflow.progress.running == 3
+        taskStarted.workflow.progress.submitted == 0
+        taskStarted.workflow.progress.failed == 0
+        taskStarted.workflow.progress.pending == 0
+        taskStarted.workflow.progress.succeeded == 1
+        taskStarted.workflow.progress.cached == 0
     }
 
     void "submit a task given a submit trace, then start the task given a start trace, last complete the task given a fail trace"() {
@@ -164,6 +172,14 @@ class TaskServiceSpec extends AbstractContainerBaseSpec {
         taskStarted.complete
         taskStarted.errorAction
         Task.count() == 1
+
+        and: "the workflow progress info was updated"
+        taskStarted.workflow.progress.running == 3
+        taskStarted.workflow.progress.submitted == 0
+        taskStarted.workflow.progress.failed == 0
+        taskStarted.workflow.progress.pending == 0
+        taskStarted.workflow.progress.succeeded == 1
+        taskStarted.workflow.progress.cached == 0
     }
 
     void "submit a task given a submit trace, then try to submit the same one"() {

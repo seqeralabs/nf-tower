@@ -3,6 +3,7 @@ package io.seqera.watchtower.service
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
 import io.seqera.watchtower.controller.TraceWorkflowRequest
+import io.seqera.watchtower.domain.Progress
 import io.seqera.watchtower.domain.Task
 import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.exceptions.NonExistingTaskException
@@ -23,25 +24,27 @@ class TaskServiceImpl implements TaskService {
     }
 
     Task processTaskJsonTrace(TraceWorkflowRequest trace) {
-        trace.task.checkIsSubmitted() ? createFromJson(trace.task) : updateFromJson(trace.task)
+        trace.task.checkIsSubmitted() ? createFromJson(trace.task, trace.progress) : updateFromJson(trace.task, trace.progress)
     }
 
 
     @CompileDynamic
-    private Task createFromJson(Task task) {
+    private Task createFromJson(Task task, Progress progress) {
         Workflow existingWorkflow = Workflow.get(task.relatedWorkflowId)
         if (!existingWorkflow) {
             throw new NonExistingWorkflowException("Can't create task associated with non existing workflow")
         }
 
+        existingWorkflow.progress = progress
         task.workflow = existingWorkflow
 
+        existingWorkflow.save()
         task.save()
         task
     }
 
     @CompileDynamic
-    private Task updateFromJson(Task task) {
+    private Task updateFromJson(Task task, Progress progress) {
         Workflow existingWorkflow = Workflow.get(task.relatedWorkflowId)
         if (!existingWorkflow) {
             throw new NonExistingWorkflowException("Can't find workflow associated with the task")
@@ -52,8 +55,10 @@ class TaskServiceImpl implements TaskService {
             throw new NonExistingTaskException("Can't update a non existing task")
         }
 
+        existingWorkflow.progress = progress
         updateChangeableFields(task, existingTask)
 
+        existingWorkflow.save()
         existingTask.save()
         existingTask
     }
