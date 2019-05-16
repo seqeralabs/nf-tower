@@ -15,12 +15,12 @@ import java.time.Instant
  * @see https://www.nextflow.io/docs/latest/tracing.html#execution-report
  */
 @Entity
-@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version'])
+@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version', 'workflow'])
 @CompileDynamic
 class Task {
 
     static belongsTo = [workflow: Workflow]
-    String workflowId
+    String relatedWorkflowId
 
     /**
      * The order of the task in the workflow
@@ -114,6 +114,11 @@ class Task {
         module = moduleList ? new ObjectMapper().writeValueAsString(moduleList) : null
     }
 
+    @JsonSetter('workflowId')
+    void deserializeWorkflowId(String workflowId) {
+        relatedWorkflowId = workflowId
+    }
+
 
     @JsonGetter('submit')
     Long serializeSubmitInstant() {
@@ -130,7 +135,12 @@ class Task {
         complete?.toEpochMilli()
     }
 
-    static transients = ['workflowId']
+    @JsonGetter('workflowId')
+    String serializeWorkflowId() {
+        workflowId?.toString() ?: relatedWorkflowId
+    }
+
+    static transients = ['relatedWorkflowId']
 
     static mapping = {
         version false

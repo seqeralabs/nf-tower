@@ -145,7 +145,7 @@ class WorkflowServiceSpec extends AbstractContainerBaseSpec {
         !workflowStarted1.complete
         Workflow.count() == 1
 
-        when: "given a workflow started trace with the same workflowId, unmarshall the started JSON to a second workflow"
+        when: "given a workflow started trace with the same relatedWorkflowId, unmarshall the started JSON to a second workflow"
         TraceWorkflowRequest workflowStarted2TraceJson = TracesJsonBank.extractWorkflowJsonTrace(1, workflowStarted1.id, WorkflowStatus.STARTED)
         Workflow workflowStarted2
         Workflow.withNewTransaction {
