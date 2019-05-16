@@ -34,10 +34,10 @@ dependencies {
     compile "io.micronaut:micronaut-http-client"
     compile "io.micronaut:micronaut-http-server-netty"
     
-//    compile "io.micronaut.configuration:micronaut-mongo-reactive"
-//    compile "io.micronaut.configuration:micronaut-mongo-gorm"
-    compile "io.micronaut.configuration:micronaut-hibernate-gorm"
-    compile "org.postgresql:postgresql:42.2.5"
+    compile "io.micronaut.configuration:micronaut-mongo-reactive"
+    compile "io.micronaut.configuration:micronaut-mongo-gorm"
+//    compile "io.micronaut.configuration:micronaut-hibernate-gorm"
+//    compile "org.postgresql:postgresql:42.2.5"
 
 
 
