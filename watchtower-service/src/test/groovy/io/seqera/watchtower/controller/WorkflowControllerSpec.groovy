@@ -10,6 +10,7 @@ import io.micronaut.test.annotation.MicronautTest
 import io.seqera.watchtower.Application
 import io.seqera.watchtower.domain.Manifest
 import io.seqera.watchtower.domain.NextflowMeta
+import io.seqera.watchtower.domain.Progress
 import io.seqera.watchtower.domain.Stats
 import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.util.AbstractContainerBaseSpec
@@ -32,7 +33,8 @@ class WorkflowControllerSpec extends AbstractContainerBaseSpec {
             manifest: new Manifest(defaultBranch: 'master'),
             stats: new Stats(computeTimeFmt: '(a few seconds)'),
             nextflow: new NextflowMeta(version: "19.05.0-TOWER"),
-            summaryEntries: [domainCreator.createSummaryEntry(), domainCreator.createSummaryEntry()]
+            summaryEntries: [domainCreator.createSummaryEntry(), domainCreator.createSummaryEntry()],
+            progress: new Progress(running: 0, submitted: 0, failed: 0, pending: 0, succeeded: 0, cached: 0)
         )
 
         and: "perform the request to obtain the workflow"
@@ -48,6 +50,7 @@ class WorkflowControllerSpec extends AbstractContainerBaseSpec {
         response.body().workflow.nextflow
         response.body().workflow.manifest
         response.body().summary.size() == 2
+        response.body().progress
     }
 
     void "try to get a non-existing workflow"() {
