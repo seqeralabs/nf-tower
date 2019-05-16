@@ -9,6 +9,9 @@ import groovy.transform.CompileDynamic
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
+@Entity
+@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version'])
+@CompileDynamic
 class Progress {
 
     Integer running

@@ -15,11 +15,14 @@ import java.time.Instant
  * @see https://www.nextflow.io/docs/latest/tracing.html#execution-report
  */
 @Entity
-@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version', 'tasks'])
+@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version', 'tasks', 'summaryEntries', 'progress'])
 @CompileDynamic
 class Workflow {
 
     static hasMany = [tasks: Task, summaryEntries: SummaryEntry]
+
+    Progress progress
+
 
     Instant submit
     Instant start //TODO For now, submitTime and startTime are the same, when using Launchpad they would differ.
@@ -64,7 +67,7 @@ class Workflow {
     String workflowId
 
 
-    static embedded = ['manifest', 'nextflow', 'stats']
+    static embedded = ['manifest', 'nextflow', 'stats', 'progress']
 
     static transients = ['workflowId']
 
@@ -120,6 +123,7 @@ class Workflow {
         manifest(nullable: true)
         nextflow(nullable: true)
         stats(nullable: true)
+        progress(nullable: true)
     }
 
 
