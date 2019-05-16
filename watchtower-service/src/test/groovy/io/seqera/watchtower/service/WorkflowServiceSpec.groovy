@@ -35,6 +35,14 @@ class WorkflowServiceSpec extends AbstractContainerBaseSpec {
         workflow.submit
         !workflow.complete
         Workflow.count() == 1
+
+        and: "there is progress info"
+        workflow.progress.running == 0
+        workflow.progress.submitted == 0
+        workflow.progress.failed == 0
+        workflow.progress.pending == 0
+        workflow.progress.succeeded == 0
+        workflow.progress.cached == 0
     }
 
     void "start a workflow given a started trace, then complete the workflow given a succeeded trace"() {
@@ -77,13 +85,13 @@ class WorkflowServiceSpec extends AbstractContainerBaseSpec {
         workflowSucceeded.summaryEntries.first().cpuUsage
         SummaryEntry.count() == 1
 
-        and: "the trace has progress info"
-        workflowSucceededTraceJson.progress.running == 0
-        workflowSucceededTraceJson.progress.submitted == 0
-        workflowSucceededTraceJson.progress.failed == 0
-        workflowSucceededTraceJson.progress.pending == 0
-        workflowSucceededTraceJson.progress.succeeded == 4
-        workflowSucceededTraceJson.progress.cached == 0
+        and: "there is progress info"
+        workflowSucceeded.progress.running == 0
+        workflowSucceeded.progress.submitted == 0
+        workflowSucceeded.progress.failed == 0
+        workflowSucceeded.progress.pending == 0
+        workflowSucceeded.progress.succeeded == 4
+        workflowSucceeded.progress.cached == 0
     }
 
     void "start a workflow given a started trace, then complete the workflow given a failed trace"() {
@@ -126,6 +134,14 @@ class WorkflowServiceSpec extends AbstractContainerBaseSpec {
         workflowFailed.summaryEntries.first().writes
         workflowFailed.summaryEntries.first().cpuUsage
         SummaryEntry.count() == 1
+
+        and: "there is progress info"
+        workflowFailed.progress.running == 0
+        workflowFailed.progress.submitted == 0
+        workflowFailed.progress.failed == 0
+        workflowFailed.progress.pending == 0
+        workflowFailed.progress.succeeded == 4
+        workflowFailed.progress.cached == 0
     }
 
     void "start a workflow given a started trace, then try to start the same one"() {
