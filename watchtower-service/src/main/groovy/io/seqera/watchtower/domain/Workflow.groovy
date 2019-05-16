@@ -1,5 +1,6 @@
 package io.seqera.watchtower.domain
 
+import com.fasterxml.jackson.annotation.JsonGetter
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonSetter
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -93,6 +94,13 @@ class Workflow {
     void deserializeConfigFilesJson(List<String> configFilesList) {
         configFiles = configFilesList ? new ObjectMapper().writeValueAsString(configFilesList) : null
     }
+
+
+    @JsonGetter('relatedWorkflowId')
+    String serializeWorkflowId() {
+        id?.toString() ?: workflowId
+    }
+
 
     static constraints = {
         sessionId(unique: 'runName')

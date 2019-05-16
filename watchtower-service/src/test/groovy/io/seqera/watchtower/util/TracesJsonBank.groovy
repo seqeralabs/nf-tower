@@ -24,7 +24,7 @@ class TracesJsonBank {
         File jsonFile = new File("${RESOURCES_DIR_PATH}/${fileRelativePath}")
 
         TraceWorkflowRequest taskTrace = new ObjectMapper().readValue(jsonFile, TraceWorkflowRequest.class)
-        taskTrace.task.workflowId = workflowId
+        taskTrace.task.relatedWorkflowId = workflowId
 
         taskTrace
     }
