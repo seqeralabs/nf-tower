@@ -1,7 +1,8 @@
 package io.seqera.watchtower.util
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.seqera.watchtower.controller.TraceWorkflowRequest
+import io.seqera.watchtower.pogo.exchange.trace.TraceTaskRequest
+import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowRequest
 import io.seqera.watchtower.pogo.enums.TaskStatus
 import io.seqera.watchtower.pogo.enums.WorkflowStatus
 
@@ -19,11 +20,11 @@ class TracesJsonBank {
         workflowTrace
     }
 
-    static TraceWorkflowRequest extractTaskJsonTrace(Integer workflowOrder, Integer taskOrder, Long workflowId, TaskStatus taskStatus) {
+    static TraceTaskRequest extractTaskJsonTrace(Integer workflowOrder, Integer taskOrder, Long workflowId, TaskStatus taskStatus) {
         String fileRelativePath = "workflow_${workflowOrder}/task_${taskOrder}_${taskStatus.name().toLowerCase()}.json"
         File jsonFile = new File("${RESOURCES_DIR_PATH}/${fileRelativePath}")
 
-        TraceWorkflowRequest taskTrace = new ObjectMapper().readValue(jsonFile, TraceWorkflowRequest.class)
+        TraceTaskRequest taskTrace = new ObjectMapper().readValue(jsonFile, TraceTaskRequest.class)
         taskTrace.task.relatedWorkflowId = workflowId
 
         taskTrace

@@ -1,14 +1,13 @@
 package io.seqera.watchtower.service
 
-import grails.gorm.transactions.Transactional
 import io.micronaut.test.annotation.MicronautTest
 import io.micronaut.test.annotation.MockBean
 import io.seqera.watchtower.Application
-import io.seqera.watchtower.controller.TraceWorkflowResponse
 import io.seqera.watchtower.domain.Task
 import io.seqera.watchtower.domain.Workflow
-import io.seqera.watchtower.pogo.enums.TraceType
 import io.seqera.watchtower.pogo.exceptions.NonExistingWorkflowException
+import io.seqera.watchtower.pogo.exchange.trace.TraceTaskResponse
+import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowResponse
 import io.seqera.watchtower.util.AbstractContainerBaseSpec
 import io.seqera.watchtower.util.DomainCreator
 
@@ -44,7 +43,6 @@ class TraceServiceSpec extends AbstractContainerBaseSpec {
         TraceWorkflowResponse response = traceService.processWorkflowTrace(null)
 
         then: "the result indicates a successful processing"
-        response.traceType == TraceType.WORKFLOW
         response.workflowId
         !response.message
     }
@@ -59,7 +57,6 @@ class TraceServiceSpec extends AbstractContainerBaseSpec {
         TraceWorkflowResponse response = traceService.processWorkflowTrace(null)
 
         then: "the result indicates an error"
-        response.traceType == TraceType.WORKFLOW
         response.message == "Can't save a workflow with the same sessionId of another"
         !response.workflowId
     }
@@ -73,7 +70,6 @@ class TraceServiceSpec extends AbstractContainerBaseSpec {
         TraceWorkflowResponse response = traceService.processWorkflowTrace(null)
 
         then: "the result indicates an error"
-        response.traceType == TraceType.WORKFLOW
         response.message.startsWith("Can't save a workflow without") && (response.message.endsWith("start") || response.message.endsWith("submit"))
         !response.workflowId
     }
@@ -87,7 +83,6 @@ class TraceServiceSpec extends AbstractContainerBaseSpec {
         TraceWorkflowResponse response = traceService.processWorkflowTrace(null)
 
         then: "the result indicates an error"
-        response.traceType == TraceType.WORKFLOW
         response.message == exceptionMessage
         !response.workflowId
     }
@@ -100,7 +95,6 @@ class TraceServiceSpec extends AbstractContainerBaseSpec {
         TraceWorkflowResponse response = traceService.processWorkflowTrace(null)
 
         then: "the result indicates an error"
-        response.traceType == TraceType.WORKFLOW
         response.message == "Can't process JSON: check format"
         !response.workflowId
     }
@@ -111,10 +105,9 @@ class TraceServiceSpec extends AbstractContainerBaseSpec {
         taskService.processTaskJsonTrace(_) >> task
 
         when: "process the task (we don't mind about the given JSON because the processor is mocked)"
-        TraceWorkflowResponse response = traceService.processTaskTrace(null)
+        TraceTaskResponse response = traceService.processTaskTrace(null)
 
         then: "the result indicates a successful processing"
-        response.traceType == TraceType.TASK
         response.workflowId
         !response.message
     }
@@ -125,10 +118,9 @@ class TraceServiceSpec extends AbstractContainerBaseSpec {
         taskService.processTaskJsonTrace(_) >> task
 
         when: "process the task (we don't mind about the given JSON because the processor is mocked)"
-        TraceWorkflowResponse response = traceService.processTaskTrace(null)
+        TraceTaskResponse response = traceService.processTaskTrace(null)
 
         then: "the result indicates a successful processing"
-        response.traceType == TraceType.TASK
         !response.workflowId
         response.message == "Can't save a task without submit"
     }
@@ -140,10 +132,9 @@ class TraceServiceSpec extends AbstractContainerBaseSpec {
         taskService.processTaskJsonTrace(_) >> task
 
         when: "process the task (we don't mind about the given JSON because the processor is mocked)"
-        TraceWorkflowResponse response = traceService.processTaskTrace(null)
+        TraceTaskResponse response = traceService.processTaskTrace(null)
 
         then: "the result indicates a failed processing"
-        response.traceType == TraceType.TASK
         !response.workflowId
         response.message == "Can't save a task without taskId"
     }
@@ -156,10 +147,9 @@ class TraceServiceSpec extends AbstractContainerBaseSpec {
         taskService.processTaskJsonTrace(_) >> task2
 
         when: "process the task (we don't mind about the given JSON because the processor is mocked)"
-        TraceWorkflowResponse response = traceService.processTaskTrace(null)
+        TraceTaskResponse response = traceService.processTaskTrace(null)
 
         then: "the result indicates a successful processing"
-        response.traceType == TraceType.TASK
         !response.workflowId
         response.message == "Can't save a task with the same taskId of another"
     }

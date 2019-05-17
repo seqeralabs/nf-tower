@@ -3,12 +3,12 @@ package io.seqera.watchtower.service
 import grails.gorm.transactions.Transactional
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.watchtower.Application
-import io.seqera.watchtower.controller.TraceWorkflowRequest
 import io.seqera.watchtower.domain.Task
 import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.enums.TaskStatus
 import io.seqera.watchtower.pogo.exceptions.NonExistingTaskException
 import io.seqera.watchtower.pogo.exceptions.NonExistingWorkflowException
+import io.seqera.watchtower.pogo.exchange.trace.TraceTaskRequest
 import io.seqera.watchtower.util.AbstractContainerBaseSpec
 import io.seqera.watchtower.util.DomainCreator
 import io.seqera.watchtower.util.TracesJsonBank
@@ -28,7 +28,7 @@ class TaskServiceSpec extends AbstractContainerBaseSpec {
         Workflow workflow = new DomainCreator().createWorkflow()
 
         and: "a task JSON submitted trace"
-        TraceWorkflowRequest taskTraceJson = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskStatus.SUBMITTED)
+        TraceTaskRequest taskTraceJson = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskStatus.SUBMITTED)
 
         when: "unmarshall the JSON to a task"
         Task task
@@ -58,13 +58,13 @@ class TaskServiceSpec extends AbstractContainerBaseSpec {
         Workflow workflow = new DomainCreator().createWorkflow()
 
         and: "a task submitted trace"
-        TraceWorkflowRequest taskSubmittedTraceJson = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskStatus.SUBMITTED)
+        TraceTaskRequest taskSubmittedTraceJson = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskStatus.SUBMITTED)
 
         and: 'a task started trace'
-        TraceWorkflowRequest taskStartedTrace = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskStatus.STARTED)
+        TraceTaskRequest taskStartedTrace = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskStatus.STARTED)
 
         and: 'a task succeeded trace'
-        TraceWorkflowRequest taskSucceededTraceJson = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskStatus.SUCCEEDED)
+        TraceTaskRequest taskSucceededTraceJson = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskStatus.SUCCEEDED)
 
         when: "unmarshall the JSON to a task"
         Task taskSubmitted
@@ -122,13 +122,13 @@ class TaskServiceSpec extends AbstractContainerBaseSpec {
         Workflow workflow = new DomainCreator().createWorkflow()
 
         and: "a task submitted trace"
-        TraceWorkflowRequest taskSubmittedTraceJson = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskStatus.SUBMITTED)
+        TraceTaskRequest taskSubmittedTraceJson = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskStatus.SUBMITTED)
 
         and: 'a task started trace'
-        TraceWorkflowRequest taskStartedTrace = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskStatus.STARTED)
+        TraceTaskRequest taskStartedTrace = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskStatus.STARTED)
 
         and: 'a task succeeded trace'
-        TraceWorkflowRequest taskFailedTraceJson = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskStatus.FAILED)
+        TraceTaskRequest taskFailedTraceJson = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskStatus.FAILED)
 
         when: "unmarshall the JSON to a task"
         Task taskSubmitted
@@ -188,7 +188,7 @@ class TaskServiceSpec extends AbstractContainerBaseSpec {
         Workflow workflow = new DomainCreator().createWorkflow()
 
         and: "a task submitted trace"
-        TraceWorkflowRequest taskSubmittedTraceJson = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskStatus.SUBMITTED)
+        TraceTaskRequest taskSubmittedTraceJson = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskStatus.SUBMITTED)
 
         when: "unmarshall the JSON to a task"
         Task taskSubmitted1
@@ -220,7 +220,7 @@ class TaskServiceSpec extends AbstractContainerBaseSpec {
         Workflow workflow = new DomainCreator().createWorkflow()
 
         and: "a task submitted trace without taskId"
-        TraceWorkflowRequest taskSubmittedTraceJson = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskStatus.SUBMITTED)
+        TraceTaskRequest taskSubmittedTraceJson = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskStatus.SUBMITTED)
         taskSubmittedTraceJson.task.taskId = null
 
         when: "unmarshall the JSON to a task"
@@ -240,7 +240,7 @@ class TaskServiceSpec extends AbstractContainerBaseSpec {
         Workflow workflow = new DomainCreator().createWorkflow()
 
         and: "a task started trace"
-        TraceWorkflowRequest taskStartedTraceJson = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskStatus.STARTED)
+        TraceTaskRequest taskStartedTraceJson = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskStatus.STARTED)
 
         when: "unmarshall the JSON to a task"
         Task taskSubmitted1
@@ -255,7 +255,7 @@ class TaskServiceSpec extends AbstractContainerBaseSpec {
 
     void "try to submit a task given a submit trace for a non existing workflow"() {
         given: "a task submitted trace"
-        TraceWorkflowRequest taskSubmittedTraceJson = TracesJsonBank.extractTaskJsonTrace(1, 1, null, TaskStatus.SUBMITTED)
+        TraceTaskRequest taskSubmittedTraceJson = TracesJsonBank.extractTaskJsonTrace(1, 1, null, TaskStatus.SUBMITTED)
 
         when: "unmarshall the JSON to a task"
         Task taskSubmitted

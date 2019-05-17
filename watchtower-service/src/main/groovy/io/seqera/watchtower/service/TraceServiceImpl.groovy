@@ -1,12 +1,13 @@
 package io.seqera.watchtower.service
 
-import io.seqera.watchtower.controller.TraceWorkflowRequest
-import io.seqera.watchtower.controller.TraceWorkflowResponse
 import io.seqera.watchtower.domain.Task
 import io.seqera.watchtower.domain.Workflow
-import io.seqera.watchtower.pogo.enums.TraceType
 import io.seqera.watchtower.pogo.exceptions.NonExistingTaskException
 import io.seqera.watchtower.pogo.exceptions.NonExistingWorkflowException
+import io.seqera.watchtower.pogo.exchange.trace.TraceTaskRequest
+import io.seqera.watchtower.pogo.exchange.trace.TraceTaskResponse
+import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowRequest
+import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowResponse
 import org.springframework.validation.FieldError
 
 import javax.inject.Inject
@@ -25,16 +26,12 @@ class TraceServiceImpl implements TraceService {
         this.taskService = taskService
     }
 
-    TraceWorkflowResponse createEntityByTrace(TraceWorkflowRequest trace) {
-        (trace.traceType == TraceType.WORKFLOW) ? processWorkflowTrace(trace) : (trace.traceType == TraceType.TASK) ? processTaskTrace(trace) : null
-    }
 
     TraceWorkflowResponse processWorkflowTrace(TraceWorkflowRequest traceJson) {
         TraceWorkflowResponse result = new TraceWorkflowResponse()
 
-        result.traceType = TraceType.WORKFLOW
         try {
-            Workflow workflow = workflowService.processWorkflowJsonTrace(traceJson as TraceWorkflowRequest)
+            Workflow workflow = workflowService.processWorkflowJsonTrace(traceJson)
 
             String errorMessage = checkWorkflowSaveErrors(workflow)
             if (errorMessage) {
@@ -51,12 +48,11 @@ class TraceServiceImpl implements TraceService {
         result
     }
 
-    TraceWorkflowResponse processTaskTrace(TraceWorkflowRequest trace) {
-        TraceWorkflowResponse result = new TraceWorkflowResponse()
+    TraceTaskResponse processTaskTrace(TraceTaskRequest trace) {
+        TraceTaskResponse result = new TraceTaskResponse()
 
-        result.traceType = TraceType.TASK
         try {
-            Task task = taskService.processTaskJsonTrace(trace as TraceWorkflowRequest)
+            Task task = taskService.processTaskJsonTrace(trace)
 
             String errorMessage = checkTaskSaveErrors(task)
             if (errorMessage) {

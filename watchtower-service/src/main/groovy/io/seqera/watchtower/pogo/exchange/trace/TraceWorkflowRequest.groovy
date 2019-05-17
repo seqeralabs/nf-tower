@@ -1,15 +1,12 @@
-package io.seqera.watchtower.controller
+package io.seqera.watchtower.pogo.exchange.trace
 
 import com.fasterxml.jackson.annotation.JsonSetter
-import io.seqera.watchtower.domain.SummaryEntry
-import io.seqera.watchtower.domain.Task
-import io.seqera.watchtower.domain.Workflow
-import io.seqera.watchtower.pogo.enums.TraceType
-
-import java.time.Instant
-
 import groovy.transform.ToString
 import io.seqera.watchtower.domain.Progress
+import io.seqera.watchtower.domain.SummaryEntry
+import io.seqera.watchtower.domain.Workflow
+
+import java.time.Instant
 
 /**
  * Model a Trace workflow request
@@ -19,16 +16,12 @@ import io.seqera.watchtower.domain.Progress
 @ToString
 class TraceWorkflowRequest {
 
-    Task task
     Workflow workflow
-
-    Instant utcTime
     Progress progress
     List<SummaryEntry> summary
 
-    TraceType getTraceType() {
-        workflow ? TraceType.WORKFLOW : task ? TraceType.TASK : TraceType.INVALID
-    }
+    Instant utcTime
+
 
     @JsonSetter('utcTime')
     void deserializeCompleteInstant(String utcTimestamp) {

@@ -9,11 +9,8 @@ import io.micronaut.http.client.annotation.Client
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.watchtower.Application
-import io.seqera.watchtower.domain.Manifest
-import io.seqera.watchtower.domain.NextflowMeta
-import io.seqera.watchtower.domain.Progress
-import io.seqera.watchtower.domain.Stats
-import io.seqera.watchtower.domain.Workflow
+import io.seqera.watchtower.domain.*
+import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowRequest
 import io.seqera.watchtower.util.AbstractContainerBaseSpec
 import io.seqera.watchtower.util.DomainCreator
 
