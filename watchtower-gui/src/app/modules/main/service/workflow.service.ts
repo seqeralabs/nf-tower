@@ -39,7 +39,7 @@ export class WorkflowService {
     const url: string = `${endpointUrl}/list`;
 
     return this.http.get(url).pipe(
-      map((data: any[]) => data.map((item: any) => new Workflow(item)).sort((w1: Workflow, w2: Workflow) =>  (w1.data.startTime > w2.data.startTime) ? 1 : ((w1.data.startTime < w2.data.startTime) ? -1 : 0))),
+      map((data: any) => data.workflows.map((item: any) => new Workflow(item)).sort((w1: Workflow, w2: Workflow) =>  (w1.data.start > w2.data.start) ? 1 : ((w1.data.start < w2.data.start) ? -1 : 0))),
       tap((workflows: Workflow[]) => workflows.forEach((workflow: Workflow) => this.workflowsByIdCache.set(workflow.data.workflowId, workflow)))
     );
   }

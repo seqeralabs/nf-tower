@@ -18,19 +18,26 @@ export class Workflow {
 
 
   get isStarted(): boolean {
-    return (this.data.status === WorkflowStatus.STARTED);
+    return (this.computeStatus() === WorkflowStatus.STARTED);
   }
 
   get isSuccessful(): boolean {
-    return (this.data.status === WorkflowStatus.SUCCEEDED);
+    return (this.computeStatus() === WorkflowStatus.SUCCEEDED);
   }
 
   get isFailed(): boolean {
-    return (this.data.status === WorkflowStatus.FAILED);
+    return (this.computeStatus() === WorkflowStatus.FAILED);
   }
 
   get isCompleted(): boolean {
     return (this.isSuccessful || this.isFailed);
+  }
+
+  private computeStatus(): WorkflowStatus {
+    return (!this.data.complete) ? WorkflowStatus.STARTED   :
+           (this.data.success)   ? WorkflowStatus.SUCCEEDED :
+                                   WorkflowStatus.FAILED
+
   }
 
   get humanizedDuration(): string {
@@ -41,7 +48,7 @@ export class Workflow {
   }
 
   getWorkflowStartDateFormatted(format: string): string {
-    return dateFormat(this.data.startTime, format);
+    return dateFormat(this.data.start, format);
   }
 
 }
