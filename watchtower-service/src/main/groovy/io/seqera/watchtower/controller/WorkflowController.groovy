@@ -7,6 +7,8 @@ import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
 import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowRequest
+import io.seqera.watchtower.pogo.exchange.workflow.WorkflowGet
+import io.seqera.watchtower.pogo.exchange.workflow.WorkflowList
 import io.seqera.watchtower.service.WorkflowService
 
 import javax.inject.Inject
@@ -29,26 +31,30 @@ class WorkflowController {
 
     @Get("/list")
     @Transactional
-    HttpResponse<List<TraceWorkflowRequest>> list() {
+    HttpResponse<WorkflowList> list() {
         List<Workflow> workflows = workflowService.list()
 
-        List<TraceWorkflowRequest> result = workflows.collect {
-            new TraceWorkflowRequest(workflow: it, summary: it.summaryEntries as List, utcTime: Instant.now())
+        List<WorkflowGet> result = workflows.collect {
+            buildWorkflowGetResponse(it)
         }
 
-        HttpResponse.ok(result)
+        HttpResponse.ok(new WorkflowList(workflows: result))
     }
 
     @Get("/{id}")
     @Transactional
-    HttpResponse<TraceWorkflowRequest> get(Long id) {
+    HttpResponse<WorkflowGet> get(Long id) {
         Workflow workflow = workflowService.get(id)
 
         if (!workflow) {
             return HttpResponse.notFound()
         }
 
-        HttpResponse.ok(new TraceWorkflowRequest(workflow: workflow, summary: workflow.summaryEntries as List, progress: workflow.progress, utcTime: Instant.now()))
+        HttpResponse.ok(buildWorkflowGetResponse(workflow))
+    }
+
+    private static WorkflowGet buildWorkflowGetResponse(Workflow workflow) {
+        new WorkflowGet(workflow: workflow, summary: workflow.summaryEntries as List, progress: workflow.progress)
     }
 
 
