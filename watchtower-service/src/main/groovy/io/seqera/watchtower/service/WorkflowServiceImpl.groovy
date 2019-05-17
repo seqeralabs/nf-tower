@@ -2,11 +2,11 @@ package io.seqera.watchtower.service
 
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
-import io.seqera.watchtower.controller.TraceWorkflowRequest
 import io.seqera.watchtower.domain.Progress
 import io.seqera.watchtower.domain.SummaryEntry
 import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.exceptions.NonExistingWorkflowException
+import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowRequest
 
 import javax.inject.Singleton
 

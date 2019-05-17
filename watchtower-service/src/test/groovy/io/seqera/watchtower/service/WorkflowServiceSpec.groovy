@@ -3,11 +3,11 @@ package io.seqera.watchtower.service
 import grails.gorm.transactions.Transactional
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.watchtower.Application
-import io.seqera.watchtower.controller.TraceWorkflowRequest
 import io.seqera.watchtower.domain.SummaryEntry
 import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.enums.WorkflowStatus
 import io.seqera.watchtower.pogo.exceptions.NonExistingWorkflowException
+import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowRequest
 import io.seqera.watchtower.util.AbstractContainerBaseSpec
 import io.seqera.watchtower.util.TracesJsonBank
 

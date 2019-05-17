@@ -2,12 +2,12 @@ package io.seqera.watchtower.service
 
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
-import io.seqera.watchtower.controller.TraceWorkflowRequest
 import io.seqera.watchtower.domain.Progress
 import io.seqera.watchtower.domain.Task
 import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.exceptions.NonExistingTaskException
 import io.seqera.watchtower.pogo.exceptions.NonExistingWorkflowException
+import io.seqera.watchtower.pogo.exchange.trace.TraceTaskRequest
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -23,7 +23,7 @@ class TaskServiceImpl implements TaskService {
         this.workflowService = workflowService
     }
 
-    Task processTaskJsonTrace(TraceWorkflowRequest trace) {
+    Task processTaskJsonTrace(TraceTaskRequest trace) {
         trace.task.checkIsSubmitted() ? createFromJson(trace.task, trace.progress) : updateFromJson(trace.task, trace.progress)
     }
 

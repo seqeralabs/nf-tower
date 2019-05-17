@@ -1,10 +1,10 @@
 package io.seqera.watchtower.service
 
-import io.seqera.watchtower.controller.TraceWorkflowRequest
 import io.seqera.watchtower.domain.Task
+import io.seqera.watchtower.pogo.exchange.trace.TraceTaskRequest
 
 interface TaskService {
 
-    Task processTaskJsonTrace(TraceWorkflowRequest taskJson)
+    Task processTaskJsonTrace(TraceTaskRequest taskJson)
 
 }

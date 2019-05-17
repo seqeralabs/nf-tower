@@ -1,6 +1,10 @@
 package io.seqera.watchtower.util
 
-import io.seqera.watchtower.domain.*
+
+import io.seqera.watchtower.domain.SummaryData
+import io.seqera.watchtower.domain.SummaryEntry
+import io.seqera.watchtower.domain.Task
+import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.enums.TaskStatus
 
 import java.time.Instant
