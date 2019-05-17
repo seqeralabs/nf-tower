@@ -6,7 +6,6 @@ import {WorkflowStatus} from "./workflow-status.enum";
 export interface WorkflowData {
 
   workflowId: string | number;
-  status: WorkflowStatus;
 
   runName: string;
   sessionId: string;
@@ -15,9 +14,9 @@ export interface WorkflowData {
   nextflow: Nextflow;
   stats: Stats;
 
-  submitTime: Date;
-  startTime: Date;
-  completeTime?: Date;
+  submit: Date;
+  start: Date;
+  complete?: Date;
   duration: number;
 
   projectDir: string;
@@ -40,8 +39,8 @@ export interface WorkflowData {
   projectName: string;
   scriptName: string;
 
-  errorMessage?: any;
-  errorReport?: any;
+  errorMessage?: string;
+  errorReport?: string;
 
   params: any;
   configFiles: string[];

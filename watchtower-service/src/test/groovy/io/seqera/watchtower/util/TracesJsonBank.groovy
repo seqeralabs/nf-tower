@@ -127,5 +127,4 @@ class NextflowSimulator {
         originalList.remove(0)
     }
 
-
 }
