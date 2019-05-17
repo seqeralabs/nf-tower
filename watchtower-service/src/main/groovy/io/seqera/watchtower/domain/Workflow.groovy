@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonSetter
 import com.fasterxml.jackson.databind.ObjectMapper
 import grails.gorm.annotation.Entity
 import groovy.transform.CompileDynamic
+import io.seqera.watchtower.pogo.enums.WorkflowStatus
 
 import java.time.Instant
 
@@ -72,15 +73,22 @@ class Workflow {
     static transients = ['workflowId']
 
     boolean checkIsStarted() {
-        (complete == null)
+        computeStatus() == WorkflowStatus.STARTED
     }
 
     boolean checkIsSucceeded() {
-        complete && success
+        computeStatus() == WorkflowStatus.SUCCEEDED
     }
 
     boolean checkIsFailed() {
-        complete && (success != null) && !success
+        computeStatus() == WorkflowStatus.FAILED
+    }
+
+    private computeStatus() {
+        (!complete) ? WorkflowStatus.STARTED   :
+        (success)   ? WorkflowStatus.SUCCEEDED :
+                      WorkflowStatus.FAILED
+
     }
 
     @JsonSetter('start')

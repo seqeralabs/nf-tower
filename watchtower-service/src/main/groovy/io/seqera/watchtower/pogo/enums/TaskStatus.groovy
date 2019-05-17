@@ -2,6 +2,6 @@ package io.seqera.watchtower.pogo.enums
 
 enum TaskStatus {
 
-    SUBMITTED, RUNNING, COMPLETED, STARTED, SUCCEEDED, FAILED
+    SUBMITTED, RUNNING, COMPLETED, SUCCEEDED, FAILED
 
 }

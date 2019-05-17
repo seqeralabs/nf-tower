@@ -61,7 +61,7 @@ class TaskServiceSpec extends AbstractContainerBaseSpec {
         TraceTaskRequest taskSubmittedTraceJson = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskStatus.SUBMITTED)
 
         and: 'a task started trace'
-        TraceTaskRequest taskStartedTrace = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskStatus.STARTED)
+        TraceTaskRequest taskStartedTrace = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskStatus.RUNNING)
 
         and: 'a task succeeded trace'
         TraceTaskRequest taskSucceededTraceJson = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskStatus.SUCCEEDED)
@@ -125,7 +125,7 @@ class TaskServiceSpec extends AbstractContainerBaseSpec {
         TraceTaskRequest taskSubmittedTraceJson = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskStatus.SUBMITTED)
 
         and: 'a task started trace'
-        TraceTaskRequest taskStartedTrace = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskStatus.STARTED)
+        TraceTaskRequest taskStartedTrace = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskStatus.RUNNING)
 
         and: 'a task succeeded trace'
         TraceTaskRequest taskFailedTraceJson = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskStatus.FAILED)
@@ -240,7 +240,7 @@ class TaskServiceSpec extends AbstractContainerBaseSpec {
         Workflow workflow = new DomainCreator().createWorkflow()
 
         and: "a task started trace"
-        TraceTaskRequest taskStartedTraceJson = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskStatus.STARTED)
+        TraceTaskRequest taskStartedTraceJson = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskStatus.RUNNING)
 
         when: "unmarshall the JSON to a task"
         Task taskSubmitted1

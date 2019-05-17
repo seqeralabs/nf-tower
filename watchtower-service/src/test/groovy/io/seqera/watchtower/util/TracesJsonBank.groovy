@@ -92,7 +92,7 @@ class NextflowSimulator {
         List<Integer> tasksOrders = TracesJsonBank.getUniqueTasksOrders(workflowOrder)
 
         List<TraceTaskRequest> taskSubmittedTraces = tasksOrders.collect { Integer taskOrder -> TracesJsonBank.extractTaskJsonTrace(workflowOrder, taskOrder, workflowId, TaskStatus.SUBMITTED) }
-        List<TraceTaskRequest> taskRunningTraces = tasksOrders.collect { Integer taskOrder -> TracesJsonBank.extractTaskJsonTrace(workflowOrder, taskOrder, workflowId, TaskStatus.STARTED) }
+        List<TraceTaskRequest> taskRunningTraces = tasksOrders.collect { Integer taskOrder -> TracesJsonBank.extractTaskJsonTrace(workflowOrder, taskOrder, workflowId, TaskStatus.RUNNING) }
         List<TraceTaskRequest> taskCompletedTraces = tasksOrders.collect { Integer taskOrder -> TracesJsonBank.extractTaskJsonTrace(workflowOrder, taskOrder, workflowId, TaskStatus.COMPLETED) }
 
         List<TraceTaskRequest> tracesSequence = []
