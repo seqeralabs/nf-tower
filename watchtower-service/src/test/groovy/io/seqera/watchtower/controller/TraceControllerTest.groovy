@@ -16,7 +16,7 @@ import io.seqera.watchtower.pogo.exchange.trace.TraceTaskRequest
 import io.seqera.watchtower.pogo.exchange.trace.TraceTaskResponse
 import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowRequest
 import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowResponse
-import io.seqera.watchtower.util.AbstractContainerBaseSpec
+import io.seqera.watchtower.util.AbstractContainerBaseTest
 import io.seqera.watchtower.util.DomainCreator
 import io.seqera.watchtower.util.NextflowSimulator
 import io.seqera.watchtower.util.TracesJsonBank
@@ -26,7 +26,7 @@ import javax.inject.Inject
 
 @MicronautTest(application = Application.class)
 @Transactional
-class TraceControllerSpec extends AbstractContainerBaseSpec {
+class TraceControllerTest extends AbstractContainerBaseTest {
 
     @Inject
     @Client('/')

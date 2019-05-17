@@ -13,14 +13,14 @@ import io.seqera.watchtower.domain.*
 import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowRequest
 import io.seqera.watchtower.pogo.exchange.workflow.WorkflowGet
 import io.seqera.watchtower.pogo.exchange.workflow.WorkflowList
-import io.seqera.watchtower.util.AbstractContainerBaseSpec
+import io.seqera.watchtower.util.AbstractContainerBaseTest
 import io.seqera.watchtower.util.DomainCreator
 
 import javax.inject.Inject
 
 @MicronautTest(application = Application.class)
 @Transactional
-class WorkflowControllerSpec extends AbstractContainerBaseSpec {
+class WorkflowControllerTest extends AbstractContainerBaseTest {
 
     @Inject
     @Client('/')

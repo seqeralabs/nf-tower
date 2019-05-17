@@ -8,13 +8,13 @@ import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.exceptions.NonExistingWorkflowException
 import io.seqera.watchtower.pogo.exchange.trace.TraceTaskResponse
 import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowResponse
-import io.seqera.watchtower.util.AbstractContainerBaseSpec
+import io.seqera.watchtower.util.AbstractContainerBaseTest
 import io.seqera.watchtower.util.DomainCreator
 
 import javax.inject.Inject
 
 @MicronautTest(application = Application.class)
-class TraceServiceSpec extends AbstractContainerBaseSpec {
+class TraceServiceTest extends AbstractContainerBaseTest {
 
     @Inject
     WorkflowService workflowService
