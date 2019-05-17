@@ -5,7 +5,7 @@ import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.wait.strategy.Wait
 import spock.lang.Specification
 
-abstract class AbstractContainerBaseSpec extends Specification {
+abstract class AbstractContainerBaseTest extends Specification {
 
     static GenericContainer DATABASE_CONTAINER
 

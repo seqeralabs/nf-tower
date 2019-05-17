@@ -9,7 +9,7 @@ import io.seqera.watchtower.pogo.enums.TaskStatus
 import io.seqera.watchtower.pogo.exceptions.NonExistingTaskException
 import io.seqera.watchtower.pogo.exceptions.NonExistingWorkflowException
 import io.seqera.watchtower.pogo.exchange.trace.TraceTaskRequest
-import io.seqera.watchtower.util.AbstractContainerBaseSpec
+import io.seqera.watchtower.util.AbstractContainerBaseTest
 import io.seqera.watchtower.util.DomainCreator
 import io.seqera.watchtower.util.TracesJsonBank
 
@@ -17,7 +17,7 @@ import javax.inject.Inject
 
 @MicronautTest(application = Application.class)
 @Transactional
-class TaskServiceSpec extends AbstractContainerBaseSpec {
+class TaskServiceTest extends AbstractContainerBaseTest {
 
     @Inject
     TaskService taskService
