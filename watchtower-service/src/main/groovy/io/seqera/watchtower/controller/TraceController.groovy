@@ -6,6 +6,9 @@ import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Post
+import io.seqera.watchtower.domain.Task
+import io.seqera.watchtower.domain.Workflow
+import io.seqera.watchtower.pogo.enums.TraceProcessingStatus
 import io.seqera.watchtower.pogo.exchange.trace.TraceTaskRequest
 import io.seqera.watchtower.pogo.exchange.trace.TraceTaskResponse
 import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowRequest
@@ -32,15 +35,15 @@ class TraceController {
 
     @Post("/workflow")
     HttpResponse<TraceWorkflowResponse> workflow(@Body TraceWorkflowRequest trace) {
-        log.info("Receiving workflow trace: ${trace.inspect()}")
-        TraceWorkflowResponse traceResponse = traceService.processWorkflowTrace(trace)
-        log.info("Processed workflow trace: ${trace.inspect()}")
-
         HttpResponse<TraceWorkflowResponse> response
-        if (traceResponse.message) {
-            response = HttpResponse.badRequest(traceResponse)
-        } else {
-            response = HttpResponse.created(traceResponse)
+        try {
+            log.info("Receiving workflow trace: ${trace.inspect()}")
+            Workflow workflow = traceService.processWorkflowTrace(trace)
+            log.info("Processed workflow trace: ${trace.inspect()}")
+
+            response = HttpResponse.created(new TraceWorkflowResponse(status: TraceProcessingStatus.OK, workflowId: workflow.id.toString()))
+        } catch (Exception e) {
+            response = HttpResponse.badRequest(new TraceWorkflowResponse(status: TraceProcessingStatus.KO, message: e.message))
         }
 
         response
@@ -48,15 +51,15 @@ class TraceController {
 
     @Post("/task")
     HttpResponse<TraceTaskResponse> task(@Body TraceTaskRequest trace) {
-        log.info("Receiving task trace: ${trace.inspect()}")
-        TraceTaskResponse traceResponse = traceService.processTaskTrace(trace)
-        log.info("Processed task trace: ${trace.inspect()}")
-
         HttpResponse<TraceTaskResponse> response
-        if (traceResponse.message) {
-            response = HttpResponse.badRequest(traceResponse)
-        } else {
-            response = HttpResponse.created(traceResponse)
+        try {
+            log.info("Receiving task trace: ${trace.inspect()}")
+            Task task = traceService.processTaskTrace(trace)
+            log.info("Processed task trace: ${trace.inspect()}")
+
+            response = HttpResponse.created(new TraceTaskResponse(status: TraceProcessingStatus.OK, workflowId: task.workflowId.toString()))
+        } catch (Exception e) {
+            response = HttpResponse.badRequest(new TraceTaskResponse(status: TraceProcessingStatus.KO, message: e.message))
         }
 
         response

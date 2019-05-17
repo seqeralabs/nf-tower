@@ -6,12 +6,11 @@ import io.seqera.watchtower.Application
 import io.seqera.watchtower.domain.Task
 import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.exceptions.NonExistingWorkflowException
-import io.seqera.watchtower.pogo.exchange.trace.TraceTaskResponse
-import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowResponse
 import io.seqera.watchtower.util.AbstractContainerBaseTest
 import io.seqera.watchtower.util.DomainCreator
 
 import javax.inject.Inject
+import javax.validation.ValidationException
 
 @MicronautTest(application = Application.class)
 class TraceServiceTest extends AbstractContainerBaseTest {
@@ -40,11 +39,11 @@ class TraceServiceTest extends AbstractContainerBaseTest {
         workflowService.processWorkflowJsonTrace(_) >> workflow
 
         when: "process the workflow (we don't mind about the given JSON because the processor is mocked)"
-        TraceWorkflowResponse response = traceService.processWorkflowTrace(null)
+        Workflow processedWorkflow = traceService.processWorkflowTrace(null)
 
         then: "the result indicates a successful processing"
-        response.workflowId
-        !response.message
+        processedWorkflow.id
+        !processedWorkflow.hasErrors()
     }
 
     void "process a workflow trace to try to start a new workflow with the same sessionId+runName combination of a previous one"() {
@@ -54,11 +53,11 @@ class TraceServiceTest extends AbstractContainerBaseTest {
         workflowService.processWorkflowJsonTrace(_) >> workflow2
 
         when: "process the workflow (we don't mind about the given JSON because the processor is mocked)"
-        TraceWorkflowResponse response = traceService.processWorkflowTrace(null)
+        traceService.processWorkflowTrace(null)
 
         then: "the result indicates an error"
-        response.message == "Can't save a workflow with the same sessionId of another"
-        !response.workflowId
+        Exception e = thrown(ValidationException)
+        e.message == "Can't save a workflow with the same sessionId of another"
     }
 
     void "process a workflow trace to try to start workflow without submitTime"() {
@@ -67,11 +66,11 @@ class TraceServiceTest extends AbstractContainerBaseTest {
         workflowService.processWorkflowJsonTrace(_) >> workflow
 
         when: "process the workflow (we don't mind about the given JSON because the processor is mocked)"
-        TraceWorkflowResponse response = traceService.processWorkflowTrace(null)
+        traceService.processWorkflowTrace(null)
 
         then: "the result indicates an error"
-        response.message.startsWith("Can't save a workflow without") && (response.message.endsWith("start") || response.message.endsWith("submit"))
-        !response.workflowId
+        Exception e = thrown(ValidationException)
+        e.message.startsWith("Can't save a workflow without") && (e.message.endsWith("start") || e.message.endsWith("submit"))
     }
 
     void "process a workflow trace, but throw a NonExistingWorkflow exception"() {
@@ -80,23 +79,24 @@ class TraceServiceTest extends AbstractContainerBaseTest {
         workflowService.processWorkflowJsonTrace(_) >> { throw(new NonExistingWorkflowException(exceptionMessage)) }
 
         when: "process the workflow (we don't mind about the given JSON because the processor is mocked)"
-        TraceWorkflowResponse response = traceService.processWorkflowTrace(null)
+        traceService.processWorkflowTrace(null)
 
         then: "the result indicates an error"
-        response.message == exceptionMessage
-        !response.workflowId
+        Exception e = thrown(NonExistingWorkflowException)
+        e.message == exceptionMessage
     }
 
     void "process a workflow trace, but throw a generic exception"() {
         given: "mock the workflow JSON processor to throw an exception"
-        workflowService.processWorkflowJsonTrace(_) >> { throw(new RuntimeException()) }
+        String exceptionMessage = 'message'
+        workflowService.processWorkflowJsonTrace(_) >> { throw(new RuntimeException(exceptionMessage)) }
 
         when: "process the workflow (we don't mind about the given JSON because the processor is mocked)"
-        TraceWorkflowResponse response = traceService.processWorkflowTrace(null)
+        traceService.processWorkflowTrace(null)
 
         then: "the result indicates an error"
-        response.message == "Can't process JSON: check format"
-        !response.workflowId
+        Exception e = thrown(RuntimeException)
+        e.message == exceptionMessage
     }
 
     void "process a successful task trace"() {
@@ -105,11 +105,10 @@ class TraceServiceTest extends AbstractContainerBaseTest {
         taskService.processTaskJsonTrace(_) >> task
 
         when: "process the task (we don't mind about the given JSON because the processor is mocked)"
-        TraceTaskResponse response = traceService.processTaskTrace(null)
+        Task processedTask = traceService.processTaskTrace(null)
 
         then: "the result indicates a successful processing"
-        response.workflowId
-        !response.message
+        processedTask.workflowId
     }
 
     void "process a task trace to try to submit a task without submit time"() {
@@ -118,11 +117,11 @@ class TraceServiceTest extends AbstractContainerBaseTest {
         taskService.processTaskJsonTrace(_) >> task
 
         when: "process the task (we don't mind about the given JSON because the processor is mocked)"
-        TraceTaskResponse response = traceService.processTaskTrace(null)
+        traceService.processTaskTrace(null)
 
         then: "the result indicates a successful processing"
-        !response.workflowId
-        response.message == "Can't save a task without submit"
+        Exception e = thrown(ValidationException)
+        e.message == "Can't save a task without submit"
     }
 
     void "process a task task trace to try to submit a task without taskId"() {
@@ -132,11 +131,11 @@ class TraceServiceTest extends AbstractContainerBaseTest {
         taskService.processTaskJsonTrace(_) >> task
 
         when: "process the task (we don't mind about the given JSON because the processor is mocked)"
-        TraceTaskResponse response = traceService.processTaskTrace(null)
+        traceService.processTaskTrace(null)
 
         then: "the result indicates a failed processing"
-        !response.workflowId
-        response.message == "Can't save a task without taskId"
+        Exception e = thrown(ValidationException)
+        e.message == "Can't save a task without taskId"
     }
 
     void "process a task trace to try to submit a task with the same taskId of a previous one for the same workflow"() {
@@ -147,11 +146,11 @@ class TraceServiceTest extends AbstractContainerBaseTest {
         taskService.processTaskJsonTrace(_) >> task2
 
         when: "process the task (we don't mind about the given JSON because the processor is mocked)"
-        TraceTaskResponse response = traceService.processTaskTrace(null)
+        traceService.processTaskTrace(null)
 
         then: "the result indicates a successful processing"
-        !response.workflowId
-        response.message == "Can't save a task with the same taskId of another"
+        Exception e = thrown(ValidationException)
+        e.message == "Can't save a task with the same taskId of another"
     }
 
 }

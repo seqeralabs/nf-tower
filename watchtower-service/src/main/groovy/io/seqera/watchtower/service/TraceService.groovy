@@ -1,15 +1,15 @@
 package io.seqera.watchtower.service
 
+import io.seqera.watchtower.domain.Task
+import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.exchange.trace.TraceTaskRequest
-import io.seqera.watchtower.pogo.exchange.trace.TraceTaskResponse
 import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowRequest
-import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowResponse
 
 interface TraceService {
 
-    TraceWorkflowResponse processWorkflowTrace(TraceWorkflowRequest traceJson)
+    Workflow processWorkflowTrace(TraceWorkflowRequest traceJson)
 
-    TraceTaskResponse processTaskTrace(TraceTaskRequest traceJson)
+    Task processTaskTrace(TraceTaskRequest traceJson)
 
 }
 
