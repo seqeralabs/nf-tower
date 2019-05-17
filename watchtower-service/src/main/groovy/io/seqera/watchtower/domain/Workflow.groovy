@@ -104,7 +104,7 @@ class Workflow {
     }
 
 
-    @JsonGetter('relatedWorkflowId')
+    @JsonGetter('workflowId')
     String serializeWorkflowId() {
         id?.toString() ?: workflowId
     }

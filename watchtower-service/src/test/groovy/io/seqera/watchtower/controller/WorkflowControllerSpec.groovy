@@ -11,6 +11,8 @@ import io.micronaut.test.annotation.MicronautTest
 import io.seqera.watchtower.Application
 import io.seqera.watchtower.domain.*
 import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowRequest
+import io.seqera.watchtower.pogo.exchange.workflow.WorkflowGet
+import io.seqera.watchtower.pogo.exchange.workflow.WorkflowList
 import io.seqera.watchtower.util.AbstractContainerBaseSpec
 import io.seqera.watchtower.util.DomainCreator
 
@@ -37,14 +39,14 @@ class WorkflowControllerSpec extends AbstractContainerBaseSpec {
         )
 
         and: "perform the request to obtain the workflow"
-        HttpResponse<TraceWorkflowRequest> response = client.toBlocking().exchange(
+        HttpResponse<WorkflowGet> response = client.toBlocking().exchange(
                 HttpRequest.GET("/workflow/${workflow.id}"),
-                TraceWorkflowRequest.class
+                WorkflowGet.class
         )
 
         expect: "the workflow data is properly obtained"
         response.status == HttpStatus.OK
-        response.body().workflow
+        response.body().workflow.workflowId == workflow.id.toString()
         response.body().workflow.stats
         response.body().workflow.nextflow
         response.body().workflow.manifest
@@ -62,6 +64,28 @@ class WorkflowControllerSpec extends AbstractContainerBaseSpec {
         then: "a 404 response is obtained"
         HttpClientResponseException e = thrown(HttpClientResponseException)
         e.status == HttpStatus.NOT_FOUND
+    }
+
+    void "get a list of workflows"() {
+        given: "a workflow"
+        DomainCreator domainCreator = new DomainCreator()
+        Workflow workflow = domainCreator.createWorkflow(
+                summaryEntries: [domainCreator.createSummaryEntry(), domainCreator.createSummaryEntry()],
+                progress: new Progress(running: 0, submitted: 0, failed: 0, pending: 0, succeeded: 0, cached: 0)
+        )
+
+        and: "perform the request to obtain the workflows"
+        HttpResponse<WorkflowList> response = client.toBlocking().exchange(
+                HttpRequest.GET("/workflow/list"),
+                WorkflowList.class
+        )
+
+        expect: "the workflows data is properly obtained"
+        response.status == HttpStatus.OK
+        response.body().workflows.size() == 1
+        response.body().workflows.first().workflow.workflowId == workflow.id.toString()
+        response.body().workflows.first().progress
+        response.body().workflows.first().summary.size() == 2
     }
 
 }
