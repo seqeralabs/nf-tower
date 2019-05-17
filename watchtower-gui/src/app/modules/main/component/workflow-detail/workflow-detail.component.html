@@ -7,7 +7,7 @@
   <h5><span class="mdi mdi-run"></span>{{workflow.data.runName}}</h5>
 
   <div class="row">
-    <div class="col s6 mdi mdi-source-commit"> {{workflow.data.revision}} ({{workflow.data.commitId}})</div>
+    <div class="col s6 mdi mdi-source-commit"> {{workflow.data.revision}} ({{workflow.briefCommitId}})</div>
     <div class="col s6 mdi mdi-calendar"> Started: {{workflow.getWorkflowStartDateFormatted('ddd MMM D YYYY hh:mm:ss')}}</div>
   </div>
   <div class="row">

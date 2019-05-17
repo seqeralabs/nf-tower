@@ -47,6 +47,10 @@ export class Workflow {
     return new HumanizeDuration(language).humanize(this.data.duration, {language: 'short', delimiter: ' '});
   }
 
+  get briefCommitId(): string {
+    return this.data.commitId.substring(0, 6)
+  }
+
   getWorkflowStartDateFormatted(format: string): string {
     return dateFormat(this.data.start, format);
   }
