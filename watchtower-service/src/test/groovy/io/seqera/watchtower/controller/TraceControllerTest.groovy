@@ -11,6 +11,7 @@ import io.seqera.watchtower.Application
 import io.seqera.watchtower.domain.Task
 import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.enums.TaskStatus
+import io.seqera.watchtower.pogo.enums.TraceProcessingStatus
 import io.seqera.watchtower.pogo.enums.WorkflowStatus
 import io.seqera.watchtower.pogo.exchange.trace.TraceTaskRequest
 import io.seqera.watchtower.pogo.exchange.trace.TraceTaskResponse
@@ -45,7 +46,9 @@ class TraceControllerTest extends AbstractContainerBaseTest {
 
         then: 'the workflow has been saved successfully'
         response.status == HttpStatus.CREATED
+        response.body().status == TraceProcessingStatus.OK
         response.body().workflowId
+        !response.body().message
 
         and: 'the workflow is in the database'
         Workflow.count() == 1
@@ -66,7 +69,9 @@ class TraceControllerTest extends AbstractContainerBaseTest {
 
         then: 'the task has been saved successfully'
         response.status == HttpStatus.CREATED
+        response.body().status == TraceProcessingStatus.OK
         response.body().workflowId
+        !response.body().message
 
         and: 'the task is in the database'
         Task.count() == 1

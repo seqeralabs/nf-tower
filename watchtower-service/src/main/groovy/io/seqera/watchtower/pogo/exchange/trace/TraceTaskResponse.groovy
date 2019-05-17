@@ -1,6 +1,7 @@
 package io.seqera.watchtower.pogo.exchange.trace
 
 import groovy.transform.ToString
+import io.seqera.watchtower.pogo.enums.TraceProcessingStatus
 
 /**
  * Model a Trace workflow response
@@ -10,7 +11,7 @@ import groovy.transform.ToString
 @ToString
 class TraceTaskResponse {
 
-    String status
+    TraceProcessingStatus status
     String message
     String workflowId
 
