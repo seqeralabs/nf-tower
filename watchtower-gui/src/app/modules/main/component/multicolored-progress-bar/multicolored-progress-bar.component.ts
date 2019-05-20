@@ -12,9 +12,21 @@ export class MulticoloredProgressBarComponent implements OnInit {
   progress: Progress;
 
 
+  private total: number;
+
   constructor() { }
 
   ngOnInit() {
+    this.computeTotal();
   }
+
+  private computeTotal(): void {
+    this.total = this.progress.running + this.progress.submitted + this.progress.cached + this.progress.failed + this.progress.pending + this.progress.succeeded;
+  }
+
+  private getPercentage(value: number): number {
+    return value / this.total * 100;
+  }
+
 
 }
