@@ -32,7 +32,6 @@ export class WorkflowDetailComponent implements OnInit {
     this.workflowService.getWorkflow(workflowId).subscribe(
       (workflow: Workflow) => this.workflow = workflow,
       (error: HttpErrorResponse) => {
-        console.log('Error happened', error);
         if (error.status === 404) {
           this.notificationService.showErrorNotification("Workflow doesn't exist");
         }
