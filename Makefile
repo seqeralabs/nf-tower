@@ -1,3 +1,6 @@
+test: 
+	./gradlew test
+
 build:
 	./gradlew assemble
 	docker build -t watchtower-service:latest watchtower-service/
