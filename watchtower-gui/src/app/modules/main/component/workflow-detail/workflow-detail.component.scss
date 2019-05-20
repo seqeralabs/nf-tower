@@ -21,6 +21,12 @@
   padding: 5px 0 30px;
 }
 
+.error-report {
+  padding: 15px;
+  white-space: pre-wrap;
+  background-color: #fdddcf;
+}
+
 
 @keyframes spinner {
   to {transform: rotate(360deg);}
