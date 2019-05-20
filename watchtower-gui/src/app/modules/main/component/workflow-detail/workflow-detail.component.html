@@ -35,5 +35,12 @@
       <wt-multicolored-progress-bar [progress]="workflow.progress"></wt-multicolored-progress-bar>
     </div>
   </div>
+
+  <div *ngIf="workflow.isFailed" class="row">
+    <div class="col s12">
+      <p>Error<p>
+      <div class="error-report">{{workflow.data.errorReport}}</div>
+    </div>
+  </div>
 </div>
 
