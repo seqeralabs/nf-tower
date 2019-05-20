@@ -5,6 +5,7 @@ import io.seqera.watchtower.domain.SummaryData
 import io.seqera.watchtower.domain.SummaryEntry
 import io.seqera.watchtower.domain.Task
 import io.seqera.watchtower.domain.Workflow
+import io.seqera.watchtower.domain.auth.User
 import io.seqera.watchtower.pogo.enums.TaskStatus
 
 import java.time.Instant
@@ -18,6 +19,7 @@ class DomainCreator {
 
     static void cleanupDatabase() {
         Workflow.withNewTransaction {
+            User.deleteAll(User.list())
             SummaryEntry.deleteAll(SummaryEntry.list())
             Task.deleteAll(Task.list())
             Workflow.deleteAll(Workflow.list())
@@ -90,6 +92,16 @@ class DomainCreator {
         fields.q3Label = fields.containsKey('q3Label') ? fields.q3Label : 'q3Label'
 
         populateInstance(summaryData, fields)
+    }
+
+    User createUser(Map fields = [:]) {
+        User user = new User()
+
+        fields.email =  fields.containsKey('email') ? fields.email : "user${generateUniqueNamePart()}@email.com"
+        fields.username =  fields.containsKey('username') ? fields.username : fields.email.replaceAll(/@.*/, '')
+        fields.authToken = fields.containsKey('authToken') ? fields.authToken : "authToken${generateUniqueNamePart()}"
+
+        createInstance(user, fields)
     }
 
     /**
