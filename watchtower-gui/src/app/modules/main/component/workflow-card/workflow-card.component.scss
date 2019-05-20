@@ -1,5 +1,9 @@
 @import "./src/assets/variables";
 
+.workflow-card {
+  cursor: pointer;
+}
+
 .workflow--succeed {
   border-left: $succeed-green solid 10px;
 

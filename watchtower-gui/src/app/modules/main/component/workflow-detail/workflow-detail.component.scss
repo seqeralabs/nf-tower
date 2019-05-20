@@ -8,11 +8,18 @@
   color: $failed-red
 }
 
+.project-name {
+  color: black;
+}
+
+.project-name:hover {
+  text-decoration: underline;
+}
+
 .command-line {
   background: lightgrey;
   padding: 5px 0 30px;
 }
-
 
 
 @keyframes spinner {

@@ -1,20 +1,20 @@
 <div class="multi-progress-bar">
   <div *ngIf="progress.submitted" class="segment submitted" [style.flexGrow]="progress.submitted">
-    <span class="figure">{{progress.submitted}}</span> <span *ngIf="progress.submitted > 2" class="label"> submitted</span>
+    <span class="figure">{{progress.submitted}}</span> <span *ngIf="getPercentage(progress.submitted) > 10" class="label"> submitted</span>
   </div>
   <div *ngIf="progress.pending" class="segment pending" [style.flexGrow]="progress.pending">
-    <span class="figure">{{progress.pending}}</span> <span *ngIf="progress.pending > 2" class="label"> pending</span>
+    <span class="figure">{{progress.pending}}</span> <span *ngIf="getPercentage(progress.pending) > 10" class="label"> pending</span>
   </div>
   <div *ngIf="progress.running" class="segment running" [style.flexGrow]="progress.running">
-    <span class="figure">{{progress.running}}</span> <span *ngIf="progress.running > 2" class="label"> running</span>
+    <span class="figure">{{progress.running}}</span> <span *ngIf="getPercentage(progress.running) > 10" class="label"> running</span>
   </div>
   <div *ngIf="progress.succeeded" class="segment succeeded" [style.flexGrow]="progress.succeeded">
-    <span class="figure">{{progress.succeeded}}</span> <span *ngIf="progress.succeeded > 2" class="label"> succeeded</span>
+    <span class="figure">{{progress.succeeded}}</span> <span *ngIf="getPercentage(progress.succeeded) > 10" class="label"> succeeded</span>
   </div>
   <div *ngIf="progress.cached" class="segment cached" [style.flexGrow]="progress.cached">
-    <span class="figure">{{progress.cached}}</span> <span *ngIf="progress.cached > 2" class="label"> cached</span>
+    <span class="figure">{{progress.cached}}</span> <span *ngIf="getPercentage(progress.cached) > 10" class="label"> cached</span>
   </div>
   <div *ngIf="progress.failed" class="segment failed" [style.flexGrow]="progress.failed">
-    <span class="figure">{{progress.failed}}</span> <span *ngIf="progress.failed > 2" class="label"> failed</span>
+    <span class="figure">{{progress.failed}}</span> <span *ngIf="getPercentage(progress.failed) > 10" class="label"> failed</span>
   </div>
 </div>
