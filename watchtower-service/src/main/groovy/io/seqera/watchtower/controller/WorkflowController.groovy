@@ -5,6 +5,8 @@ import groovy.util.logging.Slf4j
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
+import io.micronaut.security.annotation.Secured
+import io.micronaut.security.rules.SecurityRule
 import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.exchange.workflow.WorkflowGet
 import io.seqera.watchtower.pogo.exchange.workflow.WorkflowList
@@ -16,6 +18,7 @@ import javax.inject.Inject
  * Implements the `workflow` API
  */
 @Controller("/workflow")
+@Secured(SecurityRule.IS_ANONYMOUS)
 @Slf4j
 class WorkflowController {
 

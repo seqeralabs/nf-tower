@@ -47,6 +47,9 @@ dependencies {
     
     compileOnly "io.micronaut:micronaut-inject-groovy"
     compileOnly "io.micronaut.configuration:micronaut-openapi"
+
+    annotationProcessor "io.micronaut:micronaut-security"
+    compile "io.micronaut:micronaut-security-jwt"
     
     runtime "ch.qos.logback:logback-classic:1.2.3"
 

@@ -2,6 +2,20 @@
 micronaut:
   application:
     name: watchtower-service
+  security:
+    enabled: true
+#    endpoints:
+#      login:
+#        enabled: true
+#      oauth:
+#        enabled: true
+    token:
+      jwt:
+        enabled: true
+        signatures:
+          secret:
+            generator:
+              secret: pleaseChangeThisSecretForANewOne
 ---
 jackson:
   serialization:
