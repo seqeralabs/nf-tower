@@ -6,6 +6,8 @@ import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Post
+import io.micronaut.security.annotation.Secured
+import io.micronaut.security.rules.SecurityRule
 import io.seqera.watchtower.domain.Task
 import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.enums.TraceProcessingStatus
@@ -22,6 +24,7 @@ import javax.inject.Inject
  *
  */
 @Controller("/trace")
+@Secured(SecurityRule.IS_ANONYMOUS)
 @Slf4j
 class TraceController {
 
