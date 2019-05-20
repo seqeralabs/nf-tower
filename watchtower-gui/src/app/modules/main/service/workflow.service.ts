@@ -4,7 +4,6 @@ import {Workflow} from "../entity/workflow/workflow";
 import {environment} from "../../../../environments/environment";
 import {Observable, Subject, of, ReplaySubject} from "rxjs";
 import {map, tap} from "rxjs/operators";
-import {keyBy, get} from 'lodash'
 
 
 const endpointUrl: string = `${environment.apiUrl}/workflow`;

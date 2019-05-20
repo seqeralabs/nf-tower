@@ -10,8 +10,6 @@ export class Workflow {
   progress: Progress;
 
   constructor(json: any) {
-    json.workflow.status = WorkflowStatus[json.workflow.status];
-
     this.data = <WorkflowData> json.workflow;
     this.progress = <Progress> json.progress;
   }
