@@ -3,6 +3,8 @@ import {Workflow} from "../../entity/workflow/workflow";
 import {WorkflowService} from "../../service/workflow.service";
 import {ActivatedRoute} from "@angular/router";
 import {ParamMap} from "@angular/router/src/shared";
+import {HttpErrorResponse} from "@angular/common/http";
+import {NotificationService} from "../../service/notification.service";
 
 @Component({
   selector: 'wt-workflow-detail',
@@ -13,7 +15,7 @@ export class WorkflowDetailComponent implements OnInit {
 
   workflow: Workflow;
 
-  constructor(private workflowService: WorkflowService, private route: ActivatedRoute) { }
+  constructor(private workflowService: WorkflowService, private route: ActivatedRoute, private notificationService: NotificationService) { }
 
   ngOnInit() {
     this.route.paramMap.subscribe((params: ParamMap) => {
@@ -27,7 +29,15 @@ export class WorkflowDetailComponent implements OnInit {
   fetchWorkflow(workflowId: string | number): void {
     console.log(`Fetching workflow ${workflowId}`);
 
-    this.workflowService.getWorkflow(workflowId).subscribe((workflow: Workflow) => this.workflow = workflow)
+    this.workflowService.getWorkflow(workflowId).subscribe(
+      (workflow: Workflow) => this.workflow = workflow,
+      (error: HttpErrorResponse) => {
+        console.log('Error happened', error);
+        if (error.status === 404) {
+          this.notificationService.showErrorNotification("Workflow doesn't exist");
+        }
+      }
+    )
   }
 
 }
