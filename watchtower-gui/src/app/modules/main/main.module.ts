@@ -10,6 +10,7 @@ import {HttpClientModule} from "@angular/common/http";
 import { WorkflowCardComponent } from './component/workflow-card/workflow-card.component';
 import { WorkflowDetailComponent } from './component/workflow-detail/workflow-detail.component';
 import { MulticoloredProgressBarComponent } from './component/multicolored-progress-bar/multicolored-progress-bar.component';
+import {MzToastModule} from "ngx-materialize";
 
 @NgModule({
   declarations: [
@@ -24,7 +25,8 @@ import { MulticoloredProgressBarComponent } from './component/multicolored-progr
   imports: [
     BrowserModule,
     MainRoutingModule,
-    HttpClientModule
+    HttpClientModule,
+    MzToastModule
   ],
   providers: [],
   bootstrap: [MainComponent]
