@@ -1,15 +1,20 @@
 package io.seqera.watchtower.controller
 
 import grails.gorm.transactions.Transactional
+import io.micronaut.http.HttpMethod
 import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
+import io.micronaut.http.MediaType
 import io.micronaut.http.client.RxHttpClient
 import io.micronaut.http.client.annotation.Client
 import io.micronaut.http.client.exceptions.HttpClientResponseException
+import io.micronaut.security.authentication.UsernamePasswordCredentials
+import io.micronaut.security.token.jwt.render.AccessRefreshToken
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.watchtower.Application
 import io.seqera.watchtower.domain.*
+import io.seqera.watchtower.domain.auth.User
 import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowRequest
 import io.seqera.watchtower.pogo.exchange.workflow.WorkflowGet
 import io.seqera.watchtower.pogo.exchange.workflow.WorkflowList
@@ -26,7 +31,6 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
     @Client('/')
     RxHttpClient client
 
-
     void "get a workflow"() {
         given: "a workflow with some summaries"
         DomainCreator domainCreator = new DomainCreator()
@@ -39,8 +43,10 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         )
 
         and: "perform the request to obtain the workflow"
+        String accessToken = doLogin(createAllowedUser())
         HttpResponse<WorkflowGet> response = client.toBlocking().exchange(
-                HttpRequest.GET("/workflow/${workflow.id}"),
+                HttpRequest.GET("/workflow/${workflow.id}")
+                           .bearerAuth(accessToken),
                 WorkflowGet.class
         )
 
@@ -54,18 +60,6 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         response.body().progress
     }
 
-    void "try to get a non-existing workflow"() {
-        when: "perform the request to obtain a non-existing workflow"
-        client.toBlocking().exchange(
-                HttpRequest.GET("/workflow/100"),
-                TraceWorkflowRequest.class
-        )
-
-        then: "a 404 response is obtained"
-        HttpClientResponseException e = thrown(HttpClientResponseException)
-        e.status == HttpStatus.NOT_FOUND
-    }
-
     void "get a list of workflows"() {
         given: "a workflow"
         DomainCreator domainCreator = new DomainCreator()
@@ -75,8 +69,10 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         )
 
         and: "perform the request to obtain the workflows"
+        String accessToken = doLogin(createAllowedUser())
         HttpResponse<WorkflowList> response = client.toBlocking().exchange(
-                HttpRequest.GET("/workflow/list"),
+                HttpRequest.GET("/workflow/list")
+                           .bearerAuth(accessToken),
                 WorkflowList.class
         )
 
@@ -86,6 +82,63 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         response.body().workflows.first().workflow.workflowId == workflow.id.toString()
         response.body().workflows.first().progress
         response.body().workflows.first().summary.size() == 2
+    }
+
+    void "try to get a non-existing workflow"() {
+        when: "perform the request to obtain a non-existing workflow"
+        String accessToken = doLogin(createAllowedUser())
+        client.toBlocking().exchange(
+                HttpRequest.GET("/workflow/100")
+                        .bearerAuth(accessToken),
+                TraceWorkflowRequest.class
+        )
+
+        then: "a 404 response is obtained"
+        HttpClientResponseException e = thrown(HttpClientResponseException)
+        e.status == HttpStatus.NOT_FOUND
+    }
+
+    void "try to get a workflow as a not allowed user"() {
+        given: "a workflow with some summaries"
+        DomainCreator domainCreator = new DomainCreator()
+        Workflow workflow = domainCreator.createWorkflow()
+
+        when: "perform the request to obtain the workflow as a not allowed user"
+        String accessToken = doLogin(createNotAllowedUser())
+        HttpResponse<WorkflowGet> response = client.toBlocking().exchange(
+                HttpRequest.GET("/workflow/${workflow.id}")
+                           .bearerAuth(accessToken),
+                WorkflowGet.class
+        )
+
+        then: "a 403 response is obtained"
+        HttpClientResponseException e = thrown(HttpClientResponseException)
+        e.status == HttpStatus.FORBIDDEN
+    }
+
+    private User createAllowedUser() {
+        DomainCreator domainCreator = new DomainCreator()
+        User user = domainCreator.createUser()
+        domainCreator.createUserRole(user: user, role: domainCreator.createRole(authority: 'ROLE_USER'))
+
+        user
+    }
+
+    private User createNotAllowedUser() {
+        DomainCreator domainCreator = new DomainCreator()
+        User user = domainCreator.createUser()
+        domainCreator.createUserRole(user: user, role: domainCreator.createRole(authority: 'ROLE_INVALID'))
+
+        user
+    }
+
+    private String doLogin(User user) {
+        HttpRequest request = HttpRequest.create(HttpMethod.POST, '/login')
+                                         .accept(MediaType.APPLICATION_JSON_TYPE)
+                                         .body(new UsernamePasswordCredentials(user.username, user.authToken))
+        HttpResponse<AccessRefreshToken> response = client.toBlocking().exchange(request, AccessRefreshToken)
+
+        response.body.get().accessToken
     }
 
 }
