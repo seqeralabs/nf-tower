@@ -6,4 +6,6 @@ interface UserService {
 
     User register(String email)
 
+    List<String> findAuthoritiesByUsername(String username)
+
 }
