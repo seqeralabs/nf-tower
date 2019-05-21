@@ -25,6 +25,14 @@ class UserServiceImpl implements UserService {
     }
 
     @CompileDynamic
+    List<String> findAuthoritiesByUsername(String username) {
+        User user = User.findByUsername(username)
+        List<UserRole> rolesOfUser = UserRole.findAllByUser(user)
+
+        rolesOfUser.role.authority
+    }
+
+    @CompileDynamic
     private User createUser(String email, String authority) {
         String username = email.replaceAll(/@.*/, '')
         String authToken = UUID.randomUUID().toString()
@@ -39,7 +47,7 @@ class UserServiceImpl implements UserService {
         user
     }
 
-    private createRole(String authority) {
+    private Role createRole(String authority) {
         Role role = new Role(authority: authority)
         role.save()
 

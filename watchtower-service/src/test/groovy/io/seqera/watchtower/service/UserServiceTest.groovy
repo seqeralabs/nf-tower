@@ -4,6 +4,7 @@ import grails.gorm.transactions.Transactional
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.watchtower.Application
 import io.seqera.watchtower.domain.auth.User
+import io.seqera.watchtower.domain.auth.UserRole
 import io.seqera.watchtower.service.auth.UserService
 import io.seqera.watchtower.util.AbstractContainerBaseTest
 import io.seqera.watchtower.util.DomainCreator
@@ -31,6 +32,10 @@ class UserServiceTest extends AbstractContainerBaseTest {
         user.username == email.replaceAll(/@.*/, '')
         user.authToken
         User.count() == 1
+
+        and: "a role was attached to the user"
+        UserRole.first().user.id == user.id
+        UserRole.first().role.authority == 'ROLE_USER'
     }
 
     void "register a user already registered"() {
