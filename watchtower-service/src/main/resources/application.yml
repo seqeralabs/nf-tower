@@ -14,3 +14,12 @@ grails:
   mongodb:
     databaseName: watchtower
 ---
+mail:
+  from: info@seqera.io
+  smtp:
+    host: email-smtp.eu-west-1.amazonaws.com
+    port: 587
+    auth: true
+    starttls:
+      enable: true
+      required: true
