@@ -10,4 +10,8 @@ class UserRole {
     User user
     Role role
 
+    static mapping = {
+        version false
+    }
+
 }

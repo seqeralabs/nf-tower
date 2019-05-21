@@ -11,4 +11,8 @@ class Role {
     static constraints = {
         authority(nullable: false, unique: true)
     }
+
+    static mapping = {
+        version false
+    }
 }

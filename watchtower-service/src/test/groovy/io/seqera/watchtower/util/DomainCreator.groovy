@@ -108,6 +108,23 @@ class DomainCreator {
         createInstance(user, fields)
     }
 
+    UserRole createUserRole(Map fields = [:]) {
+        UserRole userRole = new UserRole()
+
+        fields.user =  fields.containsKey('user') ? fields.user : createUser()
+        fields.role =  fields.containsKey('role') ? fields.role : createRole()
+
+        createInstance(userRole, fields)
+    }
+
+    Role createRole(Map fields = [:]) {
+        Role role = new Role()
+
+        fields.authority =  fields.containsKey('authority') ? fields.authority : "ROLE_${generateUniqueNamePart()}"
+
+        createInstance(role, fields)
+    }
+
     /**
      * Populates and persists (if the meta params say so) an instance of a class in the database given their params
      * @param clazz the class to create the instance of

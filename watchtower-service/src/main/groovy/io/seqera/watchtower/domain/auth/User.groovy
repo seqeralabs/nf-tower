@@ -29,4 +29,8 @@ class User {
         avatar(nullable: true)
     }
 
+    static mapping = {
+        version false
+    }
+
 }
