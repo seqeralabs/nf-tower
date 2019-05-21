@@ -12,7 +12,7 @@ class SummaryEntry {
     /*
      * The process name
      */
-    String name
+    String process
 
     SummaryData cpu
     SummaryData mem

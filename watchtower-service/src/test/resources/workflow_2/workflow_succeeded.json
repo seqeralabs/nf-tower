@@ -79,7 +79,7 @@
   },
   "summary": [
     {
-      "name": "sayHello",
+      "process": "sayHello",
       "cpu": {
         "mean": 44.8,
         "min": 29.6,

@@ -79,7 +79,7 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
 
         and: "there is summary info"
         workflowSucceeded.summaryEntries.size() == 1
-        workflowSucceeded.summaryEntries.first().name == 'sayHello'
+        workflowSucceeded.summaryEntries.first().process == 'sayHello'
         workflowSucceeded.summaryEntries.first().cpu
         workflowSucceeded.summaryEntries.first().time
         workflowSucceeded.summaryEntries.first().reads
@@ -129,7 +129,7 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
 
         and: "there is summary info"
         workflowFailed.summaryEntries.size() == 1
-        workflowFailed.summaryEntries.first().name == 'sayHello'
+        workflowFailed.summaryEntries.first().process == 'sayHello'
         workflowFailed.summaryEntries.first().cpu
         workflowFailed.summaryEntries.first().time
         workflowFailed.summaryEntries.first().reads

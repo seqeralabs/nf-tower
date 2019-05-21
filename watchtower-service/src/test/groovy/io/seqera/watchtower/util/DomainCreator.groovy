@@ -67,7 +67,7 @@ class DomainCreator {
     SummaryEntry createSummaryEntry(Map fields = [:]) {
         SummaryEntry summaryEntry = new SummaryEntry()
 
-        fields.name = fields.containsKey('name') ? fields.name : "magnitude_${generateUniqueNamePart()}"
+        fields.process = fields.containsKey('process') ? fields.process: "magnitude_${generateUniqueNamePart()}"
         fields.cpu = fields.containsKey('cpu') ? fields.cpu : embedSummaryData()
 
         createInstance(summaryEntry, fields)
