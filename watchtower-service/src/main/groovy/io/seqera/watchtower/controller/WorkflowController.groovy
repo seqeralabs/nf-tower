@@ -18,7 +18,7 @@ import javax.inject.Inject
  * Implements the `workflow` API
  */
 @Controller("/workflow")
-@Secured(SecurityRule.IS_ANONYMOUS)
+@Secured(['ROLE_USER'])
 @Slf4j
 class WorkflowController {
 
