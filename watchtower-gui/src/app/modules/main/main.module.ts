@@ -11,6 +11,8 @@ import { WorkflowCardComponent } from './component/workflow-card/workflow-card.c
 import { WorkflowDetailComponent } from './component/workflow-detail/workflow-detail.component';
 import { MulticoloredProgressBarComponent } from './component/multicolored-progress-bar/multicolored-progress-bar.component';
 import {MzToastModule} from "ngx-materialize";
+import { HomeComponent } from './component/home/home.component';
+import { LoginComponent } from './component/login/login.component';
 
 @NgModule({
   declarations: [
@@ -20,7 +22,9 @@ import {MzToastModule} from "ngx-materialize";
     CentralComponent,
     WorkflowCardComponent,
     WorkflowDetailComponent,
-    MulticoloredProgressBarComponent
+    MulticoloredProgressBarComponent,
+    HomeComponent,
+    LoginComponent
   ],
   imports: [
     BrowserModule,
