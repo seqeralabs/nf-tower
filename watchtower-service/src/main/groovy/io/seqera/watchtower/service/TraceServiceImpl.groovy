@@ -54,6 +54,9 @@ class TraceServiceImpl implements TraceService {
         if (uniqueError) {
             throw new ValidationException("Can't save a workflow with the same ${uniqueError.field} of another")
         }
+
+        List<String> uncustomizedErrors = fieldErrors.collect { "${it.field}|${it.code}".toString() }
+        throw new ValidationException("Can't save task. Validation errors: ${uncustomizedErrors}")
     }
 
     private void checkTaskSaveErrors(Task task) {
@@ -72,6 +75,9 @@ class TraceServiceImpl implements TraceService {
         if (uniqueError) {
             throw new ValidationException("Can't save a task with the same ${uniqueError.field} of another")
         }
+
+        List<String> uncustomizedErrors = fieldErrors.collect { "${it.field}|${it.code}".toString() }
+        throw new ValidationException("Can't save task. Validation errors: ${uncustomizedErrors}")
     }
 
 }
