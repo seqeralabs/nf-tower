@@ -12,7 +12,8 @@ import { WorkflowDetailComponent } from './component/workflow-detail/workflow-de
 import { MulticoloredProgressBarComponent } from './component/multicolored-progress-bar/multicolored-progress-bar.component';
 import {MzToastModule} from "ngx-materialize";
 import { HomeComponent } from './component/home/home.component';
-import { LoginComponent } from './component/login/login.component';
+import { RegisterComponent } from './component/register/register.component';
+import {FormsModule} from "@angular/forms";
 
 @NgModule({
   declarations: [
@@ -24,12 +25,13 @@ import { LoginComponent } from './component/login/login.component';
     WorkflowDetailComponent,
     MulticoloredProgressBarComponent,
     HomeComponent,
-    LoginComponent
+    RegisterComponent
   ],
   imports: [
     BrowserModule,
     MainRoutingModule,
     HttpClientModule,
+    FormsModule,
     MzToastModule
   ],
   providers: [],

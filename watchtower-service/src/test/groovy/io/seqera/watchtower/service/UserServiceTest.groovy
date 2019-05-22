@@ -10,6 +10,7 @@ import io.seqera.watchtower.util.AbstractContainerBaseTest
 import io.seqera.watchtower.util.DomainCreator
 
 import javax.inject.Inject
+import javax.validation.ValidationException
 
 @MicronautTest(application = Application.class)
 @Transactional
@@ -60,8 +61,8 @@ class UserServiceTest extends AbstractContainerBaseTest {
         User user = userService.register(badEmail)
 
         then: "the user couldn't be created"
-        user.hasErrors()
-        user.errors.getFieldError('email')
+        ValidationException e = thrown(ValidationException)
+        e.message == "Can't save a user with bad email format"
         User.count() == 0
     }
 

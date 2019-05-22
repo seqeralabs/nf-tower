@@ -1,0 +1,30 @@
+<div class="container">
+  <div class="row">
+
+    <div class="col m4 offset-m4" [hidden]="isRegistered">
+      <h2 class="center-align">Register</h2>
+      <div class="row">
+        <form class="col s12" #registerForm="ngForm" (ngSubmit)="submit()">
+          <div class="row">
+            <div class="input-field col s12">
+              <label for="email" data-error="wrong">Email</label>
+              <input id="email" name="email" type="email" required email class="validate" [(ngModel)]="email">
+            </div>
+          </div>
+          <div class="row">
+            <div class="col m12">
+              <p class="right-align">
+                <button class="btn btn-large waves-effect waves-light" type="submit" name="action" [disabled]="!isSubmitEnabled()">Submit</button>
+              </p>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="col m12 registered" *ngIf="isRegistered">
+      <h1> {{registeredMessage}}</h1>
+    </div>
+
+  </div>
+</div>

@@ -9,13 +9,13 @@ class User {
 
     String username
     String email
+    String authToken
 
     String firstName
     String lastName
     String organisation
     String description
     String avatar
-    String authToken
 
     static constraints = {
         email(email: true, unique: true)
