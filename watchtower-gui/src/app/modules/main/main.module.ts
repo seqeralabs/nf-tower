@@ -6,7 +6,7 @@ import { MainComponent } from './main.component';
 import { SidebarComponent } from './component/sidebar/sidebar.component';
 import { HeaderComponent } from './component/header/header.component';
 import { CentralComponent } from './component/central/central.component';
-import {HttpClientModule} from "@angular/common/http";
+import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
 import { WorkflowCardComponent } from './component/workflow-card/workflow-card.component';
 import { WorkflowDetailComponent } from './component/workflow-detail/workflow-detail.component';
 import { MulticoloredProgressBarComponent } from './component/multicolored-progress-bar/multicolored-progress-bar.component';
@@ -14,6 +14,8 @@ import {MzToastModule} from "ngx-materialize";
 import { HomeComponent } from './component/home/home.component';
 import { RegisterComponent } from './component/register/register.component';
 import {FormsModule} from "@angular/forms";
+import { LoginComponent } from './component/login/login.component';
+import {JwtInterceptor} from "./interceptor/jwt.interceptor";
 
 @NgModule({
   declarations: [
@@ -25,7 +27,8 @@ import {FormsModule} from "@angular/forms";
     WorkflowDetailComponent,
     MulticoloredProgressBarComponent,
     HomeComponent,
-    RegisterComponent
+    RegisterComponent,
+    LoginComponent
   ],
   imports: [
     BrowserModule,
@@ -34,7 +37,9 @@ import {FormsModule} from "@angular/forms";
     FormsModule,
     MzToastModule
   ],
-  providers: [],
+  providers: [
+    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
+  ],
   bootstrap: [MainComponent]
 })
 export class MainModule { }

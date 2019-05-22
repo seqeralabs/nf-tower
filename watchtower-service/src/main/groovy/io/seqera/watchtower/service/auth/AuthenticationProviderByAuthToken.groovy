@@ -24,9 +24,9 @@ class AuthenticationProviderByAuthToken implements AuthenticationProvider {
 
     @Override
     Publisher<AuthenticationResponse> authenticate(AuthenticationRequest authenticationRequest) {
-        User user = userService.findByUsernameAndAuthToken((String) authenticationRequest.identity, (String) authenticationRequest.secret)
+        User user = userService.findByEmailAndAuthToken((String) authenticationRequest.identity, (String) authenticationRequest.secret)
         if (user) {
-            List<String> authorities = userService.findAuthoritiesByUsername(user.username)
+            List<String> authorities = userService.findAuthoritiesByEmail(user.email)
 
             Map attributes = [username: user.username, email: user.email, firstName: user.firstName, lastName: user.lastName, organisation: user.organisation, description: user.description, avatar: user.avatar, authToken: user.authToken]
             return Flowable.just(new UserDetails(user.email, authorities, (Map) attributes)) as Publisher<AuthenticationResponse>

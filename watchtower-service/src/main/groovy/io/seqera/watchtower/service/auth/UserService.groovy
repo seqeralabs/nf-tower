@@ -6,8 +6,8 @@ interface UserService {
 
     User register(String email)
 
-    User findByUsernameAndAuthToken(String username, String authToken)
+    User findByEmailAndAuthToken(String username, String authToken)
 
-    List<String> findAuthoritiesByUsername(String username)
+    List<String> findAuthoritiesByEmail(String email)
 
 }

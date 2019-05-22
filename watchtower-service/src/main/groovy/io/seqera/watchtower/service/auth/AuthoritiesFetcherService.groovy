@@ -19,7 +19,7 @@ class AuthoritiesFetcherService implements AuthoritiesFetcher {
 
     @Override
     Publisher<List<String>> findAuthoritiesByUsername(String username) {
-        Flowable.just(userService.findAuthoritiesByUsername(username))
+        Flowable.just(userService.findAuthoritiesByEmail(username))
     }
 
 }

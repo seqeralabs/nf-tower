@@ -30,13 +30,13 @@ class UserServiceImpl implements UserService {
     }
 
     @CompileDynamic
-    User findByUsernameAndAuthToken(String username, String authToken) {
-        User.findByUsernameAndAuthToken(username, authToken)
+    User findByEmailAndAuthToken(String username, String authToken) {
+        User.findByEmailAndAuthToken(username, authToken)
     }
 
     @CompileDynamic
-    List<String> findAuthoritiesByUsername(String username) {
-        User user = User.findByUsername(username)
+    List<String> findAuthoritiesByEmail(String email) {
+        User user = User.findByEmail(email)
         List<UserRole> rolesOfUser = UserRole.findAllByUser(user)
 
         rolesOfUser.role.authority
