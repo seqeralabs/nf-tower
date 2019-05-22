@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {Observable, of} from "rxjs";
+import {BehaviorSubject, Observable, of, Subject} from "rxjs";
 import {delay, map, tap} from "rxjs/operators";
 import {User} from "../entity/user/user";
 import {HttpClient} from "@angular/common/http";
@@ -13,26 +13,30 @@ const userEndpointUrl: string = `${environment.apiUrl}/user`;
 })
 export class AuthService {
 
-  constructor(private http: HttpClient) { }
+  user$: Observable<User>;
 
-  user: User;
-  isLoggedIn: boolean = false;
+  private userSubject: BehaviorSubject<User>;
 
-  // store the URL so we can redirect after logging in
-  redirectUrl: string;
+  constructor(private http: HttpClient) {
+    this.userSubject = new BehaviorSubject(this.getPersistedUser());
+    this.user$ = this.userSubject.asObservable();
+  }
 
-  login(email: string, authToken: string): Observable<any> {
+  get currentUser(): User {
+    return this.userSubject.value
+  }
+
+
+  login(email: string, authToken: string): Observable<User> {
     return this.http.post(loginEndpointUrl, {username: email, password: authToken}).pipe(
-      map((data: any) => {
-        console.log('Auth data', data);
+      map((authData: any) => {
+        return <User> {email: authData.username, accessToken: authData['access_token'], roles: authData.roles}
+      }),
+      tap((user: User) => {
+        this.persistUser(user);
+        this.userSubject.next(user);
       })
     );
-
-    // return of(true).pipe(
-    //   delay(1000),
-    //   tap(val => this.isLoggedIn = true)
-    // );
-
   }
 
   register(email: string): Observable<string> {
@@ -42,6 +46,19 @@ export class AuthService {
   }
 
   logout(): void {
-    this.isLoggedIn = false;
+    this.removeUser();
+    this.userSubject.next(null);
+  }
+
+  private persistUser(user: User): void {
+    localStorage.setItem('user', JSON.stringify(user));
+  }
+
+  private getPersistedUser(): User {
+    return <User> JSON.parse(localStorage.getItem('user'));
+  }
+
+  private removeUser(): void {
+    localStorage.removeItem('user');
   }
 }
