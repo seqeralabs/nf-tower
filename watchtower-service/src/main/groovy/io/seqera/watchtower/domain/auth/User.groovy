@@ -13,7 +13,7 @@ class User {
 
     String firstName
     String lastName
-    String organisation
+    String organization
     String description
     String avatar
 
@@ -24,7 +24,7 @@ class User {
 
         firstName(nullable: true)
         lastName(nullable: true)
-        organisation(nullable: true)
+        organization(nullable: true)
         description(nullable: true)
         avatar(nullable: true)
     }

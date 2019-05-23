@@ -34,7 +34,16 @@ export class AuthService {
   login(email: string, authToken: string): Observable<User> {
     return this.http.post(loginEndpointUrl, {username: email, password: authToken}).pipe(
       map((authData: any) => {
-        return <User> {email: authData.username, accessToken: authData['access_token'], roles: authData.roles}
+        let user: User = <User> {email: authData.username, accessToken: authData['access_token'], roles: authData.roles};
+
+        let attributes = this.parseJwt(user.accessToken);
+        user.firstName = attributes.firstName;
+        user.lastName = attributes.lastName;
+        user.organization = attributes.organization;
+        user.description = attributes.description;
+        user.avatar = attributes.avatar;
+
+        return user;
       }),
       tap((user: User) => {
         this.persistUser(user);
@@ -53,6 +62,15 @@ export class AuthService {
     this.removeUser();
     this.userSubject.next(null);
   }
+
+  private parseJwt(token: string): any {
+    let base64Url = token.split('.')[1];
+    let decodedBase64 = decodeURIComponent(atob(base64Url).split('')
+      .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+      .join(''));
+
+    return JSON.parse(decodedBase64);
+  };
 
   private persistUser(user: User): void {
     localStorage.setItem('user', JSON.stringify(user));
