@@ -26,9 +26,8 @@ import spock.lang.Specification
 class MailTest extends Specification {
 
     def 'should capture mail params' () {
-
         given:
-        def closure = {
+        Closure closure = {
             from 'jim@dot.com'
             to 'paolo@dot.com'
             cc 'you@dot.com'
@@ -43,7 +42,7 @@ class MailTest extends Specification {
         }
 
         when:
-        def mail = new Mail()
+        Mail mail = new Mail()
         mail.with(closure)
         then:
         mail.from == 'jim@dot.com'
@@ -55,7 +54,6 @@ class MailTest extends Specification {
         mail.charset == 'utf-8'
         mail.body == 'Hello world'
         mail.attachments == [new Attachment('foo.png'), new Attachment('this.txt'), new Attachment('that.txt')]
-
     }
 
 
@@ -112,9 +110,8 @@ class MailTest extends Specification {
     }
 
     def 'should create a mail from a Map' () {
-
         given:
-        def map = [
+        Map map = [
                 from:'me@google.com',
                 to: 'you@nextflow.com',
                 cc: 'hola@dot.com, hello@dot.com',
@@ -128,7 +125,8 @@ class MailTest extends Specification {
         ]
 
         when:
-        def mail = Mail.of(map)
+        Mail mail = Mail.of(map)
+
         then:
         mail.from == 'me@google.com'
         mail.to == 'you@nextflow.com'

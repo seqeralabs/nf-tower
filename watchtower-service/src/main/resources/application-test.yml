@@ -7,6 +7,22 @@ grails:
     databaseName: watchtower
 
 ---
+mail:
+  debug: true
+  from: me@google.com
+  smtp:
+    host: google.com
+    port: 587
+    user: mr-bean
+    password: super-secret
+    auth: true
+    starttls:
+      enable: true
+      required: true
+    proxy:
+      host: proxy.com
+      port: 5566
+---
 #dataSource:
 #  pooled: true
 #  dbCreate: update
