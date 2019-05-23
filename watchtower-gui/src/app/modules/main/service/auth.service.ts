@@ -22,6 +22,10 @@ export class AuthService {
     this.user$ = this.userSubject.asObservable();
   }
 
+  get isUserLoggedIn(): boolean {
+    return (this.currentUser != null);
+  }
+
   get currentUser(): User {
     return this.userSubject.value
   }
