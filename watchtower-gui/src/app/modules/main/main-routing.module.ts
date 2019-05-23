@@ -8,11 +8,14 @@ import {LoginComponent} from "./component/login/login.component";
 import {LogoutComponent} from "./component/logout/logout.component";
 
 const routes: Routes = [
-  {path: '',             component: HomeComponent, canActivate: [AuthGuard]},
+  {path: '',             component: HomeComponent, canActivate: [AuthGuard],
+    children: [
+      {path: 'workflow/:id', component: WorkflowDetailComponent}
+    ]
+  },
   {path: 'register',     component: RegisterComponent},
   {path: 'login',        component: LoginComponent},
   {path: 'logout',       component: LogoutComponent},
-  {path: 'workflow/:id', component: WorkflowDetailComponent},
 
   {path: '**', redirectTo: ''}
 ];
