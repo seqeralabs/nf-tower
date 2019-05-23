@@ -16,6 +16,8 @@ import { RegisterComponent } from './component/register/register.component';
 import {FormsModule} from "@angular/forms";
 import { LoginComponent } from './component/login/login.component';
 import {JwtInterceptor} from "./interceptor/jwt.interceptor";
+import {ErrorInterceptor} from "./interceptor/error.interceptor";
+import { LogoutComponent } from './component/logout/logout.component';
 
 @NgModule({
   declarations: [
@@ -29,6 +31,7 @@ import {JwtInterceptor} from "./interceptor/jwt.interceptor";
     HomeComponent,
     RegisterComponent,
     LoginComponent,
+    LogoutComponent,
   ],
   imports: [
     BrowserModule,
@@ -41,6 +44,7 @@ import {JwtInterceptor} from "./interceptor/jwt.interceptor";
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true }
   ],
   bootstrap: [MainComponent]
 })
