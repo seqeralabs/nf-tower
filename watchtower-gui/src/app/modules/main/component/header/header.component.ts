@@ -21,8 +21,12 @@ export class HeaderComponent implements OnInit {
   ngOnInit() {
     this.authService.user$.subscribe(
       (user: User) => {
-        this.isUserLoggedIn = true;
-        this.userAvatar = user.avatar || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'
+        if (user) {
+          this.isUserLoggedIn = true;
+          this.userAvatar = user.avatar || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png';
+        } else {
+          this.isUserLoggedIn = false;
+        }
       }
     )
   }

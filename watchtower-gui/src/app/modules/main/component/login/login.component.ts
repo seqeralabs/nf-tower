@@ -48,7 +48,6 @@ export class LoginComponent implements OnInit {
                                (error.status == 401) ? 'Unauthorized'    : 'Unexpected error';
 
     this.notificationService.showErrorNotification(errorMessage);
-    this.router.navigate(['/register']);
   }
 
 }

@@ -5,11 +5,13 @@ import {HomeComponent} from "./component/home/home.component";
 import {RegisterComponent} from "./component/register/register.component";
 import {AuthGuard} from "./guard/auth.guard";
 import {LoginComponent} from "./component/login/login.component";
+import {LogoutComponent} from "./component/logout/logout.component";
 
 const routes: Routes = [
   {path: '',             component: HomeComponent, canActivate: [AuthGuard]},
-  {path: 'register',        component: RegisterComponent},
+  {path: 'register',     component: RegisterComponent},
   {path: 'login',        component: LoginComponent},
+  {path: 'logout',       component: LogoutComponent},
   {path: 'workflow/:id', component: WorkflowDetailComponent},
 
   {path: '**', redirectTo: ''}
