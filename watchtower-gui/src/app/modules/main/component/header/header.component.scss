@@ -1,0 +1,44 @@
+@import "./src/assets/variables";
+
+.nav-wrapper {
+  background-color: $iron-grey;
+
+  * {
+    color: black;
+  }
+}
+
+.links {
+  height: 100%;
+
+  .profile-link {
+    height: 100%;
+
+    li {
+      height: 100%;
+    }
+
+    a {
+
+      height: 100%;
+      width: 100px;
+
+      position: relative;
+
+    }
+
+    img {
+      max-height: 80%;
+      max-width: 100%;
+
+      position: absolute;
+      margin: auto;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+  }
+}
+
+

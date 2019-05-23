@@ -10,7 +10,7 @@ import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
 import { WorkflowCardComponent } from './component/workflow-card/workflow-card.component';
 import { WorkflowDetailComponent } from './component/workflow-detail/workflow-detail.component';
 import { MulticoloredProgressBarComponent } from './component/multicolored-progress-bar/multicolored-progress-bar.component';
-import {MzToastModule} from "ngx-materialize";
+import {MzDropdownModule, MzNavbarModule, MzSpinnerModule, MzToastModule} from "ngx-materialize";
 import { HomeComponent } from './component/home/home.component';
 import { RegisterComponent } from './component/register/register.component';
 import {FormsModule} from "@angular/forms";
@@ -28,14 +28,16 @@ import {JwtInterceptor} from "./interceptor/jwt.interceptor";
     MulticoloredProgressBarComponent,
     HomeComponent,
     RegisterComponent,
-    LoginComponent
+    LoginComponent,
   ],
   imports: [
     BrowserModule,
     MainRoutingModule,
     HttpClientModule,
     FormsModule,
-    MzToastModule
+    MzToastModule,
+    MzSpinnerModule,
+    MzDropdownModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },

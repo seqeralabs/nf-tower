@@ -4,6 +4,7 @@ import {AuthService} from "../../service/auth.service";
 import {HttpErrorResponse} from "@angular/common/http";
 import {NotificationService} from "../../service/notification.service";
 import {User} from "../../entity/user/user";
+import {delay} from "rxjs/operators";
 
 @Component({
   selector: 'wt-login',
@@ -29,7 +30,9 @@ export class LoginComponent implements OnInit {
 
   doAuth(email: string, authToken: string): void {
     console.log('Authenticating with', email, authToken);
-    this.authService.login(email, authToken).subscribe(
+    this.authService.login(email, authToken).pipe(
+      delay(1500)
+    ).subscribe(
       (user: User) => this.handleAuthenticationSuccess(user),
       (error: HttpErrorResponse) => this.handleAuthenticationError(error)
     )

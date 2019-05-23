@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import {AuthService} from "../../service/auth.service";
+import {User} from "../../entity/user/user";
 
 @Component({
   selector: 'wt-header',
@@ -7,11 +9,24 @@ import { Component, OnInit } from '@angular/core';
 })
 export class HeaderComponent implements OnInit {
 
-  title: string = 'Seqera';
+  title: string = 'seqeralabs';
 
-  constructor() { }
+  isUserLoggedIn: boolean;
+  userAvatar: string;
+
+  constructor(private authService: AuthService) {
+    const avatarPlaceholder: string = 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png';
+    this.userAvatar = avatarPlaceholder;
+  }
 
   ngOnInit() {
+    this.isUserLoggedIn = this.authService.isUserLoggedIn;
+
+    this.authService.user$.subscribe(
+      (user: User) => this.userAvatar = user.avatar || this.userAvatar
+    )
   }
+
+
 
 }
