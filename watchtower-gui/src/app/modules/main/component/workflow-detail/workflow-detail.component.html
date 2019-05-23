@@ -1,7 +1,9 @@
 <div *ngIf="workflow">
   <h4>
     <a class="project-name" [href]="workflow.data.repository" target="_blank">{{workflow.data.projectName}}</a>&nbsp;
-    <span [ngClass]="{'spinner': workflow.isStarted, 'mdi': (workflow.isCompleted), 'mdi-check-circle-outline': workflow.isSuccessful, 'mdi-alert-circle-outline': workflow.isFailed}"></span>
+
+    <mz-spinner *ngIf="workflow.isStarted" [color]="'blue'" [size]="'small'"></mz-spinner>
+    <span *ngIf="workflow.isCompleted" class="mdi" [ngClass]="{'mdi-check-circle-outline': workflow.isSuccessful, 'mdi-alert-circle-outline': workflow.isFailed}"></span>
   </h4>
 
   <h5><span class="mdi mdi-run"></span>{{workflow.data.runName}}</h5>

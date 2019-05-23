@@ -26,21 +26,3 @@
   white-space: pre-wrap;
   background-color: #fdddcf;
 }
-
-
-@keyframes spinner {
-  to {transform: rotate(360deg);}
-}
-
-.spinner:before {
-  content: '';
-  box-sizing: border-box;
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  border-top: 2px solid $started-blue;
-  border-right: 2px solid transparent;
-  animation: spinner .6s linear infinite;
-}
-
