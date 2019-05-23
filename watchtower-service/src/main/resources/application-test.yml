@@ -11,14 +11,14 @@ mail:
   debug: true
   from: me@google.com
   smtp:
-    host: google.com
-    port: 587
+    host: localhost
+    port: 3025
     user: mr-bean
     password: super-secret
     auth: true
     starttls:
-      enable: true
-      required: true
+      enable: false
+      required: false
     proxy:
       host: proxy.com
       port: 5566

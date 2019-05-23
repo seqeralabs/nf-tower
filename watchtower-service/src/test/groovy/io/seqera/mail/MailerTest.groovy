@@ -33,7 +33,7 @@ import spock.util.environment.RestoreSystemProperties
 class MailerTest extends Specification {
 
 
-    def 'should return config properties'() {
+    void 'should return config properties'() {
         when:
         MailerConfig config = new MailerConfig(smtp: [host: 'google.com', port: '808', user: 'foo', password: 'bar'])
         Mailer mailer = new Mailer( config: config  )
@@ -49,7 +49,7 @@ class MailerTest extends Specification {
     }
 
     @RestoreSystemProperties
-    def 'should configure proxy setting' () {
+    void 'should configure proxy setting' () {
         given:
         System.setProperty('http.proxyHost', 'foo.com')
         System.setProperty('http.proxyPort', '8000')
@@ -58,7 +58,7 @@ class MailerTest extends Specification {
         Mailer mailer = new Mailer(config: config)
 
         when:
-        def props = mailer.createProps()
+        Properties props = mailer.createProps()
 
         then:
         props.'mail.smtp.host' == 'gmail.com'
@@ -108,7 +108,7 @@ class MailerTest extends Specification {
         server?.stop()
     }
 
-    def "sending mails using java with attachment"() {
+    void "sending mails using java with attachment"() {
         given:
         Integer PORT = 3025
         String USER = 'foo'
@@ -150,7 +150,7 @@ class MailerTest extends Specification {
     }
 
 
-    def 'should send with java' () {
+    void 'should send with java' () {
         given:
         Mailer mailer = Spy(Mailer)
         MimeMessage MSG = Mock(MimeMessage)
@@ -167,7 +167,7 @@ class MailerTest extends Specification {
 
 
 
-    def 'should create mime message' () {
+    void 'should create mime message' () {
         given:
         MimeMessage msg
         Mail mail
@@ -231,10 +231,10 @@ class MailerTest extends Specification {
     }
 
 
-    def 'should fetch config properties' () {
+    void 'should fetch config properties' () {
         given:
-        def ENV = [TWR_SMTP_USER: 'jim', TWR_SMTP_PASSWORD: 'secret', TWR_SMTP_HOST: 'g.com', TWR_SMTP_PORT: '864']
-        def SMTP = [host:'hola.com', user:'foo', password: 'bar', port: 234]
+        Map ENV = [TWR_SMTP_USER: 'jim', TWR_SMTP_PASSWORD: 'secret', TWR_SMTP_HOST: 'g.com', TWR_SMTP_PORT: '864']
+        Map SMTP = [host:'hola.com', user:'foo', password: 'bar', port: 234]
         Mailer mail
 
         when:
@@ -263,7 +263,7 @@ class MailerTest extends Specification {
     }
 
 
-    def 'should capture send params' () {
+    void 'should capture send params' () {
         given:
         Mailer mailer = Spy(Mailer)
 
@@ -280,7 +280,7 @@ class MailerTest extends Specification {
     }
 
 
-    def 'should strip html tags'  () {
+    void 'should strip html tags'  () {
         given:
         Mailer mailer = new Mailer()
 
@@ -292,7 +292,7 @@ class MailerTest extends Specification {
     }
 
 
-    def 'should capture multiline body' () {
+    void 'should capture multiline body' () {
         given:
         Mailer mailer = Spy(Mailer)
         String BODY = '''
@@ -313,7 +313,7 @@ class MailerTest extends Specification {
 
     }
 
-    def 'should guess html content' () {
+    void 'should guess html content' () {
         given:
         Mailer mailer = new Mailer()
 
@@ -326,7 +326,7 @@ class MailerTest extends Specification {
     }
 
     @Unroll
-    def 'should guess mime type' () {
+    void 'should guess mime type' () {
         given:
         Mailer mailer = new Mailer()
 

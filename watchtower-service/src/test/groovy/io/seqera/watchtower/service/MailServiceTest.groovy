@@ -1,28 +1,52 @@
 package io.seqera.watchtower.service
 
+import io.micronaut.test.annotation.MicronautTest
 import io.seqera.mail.Mail
 import io.seqera.mail.Mailer
+import io.seqera.mail.MailerConfig
+import org.subethamail.wiser.Wiser
 import spock.lang.Specification
+
+import javax.inject.Inject
+import javax.mail.Message
+import javax.mail.internet.InternetAddress
+import javax.mail.internet.MimeMultipart
 
 /**
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
+@MicronautTest
 class MailServiceTest extends Specification {
 
-    def 'should send mail message' () {
+    @Inject
+    MailerConfig mailerConfig
 
-        given:
-        def mail = Mock(Mail)
-        def mailer = Mock(Mailer)
-        def service = Spy(MailServiceImpl)
-        service.mailer = mailer
+    @Inject
+    MailService mailService
 
-        when:
-        service.sendMail(mail)
-        then:
-        1 * service.sendMail(mail) >> null
+    void 'should send mail message' () {
+        given: 'start a mock mail server'
+        Wiser server = new Wiser(mailerConfig.smtp.port)
+        server.start()
 
+        and: 'an email'
+        Map mailProperties = [to: 'receiver@nextflow.io', from: mailerConfig.from, subject: 'This is a test', body: 'Hello there']
+        Mail mail = Mail.of(mailProperties)
+
+        when: 'send the email'
+        mailService.sendMail(mail)
+
+        then: 'the message has been received'
+        server.messages.size() == 1
+        Message message = server.messages.first().mimeMessage
+        message.from == [new InternetAddress(mailProperties.from)]
+        message.allRecipients.contains(new InternetAddress(mailProperties.to))
+        message.subject == mailProperties.subject
+        (message.content as MimeMultipart).getBodyPart(0).content.getBodyPart(0).content == 'Hello there'
+
+        cleanup: 'stop the mock server'
+        server.stop()
     }
 
 }
