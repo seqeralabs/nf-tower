@@ -24,8 +24,7 @@ import spock.lang.Specification
  */
 class AttachmentTest extends Specification {
 
-
-    def 'should create resource attachment' () {
+    void 'should create resource attachment' () {
         when:
         Attachment attach = Attachment.resource('foo/bar', contentId: 'the-cid')
 
@@ -36,7 +35,7 @@ class AttachmentTest extends Specification {
 
     }
 
-    def 'should crate attachment'  () {
+    void 'should crate attachment'  () {
         given:
         Attachment attach
 

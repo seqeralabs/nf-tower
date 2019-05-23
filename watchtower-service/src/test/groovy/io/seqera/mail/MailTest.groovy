@@ -25,7 +25,7 @@ import spock.lang.Specification
  */
 class MailTest extends Specification {
 
-    def 'should capture mail params' () {
+    void 'should capture mail params' () {
         given:
         Closure closure = {
             from 'jim@dot.com'
@@ -57,7 +57,7 @@ class MailTest extends Specification {
     }
 
 
-    def 'should add attachments' () {
+    void 'should add attachments' () {
         given:
         Mail mail
 
@@ -109,7 +109,7 @@ class MailTest extends Specification {
         thrown(IllegalArgumentException)
     }
 
-    def 'should create a mail from a Map' () {
+    void 'should create a mail from a Map' () {
         given:
         Map map = [
                 from:'me@google.com',

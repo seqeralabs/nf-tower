@@ -20,13 +20,13 @@ class MailerConfigTest extends Specification {
     void 'should create smtp config' () {
         expect:
         mailerConfig.from == 'me@google.com'
-        mailerConfig.smtp.host == 'google.com'
+        mailerConfig.smtp.host == 'localhost'
         mailerConfig.smtp.user == 'mr-bean'
         mailerConfig.smtp.password == 'super-secret'
-        mailerConfig.smtp.port == 587
+        mailerConfig.smtp.port == 3025
         mailerConfig.smtp.auth == true
-        mailerConfig.smtp.'starttls.enable' == true
-        mailerConfig.smtp.'starttls.required' == true
+        mailerConfig.smtp.'starttls.enable' == false
+        mailerConfig.smtp.'starttls.required' == false
     }
 
 
@@ -35,13 +35,13 @@ class MailerConfigTest extends Specification {
         def props = mailerConfig.mailProperties
 
         then:
-        props.'mail.smtp.host' == 'google.com'
+        props.'mail.smtp.host' == 'localhost'
         props.'mail.smtp.user' == 'mr-bean'
         props.'mail.smtp.password' == 'super-secret'
-        props.'mail.smtp.port' == '587'
+        props.'mail.smtp.port' == '3025'
         props.'mail.smtp.auth' == 'true'
-        props.'mail.smtp.starttls.enable' == 'true'
-        props.'mail.smtp.starttls.required' == 'true'
+        props.'mail.smtp.starttls.enable' == 'false'
+        props.'mail.smtp.starttls.required' == 'false'
         props.'mail.smtp.proxy.host' == 'proxy.com'
         props.'mail.smtp.proxy.port' == '5566'
         props.'mail.transport.protocol' == 'smtp'
