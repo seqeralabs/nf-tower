@@ -28,7 +28,7 @@ class AuthenticationProviderByAuthToken implements AuthenticationProvider {
         if (user) {
             List<String> authorities = userService.findAuthoritiesByEmail(user.email)
 
-            Map attributes = [username: user.username, email: user.email, firstName: user.firstName, lastName: user.lastName, organisation: user.organisation, description: user.description, avatar: user.avatar, authToken: user.authToken]
+            Map attributes = [username: user.username, email: user.email, firstName: user.firstName, lastName: user.lastName, organisation: user.organization, description: user.description, avatar: user.avatar, authToken: user.authToken]
             return Flowable.just(new UserDetails(user.email, authorities, (Map) attributes)) as Publisher<AuthenticationResponse>
         }
 

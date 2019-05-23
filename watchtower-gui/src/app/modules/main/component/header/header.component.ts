@@ -15,15 +15,15 @@ export class HeaderComponent implements OnInit {
   userAvatar: string;
 
   constructor(private authService: AuthService) {
-    const avatarPlaceholder: string = 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png';
-    this.userAvatar = avatarPlaceholder;
+    this.isUserLoggedIn = false;
   }
 
   ngOnInit() {
-    this.isUserLoggedIn = this.authService.isUserLoggedIn;
-
     this.authService.user$.subscribe(
-      (user: User) => this.userAvatar = user.avatar || this.userAvatar
+      (user: User) => {
+        this.isUserLoggedIn = true;
+        this.userAvatar = user.avatar || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'
+      }
     )
   }
 

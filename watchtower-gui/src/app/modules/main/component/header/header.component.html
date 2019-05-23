@@ -1,5 +1,7 @@
-<mz-dropdown [id]="'dropdown-profile'" [belowOrigin]="true" [constrainWidth]="false" [dropdownButtonId]="'dropdown-profile-section'" [inDuration]="0" [outDuration]="0">
-  <mz-dropdown-item *ngIf="isUserLoggedIn">
+<mz-dropdown *ngIf="isUserLoggedIn"
+  [id]="'dropdown-profile'" [belowOrigin]="true" [constrainWidth]="false" [dropdownButtonId]="'dropdown-profile-section'" [inDuration]="0" [outDuration]="0"
+>
+  <mz-dropdown-item>
     <a href="#!">Logout</a>
   </mz-dropdown-item>
 </mz-dropdown>
@@ -9,7 +11,7 @@
     <ul class="right hide-on-med-and-down links">
       <li><a href="/">Docs</a></li>
       <li><a href="/">Support</a></li>
-      <li class="profile-link">
+      <li *ngIf="isUserLoggedIn" class="profile-link">
         <a id="dropdown-profile-section" class="dropdown-trigger" href="#!" data-target="dropdown-profile">
             <img alt="avatar" class="circle" [src]="userAvatar">
         </a>

@@ -7,7 +7,7 @@ export interface User {
 
   firstName: string;
   lastName: string;
-  organisation: string;
+  organization: string;
   description: string;
   avatar: string;
 }
