@@ -26,9 +26,9 @@ class AttachmentTest extends Specification {
 
 
     def 'should create resource attachment' () {
-
         when:
-        def attach = Attachment.resource('foo/bar', contentId: 'the-cid')
+        Attachment attach = Attachment.resource('foo/bar', contentId: 'the-cid')
+
         then:
         attach.file == null
         attach.resource == 'foo/bar'
@@ -37,7 +37,6 @@ class AttachmentTest extends Specification {
     }
 
     def 'should crate attachment'  () {
-
         given:
         Attachment attach
 

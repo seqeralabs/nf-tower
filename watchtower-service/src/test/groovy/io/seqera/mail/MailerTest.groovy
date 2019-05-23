@@ -35,9 +35,9 @@ class MailerTest extends Specification {
 
     def 'should return config properties'() {
         when:
-        def config = new MailerConfig(smtp: [host: 'google.com', port: '808', user: 'foo', password: 'bar'])
-        def mailer = new Mailer( config: config  )
-        def props = mailer.createProps()
+        MailerConfig config = new MailerConfig(smtp: [host: 'google.com', port: '808', user: 'foo', password: 'bar'])
+        Mailer mailer = new Mailer( config: config  )
+        Properties props = mailer.createProps()
 
         then:
         props.get('mail.smtp.user') == 'foo'
@@ -50,16 +50,16 @@ class MailerTest extends Specification {
 
     @RestoreSystemProperties
     def 'should configure proxy setting' () {
-
         given:
         System.setProperty('http.proxyHost', 'foo.com')
         System.setProperty('http.proxyPort', '8000')
 
-        def config = new MailerConfig(smtp:[host: 'gmail.com', port: 25, user:'yo'])
-        def mailer = new Mailer(config: config)
+        MailerConfig config = new MailerConfig(smtp:[host: 'gmail.com', port: 25, user:'yo'])
+        Mailer mailer = new Mailer(config: config)
 
         when:
         def props = mailer.createProps()
+
         then:
         props.'mail.smtp.host' == 'gmail.com'
         props.'mail.smtp.port' == '25'
@@ -71,16 +71,15 @@ class MailerTest extends Specification {
 
 
     def "sending mails using javamail"() {
-
         given:
-        def PORT = 3025
-        def USER = 'foo'
-        def PASSWORD = 'secret'
-        def server = new Wiser(PORT)
+        Integer PORT = 3025
+        String USER = 'foo'
+        String PASSWORD = 'secret'
+        Wiser server = new Wiser(PORT)
         server.start()
 
-        def config = new MailerConfig(smtp: [host: 'localhost', port: PORT, user: USER, password: PASSWORD])
-        def mailer = new Mailer( config: config)
+        MailerConfig config = new MailerConfig(smtp: [host: 'localhost', port: PORT, user: USER, password: PASSWORD])
+        Mailer mailer = new Mailer( config: config)
 
         String TO = "receiver@nextflow.io"
         String FROM = 'paolo@gmail.com'
@@ -88,39 +87,37 @@ class MailerTest extends Specification {
         String CONTENT = "This content should be sent by the user."
 
         when:
-        def mail = [
+        Map mail = [
                 to: TO,
                 from: FROM,
                 subject: SUBJECT,
                 body: CONTENT
         ]
-
         mailer.send(mail)
 
         then:
-        server.getMessages().size()==1
-        Message message = server.getMessages().get(0).getMimeMessage()
+        server.messages.size() == 1
+        Message message = server.messages.first().mimeMessage
         message.from == [new InternetAddress(FROM)]
         message.allRecipients.contains(new InternetAddress(TO))
         message.subject == SUBJECT
-        message.getContent() instanceof MimeMultipart
-        (message.getContent() as MimeMultipart).getContentType().startsWith('multipart/related')
+        message.content instanceof MimeMultipart
+        (message.content as MimeMultipart).contentType.startsWith('multipart/related')
 
         cleanup:
         server?.stop()
     }
 
     def "sending mails using java with attachment"() {
-
         given:
-        def PORT = 3025
-        def USER = 'foo'
-        def PASSWORD = 'secret'
-        def server = new Wiser(PORT)
+        Integer PORT = 3025
+        String USER = 'foo'
+        String PASSWORD = 'secret'
+        Wiser server = new Wiser(PORT)
         server.start()
 
-        def config = new MailerConfig(smtp:[host: '127.0.0.1', port: PORT, user: USER, password: PASSWORD])
-        def mailer = new Mailer(config: config)
+        MailerConfig config = new MailerConfig(smtp:[host: '127.0.0.1', port: PORT, user: USER, password: PASSWORD])
+        Mailer mailer = new Mailer(config: config)
 
         String TO = "receiver@gmail.com"
         String FROM = 'paolo@nextflow.io'
@@ -130,23 +127,22 @@ class MailerTest extends Specification {
         ATTACH.text = 'This is the file attachment content'
 
         when:
-        def mail = [
+        Map mail = [
                 from: FROM,
                 to: TO,
                 subject: SUBJECT,
                 body: CONTENT,
                 attach: ATTACH
         ]
-
         mailer.send(mail)
 
         then:
-        server.getMessages().size()==1
-        Message message = server.getMessages().get(0).getMimeMessage()
+        server.messages.size() == 1
+        Message message = server.messages.first().mimeMessage
         message.from == [new InternetAddress(FROM)]
         message.allRecipients.contains(new InternetAddress(TO))
         message.subject == SUBJECT
-        (message.getContent() as MimeMultipart).getCount() == 2
+        (message.content as MimeMultipart).count == 2
 
         cleanup:
         if( ATTACH ) Files.delete(ATTACH)
@@ -155,25 +151,23 @@ class MailerTest extends Specification {
 
 
     def 'should send with java' () {
-
         given:
-        def mailer = Spy(Mailer)
-        def MSG = Mock(MimeMessage)
-        def mail = new Mail()
+        Mailer mailer = Spy(Mailer)
+        MimeMessage MSG = Mock(MimeMessage)
+        Mail mail = new Mail()
 
         when:
         mailer.config = new MailerConfig(smtp: [host:'foo.com'])
         mailer.send(mail)
+
         then:
         1 * mailer.createMimeMessage(mail) >> MSG
         1 * mailer.sendViaJavaMail(MSG) >> null
-
     }
 
 
 
     def 'should create mime message' () {
-
         given:
         MimeMessage msg
         Mail mail
@@ -182,23 +176,23 @@ class MailerTest extends Specification {
         mail = new Mail(from:'foo@gmail.com')
         msg = new Mailer(config: new MailerConfig(from:'fallback@hotmail.com')).createMimeMessage(mail)
         then:
-        msg.getFrom().size()==1
-        msg.getFrom()[0].toString() == 'foo@gmail.com'
+        msg.from.size() == 1
+        msg.from[0].toString() == 'foo@gmail.com'
 
         when:
         mail = new Mail()
         msg = new Mailer(config: new MailerConfig(from:'fallback@hotmail.com')).createMimeMessage(mail)
         then:
-        msg.getFrom().size()==1
-        msg.getFrom()[0].toString() == 'fallback@hotmail.com'
+        msg.from.size() == 1
+        msg.from[0].toString() == 'fallback@hotmail.com'
 
         when:
         mail = new Mail(from:'one@gmail.com, two@google.com')
         msg = new Mailer().createMimeMessage(mail)
         then:
-        msg.getFrom().size()==2
-        msg.getFrom()[0].toString() == 'one@gmail.com'
-        msg.getFrom()[1].toString() == 'two@google.com'
+        msg.from.size() == 2
+        msg.from[0].toString() == 'one@gmail.com'
+        msg.from[1].toString() == 'two@google.com'
 
         when:
         mail = new Mail(to:'foo@gmail.com, bar@google.com')
@@ -228,18 +222,16 @@ class MailerTest extends Specification {
         mail = new Mail(subject: 'this is a test', body: 'Ciao mondo')
         msg = new Mailer().createMimeMessage(mail)
         then:
-        msg.getSubject() == 'this is a test'
-        msg.getContent() instanceof MimeMultipart
-        msg.getContent().getCount() == 1
-        msg.getContentType().startsWith('text/plain')
-        msg.getContent().getBodyPart(0).getContent().getCount() == 1
-        msg.getContent().getBodyPart(0).getContent().getBodyPart(0).getContent() == 'Ciao mondo'
-
+        msg.subject == 'this is a test'
+        msg.content instanceof MimeMultipart
+        msg.content.count == 1
+        msg.contentType.startsWith('text/plain')
+        msg.content.getBodyPart(0).content.count == 1
+        msg.content.getBodyPart(0).content.getBodyPart(0).content == 'Ciao mondo'
     }
 
 
     def 'should fetch config properties' () {
-
         given:
         def ENV = [TWR_SMTP_USER: 'jim', TWR_SMTP_PASSWORD: 'secret', TWR_SMTP_HOST: 'g.com', TWR_SMTP_PORT: '864']
         def SMTP = [host:'hola.com', user:'foo', password: 'bar', port: 234]
@@ -272,9 +264,8 @@ class MailerTest extends Specification {
 
 
     def 'should capture send params' () {
-
         given:
-        def mailer = Spy(Mailer)
+        Mailer mailer = Spy(Mailer)
 
         when:
         mailer.send {
@@ -286,14 +277,12 @@ class MailerTest extends Specification {
 
         then:
         1 * mailer.send(Mail.of([to: 'paolo@dot.com', from:'yo@dot.com', subject: 'This is a test', body: 'Hello there'])) >> null
-
     }
 
 
     def 'should strip html tags'  () {
-
         given:
-        def mailer = new Mailer()
+        Mailer mailer = new Mailer()
 
         expect:
         mailer.stripHtml('Hello') == 'Hello'
@@ -304,10 +293,9 @@ class MailerTest extends Specification {
 
 
     def 'should capture multiline body' () {
-
         given:
-        def mailer = Spy(Mailer)
-        def BODY = '''
+        Mailer mailer = Spy(Mailer)
+        String BODY = '''
             multiline
             mail
             content
@@ -326,9 +314,8 @@ class MailerTest extends Specification {
     }
 
     def 'should guess html content' () {
-
         given:
-        def mailer = new Mailer()
+        Mailer mailer = new Mailer()
 
         expect:
         !mailer.guessHtml('Hello')
@@ -340,9 +327,8 @@ class MailerTest extends Specification {
 
     @Unroll
     def 'should guess mime type' () {
-
         given:
-        def mailer = new Mailer()
+        Mailer mailer = new Mailer()
 
         expect:
         mailer.guessMimeType(str) == type

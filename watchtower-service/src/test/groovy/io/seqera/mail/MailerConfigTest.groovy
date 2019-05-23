@@ -1,36 +1,39 @@
 package io.seqera.mail
 
 import io.micronaut.context.ApplicationContext
+import io.micronaut.test.annotation.MicronautTest
 import spock.lang.Specification
+
+import javax.inject.Inject
+
 /**
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
+@MicronautTest
 class MailerConfigTest extends Specification {
 
-    //@Shared @AutoCleanup EmbeddedServer embeddedServer = ApplicationContext.run(EmbeddedServer)
+    @Inject
+    MailerConfig mailerConfig
 
-    def 'should create smtp config' () {
 
-        when:
-        def mail = ApplicationContext.run('mail').getBean(MailerConfig)
-        then:
-        mail.from == 'me@google.com'
-        mail.smtp.host == 'google.com'
-        mail.smtp.user == 'mr-bean'
-        mail.smtp.password == 'super-secret'
-        mail.smtp.port == 587
-        mail.smtp.auth == true
-        mail.smtp.'starttls.enable' == true
-        mail.smtp.'starttls.required' == true
-
+    void 'should create smtp config' () {
+        expect:
+        mailerConfig.from == 'me@google.com'
+        mailerConfig.smtp.host == 'google.com'
+        mailerConfig.smtp.user == 'mr-bean'
+        mailerConfig.smtp.password == 'super-secret'
+        mailerConfig.smtp.port == 587
+        mailerConfig.smtp.auth == true
+        mailerConfig.smtp.'starttls.enable' == true
+        mailerConfig.smtp.'starttls.required' == true
     }
 
 
-    def 'should get mail properties object' () {
-
+    void 'should get mail properties object' () {
         when:
-        def props = ApplicationContext.run('mail').getBean(MailerConfig).getMailProperties()
+        def props = mailerConfig.mailProperties
+
         then:
         props.'mail.smtp.host' == 'google.com'
         props.'mail.smtp.user' == 'mr-bean'
@@ -44,12 +47,13 @@ class MailerConfigTest extends Specification {
         props.'mail.transport.protocol' == 'smtp'
     }
 
-    def 'should get proxy from system property' () {
+    void 'should get proxy from system property' () {
         given:
         def config = Spy(MailerConfig)
 
         when:
-        def props = config.getMailProperties()
+        def props = config.mailProperties
+
         then:
         2 * config.sysProp('http.proxyHost') >> 'sys.proxy.name'
         1 * config.sysProp('http.proxyPort') >> '1234'
