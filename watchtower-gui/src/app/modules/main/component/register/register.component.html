@@ -1,7 +1,7 @@
 <div class="container">
   <div class="row">
 
-    <div class="col m4 offset-m4" [hidden]="isRegistered">
+    <div class="col s4 offset-s4" [hidden]="isRegistered">
       <h2 class="center-align">Register</h2>
       <div class="row">
         <form class="col s12" #registerForm="ngForm" (ngSubmit)="submit()">
@@ -22,8 +22,16 @@
       </div>
     </div>
 
-    <div class="col m12 registered" *ngIf="isRegistered">
-      <h1> {{registeredMessage}}</h1>
+    <div class="col s12 registered" *ngIf="isRegistered">
+      <div class="row">
+        <div class="col s12">
+          <div class="card-panel grey lighten-5">
+            <h1>{{registeredMessage}}</h1>
+          </div>
+        </div>
+      </div>
+
+<!--      <h1> {{registeredMessage}}</h1>-->
     </div>
 
   </div>
