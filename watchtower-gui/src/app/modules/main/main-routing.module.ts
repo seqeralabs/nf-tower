@@ -8,9 +8,9 @@ import {LoginComponent} from "./component/login/login.component";
 import {LogoutComponent} from "./component/logout/logout.component";
 
 const routes: Routes = [
-  {path: '',             component: HomeComponent, canActivate: [AuthGuard],
+  {path: '',             component: HomeComponent,
     children: [
-      {path: 'workflow/:id', component: WorkflowDetailComponent}
+      {path: 'workflow/:id', component: WorkflowDetailComponent, canActivate: [AuthGuard]}
     ]
   },
   {path: 'register',     component: RegisterComponent},

@@ -1,11 +1,19 @@
-<div class="row">
 
+<div class="row" *ngIf="!isUserLoggedIn || !workflows">
+  <div class="col s12 welcome-message">
+    <div class="card-panel grey lighten-5">
+      <p>Launch your Nextflow workflow and watch it on Tower! Just add the <code>-with-tower</code> option to your usual Nextflow command line</p>
+    </div>
+  </div>
+</div>
+
+
+<div class="row" *ngIf="isUserLoggedIn && workflows && workflows.length > 0">
   <div class="col s3">
-    <wt-sidebar></wt-sidebar>
+    <wt-sidebar [workflows]="workflows"></wt-sidebar>
   </div>
 
   <div class="col s9">
     <wt-central></wt-central>
   </div>
-
 </div>
