@@ -14,12 +14,11 @@ export class RegisterComponent implements OnInit {
 
   @ViewChild('registerForm')
   private registerForm: NgForm;
-
-  private email: string;
   private isSubmitted: boolean;
 
-  private isRegistered: boolean;
-  private registeredMessage: string;
+  email: string;
+  isRegistered: boolean;
+  registeredMessage: string;
 
   constructor(private route: ActivatedRoute,
               private router: Router,
