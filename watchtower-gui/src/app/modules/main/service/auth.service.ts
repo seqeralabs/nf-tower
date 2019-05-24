@@ -4,6 +4,7 @@ import {delay, map, tap} from "rxjs/operators";
 import {User} from "../entity/user/user";
 import {HttpClient} from "@angular/common/http";
 import {environment} from "../../../../environments/environment";
+import {UserData} from "../entity/user/user-data";
 
 const loginEndpointUrl: string = `${environment.apiUrl}/login`;
 const userEndpointUrl: string = `${environment.apiUrl}/user`;
@@ -34,16 +35,16 @@ export class AuthService {
   login(email: string, authToken: string): Observable<User> {
     return this.http.post(loginEndpointUrl, {username: email, password: authToken}).pipe(
       map((authData: any) => {
-        let user: User = <User> {email: authData.username, accessToken: authData['access_token'], roles: authData.roles};
+        let userData: UserData = <UserData> {email: authData.username, accessToken: authData['access_token'], roles: authData.roles};
 
-        let attributes = this.parseJwt(user.accessToken);
-        user.firstName = attributes.firstName;
-        user.lastName = attributes.lastName;
-        user.organization = attributes.organization;
-        user.description = attributes.description;
-        user.avatar = attributes.avatar;
+        let attributes = this.parseJwt(userData.accessToken);
+        userData.firstName = attributes.firstName;
+        userData.lastName = attributes.lastName;
+        userData.organization = attributes.organization;
+        userData.description = attributes.description;
+        userData.avatar = attributes.avatar;
 
-        return user;
+        return new User(userData);
       }),
       tap((user: User) => {
         this.persistUser(user);
@@ -73,11 +74,13 @@ export class AuthService {
   };
 
   private persistUser(user: User): void {
-    localStorage.setItem('user', JSON.stringify(user));
+    localStorage.setItem('user', JSON.stringify(user.data));
   }
 
   private getPersistedUser(): User {
-    return <User> JSON.parse(localStorage.getItem('user'));
+    const userData: UserData = <UserData> JSON.parse(localStorage.getItem('user'));
+
+    return (userData ? new User(userData) : null);
   }
 
   private removeUser(): void {

@@ -4,13 +4,13 @@
   </div>
   <div class="card-content">
     <div class="row">
-      <div class="col s6 mdi mdi-account">{{user.firstName}} {{user.lastName}}</div>
+      <div class="col s6 mdi mdi-account">{{user.data.firstName}} {{user.data.lastName}}</div>
     </div>
     <div class="row">
-      <div class="col s6 mdi mdi-domain">{{user.organization}}</div>
+      <div class="col s6 mdi mdi-domain">{{user.data.organization}}</div>
     </div>
     <div class="row">
-      <div class="col s6 mdi mdi-text">{{user.description}}</div>
+      <div class="col s6 mdi mdi-text">{{user.data.description}}</div>
     </div>
     <div class="card-action logout">
       <a class="btn grey lighten-5" href="/logout">Log Out</a>

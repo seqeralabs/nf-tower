@@ -1,13 +1,15 @@
-export interface User {
-  username: string;
-  email: string;
-  authToken: string;
-  roles: string[];
-  accessToken: string;
+import {UserData} from "./user-data";
 
-  firstName: string;
-  lastName: string;
-  organization: string;
-  description: string;
-  avatar: string;
+export class User {
+
+  data: UserData;
+
+  constructor(userData: UserData) {
+    this.data = userData;
+  }
+
+  get avatar(): string {
+    return (this.data.avatar || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png');
+  }
+
 }
