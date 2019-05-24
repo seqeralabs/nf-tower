@@ -9,7 +9,7 @@ export class User {
   }
 
   get avatar(): string {
-    return (this.data.avatar || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png');
+    return (this.data.avatar || `https://ui-avatars.com/api/?name=${this.data.firstName}+${this.data.lastName}&size=200`);
   }
 
 }
