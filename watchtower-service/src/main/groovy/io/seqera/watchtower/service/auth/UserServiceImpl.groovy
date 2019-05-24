@@ -21,7 +21,7 @@ import javax.validation.ValidationException
 class UserServiceImpl implements UserService {
 
 
-    @Value('front.url')
+    @Value('${front.url}')
     String frontendUrl
 
     MailService mailService
@@ -37,6 +37,7 @@ class UserServiceImpl implements UserService {
         User existingUser = User.findByEmail(email)
 
         if (existingUser) {
+            sendAccessEmail(existingUser)
             return existingUser
         }
 
@@ -49,7 +50,7 @@ class UserServiceImpl implements UserService {
     }
 
     private void sendAccessEmail(User user) {
-        String body = "You can access NF-Tower <a href=\"${buildAccessUrl(user)}\">here</a>"
+        String body = "Hi, ${user.username}. You can access NF-Tower <a href=\"${buildAccessUrl(user)}\">here</a>."
 
         Mail mail = Mail.of([to: user.email, subject: 'NF-Tower Access Link', body: body])
 

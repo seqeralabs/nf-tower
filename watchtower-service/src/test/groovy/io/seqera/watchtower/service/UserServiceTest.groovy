@@ -27,13 +27,20 @@ class UserServiceTest extends AbstractContainerBaseTest {
     @Inject
     MailerConfig mailerConfig
 
+    Wiser smtpServer
+
+    void setup() {
+        smtpServer = new Wiser(mailerConfig.smtp.port)
+        smtpServer.start()
+    }
+
+    void cleanup() {
+        smtpServer.stop()
+    }
+
     void "register a new user"() {
         given: "an email"
         String email = 'user@seqera.io'
-
-        and: "start the mock email server"
-        Wiser server = new Wiser(mailerConfig.smtp.port)
-        server.start()
 
         when: "register the user"
         User user = userService.register(email)
@@ -50,15 +57,12 @@ class UserServiceTest extends AbstractContainerBaseTest {
         UserRole.first().role.authority == 'ROLE_USER'
 
         and: "the access link was sent to the user"
-        server.messages.size() == 1
-        Message message = server.messages.first().mimeMessage
+        smtpServer.messages.size() == 1
+        Message message = smtpServer.messages.first().mimeMessage
         message.allRecipients.contains(new InternetAddress(user.email))
         message.subject == 'NF-Tower Access Link'
-        (message.content as MimeMultipart).getBodyPart(0).content.getBodyPart(0).content.startsWith('You can access NF-Tower')
-        (message.content as MimeMultipart).getBodyPart(0).content.getBodyPart(0).content.contains('/login')
-
-        cleanup: "stop the mock email server"
-        server.stop()
+        (message.content as MimeMultipart).getBodyPart(0).content.getBodyPart(0).content.contains('You can access NF-Tower')
+        (message.content as MimeMultipart).getBodyPart(0).content.getBodyPart(0).content.contains('http')
     }
 
     void "register a user already registered"() {
@@ -73,6 +77,14 @@ class UserServiceTest extends AbstractContainerBaseTest {
         existingUser.email == userToRegister.email
         existingUser.authToken == userToRegister.authToken
         User.count() == 1
+
+        and: 'the acces email has been sent'
+        smtpServer.messages.size() == 1
+        Message message = smtpServer.messages.first().mimeMessage
+        message.allRecipients.contains(new InternetAddress(existingUser.email))
+        message.subject == 'NF-Tower Access Link'
+        (message.content as MimeMultipart).getBodyPart(0).content.getBodyPart(0).content.contains('You can access NF-Tower')
+        (message.content as MimeMultipart).getBodyPart(0).content.getBodyPart(0).content.contains('/login')
     }
 
     void "try to register a user given an invalid email"() {
@@ -80,7 +92,7 @@ class UserServiceTest extends AbstractContainerBaseTest {
         String badEmail = 'badEmail'
 
         when: "register a user with a bad email"
-        User user = userService.register(badEmail)
+        userService.register(badEmail)
 
         then: "the user couldn't be created"
         ValidationException e = thrown(ValidationException)

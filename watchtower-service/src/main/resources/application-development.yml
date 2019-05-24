@@ -6,6 +6,13 @@ micronaut:
 ---
 mail:
   to: qa@salenda.es
+  smtp:
+    host: smtp.salenda.es
+    port: 25
+    auth: false
+    starttls:
+      enable: false
+      required: false
 ---
 front:
   url: http://localhost:4200
