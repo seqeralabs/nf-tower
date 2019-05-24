@@ -38,7 +38,7 @@ class LoginControllerTest extends AbstractContainerBaseTest {
 
     void 'login with valid credentials (username and authToken) for a user'() {
         given: "a user"
-        User user = new DomainCreator().createUser(firstName: 'User', lastName: 'Userson', avatar: 'http://image.com')
+        User user = new DomainCreator().createUser(firstName: 'User', lastName: 'Userson', avatar: 'http://image.com', organization: 'org', description: 'description')
 
         and: "grant a role to the user"
         UserRole userRole = new DomainCreator().createUserRole(user: user)
@@ -69,6 +69,8 @@ class LoginControllerTest extends AbstractContainerBaseTest {
         authentication.attributes.firstName == user.firstName
         authentication.attributes.lastName == user.lastName
         authentication.attributes.avatar == user.avatar
+        authentication.attributes.organization == user.organization
+        authentication.attributes.description == user.description
     }
 
     void 'try to login without supplying credentials'() {

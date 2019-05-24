@@ -11,23 +11,15 @@ export class HeaderComponent implements OnInit {
 
   title: string = 'seqeralabs';
 
-  isUserLoggedIn: boolean;
-  userAvatar: string;
+  user: User;
 
   constructor(private authService: AuthService) {
-    this.isUserLoggedIn = false;
+
   }
 
   ngOnInit() {
     this.authService.user$.subscribe(
-      (user: User) => {
-        if (user) {
-          this.isUserLoggedIn = true;
-          this.userAvatar = user.avatar || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png';
-        } else {
-          this.isUserLoggedIn = false;
-        }
-      }
+      (user: User) => this.user = user
     )
   }
 
