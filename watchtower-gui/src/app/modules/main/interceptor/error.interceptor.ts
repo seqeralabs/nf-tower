@@ -17,8 +17,11 @@ export class ErrorInterceptor implements HttpInterceptor {
         const authorizationErrorCodes: number[] = [401, 403];
 
         if (authorizationErrorCodes.includes(error.status)) {
-          if (this.authService.isUserLoggedIn) {
+          console.log('Authorization error intercepted');
+          if (this.authService.isUserLoggedIn && error.status == 401) {
             this.notificationService.showErrorNotification('Session expired');
+          } else {
+            this.notificationService.showErrorNotification('Forbidden access');
           }
 
           this.authService.logout();

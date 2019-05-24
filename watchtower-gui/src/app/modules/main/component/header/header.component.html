@@ -11,6 +11,7 @@
     <ul class="right hide-on-med-and-down links">
       <li><a href="/">Docs</a></li>
       <li><a href="/">Support</a></li>
+      <li *ngIf="!isUserLoggedIn"><a href="/register">Sign in</a></li>
       <li *ngIf="isUserLoggedIn" class="profile-link">
         <a id="dropdown-profile-section" class="dropdown-trigger" href="#!" data-target="dropdown-profile">
             <img alt="avatar" class="circle" [src]="userAvatar">

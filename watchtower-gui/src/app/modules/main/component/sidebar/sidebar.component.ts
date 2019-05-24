@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {Observable} from "rxjs";
 import {Workflow} from "../../entity/workflow/workflow";
 import {WorkflowService} from "../../service/workflow.service";
@@ -11,12 +11,13 @@ import {Router} from "@angular/router";
 })
 export class SidebarComponent implements OnInit {
 
-  workflows$: Observable<Workflow[]>;
+  @Input()
+  workflows: Workflow[];
 
   constructor(private workflowService: WorkflowService, private router: Router) { }
 
   ngOnInit() {
-    this.workflows$ = this.workflowService.workflows$;
+    this.showWorkflowDetail(this.workflows[0]);
   }
 
 

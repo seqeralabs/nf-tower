@@ -1,5 +1,5 @@
 <div class="border">
 
-  <wt-workflow-card *ngFor="let workflow of workflows$ | async" [workflow]="workflow" (click)="showWorkflowDetail(workflow)"></wt-workflow-card>
+  <wt-workflow-card *ngFor="let workflow of workflows" [workflow]="workflow" (click)="showWorkflowDetail(workflow)"></wt-workflow-card>
 
 </div>
