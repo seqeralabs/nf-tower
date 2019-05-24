@@ -18,6 +18,7 @@ import { LoginComponent } from './component/login/login.component';
 import {JwtInterceptor} from "./interceptor/jwt.interceptor";
 import {ErrorInterceptor} from "./interceptor/error.interceptor";
 import { LogoutComponent } from './component/logout/logout.component';
+import { UserDetailComponent } from './component/user-detail/user-detail.component';
 
 @NgModule({
   declarations: [
@@ -32,6 +33,7 @@ import { LogoutComponent } from './component/logout/logout.component';
     RegisterComponent,
     LoginComponent,
     LogoutComponent,
+    UserDetailComponent,
   ],
   imports: [
     BrowserModule,
