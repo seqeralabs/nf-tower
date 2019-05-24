@@ -108,6 +108,44 @@ class MailerTest extends Specification {
         server?.stop()
     }
 
+    def "sending mails using javamail (overrides 'to' address by config)"() {
+        given:
+        Integer PORT = 3025
+        String USER = 'foo'
+        String PASSWORD = 'secret'
+        Wiser server = new Wiser(PORT)
+        server.start()
+
+        MailerConfig config = new MailerConfig(to: 'override@to.com', smtp: [host: 'localhost', port: PORT, user: USER, password: PASSWORD])
+        Mailer mailer = new Mailer(config: config)
+
+        String TO = "receiver@nextflow.io"
+        String FROM = 'paolo@gmail.com'
+        String SUBJECT = "Sending test"
+        String CONTENT = "This content should be sent by the user."
+
+        when:
+        Map mail = [
+                to: TO,
+                from: FROM,
+                subject: SUBJECT,
+                body: CONTENT
+        ]
+        mailer.send(mail)
+
+        then:
+        server.messages.size() == 1
+        Message message = server.messages.first().mimeMessage
+        message.from == [new InternetAddress(FROM)]
+        message.allRecipients.contains(new InternetAddress(config.to))
+        message.subject == SUBJECT
+        message.content instanceof MimeMultipart
+        (message.content as MimeMultipart).contentType.startsWith('multipart/related')
+
+        cleanup:
+        server?.stop()
+    }
+
     void "sending mails using java with attachment"() {
         given:
         Integer PORT = 3025

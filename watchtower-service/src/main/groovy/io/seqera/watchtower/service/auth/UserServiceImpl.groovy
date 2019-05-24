@@ -2,17 +2,34 @@ package io.seqera.watchtower.service.auth
 
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
+import io.micronaut.context.annotation.Value
+import io.seqera.mail.Mail
 import io.seqera.watchtower.domain.auth.Role
 import io.seqera.watchtower.domain.auth.User
 import io.seqera.watchtower.domain.auth.UserRole
+import io.seqera.watchtower.service.MailService
+import io.seqera.watchtower.service.MailServiceImpl
+import io.seqera.watchtower.service.WorkflowService
 import org.springframework.validation.FieldError
 
+import javax.inject.Inject
 import javax.inject.Singleton
 import javax.validation.ValidationException
 
 @Singleton
 @Transactional
 class UserServiceImpl implements UserService {
+
+
+    @Value('front.url')
+    String frontendUrl
+
+    MailService mailService
+
+    @Inject
+    UserServiceImpl(MailService mailService) {
+        this.mailService = mailService
+    }
 
 
     @CompileDynamic
@@ -26,7 +43,23 @@ class UserServiceImpl implements UserService {
         User user = createUser(email, 'ROLE_USER')
         checkUserSaveErrors(user)
 
+        sendAccessEmail(user)
+
         user
+    }
+
+    private void sendAccessEmail(User user) {
+        String body = "You can access NF-Tower <a href=\"${buildAccessUrl(user)}\">here</a>"
+
+        Mail mail = Mail.of([to: user.email, subject: 'NF-Tower Access Link', body: body])
+
+        mailService.sendMail(mail)
+    }
+
+    private String buildAccessUrl(User user) {
+        String accessUrl = "${frontendUrl}/login?email=${user.email}&authToken=${user.authToken}"
+
+        new URI(accessUrl).toString()
     }
 
     @CompileDynamic

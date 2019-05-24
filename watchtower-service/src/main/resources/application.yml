@@ -37,3 +37,7 @@ mail:
     starttls:
       enable: true
       required: true
+---
+front:
+  url: http://localhost:4000
+---

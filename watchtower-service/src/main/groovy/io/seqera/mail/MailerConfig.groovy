@@ -12,6 +12,7 @@ import io.micronaut.context.annotation.ConfigurationProperties
 @CompileDynamic
 class MailerConfig {
 
+    String to
     String from
     Map<String,?> smtp = [auth: false]
     Map<String,?> transport = Collections.emptyMap()
@@ -33,10 +34,10 @@ class MailerConfig {
 
         // -- debug for debugging
         if( debug ) {
-            log.debug "Mail session properties:\n${dumpProps(props)}"
+            log.debug "Mail session properties:\n${props.dump()}"
         }
         else
-            log.trace "Mail session properties:\n${dumpProps(props)}"
+            log.trace "Mail session properties:\n${props.dump()}"
 
         return props
     }

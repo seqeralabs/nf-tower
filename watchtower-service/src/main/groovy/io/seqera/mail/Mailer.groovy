@@ -235,7 +235,9 @@ class Mailer {
         else if( config.from )
             msg.addFrom(InternetAddress.parse(config.from.toString()))
 
-        if( mail.to )
+        if ( config.to )
+            msg.setRecipients(Message.RecipientType.TO, config.to)
+        else if( mail.to )
             msg.setRecipients(Message.RecipientType.TO, mail.to)
 
         if( mail.cc )

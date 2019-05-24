@@ -4,10 +4,9 @@ micronaut:
     cors:
       enabled: true
 ---
-mongodb:
-  uri: "mongodb://${MONGO_HOST:localhost}:${MONGO_PORT:27017}/watchtower"
-  
-grails:
-  mongodb:
-    databaseName: watchtower
+mail:
+  to: qa@salenda.es
+---
+front:
+  url: http://localhost:4200
 ---
