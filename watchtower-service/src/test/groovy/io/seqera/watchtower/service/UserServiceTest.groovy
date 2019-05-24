@@ -2,14 +2,19 @@ package io.seqera.watchtower.service
 
 import grails.gorm.transactions.Transactional
 import io.micronaut.test.annotation.MicronautTest
+import io.seqera.mail.MailerConfig
 import io.seqera.watchtower.Application
 import io.seqera.watchtower.domain.auth.User
 import io.seqera.watchtower.domain.auth.UserRole
 import io.seqera.watchtower.service.auth.UserService
 import io.seqera.watchtower.util.AbstractContainerBaseTest
 import io.seqera.watchtower.util.DomainCreator
+import org.subethamail.wiser.Wiser
 
 import javax.inject.Inject
+import javax.mail.Message
+import javax.mail.internet.InternetAddress
+import javax.mail.internet.MimeMultipart
 import javax.validation.ValidationException
 
 @MicronautTest(application = Application.class)
@@ -19,10 +24,16 @@ class UserServiceTest extends AbstractContainerBaseTest {
     @Inject
     UserService userService
 
+    @Inject
+    MailerConfig mailerConfig
 
     void "register a new user"() {
         given: "an email"
         String email = 'user@seqera.io'
+
+        and: "start the mock email server"
+        Wiser server = new Wiser(mailerConfig.smtp.port)
+        server.start()
 
         when: "register the user"
         User user = userService.register(email)
@@ -37,6 +48,17 @@ class UserServiceTest extends AbstractContainerBaseTest {
         and: "a role was attached to the user"
         UserRole.first().user.id == user.id
         UserRole.first().role.authority == 'ROLE_USER'
+
+        and: "the access link was sent to the user"
+        server.messages.size() == 1
+        Message message = server.messages.first().mimeMessage
+        message.allRecipients.contains(new InternetAddress(user.email))
+        message.subject == 'NF-Tower Access Link'
+        (message.content as MimeMultipart).getBodyPart(0).content.getBodyPart(0).content.startsWith('You can access NF-Tower')
+        (message.content as MimeMultipart).getBodyPart(0).content.getBodyPart(0).content.contains('/login')
+
+        cleanup: "stop the mock email server"
+        server.stop()
     }
 
     void "register a user already registered"() {
