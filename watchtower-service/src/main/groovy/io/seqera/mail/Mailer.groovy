@@ -15,6 +15,7 @@
  */
 
 package io.seqera.mail
+
 import javax.activation.DataHandler
 import javax.activation.URLDataSource
 import javax.mail.Message
@@ -29,9 +30,7 @@ import javax.mail.internet.MimeUtility
 import java.nio.charset.Charset
 import java.util.regex.Pattern
 
-import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
-import groovy.transform.Memoized
 import groovy.util.logging.Slf4j
 import io.seqera.util.LogOutputStream
 import org.jsoup.Jsoup
@@ -82,36 +81,10 @@ class Mailer {
         return this
     }
 
-    @Deprecated
-    protected String getSysMailer() {
-        if( !fMailer )
-            fMailer = findSysMailer()
-        return fMailer
-    }
-
-    @Memoized
-    static protected String findSysMailer() {
-
-        // first try `sendmail`
-        if( runCommand("command -v sendmail &>/dev/null") == 0 )
-            return 'sendmail'
-
-        else if( runCommand("command -v mail &>/dev/null") == 0  )
-            return 'mail'
-
-        return null
-    }
-
-    static protected int runCommand(String cmd) {
-        def proc = ['bash','-c',cmd].execute()
-        proc.waitForOrKill(1_000)
-        return proc.exitValue()
-    }
 
     /**
      * Get the properties of the system and insert the properties needed to the mailing procedure
      */
-    @CompileDynamic
     protected Properties createProps() {
         def props = config.getMailProperties()
         // -- debug for debugging
@@ -373,11 +346,8 @@ class Mailer {
      */
     void send(Mail mail) {
         log.trace "Mailer config: $config -- mail: $mail"
-
-        log.trace "Mailer send via `javamail`"
         def msg = createMimeMessage(mail)
         sendViaJavaMail(msg)
-
     }
 
     /**
