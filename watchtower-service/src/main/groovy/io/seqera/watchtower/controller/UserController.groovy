@@ -1,22 +1,19 @@
 package io.seqera.watchtower.controller
 
+import javax.inject.Inject
+import javax.mail.MessagingException
+
 import groovy.util.logging.Slf4j
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.MediaType
 import io.micronaut.http.annotation.Body
-import io.micronaut.http.annotation.Consumes
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Produces
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.UsernamePasswordCredentials
 import io.micronaut.security.rules.SecurityRule
-import io.seqera.watchtower.domain.auth.User
-import io.seqera.watchtower.service.TraceService
-import io.seqera.watchtower.service.auth.UserService
-
-import javax.inject.Inject
-import javax.mail.MessagingException
+import io.seqera.watchtower.service.UserService
 
 @Controller("/user")
 @Slf4j

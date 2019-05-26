@@ -5,9 +5,9 @@ import io.seqera.watchtower.domain.SummaryData
 import io.seqera.watchtower.domain.SummaryEntry
 import io.seqera.watchtower.domain.Task
 import io.seqera.watchtower.domain.Workflow
-import io.seqera.watchtower.domain.auth.Role
-import io.seqera.watchtower.domain.auth.User
-import io.seqera.watchtower.domain.auth.UserRole
+import io.seqera.watchtower.domain.Role
+import io.seqera.watchtower.domain.User
+import io.seqera.watchtower.domain.UserRole
 import io.seqera.watchtower.pogo.enums.TaskStatus
 
 import java.time.Instant

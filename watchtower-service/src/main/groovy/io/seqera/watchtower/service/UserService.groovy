@@ -1,6 +1,6 @@
-package io.seqera.watchtower.service.auth
+package io.seqera.watchtower.service
 
-import io.seqera.watchtower.domain.auth.User
+import io.seqera.watchtower.domain.User
 
 interface UserService {
 

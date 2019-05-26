@@ -4,9 +4,8 @@ import grails.gorm.transactions.Transactional
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.mail.MailerConfig
 import io.seqera.watchtower.Application
-import io.seqera.watchtower.domain.auth.User
-import io.seqera.watchtower.domain.auth.UserRole
-import io.seqera.watchtower.service.auth.UserService
+import io.seqera.watchtower.domain.User
+import io.seqera.watchtower.domain.UserRole
 import io.seqera.watchtower.util.AbstractContainerBaseTest
 import io.seqera.watchtower.util.DomainCreator
 import org.subethamail.wiser.Wiser
@@ -60,9 +59,8 @@ class UserServiceTest extends AbstractContainerBaseTest {
         smtpServer.messages.size() == 1
         Message message = smtpServer.messages.first().mimeMessage
         message.allRecipients.contains(new InternetAddress(user.email))
-        message.subject == 'NF-Tower Access Link'
-        (message.content as MimeMultipart).getBodyPart(0).content.getBodyPart(0).content.contains('You can access NF-Tower')
-        (message.content as MimeMultipart).getBodyPart(0).content.getBodyPart(0).content.contains('http')
+        message.subject == 'NF-Tower Sign in'
+        (message.content as MimeMultipart).getBodyPart(0).content.getBodyPart(0).content.contains('Welcome in NF-Tower!')
     }
 
     void "register a user already registered"() {
@@ -78,13 +76,12 @@ class UserServiceTest extends AbstractContainerBaseTest {
         existingUser.authToken == userToRegister.authToken
         User.count() == 1
 
-        and: 'the acces email has been sent'
+        and: 'the access email has been sent'
         smtpServer.messages.size() == 1
         Message message = smtpServer.messages.first().mimeMessage
         message.allRecipients.contains(new InternetAddress(existingUser.email))
-        message.subject == 'NF-Tower Access Link'
-        (message.content as MimeMultipart).getBodyPart(0).content.getBodyPart(0).content.contains('You can access NF-Tower')
-        (message.content as MimeMultipart).getBodyPart(0).content.getBodyPart(0).content.contains('/login')
+        message.subject == 'NF-Tower Sign in'
+        (message.content as MimeMultipart).getBodyPart(0).content.getBodyPart(0).content.contains('Welcome in NF-Tower!')
     }
 
     void "try to register a user given an invalid email"() {

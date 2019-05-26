@@ -28,6 +28,14 @@ import groovy.transform.ToString
 @ToString(includeNames = true)
 @EqualsAndHashCode
 class Attachment {
+
+    public static final Map ATTACH_HEADERS = [
+            contentId: String,
+            disposition:String,
+            fileName: String,
+            description: String
+    ]
+
     /**
      * The attachment file
      */

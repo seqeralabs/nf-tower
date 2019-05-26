@@ -22,6 +22,8 @@ import java.nio.file.Path
 import groovy.transform.CompileStatic
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
+import io.seqera.util.CheckHelper
+
 /**
  * Helper class modeling mail parameters
  *
@@ -31,13 +33,6 @@ import groovy.transform.ToString
 @ToString(includeNames = true)
 @EqualsAndHashCode
 class Mail {
-
-    private static final Map ATTACH_HEADERS = [
-            contentId: String,
-            disposition:String,
-            fileName: String,
-            description: String
-    ]
 
     String from
 
@@ -187,6 +182,7 @@ class Mail {
      * @param item A attachment file path either as {@link File}, {@code Path} or {@link String} path
      */
     void attach( item ) {
+
         if( this.attachments == null )
             this.attachments = []
 
@@ -217,6 +213,7 @@ class Mail {
      * @param item
      */
     void attach( Map headers, item ) {
+        CheckHelper.checkParams('attach', headers, Attachment.ATTACH_HEADERS)
 
         if( this.attachments == null )
             this.attachments = []

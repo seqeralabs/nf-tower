@@ -16,8 +16,8 @@ import io.micronaut.security.token.jwt.validator.JwtTokenValidator
 import io.micronaut.test.annotation.MicronautTest
 import io.reactivex.Flowable
 import io.seqera.watchtower.Application
-import io.seqera.watchtower.domain.auth.User
-import io.seqera.watchtower.domain.auth.UserRole
+import io.seqera.watchtower.domain.User
+import io.seqera.watchtower.domain.UserRole
 import io.seqera.watchtower.util.AbstractContainerBaseTest
 import io.seqera.watchtower.util.DomainCreator
 import spock.lang.Ignore

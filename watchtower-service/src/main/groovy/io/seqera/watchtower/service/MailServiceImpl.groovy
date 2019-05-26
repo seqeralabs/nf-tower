@@ -27,6 +27,8 @@ class MailServiceImpl implements MailService {
     @Override
     void sendMail(Mail mail) {
         assert mail, 'Mail object cannot be null'
+        if( !mail.from )
+            mail.from(mailer.config.from)
         mailer.send(mail)
     }
 }
