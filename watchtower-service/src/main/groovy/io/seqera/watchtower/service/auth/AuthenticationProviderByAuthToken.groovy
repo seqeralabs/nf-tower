@@ -6,7 +6,8 @@ import io.micronaut.security.authentication.AuthenticationRequest
 import io.micronaut.security.authentication.AuthenticationResponse
 import io.micronaut.security.authentication.UserDetails
 import io.reactivex.Flowable
-import io.seqera.watchtower.domain.auth.User
+import io.seqera.watchtower.domain.User
+import io.seqera.watchtower.service.UserService
 import org.reactivestreams.Publisher
 
 import javax.inject.Inject

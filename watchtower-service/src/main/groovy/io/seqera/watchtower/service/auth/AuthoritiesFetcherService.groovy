@@ -2,6 +2,7 @@ package io.seqera.watchtower.service.auth
 
 import io.micronaut.security.authentication.providers.AuthoritiesFetcher
 import io.reactivex.Flowable
+import io.seqera.watchtower.service.UserService
 import org.reactivestreams.Publisher
 
 import javax.inject.Inject

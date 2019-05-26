@@ -11,7 +11,7 @@ import io.micronaut.security.authentication.UsernamePasswordCredentials
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.mail.MailerConfig
 import io.seqera.watchtower.Application
-import io.seqera.watchtower.domain.auth.User
+import io.seqera.watchtower.domain.User
 import io.seqera.watchtower.util.AbstractContainerBaseTest
 import org.subethamail.wiser.Wiser
 import spock.lang.Ignore

@@ -1,4 +1,4 @@
-package io.seqera.watchtower.domain.auth
+package io.seqera.watchtower.domain
 
 import grails.gorm.annotation.Entity
 import groovy.transform.CompileDynamic

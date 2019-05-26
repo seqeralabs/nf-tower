@@ -74,13 +74,12 @@ class Mailer {
 
     private Map env = System.getenv()
 
-    private String fMailer
-
     Mailer setConfig(MailerConfig config ) {
         this.config = config
         return this
     }
 
+    MailerConfig getConfig() { config }
 
     /**
      * Get the properties of the system and insert the properties needed to the mailing procedure

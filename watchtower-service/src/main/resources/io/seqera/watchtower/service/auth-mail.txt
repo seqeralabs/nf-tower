@@ -1,0 +1,9 @@
+Welcome in NF-Tower!
+
+Sign in to the system using this link: ${auth_url}
+
+Happy hacking!
+
+--
+This email was sent by NF-Tower
+${frontend_url}
