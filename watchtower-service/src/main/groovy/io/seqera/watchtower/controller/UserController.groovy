@@ -39,7 +39,7 @@ class UserController {
 
             HttpResponse.ok('User registered! Check your mailbox!')
         } catch (MessagingException e) {
-            log.error("Mailing error: ${e.message}")
+            log.error("Mailing error: ${e.message}", e)
             HttpResponse.badRequest("The mail couldn't be delivered. Try registering your email again.")
         } catch (Exception e) {
             HttpResponse.badRequest(e.message)
