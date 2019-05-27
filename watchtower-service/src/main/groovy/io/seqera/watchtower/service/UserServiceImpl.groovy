@@ -132,11 +132,11 @@ class UserServiceImpl implements UserService {
 
     @CompileDynamic
     private User createUser(String email, String authority) {
-        String username = email.replaceAll(/@.*/, '')
+        String userName = "${email.replaceAll(/@.*/, '')}${new Random().nextInt(100)}"
         String authToken = UUID.randomUUID().toString()
         Role role = Role.findByAuthority(authority) ?: createRole(authority)
 
-        User user = new User(userName: username, email: email, authToken: authToken)
+        User user = new User(userName: userName, email: email, authToken: authToken)
         user.save()
 
         UserRole userRole = new UserRole(user: user, role: role)
