@@ -66,6 +66,8 @@ class LoginControllerTest extends AbstractContainerBaseTest {
         authentication.attributes.exp
         authentication.attributes.iat
 
+        authentication.attributes.email == user.email
+        authentication.attributes.userName == user.userName
         authentication.attributes.firstName == user.firstName
         authentication.attributes.lastName == user.lastName
         authentication.attributes.avatar == user.avatar

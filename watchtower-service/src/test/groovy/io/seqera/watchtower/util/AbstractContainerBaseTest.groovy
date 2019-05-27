@@ -1,5 +1,13 @@
 package io.seqera.watchtower.util
 
+import io.micronaut.http.HttpMethod
+import io.micronaut.http.HttpRequest
+import io.micronaut.http.HttpResponse
+import io.micronaut.http.MediaType
+import io.micronaut.http.client.HttpClient
+import io.micronaut.security.authentication.UsernamePasswordCredentials
+import io.micronaut.security.token.jwt.render.AccessRefreshToken
+import io.seqera.watchtower.domain.User
 import org.testcontainers.containers.FixedHostPortGenericContainer
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.wait.strategy.Wait
@@ -32,6 +40,15 @@ abstract class AbstractContainerBaseTest extends Specification {
                 .withFixedExposedPort(5432, 5432)
                 .withEnv([POSTGRES_USER: 'watchtower', POSTGRES_PASSWORD: 'watchtower', POSTGRES_DB: 'watchtower'])
                 .waitingFor(Wait.forListeningPort())
+    }
+
+    protected String doLogin(User user, HttpClient client) {
+        HttpRequest request = HttpRequest.create(HttpMethod.POST, '/login')
+                .accept(MediaType.APPLICATION_JSON_TYPE)
+                .body(new UsernamePasswordCredentials(user.email, user.authToken))
+        HttpResponse<AccessRefreshToken> response = client.toBlocking().exchange(request, AccessRefreshToken)
+
+        response.body.get().accessToken
     }
 
     void cleanup() {

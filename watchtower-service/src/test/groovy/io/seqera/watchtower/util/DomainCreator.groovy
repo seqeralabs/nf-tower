@@ -102,10 +102,17 @@ class DomainCreator {
         User user = new User()
 
         fields.email =  fields.containsKey('email') ? fields.email : "user${generateUniqueNamePart()}@email.com"
-        fields.userName =  fields.containsKey('userName') ? fields.username : fields.email.replaceAll(/@.*/, '')
+        fields.userName =  fields.containsKey('userName') ? fields.userName : fields.email.replaceAll(/@.*/, '')
         fields.authToken = fields.containsKey('authToken') ? fields.authToken : "authToken${generateUniqueNamePart()}"
 
         createInstance(user, fields)
+    }
+
+    User createUserWithRole(Map fields = [:], String authority) {
+        User user = createUser(fields)
+        createUserRole(user: user, role: createRole(authority: authority))
+
+        user
     }
 
     UserRole createUserRole(Map fields = [:]) {
@@ -123,6 +130,14 @@ class DomainCreator {
         fields.authority =  fields.containsKey('authority') ? fields.authority : "ROLE_${generateUniqueNamePart()}"
 
         createInstance(role, fields)
+    }
+
+    User generateAllowedUser() {
+        createUserWithRole([:], 'ROLE_USER')
+    }
+
+    User generateNotAllowedUser() {
+        createUserWithRole([:], 'ROLE_INVALID')
     }
 
     /**

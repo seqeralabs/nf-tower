@@ -1,11 +1,13 @@
 package io.seqera.watchtower.service
 
 import grails.gorm.transactions.Transactional
+import io.micronaut.security.authentication.DefaultAuthentication
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.mail.MailerConfig
 import io.seqera.watchtower.Application
 import io.seqera.watchtower.domain.User
 import io.seqera.watchtower.domain.UserRole
+import io.seqera.watchtower.pogo.exceptions.NonExistingUserException
 import io.seqera.watchtower.util.AbstractContainerBaseTest
 import io.seqera.watchtower.util.DomainCreator
 import org.subethamail.wiser.Wiser
@@ -14,7 +16,9 @@ import javax.inject.Inject
 import javax.mail.Message
 import javax.mail.internet.InternetAddress
 import javax.mail.internet.MimeMultipart
+import javax.validation.Validation
 import javax.validation.ValidationException
+import java.security.Principal
 
 @MicronautTest(application = Application.class)
 @Transactional
@@ -95,6 +99,53 @@ class UserServiceTest extends AbstractContainerBaseTest {
         ValidationException e = thrown(ValidationException)
         e.message == "Can't save a user with bad email format"
         User.count() == 0
+    }
+
+    void "update an existing user given new user data"() {
+        given: 'an existing user'
+        User user = new DomainCreator().createUser()
+
+        and: 'some new data encapsulated in a user object'
+        User userData = new DomainCreator(save: false).createUser(userName: 'user', firstName: 'User', lastName: 'Userson', avatar: 'https://i.pravatar.cc/200', organization: 'Org', description: 'Desc')
+
+        when: 'update the user'
+        User updatedUser = userService.update(new DefaultAuthentication(user.email, null), userData)
+
+        then: "the user has been correctly updated"
+        updatedUser.userName == userData.userName
+        updatedUser.firstName == userData.firstName
+        updatedUser.lastName == userData.lastName
+        updatedUser.avatar == userData.avatar
+        updatedUser.organization == userData.organization
+        updatedUser.description == userData.description
+        User.count() == 1
+    }
+
+    void "try to update an existing user, but with some invalid data"() {
+        given: 'an existing user'
+        User user = new DomainCreator().createUser()
+
+        and: 'some new data encapsulated in a user object'
+        User userData = new DomainCreator(save: false).createUser(avatar: 'badUrl')
+
+        when: 'update the user'
+        User updatedUser = userService.update(new DefaultAuthentication(user.email, null), userData)
+
+        then: "a validation exception is thrown"
+        ValidationException e = thrown(ValidationException)
+        e.message == "Can't save a user with bad avatar URL format"
+    }
+
+    void "try to update a non existing user"() {
+        given: 'some new data encapsulated in a user object'
+        User userData = new DomainCreator(save: false).createUser(avatar: 'badUrl')
+
+        when: 'update a non existing user'
+        User updatedUser = userService.update(new DefaultAuthentication('nonexistinguser@email.com', null), userData)
+
+        then: "a non-existing exception is thrown"
+        NonExistingUserException e = thrown(NonExistingUserException)
+        e.message == "The user to update doesn't exist"
     }
 
 }

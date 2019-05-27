@@ -1,7 +1,5 @@
 package io.seqera.watchtower.controller
 
-import javax.inject.Inject
-import javax.mail.MessagingException
 
 import groovy.util.logging.Slf4j
 import io.micronaut.http.HttpResponse
@@ -11,9 +9,14 @@ import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Produces
 import io.micronaut.security.annotation.Secured
+import io.micronaut.security.authentication.Authentication
 import io.micronaut.security.authentication.UsernamePasswordCredentials
 import io.micronaut.security.rules.SecurityRule
+import io.seqera.watchtower.domain.User
 import io.seqera.watchtower.service.UserService
+
+import javax.inject.Inject
+import javax.mail.MessagingException
 
 @Controller("/user")
 @Slf4j
@@ -38,6 +41,19 @@ class UserController {
         } catch (MessagingException e) {
             log.error("Mailing error: ${e.message}", e)
             HttpResponse.badRequest("The mail couldn't be delivered. Try registering your email again.")
+        } catch (Exception e) {
+            HttpResponse.badRequest(e.message)
+        }
+    }
+
+    @Post("/update")
+    @Produces(MediaType.TEXT_PLAIN)
+    @Secured(SecurityRule.IS_AUTHENTICATED)
+    HttpResponse<String> update(@Body User userData, Authentication authentication) {
+        try {
+            userService.update(authentication, userData)
+
+            HttpResponse.ok('User successfully updated!')
         } catch (Exception e) {
             HttpResponse.badRequest(e.message)
         }
