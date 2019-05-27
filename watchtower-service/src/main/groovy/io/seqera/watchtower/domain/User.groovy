@@ -22,8 +22,6 @@ class User {
         userName(unique: true)
         authToken(unique: true)
 
-        firstName(nullable: true)
-        lastName(nullable: true)
         organization(nullable: true)
         description(nullable: true)
         avatar(nullable: true, url: true)
