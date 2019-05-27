@@ -47,7 +47,7 @@ class UserServiceTest extends AbstractContainerBaseTest {
         then: "the user has been created"
         user.id
         user.email == email
-        user.username == email.replaceAll(/@.*/, '')
+        user.userName == email.replaceAll(/@.*/, '')
         user.authToken
         User.count() == 1
 

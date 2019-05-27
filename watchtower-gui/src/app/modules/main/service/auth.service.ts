@@ -35,9 +35,12 @@ export class AuthService {
   login(email: string, authToken: string): Observable<User> {
     return this.http.post(authEndpointUrl, {username: email, password: authToken}).pipe(
       map((authData: any) => {
+        console.log('The auth data', authData);
         let userData: UserData = <UserData> {email: authData.username, accessToken: authData['access_token'], roles: authData.roles};
 
         let attributes = this.parseJwt(userData.accessToken);
+        console.log('The attributes', attributes);
+        userData.userName = attributes.userName;
         userData.firstName = attributes.firstName;
         userData.lastName = attributes.lastName;
         userData.organization = attributes.organization;

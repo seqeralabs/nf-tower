@@ -27,7 +27,7 @@ class JwtClaimSetGeneratorWithAttributes extends JWTClaimsSetGenerator {
     protected void populateWithUserDetails(JWTClaimsSet.Builder builder, UserDetails userDetails) {
         super.populateWithUserDetails(builder, userDetails)
 
-        userDetails.getAttributes('roles', 'username').each { String propertyName, def propertyValue ->
+        userDetails.getAttributes('roles', 'userName').each { String propertyName, def propertyValue ->
             builder.claim(propertyName, propertyValue)
         }
     }
