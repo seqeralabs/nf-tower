@@ -1,10 +1,9 @@
-import {Component, OnInit} from '@angular/core';
-import {ActivatedRoute, ParamMap, Router} from "@angular/router";
+import {Component, OnInit, ViewChild} from '@angular/core';
+import {ActivatedRoute, Router} from "@angular/router";
 import {AuthService} from "../../service/auth.service";
-import {HttpErrorResponse} from "@angular/common/http";
+import {NgForm} from "@angular/forms";
 import {NotificationService} from "../../service/notification.service";
-import {User} from "../../entity/user/user";
-import {delay} from "rxjs/operators";
+import {HttpErrorResponse} from "@angular/common/http";
 
 @Component({
   selector: 'wt-login',
@@ -13,41 +12,43 @@ import {delay} from "rxjs/operators";
 })
 export class LoginComponent implements OnInit {
 
+  @ViewChild('registerForm')
+  private registerForm: NgForm;
+  private isSubmitted: boolean;
+
+  email: string;
+  isRegistered: boolean;
+  registeredMessage: string;
+
   constructor(private route: ActivatedRoute,
               private router: Router,
               private authService: AuthService,
-              private notificationService: NotificationService) { }
-
+              private notificationService: NotificationService) {
+    this.isSubmitted = false;
+    this.isRegistered = false;
+  }
 
   ngOnInit() {
-    let queryParams: ParamMap = this.route.snapshot.queryParamMap;
 
-    let email: string = queryParams.get('email');
-    let authToken: string = queryParams.get('authToken');
-
-    this.doAuth(email, authToken);
   }
 
-  doAuth(email: string, authToken: string): void {
-    console.log('Authenticating with', email, authToken);
-    this.authService.login(email, authToken).pipe(
-      delay(1500)
-    ).subscribe(
-      (user: User) => this.handleAuthenticationSuccess(user),
-      (error: HttpErrorResponse) => this.handleAuthenticationError(error)
-    )
+  submit(): void {
+    this.isSubmitted = true;
+
+    this.authService.register(this.email).subscribe(
+      (message) => {
+        this.isRegistered = true;
+        this.registeredMessage = message;
+      },
+      (error: HttpErrorResponse) => {
+        this.isSubmitted = false;
+        this.notificationService.showErrorNotification(error.error);
+      }
+    );
   }
 
-  private handleAuthenticationSuccess(user: User): void {
-    console.log('User successfully authenticated', user);
-    this.router.navigate(['']);
-  }
-
-  private handleAuthenticationError(error: HttpErrorResponse): void {
-    let errorMessage: string = (error.status == 400) ? 'Bad credentials' :
-                               (error.status == 401) ? 'Unauthorized'    : 'Unexpected error';
-
-    this.notificationService.showErrorNotification(errorMessage);
+  isSubmitEnabled(): boolean {
+    return (!this.isSubmitted && this.registerForm.form.valid);
   }
 
 }

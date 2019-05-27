@@ -108,7 +108,7 @@ class UserServiceImpl implements UserService {
     }
 
     protected String buildAccessUrl(User user) {
-        String accessUrl = "${frontendUrl}/login?email=${user.email}&authToken=${user.authToken}"
+        String accessUrl = "${frontendUrl}/auth?email=${user.email}&authToken=${user.authToken}"
         return new URI(accessUrl).toString()
     }
 
@@ -170,7 +170,7 @@ class UserServiceImpl implements UserService {
         }
 
         List<String> uncustomizedErrors = fieldErrors.collect { "${it.field}|${it.code}".toString() }
-        throw new ValidationException("Can't save task. Validation errors: ${uncustomizedErrors}")
+        throw new ValidationException("Can't save user. Validation errors: ${uncustomizedErrors}")
     }
 
 }
