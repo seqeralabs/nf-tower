@@ -71,6 +71,12 @@ export class AuthService {
     );
   }
 
+  delete(): Observable<string> {
+    return this.http.delete(`${userEndpointUrl}/delete`, {responseType: "text"}).pipe(
+      map((message: string) => message)
+    );
+  }
+
   logout(): void {
     this.removeUser();
     this.userSubject.next(null);

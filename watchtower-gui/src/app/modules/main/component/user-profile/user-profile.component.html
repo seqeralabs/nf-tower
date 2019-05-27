@@ -65,10 +65,10 @@
     </mz-modal-header>
     <mz-modal-content>
       Please provide your user email to confirm deletion:
-      <input id="deleteEmail" name="deleteEmail" type="email" required email placeholder="Email" #deleteEmailInput="ngModel" [(ngModel)]="confimationDeleteEmail">
+      <input id="deleteEmail" name="deleteEmail" type="email" required email placeholder="Email" [(ngModel)]="confimationDeleteEmail">
     </mz-modal-content>
     <mz-modal-footer>
-      <button class="btn waves-effect waves-light red accent-1 black-text" type="button" name="action" [disabled]="deleteEmailInput.invalid">Delete</button>
+      <button class="btn waves-effect waves-light red accent-1 black-text" type="button" name="action" (click)="deleteConfirmModal.closeModal(); delete()" [disabled]="!isUserDeletionEnabled()">Delete</button>
       <button class="btn waves-effect waves grey lighten-5 black-text" type="button" name="action" (click)="deleteConfirmModal.closeModal()">Cancel</button>
     </mz-modal-footer>
   </mz-modal>
