@@ -20,13 +20,12 @@ export class ErrorInterceptor implements HttpInterceptor {
           console.log('Authorization error intercepted');
           if (this.authService.isUserAuthenticated && error.status == 401) {
             this.notificationService.showErrorNotification('Session expired');
+            this.router.navigate(['/logout'])
           } else {
             this.notificationService.showErrorNotification('Forbidden access');
           }
-
-          this.authService.logout();
-          this.router.navigate(['/logout'])
         }
+
         return throwError(error);
       })
     );
