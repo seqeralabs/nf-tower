@@ -40,6 +40,8 @@ import org.jsoup.safety.Whitelist
 /**
  * This class implements the send mail functionality
  *
+ * For API details see https://javaee.github.io/javamail/
+ *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
 @Slf4j

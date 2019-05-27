@@ -23,15 +23,30 @@ import javax.mail.internet.MimeMultipart
 import java.nio.file.Files
 import java.nio.file.Path
 
+import groovy.util.logging.Slf4j
 import org.subethamail.wiser.Wiser
 import spock.lang.IgnoreIf
 import spock.lang.Specification
+import spock.lang.Timeout
 import spock.lang.Unroll
 import spock.util.environment.RestoreSystemProperties
 
+@Slf4j
 @IgnoreIf({System.getenv('NXF_SMOKE')})
 class MailerTest extends Specification {
 
+    @Timeout(1)
+    def 'should resolve name quickly' () {
+        // if this test fails make sure the file `/etc/hosts`
+        // contains something like the following
+        // 127.0.0.1  localhost	 <computer name>.local
+        // ::1		  localhost  <computer name>.local
+        //
+        //
+        //  see more at this link https://thoeni.io/post/macos-sierra-java/
+        expect:
+        InetAddress.getLocalHost().getCanonicalHostName() != null
+    }
 
     void 'should return config properties'() {
         when:
