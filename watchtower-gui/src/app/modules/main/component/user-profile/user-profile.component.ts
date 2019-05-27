@@ -35,8 +35,7 @@ export class UserProfileComponent implements OnInit {
         this.isSubmitted = false;
       },
       (error: HttpErrorResponse) => {
-        console.log('Error', error);
-        if (error.status == 403) {
+        if (error.status == 400) {
           this.notificationService.showErrorNotification(error.error);
         }
         this.isSubmitted = false;
