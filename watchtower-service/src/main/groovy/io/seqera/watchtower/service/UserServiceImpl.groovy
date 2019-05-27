@@ -203,4 +203,14 @@ class UserServiceImpl implements UserService {
 
         existingUser
     }
+
+    @CompileDynamic
+    void delete(Principal userSecurityData) {
+        User existingUser = User.findByEmail(userSecurityData.name)
+        if (!existingUser) {
+            throw new NonExistingUserException("The user to delete doesn't exist")
+        }
+
+        existingUser.delete()
+    }
 }

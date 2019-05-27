@@ -169,4 +169,21 @@ class UserControllerTest extends AbstractContainerBaseTest {
         User.count() == 1
     }
 
+    void "delete a user"() {
+        given: "an existing user"
+        User user = new DomainCreator().createUserWithRole([:], 'ROLE_USER')
+
+        when: "perform the request to delete the user"
+        String accessToken = doLogin(user, client)
+        HttpResponse<String> response = client.toBlocking().exchange(
+                HttpRequest.DELETE("/user/delete")
+                           .bearerAuth(accessToken),
+                String.class
+        )
+
+        then: 'the user has been deleted'
+        response.status == HttpStatus.OK
+        response.body() == 'User successfully deleted!'
+    }
+
 }

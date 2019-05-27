@@ -141,11 +141,31 @@ class UserServiceTest extends AbstractContainerBaseTest {
         User userData = new DomainCreator(save: false).createUser(avatar: 'badUrl')
 
         when: 'update a non existing user'
-        User updatedUser = userService.update(new DefaultAuthentication('nonexistinguser@email.com', null), userData)
+        userService.update(new DefaultAuthentication('nonexistinguser@email.com', null), userData)
 
         then: "a non-existing exception is thrown"
         NonExistingUserException e = thrown(NonExistingUserException)
         e.message == "The user to update doesn't exist"
+    }
+
+    void "delete an existing user"() {
+        given: 'an existing user'
+        User user = new DomainCreator().createUser()
+
+        when: 'remove the user'
+        userService.delete(new DefaultAuthentication(user.email, null))
+
+        then: "the user has been correctly deleted"
+        User.count() == 0
+    }
+
+    void "try to delete an non-existing user"() {
+        when: 'remove a non existing user'
+        userService.delete(new DefaultAuthentication('nonexistinguser@email.com', null))
+
+        then: "a non-existing exception is thrown"
+        NonExistingUserException e = thrown(NonExistingUserException)
+        e.message == "The user to delete doesn't exist"
     }
 
 }
