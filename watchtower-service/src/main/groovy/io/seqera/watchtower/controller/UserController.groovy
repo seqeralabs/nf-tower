@@ -6,6 +6,7 @@ import io.micronaut.http.HttpResponse
 import io.micronaut.http.MediaType
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
+import io.micronaut.http.annotation.Delete
 import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Produces
 import io.micronaut.security.annotation.Secured
@@ -54,6 +55,19 @@ class UserController {
             userService.update(authentication, userData)
 
             HttpResponse.ok('User successfully updated!')
+        } catch (Exception e) {
+            HttpResponse.badRequest(e.message)
+        }
+    }
+
+    @Delete("/delete")
+    @Produces(MediaType.TEXT_PLAIN)
+    @Secured(SecurityRule.IS_AUTHENTICATED)
+    HttpResponse<String> delete(Authentication authentication) {
+        try {
+            userService.delete(authentication)
+
+            HttpResponse.ok('User successfully deleted!')
         } catch (Exception e) {
             HttpResponse.badRequest(e.message)
         }

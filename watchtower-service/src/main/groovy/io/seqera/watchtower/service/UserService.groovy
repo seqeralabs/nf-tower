@@ -11,6 +11,8 @@ interface UserService {
 
     User update(Principal userSecurityData, User updatedUserData)
 
+    void delete(Principal userSecurityData)
+
     User findByEmailAndAuthToken(String username, String authToken)
 
     List<String> findAuthoritiesByEmail(String email)
