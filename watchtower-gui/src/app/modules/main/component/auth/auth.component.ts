@@ -30,7 +30,7 @@ export class AuthComponent implements OnInit {
 
   doAuth(email: string, authToken: string): void {
     console.log('Authenticating with', email, authToken);
-    this.authService.login(email, authToken).pipe(
+    this.authService.auth(email, authToken).pipe(
       delay(1500)
     ).subscribe(
       (user: User) => this.handleAuthenticationSuccess(user),

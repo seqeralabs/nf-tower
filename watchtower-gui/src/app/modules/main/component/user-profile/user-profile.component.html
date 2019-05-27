@@ -7,6 +7,12 @@
         <form class="col s12" #profileForm="ngForm" (ngSubmit)="update()">
           <div class="row">
             <div class="input-field col s12">
+              <input id="email" name="email" type="email" required class="validate" [(ngModel)]="userCopy.data.email">
+              <label for="email" data-error="Should be an email">Email</label>
+            </div>
+          </div>
+          <div class="row">
+            <div class="input-field col s12">
               <input id="userName" name="userName" type="text" required pattern="[^\s]+"  class="validate" [(ngModel)]="userCopy.data.userName">
               <label for="userName" data-error="No blanks allowed">User name</label>
             </div>

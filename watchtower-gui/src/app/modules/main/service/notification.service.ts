@@ -8,6 +8,10 @@ export class NotificationService {
 
   constructor(private toastService: MzToastService) { }
 
+  showSuccessNotification(message: string): void {
+    this.showNotification(message, 'alert-success');
+  }
+
   showErrorNotification(errorMessage: string): void {
     this.showNotification(errorMessage, 'alert-error');
   }

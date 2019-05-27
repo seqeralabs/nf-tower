@@ -3,6 +3,7 @@ import {AuthService} from "../../service/auth.service";
 import {User} from "../../entity/user/user";
 import {NgForm} from "@angular/forms";
 import {HttpErrorResponse} from "@angular/common/http";
+import {NotificationService} from "../../service/notification.service";
 
 @Component({
   selector: 'wt-user-profile',
@@ -17,15 +18,30 @@ export class UserProfileComponent implements OnInit {
 
   userCopy: User;
 
-  constructor(private authService: AuthService) { }
+  constructor(private authService: AuthService,
+              private notificationService: NotificationService) { }
 
   ngOnInit() {
-    this.userCopy = this.authService.currentUser.generateCopy();
-    console.log("The user copy", this.userCopy);
+    this.authService.user$.subscribe(
+      (user: User) => this.userCopy = user.generateCopy()
+    );
   }
 
   update(): void {
     this.isSubmitted = true;
+    this.authService.update(this.userCopy).subscribe(
+      (message: string) => {
+        this.notificationService.showSuccessNotification(message);
+        this.isSubmitted = false;
+      },
+      (error: HttpErrorResponse) => {
+        console.log('Error', error);
+        if (error.status == 403) {
+          this.notificationService.showErrorNotification(error.error);
+        }
+        this.isSubmitted = false;
+      }
+    )
   }
 
 

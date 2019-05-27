@@ -32,33 +32,42 @@ export class AuthService {
   }
 
 
-  login(email: string, authToken: string): Observable<User> {
+  auth(email: string, authToken: string): Observable<User> {
     return this.http.post(authEndpointUrl, {username: email, password: authToken}).pipe(
-      map((authData: any) => {
-        console.log('The auth data', authData);
-        let userData: UserData = <UserData> {email: authData.username, accessToken: authData['access_token'], roles: authData.roles};
-
-        let attributes = this.parseJwt(userData.accessToken);
-        console.log('The attributes', attributes);
-        userData.userName = attributes.userName;
-        userData.firstName = attributes.firstName;
-        userData.lastName = attributes.lastName;
-        userData.organization = attributes.organization;
-        userData.description = attributes.description;
-        userData.avatar = attributes.avatar;
-
-        return new User(userData);
-      }),
-      tap((user: User) => {
-        this.persistUser(user);
-        this.userSubject.next(user);
-      })
+      map((authData: any) => this.retrieveUserFromAuthResponse(authData)),
+      tap((user: User) => this.setAuthUser(user))
     );
+  }
+
+  private retrieveUserFromAuthResponse(authData: any) {
+    let userData: UserData = <UserData> {email: authData.username, accessToken: authData['access_token'], roles: authData.roles};
+
+    let attributes = this.parseJwt(userData.accessToken);
+    userData.userName = attributes.userName;
+    userData.firstName = attributes.firstName;
+    userData.lastName = attributes.lastName;
+    userData.organization = attributes.organization;
+    userData.description = attributes.description;
+    userData.avatar = attributes.avatar;
+
+    return new User(userData);
+  }
+
+  private setAuthUser(user: User): void {
+    this.persistUser(user);
+    this.userSubject.next(user);
   }
 
   register(email: string): Observable<string> {
     return this.http.post(`${userEndpointUrl}/register`, {username: email, password: null}, {responseType: "text"}).pipe(
       map((message: string) => message)
+    );
+  }
+
+  update(user: User): Observable<string> {
+    return this.http.post(`${userEndpointUrl}/update`, user.data, {responseType: "text"}).pipe(
+      map((message: string) => message),
+      tap( () => this.setAuthUser(user)),
     );
   }
 
