@@ -18,8 +18,12 @@ export class UserProfileComponent implements OnInit {
 
   userCopy: User;
 
+  confimationDeleteEmail: string;
+
   constructor(private authService: AuthService,
-              private notificationService: NotificationService) { }
+              private notificationService: NotificationService) {
+    this.confimationDeleteEmail = '';
+  }
 
   ngOnInit() {
     this.authService.user$.subscribe(
@@ -45,6 +49,7 @@ export class UserProfileComponent implements OnInit {
 
 
   isSubmitEnabled(): boolean {
+    console.log('Is submit enabled', !this.isSubmitted && this.profileForm.form.valid);
     return (!this.isSubmitted && this.profileForm.form.valid);
   }
 

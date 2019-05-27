@@ -1,13 +1,12 @@
 <div class="container">
   <div class="row">
-
     <div class="col s4 offset-s4">
       <h2 class="center-align">User profile</h2>
       <div class="row">
         <form class="col s12" #profileForm="ngForm" (ngSubmit)="update()">
           <div class="row">
             <div class="input-field col s12">
-              <input id="email" name="email" type="email" required class="validate" [(ngModel)]="userCopy.data.email">
+              <input id="email" name="email" type="email" required email class="validate" [(ngModel)]="userCopy.data.email">
               <label for="email" data-error="Should be an email">Email</label>
             </div>
           </div>
@@ -29,7 +28,7 @@
           </div>
           <div class="row">
             <div class="input-field col s12">
-              <input id="avatar" name="avatar" placeholder="URL" type="url" class="validate" [(ngModel)]="userCopy.data.avatar">
+              <input id="avatar" name="avatar" placeholder="URL" type="url" pattern="https?://.+" class="validate" [(ngModel)]="userCopy.data.avatar">
               <label for="avatar" data-error="Should be a URL">Avatar</label>
             </div>
           </div>
@@ -46,11 +45,12 @@
             </div>
           </div>
 
-          <div class="row">
-            <div class="col m12">
-              <p class="right-align">
-                <button class="btn btn-large waves-effect waves-light grey lighten-5 black-text" type="submit" name="action" [disabled]="!isSubmitEnabled()">Update</button>
-              </p>
+          <div class="row actions">
+            <div class="col s6">
+                <button class="btn btn-large waves-effect waves grey lighten-5 black-text" type="submit" name="action" [disabled]="!isSubmitEnabled()">Update</button>
+            </div>
+            <div class="col s6">
+                <button class="btn btn-large waves-effect waves-light red accent-1 black-text" type="button" name="action" (click)="deleteConfirmModal.openModal()" [disabled]="!isSubmitEnabled()">Delete</button>
             </div>
           </div>
         </form>
@@ -58,4 +58,18 @@
     </div>
 
   </div>
+
+  <mz-modal #deleteConfirmModal [options]="{dismissible: false}">
+    <mz-modal-header>
+      <h4>Confirm user delete</h4>
+    </mz-modal-header>
+    <mz-modal-content>
+      Please provide your user email to confirm deletion:
+      <input id="deleteEmail" name="deleteEmail" type="email" required email placeholder="Email" #deleteEmailInput="ngModel" [(ngModel)]="confimationDeleteEmail">
+    </mz-modal-content>
+    <mz-modal-footer>
+      <button class="btn waves-effect waves-light red accent-1 black-text" type="button" name="action" [disabled]="deleteEmailInput.invalid">Delete</button>
+      <button class="btn waves-effect waves grey lighten-5 black-text" type="button" name="action" (click)="deleteConfirmModal.closeModal()">Cancel</button>
+    </mz-modal-footer>
+  </mz-modal>
 </div>
