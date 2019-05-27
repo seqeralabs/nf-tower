@@ -10,15 +10,15 @@ import {Workflow} from "../../entity/workflow/workflow";
 })
 export class HomeComponent implements OnInit {
 
-  isUserLoggedIn: boolean;
+  isUserAuthenticated: boolean;
   workflows: Workflow[];
 
   constructor(private authService: AuthService,
               private workflowService: WorkflowService) { }
 
   ngOnInit() {
-    this.isUserLoggedIn = this.authService.isUserLoggedIn;
-    if (this.isUserLoggedIn) {
+    this.isUserAuthenticated = this.authService.isUserAuthenticated;
+    if (this.isUserAuthenticated) {
       this.initializeWorkflows();
     }
   }

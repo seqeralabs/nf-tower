@@ -3,7 +3,6 @@
 >
   <mz-dropdown-item>
     <wt-user-detail [user]="user"></wt-user-detail>
-<!--    <a href="/logout">Logout</a>-->
   </mz-dropdown-item>
 </mz-dropdown>
 <nav>
@@ -12,7 +11,7 @@
     <ul class="right hide-on-med-and-down links">
       <li><a href="/">Docs</a></li>
       <li><a href="/">Support</a></li>
-      <li *ngIf="!user"><a href="/register">Sign in</a></li>
+      <li *ngIf="!user"><a href="/login">Sign in</a></li>
       <li *ngIf="user" class="profile-link">
         <a id="dropdown-profile-section" class="dropdown-trigger" href="#!" data-target="dropdown-profile">
             <img alt="avatar" class="circle thumbnail" [src]="user.avatar">

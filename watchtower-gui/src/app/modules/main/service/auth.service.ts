@@ -6,7 +6,7 @@ import {HttpClient} from "@angular/common/http";
 import {environment} from "../../../../environments/environment";
 import {UserData} from "../entity/user/user-data";
 
-const loginEndpointUrl: string = `${environment.apiUrl}/login`;
+const authEndpointUrl: string = `${environment.apiUrl}/login`;
 const userEndpointUrl: string = `${environment.apiUrl}/user`;
 
 @Injectable({
@@ -23,7 +23,7 @@ export class AuthService {
     this.user$ = this.userSubject.asObservable();
   }
 
-  get isUserLoggedIn(): boolean {
+  get isUserAuthenticated(): boolean {
     return (this.currentUser != null);
   }
 
@@ -33,7 +33,7 @@ export class AuthService {
 
 
   login(email: string, authToken: string): Observable<User> {
-    return this.http.post(loginEndpointUrl, {username: email, password: authToken}).pipe(
+    return this.http.post(authEndpointUrl, {username: email, password: authToken}).pipe(
       map((authData: any) => {
         let userData: UserData = <UserData> {email: authData.username, accessToken: authData['access_token'], roles: authData.roles};
 

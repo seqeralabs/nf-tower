@@ -12,9 +12,9 @@ import { WorkflowDetailComponent } from './component/workflow-detail/workflow-de
 import { MulticoloredProgressBarComponent } from './component/multicolored-progress-bar/multicolored-progress-bar.component';
 import {MzDropdownModule, MzNavbarModule, MzSpinnerModule, MzToastModule} from "ngx-materialize";
 import { HomeComponent } from './component/home/home.component';
-import { RegisterComponent } from './component/register/register.component';
-import {FormsModule} from "@angular/forms";
 import { LoginComponent } from './component/login/login.component';
+import {FormsModule} from "@angular/forms";
+import { AuthComponent } from './component/auth/auth.component';
 import {JwtInterceptor} from "./interceptor/jwt.interceptor";
 import {ErrorInterceptor} from "./interceptor/error.interceptor";
 import { LogoutComponent } from './component/logout/logout.component';
@@ -30,8 +30,8 @@ import { UserDetailComponent } from './component/user-detail/user-detail.compone
     WorkflowDetailComponent,
     MulticoloredProgressBarComponent,
     HomeComponent,
-    RegisterComponent,
     LoginComponent,
+    AuthComponent,
     LogoutComponent,
     UserDetailComponent,
   ],
