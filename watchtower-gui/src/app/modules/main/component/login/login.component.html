@@ -4,7 +4,7 @@
     <div class="col s4 offset-s4" [hidden]="isRegistered">
       <h2 class="center-align">Sign in</h2>
       <div class="row">
-        <form class="col s12" #registerForm="ngForm" (ngSubmit)="submit()">
+        <form class="col s12" #loginForm="ngForm" (ngSubmit)="submit()">
           <div class="row">
             <div class="input-field col s12">
               <label for="email" data-error="wrong">Email</label>
@@ -30,8 +30,6 @@
           </div>
         </div>
       </div>
-
-<!--      <h1> {{registeredMessage}}</h1>-->
     </div>
 
   </div>

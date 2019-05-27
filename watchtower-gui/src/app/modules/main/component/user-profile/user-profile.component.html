@@ -1,0 +1,55 @@
+<div class="container">
+  <div class="row">
+
+    <div class="col s4 offset-s4">
+      <h2 class="center-align">User profile</h2>
+      <div class="row">
+        <form class="col s12" #profileForm="ngForm" (ngSubmit)="update()">
+          <div class="row">
+            <div class="input-field col s12">
+              <input id="userName" name="userName" type="text" required pattern="[^\s]+"  class="validate" [(ngModel)]="userCopy.data.userName">
+              <label for="userName" data-error="No blanks allowed">User name</label>
+            </div>
+          </div>
+          <div class="row">
+            <div class="input-field col s6">
+              <input id="firstName" name="firstName" type="text" required class="validate" [(ngModel)]="userCopy.data.firstName">
+              <label for="firstName">First name</label>
+            </div>
+            <div class="input-field col s6">
+              <input id="lastName" name="lastName" type="text" required class="validate" [(ngModel)]="userCopy.data.lastName">
+              <label for="lastName">Last name</label>
+            </div>
+          </div>
+          <div class="row">
+            <div class="input-field col s12">
+              <input id="avatar" name="avatar" placeholder="URL" type="url" class="validate" [(ngModel)]="userCopy.data.avatar">
+              <label for="avatar" data-error="Should be a URL">Avatar</label>
+            </div>
+          </div>
+          <div class="row">
+            <div class="input-field col s12">
+              <input id="organization" name="organization" type="text" maxlength="10" class="validate" [(ngModel)]="userCopy.data.organization">
+              <label for="organization" data-error="Max 10 characters long">Organization</label>
+            </div>
+          </div>
+          <div class="row">
+            <div class="input-field col s12">
+              <input id="description" name="description" type="text" maxlength="10" class="validate" [(ngModel)]="userCopy.data.description">
+              <label for="description" data-error="Max 10 characters long">Description</label>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col m12">
+              <p class="right-align">
+                <button class="btn btn-large waves-effect waves-light" type="submit" name="action" [disabled]="!isSubmitEnabled()">Update</button>
+              </p>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -6,16 +6,18 @@ import {LoginComponent} from "./component/login/login.component";
 import {AuthGuard} from "./guard/auth.guard";
 import {AuthComponent} from "./component/auth/auth.component";
 import {LogoutComponent} from "./component/logout/logout.component";
+import {UserProfileComponent} from "./component/user-profile/user-profile.component";
 
 const routes: Routes = [
-  {path: '',             component: HomeComponent,
+  {path: '',        component: HomeComponent,
     children: [
       {path: 'workflow/:id', component: WorkflowDetailComponent, canActivate: [AuthGuard]}
     ]
   },
-  {path: 'login',     component: LoginComponent},
-  {path: 'auth',        component: AuthComponent},
-  {path: 'logout',       component: LogoutComponent},
+  {path: 'login',   component: LoginComponent},
+  {path: 'auth',    component: AuthComponent},
+  {path: 'logout',  component: LogoutComponent},
+  {path: 'profile', component: UserProfileComponent, canActivate: [AuthGuard]},
 
   {path: '**', redirectTo: ''}
 ];

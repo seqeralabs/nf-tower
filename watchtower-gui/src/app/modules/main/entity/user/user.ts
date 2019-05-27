@@ -12,4 +12,10 @@ export class User {
     return (this.data.avatar || `https://ui-avatars.com/api/?name=${this.data.firstName}+${this.data.lastName}&size=200`);
   }
 
+  generateCopy(): User {
+    let userDataCopy: UserData = JSON.parse(JSON.stringify(this.data));
+
+    return new User(userDataCopy)
+  }
+
 }

@@ -12,8 +12,8 @@ import {HttpErrorResponse} from "@angular/common/http";
 })
 export class LoginComponent implements OnInit {
 
-  @ViewChild('registerForm')
-  private registerForm: NgForm;
+  @ViewChild('loginForm')
+  private loginForm: NgForm;
   private isSubmitted: boolean;
 
   email: string;
@@ -48,7 +48,7 @@ export class LoginComponent implements OnInit {
   }
 
   isSubmitEnabled(): boolean {
-    return (!this.isSubmitted && this.registerForm.form.valid);
+    return (!this.isSubmitted && this.loginForm.form.valid);
   }
 
 }
