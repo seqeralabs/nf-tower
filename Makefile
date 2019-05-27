@@ -1,3 +1,5 @@
+config ?= compile
+
 clean:
 	./gradlew clean
 	docker rm nf-tower_mongo_1 || true
@@ -12,3 +14,6 @@ build:
 
 run:
 	docker-compose up --build
+
+deps:
+	./gradlew -q watchtower-service:dependencies --configuration ${config}
