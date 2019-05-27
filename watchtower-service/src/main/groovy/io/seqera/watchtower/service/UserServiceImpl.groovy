@@ -1,5 +1,8 @@
 package io.seqera.watchtower.service
 
+import io.micronaut.security.authentication.Authentication
+import io.seqera.watchtower.pogo.exceptions.NonExistingUserException
+
 import javax.inject.Inject
 import javax.inject.Singleton
 import javax.validation.ValidationException
@@ -14,6 +17,8 @@ import io.seqera.watchtower.domain.Role
 import io.seqera.watchtower.domain.User
 import io.seqera.watchtower.domain.UserRole
 import org.springframework.validation.FieldError
+
+import java.security.Principal
 
 @Singleton
 @Transactional
@@ -169,8 +174,33 @@ class UserServiceImpl implements UserService {
             throw new ValidationException("Can't save a user with bad ${emailError.field} format")
         }
 
+        FieldError urlError = fieldErrors.find { it.code == 'url.invalid' }
+        if (urlError) {
+            throw new ValidationException("Can't save a user with bad ${urlError.field} URL format")
+        }
+
         List<String> uncustomizedErrors = fieldErrors.collect { "${it.field}|${it.code}".toString() }
         throw new ValidationException("Can't save user. Validation errors: ${uncustomizedErrors}")
     }
 
+    @CompileDynamic
+    User update(Principal userSecurityData, User updatedUserData) {
+        User existingUser = User.findByEmail(userSecurityData.name)
+        if (!existingUser) {
+            throw new NonExistingUserException("The user to update doesn't exist")
+        }
+
+        existingUser.email = updatedUserData.email
+        existingUser.userName = updatedUserData.userName
+        existingUser.firstName = updatedUserData.firstName
+        existingUser.lastName = updatedUserData.lastName
+        existingUser.organization = updatedUserData.organization
+        existingUser.description = updatedUserData.description
+        existingUser.avatar = updatedUserData.avatar
+
+        existingUser.save()
+        checkUserSaveErrors(existingUser)
+
+        existingUser
+    }
 }

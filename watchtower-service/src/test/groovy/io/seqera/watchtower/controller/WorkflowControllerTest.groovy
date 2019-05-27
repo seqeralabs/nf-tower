@@ -44,7 +44,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         )
 
         and: "perform the request to obtain the workflow"
-        String accessToken = doLogin(createAllowedUser())
+        String accessToken = doLogin(domainCreator.generateAllowedUser(), client)
         HttpResponse<WorkflowGet> response = client.toBlocking().exchange(
                 HttpRequest.GET("/workflow/${workflow.id}")
                            .bearerAuth(accessToken),
@@ -70,7 +70,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         )
 
         and: "perform the request to obtain the workflows"
-        String accessToken = doLogin(createAllowedUser())
+        String accessToken = doLogin(domainCreator.generateAllowedUser(), client)
         HttpResponse<WorkflowList> response = client.toBlocking().exchange(
                 HttpRequest.GET("/workflow/list")
                            .bearerAuth(accessToken),
@@ -87,7 +87,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
 
     void "try to get a non-existing workflow"() {
         when: "perform the request to obtain a non-existing workflow"
-        String accessToken = doLogin(createAllowedUser())
+        String accessToken = doLogin(new DomainCreator().generateAllowedUser(), client)
         client.toBlocking().exchange(
                 HttpRequest.GET("/workflow/100")
                         .bearerAuth(accessToken),
@@ -105,7 +105,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         Workflow workflow = domainCreator.createWorkflow()
 
         when: "perform the request to obtain the workflow as a not allowed user"
-        String accessToken = doLogin(createNotAllowedUser())
+        String accessToken = doLogin(domainCreator.generateNotAllowedUser(), client)
         HttpResponse<WorkflowGet> response = client.toBlocking().exchange(
                 HttpRequest.GET("/workflow/${workflow.id}")
                            .bearerAuth(accessToken),
@@ -115,31 +115,6 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         then: "a 403 response is obtained"
         HttpClientResponseException e = thrown(HttpClientResponseException)
         e.status == HttpStatus.FORBIDDEN
-    }
-
-    private User createAllowedUser() {
-        DomainCreator domainCreator = new DomainCreator()
-        User user = domainCreator.createUser()
-        domainCreator.createUserRole(user: user, role: domainCreator.createRole(authority: 'ROLE_USER'))
-
-        user
-    }
-
-    private User createNotAllowedUser() {
-        DomainCreator domainCreator = new DomainCreator()
-        User user = domainCreator.createUser()
-        domainCreator.createUserRole(user: user, role: domainCreator.createRole(authority: 'ROLE_INVALID'))
-
-        user
-    }
-
-    private String doLogin(User user) {
-        HttpRequest request = HttpRequest.create(HttpMethod.POST, '/login')
-                                         .accept(MediaType.APPLICATION_JSON_TYPE)
-                                         .body(new UsernamePasswordCredentials(user.email, user.authToken))
-        HttpResponse<AccessRefreshToken> response = client.toBlocking().exchange(request, AccessRefreshToken)
-
-        response.body.get().accessToken
     }
 
 }

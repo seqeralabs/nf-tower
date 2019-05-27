@@ -26,7 +26,7 @@ class User {
         lastName(nullable: true)
         organization(nullable: true)
         description(nullable: true)
-        avatar(nullable: true)
+        avatar(nullable: true, url: true)
     }
 
     static mapping = {
