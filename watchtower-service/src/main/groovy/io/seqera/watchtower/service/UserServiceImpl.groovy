@@ -131,7 +131,7 @@ class UserServiceImpl implements UserService {
         String authToken = UUID.randomUUID().toString()
         Role role = Role.findByAuthority(authority) ?: createRole(authority)
 
-        User user = new User(username: username, email: email, authToken: authToken)
+        User user = new User(userName: username, email: email, authToken: authToken)
         user.save()
 
         UserRole userRole = new UserRole(user: user, role: role)

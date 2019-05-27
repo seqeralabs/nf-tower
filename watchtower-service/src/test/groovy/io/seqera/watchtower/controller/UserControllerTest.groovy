@@ -60,7 +60,7 @@ class UserControllerTest extends AbstractContainerBaseTest {
         response.body() == 'User registered! Check your mailbox!'
         User.count() == 1
         User.first().email == email
-        User.first().username
+        User.first().userName
         User.first().authToken
 
         and: "the access link was sent to the user"
@@ -87,7 +87,7 @@ class UserControllerTest extends AbstractContainerBaseTest {
         response.body() == 'User registered! Check your mailbox!'
         User.count() == 1
         User.first().email == email
-        User.first().username
+        User.first().userName
         User.first().authToken
 
         when: 'register the same user again'

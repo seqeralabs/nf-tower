@@ -1,5 +1,5 @@
 export interface UserData {
-  username: string;
+  userName: string;
   email: string;
   authToken: string;
   roles: string[];

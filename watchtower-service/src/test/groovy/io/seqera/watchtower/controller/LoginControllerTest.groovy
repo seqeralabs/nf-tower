@@ -43,7 +43,7 @@ class LoginControllerTest extends AbstractContainerBaseTest {
         and: "grant a role to the user"
         UserRole userRole = new DomainCreator().createUserRole(user: user)
 
-        when: "do the login request attaching username and authToken as credentials"
+        when: "do the login request attaching userName and authToken as credentials"
         HttpRequest request = HttpRequest.create(HttpMethod.POST, '/login')
                                          .accept(MediaType.APPLICATION_JSON_TYPE)
                                          .body(new UsernamePasswordCredentials(user.email, user.authToken))

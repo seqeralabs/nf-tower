@@ -7,7 +7,7 @@ import groovy.transform.CompileDynamic
 @CompileDynamic
 class User {
 
-    String username
+    String userName
     String email
     String authToken
 
@@ -19,7 +19,7 @@ class User {
 
     static constraints = {
         email(email: true, unique: true)
-        username(unique: true)
+        userName(unique: true)
         authToken(unique: true)
 
         firstName(nullable: true)
