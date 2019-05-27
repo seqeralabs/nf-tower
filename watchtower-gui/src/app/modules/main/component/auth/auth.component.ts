@@ -44,10 +44,10 @@ export class AuthComponent implements OnInit {
   }
 
   private handleAuthenticationError(error: HttpErrorResponse): void {
-    let errorMessage: string = (error.status == 400) ? 'Bad credentials' :
-                               (error.status == 401) ? 'Unauthorized'    : 'Unexpected error';
-
+    let errorMessage: string = (error.status == 400 || error.status == 401) ? 'Bad credentials' : `Unexpected error ${error.status}`;
     this.notificationService.showErrorNotification(errorMessage);
+
+    this.router.navigate([''])
   }
 
 }
