@@ -19,6 +19,7 @@ import {JwtInterceptor} from "./interceptor/jwt.interceptor";
 import {ErrorInterceptor} from "./interceptor/error.interceptor";
 import { LogoutComponent } from './component/logout/logout.component';
 import { UserDetailComponent } from './component/user-detail/user-detail.component';
+import { UserProfileComponent } from './component/user-profile/user-profile.component';
 
 @NgModule({
   declarations: [
@@ -34,6 +35,7 @@ import { UserDetailComponent } from './component/user-detail/user-detail.compone
     AuthComponent,
     LogoutComponent,
     UserDetailComponent,
+    UserProfileComponent,
   ],
   imports: [
     BrowserModule,
