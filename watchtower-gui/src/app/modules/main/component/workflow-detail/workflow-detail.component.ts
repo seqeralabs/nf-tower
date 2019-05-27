@@ -34,6 +34,8 @@ export class WorkflowDetailComponent implements OnInit {
       (error: HttpErrorResponse) => {
         if (error.status === 404) {
           this.notificationService.showErrorNotification("Workflow doesn't exist");
+        } else if (error.status === 403) {
+          this.notificationService.showErrorNotification("Forbidden access");
         }
       }
     )
