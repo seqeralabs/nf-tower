@@ -18,11 +18,11 @@
           </div>
           <div class="row">
             <div class="input-field col s6">
-              <input id="firstName" name="firstName" type="text" required class="validate" [(ngModel)]="userCopy.data.firstName">
+              <input id="firstName" name="firstName" type="text" class="validate" [(ngModel)]="userCopy.data.firstName">
               <label for="firstName">First name</label>
             </div>
             <div class="input-field col s6">
-              <input id="lastName" name="lastName" type="text" required class="validate" [(ngModel)]="userCopy.data.lastName">
+              <input id="lastName" name="lastName" type="text" class="validate" [(ngModel)]="userCopy.data.lastName">
               <label for="lastName">Last name</label>
             </div>
           </div>
@@ -46,11 +46,14 @@
           </div>
 
           <div class="row actions">
-            <div class="col s6">
+            <div class="col s12">
                 <button class="btn btn-large waves-effect waves grey lighten-5 black-text" type="submit" name="action" [disabled]="!isSubmitEnabled()">Update</button>
             </div>
-            <div class="col s6">
-                <button class="btn btn-large waves-effect waves-light red accent-1 black-text" type="button" name="action" (click)="deleteConfirmModal.openModal()" [disabled]="!isSubmitEnabled()">Delete</button>
+          </div>
+          <div class="divider"></div>
+          <div class="row actions">
+            <div class="col s12">
+              <button class="btn btn-large waves-effect waves-light red accent-1 black-text" type="button" name="action" (click)="deleteConfirmModal.openModal()" [disabled]="!isSubmitEnabled()">Delete</button>
             </div>
           </div>
         </form>

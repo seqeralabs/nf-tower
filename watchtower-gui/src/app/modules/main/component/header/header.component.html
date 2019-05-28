@@ -11,9 +11,10 @@
     <ul class="right hide-on-med-and-down links">
       <li><a href="/">Docs</a></li>
       <li><a href="/">Support</a></li>
+
       <li *ngIf="!user"><a href="/login">Sign in</a></li>
       <li *ngIf="user" class="profile-link">
-        <a id="dropdown-profile-section" class="dropdown-trigger" href="#!" data-target="dropdown-profile">
+        <a id="dropdown-profile-section" class="dropdown-trigger" data-target="dropdown-profile">
             <img alt="avatar" class="circle thumbnail" [src]="user.avatar">
         </a>
       </li>
