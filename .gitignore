@@ -6,6 +6,7 @@ work/
 build/
 target/
 out/
+misc/
 **/bin/
 .idea
 *.iml
