@@ -10,20 +10,23 @@
 <body>
 <div style="font-family: Helvetica, Arial, sans-serif; padding: 30px; max-width: 800px; margin: 0 auto;">
 
+    <p>Hi ${user},</p>
+
     <p>
-        Welcome in NF-Tower!
+    Please click the following link to login in NF-Tower (it will be valid for the next 30 minutes):
     </p>
     <p>
-        Sign in to the system using <a href="${auth_url}">this link</a>.
+    <a href="${auth_url}">${auth_url}</a>
     </p>
     <p>
-        Happy hacking!
+    Not working? Try copying and pasting it to your browser.
     </p>
+    <br>
 
     <hr style="height: 3px; padding: 0; margin: 24px 0; background-color: #e1e4e8; border: 0;">
     <img style="float:right" src="cid:seqera-logo">
     This email was sent by NF-Tower<br>
-    <a href="${frontend_url}">${frontend_url}</a> <br>
+    ${frontend_url}<br>
 
 </div>
 

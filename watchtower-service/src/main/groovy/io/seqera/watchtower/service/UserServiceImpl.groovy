@@ -1,11 +1,9 @@
 package io.seqera.watchtower.service
 
-import io.micronaut.security.authentication.Authentication
-import io.seqera.watchtower.pogo.exceptions.NonExistingUserException
-
 import javax.inject.Inject
 import javax.inject.Singleton
 import javax.validation.ValidationException
+import java.security.Principal
 
 import grails.gorm.transactions.Transactional
 import groovy.text.GStringTemplateEngine
@@ -16,9 +14,8 @@ import io.seqera.mail.Mail
 import io.seqera.watchtower.domain.Role
 import io.seqera.watchtower.domain.User
 import io.seqera.watchtower.domain.UserRole
+import io.seqera.watchtower.pogo.exceptions.NonExistingUserException
 import org.springframework.validation.FieldError
-
-import java.security.Principal
 
 @Singleton
 @Transactional
@@ -60,6 +57,7 @@ class UserServiceImpl implements UserService {
         def binding = new HashMap(5)
         binding.auth_url = buildAccessUrl(user)
         binding.frontend_url = frontendUrl
+        binding.user = user.firstName ?: user.userName
 
         Mail mail = new Mail()
         mail.to(user.email)

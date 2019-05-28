@@ -1,8 +1,11 @@
-Welcome in NF-Tower!
+Hi ${user},
 
-Sign in to the system using this link: ${auth_url}
+Please click the following link to login in NF-Tower (it will be valid for the next 30 minutes):
 
-Happy hacking!
+${auth_url}
+
+Not working? Try copying and pasting it to your browser.
+
 
 --
 This email was sent by NF-Tower
