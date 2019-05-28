@@ -29,13 +29,14 @@ export class WorkflowDetailComponent implements OnInit {
   fetchWorkflow(workflowId: string | number): void {
     console.log(`Fetching workflow ${workflowId}`);
 
-    this.workflowService.getWorkflow(workflowId).subscribe(
-      (workflow: Workflow) => this.workflow = workflow,
+    this.workflowService.getWorkflow(workflowId, true).subscribe(
+      (workflow: Workflow) => {
+        this.workflow = workflow;
+        this.workflowService.fetchTasks(workflow);
+      },
       (error: HttpErrorResponse) => {
         if (error.status === 404) {
           this.notificationService.showErrorNotification("Workflow doesn't exist");
-        } else if (error.status === 403) {
-          this.notificationService.showErrorNotification("Forbidden access");
         }
       }
     )

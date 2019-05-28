@@ -44,5 +44,9 @@
       <div class="error-report">{{workflow.data.errorReport}}</div>
     </div>
   </div>
+
+  <div *ngIf="workflow.tasks" class="row">
+    <wt-workflow-tabs [tasks]="workflow.tasks"></wt-workflow-tabs>
+  </div>
 </div>
 

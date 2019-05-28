@@ -68,7 +68,9 @@ class WorkflowController {
             return HttpResponse.notFound()
         }
 
-        List<TaskGet> result = workflow.tasks.collect {
+        List<TaskGet> result = workflow.tasks.sort {
+            it.taskId
+        }.collect {
             buildTaskGetResponse(it)
         }
         HttpResponse.ok(new TaskList(tasks: result))

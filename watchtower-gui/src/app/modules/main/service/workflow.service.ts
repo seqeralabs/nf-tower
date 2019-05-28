@@ -4,6 +4,7 @@ import {Workflow} from "../entity/workflow/workflow";
 import {environment} from "../../../../environments/environment";
 import {Observable, Subject, of, ReplaySubject} from "rxjs";
 import {map, tap} from "rxjs/operators";
+import {Task} from "../entity/task/task";
 
 
 const endpointUrl: string = `${environment.apiUrl}/workflow`;
@@ -43,8 +44,8 @@ export class WorkflowService {
     );
   }
 
-  getWorkflow(id: string | number): Observable<Workflow> {
-    if (!this.isWorkflowsCacheEmpty()) {
+  getWorkflow(id: string | number, bypassCache: boolean = false): Observable<Workflow> {
+    if (!bypassCache && !this.isWorkflowsCacheEmpty()) {
       console.log(`Getting workflow ${id} from cache`);
       let workflow: Workflow = this.workflowsByIdCache.get(id);
       if (workflow) {
@@ -62,6 +63,20 @@ export class WorkflowService {
     return this.http.get(url).pipe(
       map((data: any[]) => new Workflow(data)),
       tap((workflow: Workflow) => this.workflowsByIdCache.set(workflow.data.workflowId, workflow))
+    );
+  }
+
+  fetchTasks(workflow: Workflow): void {
+    this.requestTasks(workflow).subscribe();
+  }
+
+  private requestTasks(workflow: Workflow): Observable<Task[]> {
+    console.log(`Requesting tasks of workflow ${workflow.data.workflowId}`);
+    const url: string = `${endpointUrl}/${workflow.data.workflowId}/tasks`;
+
+    return this.http.get(url).pipe(
+      map((data: any) => data.tasks.map((item) => new Task(item))),
+      tap((tasks: Task[]) => workflow.tasks = tasks)
     );
   }
 

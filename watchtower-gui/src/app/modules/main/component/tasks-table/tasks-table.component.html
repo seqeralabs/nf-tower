@@ -1,0 +1,21 @@
+<table class="centered">
+  <thead>
+  <tr>
+    <th>Task ID</th>
+    <th>Process</th>
+    <th>Tag</th>
+    <th>Status</th>
+    <th>Hash</th>
+  </tr>
+  </thead>
+
+  <tbody>
+  <tr *ngFor="let task of tasks">
+    <td>{{task.data.taskId}}</td>
+    <td>{{task.data.process}}</td>
+    <td>{{task.data.tag}}</td>
+    <td>{{task.statusTag}}</td>
+    <td>{{task.data.hash}}</td>
+  </tr>
+  </tbody>
+</table>

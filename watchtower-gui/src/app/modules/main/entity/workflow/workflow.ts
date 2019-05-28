@@ -1,5 +1,6 @@
 import {WorkflowData} from "./workflow-data";
 import {Progress} from "./progress";
+import {Task} from "../task/task";
 import {WorkflowStatus} from "./workflow-status.enum";
 import {HumanizeDuration, HumanizeDurationLanguage, ILanguage} from "humanize-duration-ts";
 import * as dateFormat from "date-fns/format";
@@ -8,6 +9,7 @@ export class Workflow {
 
   data: WorkflowData;
   progress: Progress;
+  tasks: Task[];
 
   constructor(json: any) {
     this.data = <WorkflowData> json.workflow;
