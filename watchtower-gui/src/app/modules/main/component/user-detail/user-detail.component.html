@@ -3,9 +3,8 @@
     <img alt="Avatar" class="avatar" [src]="user.avatar">
   </div>
   <div class="card-content">
-    <div class="row">
-      <div class="col s6 mdi mdi-account">{{nameToDisplay}}</div>
-    </div>
+    <p>Signed in as:</p>
+    <p class="displayed-name">{{nameToDisplay}}</p>
     <div class="card-action logout">
       <a class="btn btn-flat grey lighten-5 black-text" href="/profile">Profile</a>
     </div>

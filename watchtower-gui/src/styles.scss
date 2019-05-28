@@ -35,3 +35,14 @@ h4 .preloader-wrapper.small {
   height: 2rem;
 }
 
+
+nav {
+  ul.dropdown-content {
+    overflow: visible;
+
+    li {
+      cursor: default;
+    }
+  }
+}
+
