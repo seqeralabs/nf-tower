@@ -1,0 +1,7 @@
+<div class="row" *ngFor="let process of processes">
+  {{process}}
+  <div class="progress">
+    <div class="determinate" [style.width]="computePercentageProcessCompletedTasks(process)"></div>
+  </div>
+  {{computeNProcessCompletedTasks(process)}}
+</div>

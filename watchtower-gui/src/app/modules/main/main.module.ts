@@ -22,6 +22,7 @@ import { UserDetailComponent } from './component/user-detail/user-detail.compone
 import { UserProfileComponent } from './component/user-profile/user-profile.component';
 import {WorkflowTabsComponent} from "./component/workflow-tabs/workflow-tabs.component";
 import { TasksTableComponent } from './component/tasks-table/tasks-table.component';
+import { TasksProcessesComponent } from './component/tasks-processes/tasks-processes.component';
 
 @NgModule({
   declarations: [
@@ -40,6 +41,7 @@ import { TasksTableComponent } from './component/tasks-table/tasks-table.compone
     UserProfileComponent,
     WorkflowTabsComponent,
     TasksTableComponent,
+    TasksProcessesComponent,
   ],
   imports: [
     BrowserModule,
