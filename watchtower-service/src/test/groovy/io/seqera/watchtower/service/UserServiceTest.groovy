@@ -1,5 +1,11 @@
 package io.seqera.watchtower.service
 
+import javax.inject.Inject
+import javax.mail.Message
+import javax.mail.internet.InternetAddress
+import javax.mail.internet.MimeMultipart
+import javax.validation.ValidationException
+
 import grails.gorm.transactions.Transactional
 import io.micronaut.security.authentication.DefaultAuthentication
 import io.micronaut.test.annotation.MicronautTest
@@ -11,14 +17,6 @@ import io.seqera.watchtower.pogo.exceptions.NonExistingUserException
 import io.seqera.watchtower.util.AbstractContainerBaseTest
 import io.seqera.watchtower.util.DomainCreator
 import org.subethamail.wiser.Wiser
-
-import javax.inject.Inject
-import javax.mail.Message
-import javax.mail.internet.InternetAddress
-import javax.mail.internet.MimeMultipart
-import javax.validation.Validation
-import javax.validation.ValidationException
-import java.security.Principal
 
 @MicronautTest(application = Application.class)
 @Transactional
@@ -43,7 +41,7 @@ class UserServiceTest extends AbstractContainerBaseTest {
 
     void "register a new user"() {
         given: "an email"
-        String email = 'user@seqera.io'
+        String email = 'tomas@seqera.io'
 
         when: "register the user"
         User user = userService.register(email)
@@ -64,7 +62,7 @@ class UserServiceTest extends AbstractContainerBaseTest {
         Message message = smtpServer.messages.first().mimeMessage
         message.allRecipients.contains(new InternetAddress(user.email))
         message.subject == 'NF-Tower Sign in'
-        (message.content as MimeMultipart).getBodyPart(0).content.getBodyPart(0).content.contains('Welcome in NF-Tower!')
+        (message.content as MimeMultipart).getBodyPart(0).content.getBodyPart(0).content.contains('Hi tomas,')
     }
 
     void "register a user already registered"() {
@@ -73,6 +71,7 @@ class UserServiceTest extends AbstractContainerBaseTest {
 
         when: "register a user with the same email of the previous one"
         User userToRegister = userService.register(existingUser.email)
+        def userName = userToRegister.userName
 
         then: "the returned user is the same as the previous one"
         existingUser.id == userToRegister.id
@@ -85,7 +84,7 @@ class UserServiceTest extends AbstractContainerBaseTest {
         Message message = smtpServer.messages.first().mimeMessage
         message.allRecipients.contains(new InternetAddress(existingUser.email))
         message.subject == 'NF-Tower Sign in'
-        (message.content as MimeMultipart).getBodyPart(0).content.getBodyPart(0).content.contains('Welcome in NF-Tower!')
+        (message.content as MimeMultipart).getBodyPart(0).content.getBodyPart(0).content.contains("Hi $userName,")
     }
 
     void "register a new user and then a user with a similar email"() {

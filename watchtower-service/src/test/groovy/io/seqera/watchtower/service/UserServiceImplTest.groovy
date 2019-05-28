@@ -12,24 +12,32 @@ class UserServiceImplTest extends Specification {
 
     def 'should load text template' () {
         given:
-        def binding = [auth_url: 'https://bar.com', frontend_url:'http://host.com']
+        def binding = [
+                user: 'Mr Bean',
+                auth_url: 'https://tower.com/login?d78a8ds',
+                frontend_url:'http://host.com']
         def service = Spy(UserServiceImpl)
         when:
         def text = service.getTextTemplate(binding)
         then:
-        text.contains('Sign in to the system using this link: https://bar.com')
+        text.contains('Hi Mr Bean,')
+        text.contains('https://tower.com/login?d78a8ds')
         text.contains('http://host.com')
     }
 
     def 'should load html template' () {
         given:
-        def binding = [auth_url: 'https://bar.com', frontend_url:'https://tower.nf']
+        def binding = [
+                user: 'Mr Bean',
+                auth_url: 'https://tower.com/login?1234',
+                frontend_url:'https://tower.nf']
         def service = Spy(UserServiceImpl)
         when:
         def text = service.getHtmlTemplate(binding)
         then:
-        text.contains('Sign in to the system using <a href="https://bar.com">this link</a>')
-        text.contains('<a href="https://tower.nf">https://tower.nf</a>')
+        text.contains('Hi Mr Bean,')
+        text.contains('<a href="https://tower.com/login?1234">https://tower.com/login?1234</a>')
+        text.contains('https://tower.nf')
     }
 
     def 'should load logo attachment' () {
