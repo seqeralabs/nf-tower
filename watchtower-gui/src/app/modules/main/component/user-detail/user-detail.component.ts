@@ -17,8 +17,8 @@ export class UserDetailComponent implements OnInit {
   }
 
 
-  get userAvatar(): string {
-    return this.user.avatar || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png';
+  get nameToDisplay(): string {
+    return (this.user.data.firstName && this.user.data.lastName) ? `${this.user.data.firstName} ${this.user.data.lastName}` : this.user.data.userName;
   }
 
 }

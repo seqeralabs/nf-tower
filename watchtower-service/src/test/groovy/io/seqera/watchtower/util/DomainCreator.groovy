@@ -103,8 +103,6 @@ class DomainCreator {
 
         fields.email =  fields.containsKey('email') ? fields.email : "user${generateUniqueNamePart()}@email.com"
         fields.userName =  fields.containsKey('userName') ? fields.userName : "user${generateUniqueNamePart()}"
-        fields.firstName =  fields.containsKey('firstName') ? fields.firstName : 'User'
-        fields.lastName =  fields.containsKey('lastName') ? fields.lastName : 'Userson'
         fields.authToken = fields.containsKey('authToken') ? fields.authToken : "authToken${generateUniqueNamePart()}"
 
         createInstance(user, fields)
