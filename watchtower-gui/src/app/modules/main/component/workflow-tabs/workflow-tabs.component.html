@@ -1,5 +1,7 @@
 <mz-tab class="workflow-tabs" [fixedTabWidth]="true">
-  <mz-tab-item [active]="true" [label]="'processes'">processes</mz-tab-item>
+  <mz-tab-item [active]="true" [label]="'processes'">
+    <wt-tasks-processes [tasks]="tasks"></wt-tasks-processes>
+  </mz-tab-item>
   <mz-tab-item [label]="'tasks'">
     <wt-tasks-table [tasks]="tasks"></wt-tasks-table>
   </mz-tab-item>
