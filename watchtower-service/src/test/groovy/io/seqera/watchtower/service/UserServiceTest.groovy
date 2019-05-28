@@ -51,7 +51,7 @@ class UserServiceTest extends AbstractContainerBaseTest {
         then: "the user has been created"
         user.id
         user.email == email
-        user.userName ==~ /${email.replaceAll(/@.*/, '')}\d+/
+        user.userName == email.replaceAll(/@.*/, '')
         user.authToken
         User.count() == 1
 
@@ -86,6 +86,31 @@ class UserServiceTest extends AbstractContainerBaseTest {
         message.allRecipients.contains(new InternetAddress(existingUser.email))
         message.subject == 'NF-Tower Sign in'
         (message.content as MimeMultipart).getBodyPart(0).content.getBodyPart(0).content.contains('Welcome in NF-Tower!')
+    }
+
+    void "register a new user and then a user with a similar email"() {
+        when: "register a user"
+        String email = 'user@seqera.io'
+        User user = userService.register('user@seqera.io')
+
+        then: "the user has been created"
+        user.id
+        user.email == email
+        user.userName == email.replaceAll(/@.*/, '')
+        user.authToken
+        User.count() == 1
+
+        when: "register a user with a similar email to the first one"
+        String email2 = 'user@email.com'
+        User user2 = userService.register(email2)
+
+
+        then: "the user has been created and the userName has an appended number"
+        user2.id
+        user2.email == email2
+        user2.userName ==~ /${email2.replaceAll(/@.*/, '')}\d+/
+        user2.authToken
+        User.count() == 2
     }
 
     void "try to register a user given an invalid email"() {

@@ -9,7 +9,7 @@ export class User {
   }
 
   get avatar(): string {
-    return (this.data.avatar || `https://ui-avatars.com/api/?name=${this.data.firstName}+${this.data.lastName}&size=200`);
+    return (this.data.avatar || '/assets/avatar_placeholder.png');
   }
 
   generateCopy(): User {
