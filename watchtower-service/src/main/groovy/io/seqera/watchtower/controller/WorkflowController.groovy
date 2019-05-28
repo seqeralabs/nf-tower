@@ -62,7 +62,7 @@ class WorkflowController {
     @Get("/{workflowId}/tasks")
     @Transactional
     HttpResponse<TaskList> tasks(Long workflowId) {
-        Workflow workflow = workflowService.get(id)
+        Workflow workflow = workflowService.get(workflowId)
 
         if (!workflow) {
             return HttpResponse.notFound()
