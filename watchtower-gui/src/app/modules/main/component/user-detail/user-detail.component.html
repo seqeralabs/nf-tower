@@ -1,19 +1,15 @@
 <div class="card">
   <div class="card-image">
-    <img class="avatar" [src]="userAvatar">
+    <img alt="Avatar" class="avatar" [src]="user.avatar">
   </div>
   <div class="card-content">
     <div class="row">
-      <div class="col s6 mdi mdi-account">{{user.data.firstName}} {{user.data.lastName}}</div>
-    </div>
-    <div class="row">
-      <div class="col s6 mdi mdi-domain">{{user.data.organization}}</div>
-    </div>
-    <div class="row">
-      <div class="col s6 mdi mdi-text">{{user.data.description}}</div>
+      <div class="col s6 mdi mdi-account">{{nameToDisplay}}</div>
     </div>
     <div class="card-action logout">
       <a class="btn btn-flat grey lighten-5 black-text" href="/profile">Profile</a>
+    </div>
+    <div class="card-action logout">
       <a class="btn btn-flat grey lighten-5 black-text" href="/logout">Log Out</a>
     </div>
   </div>
