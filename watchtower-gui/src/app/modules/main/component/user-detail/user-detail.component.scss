@@ -1,16 +1,26 @@
 
 
+.card {
+  width: 200px;
+  margin: 0;
+}
+
 .avatar {
   max-width: 200px;
 }
 
 .card-content {
   padding: 15px;
+
+  p {
+    white-space: normal;
+  }
+
+  .displayed-name {
+    font-weight: bold;
+  }
 }
 
-.card {
-  margin: 0;
-}
 
 .row {
   margin: 0;
