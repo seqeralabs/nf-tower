@@ -14,6 +14,7 @@ import io.micronaut.security.token.jwt.render.AccessRefreshToken
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.watchtower.Application
 import io.seqera.watchtower.domain.*
+import io.seqera.watchtower.pogo.exchange.task.TaskList
 import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowRequest
 import io.seqera.watchtower.pogo.exchange.workflow.WorkflowGet
 import io.seqera.watchtower.pogo.exchange.workflow.WorkflowList
@@ -25,7 +26,7 @@ import javax.inject.Inject
 
 @MicronautTest(application = Application.class)
 @Transactional
-@Ignore("throws 'IllegalStateException: state should be: open' when executing all tests")
+//@Ignore("throws 'IllegalStateException: state should be: open' when executing all tests")
 class WorkflowControllerTest extends AbstractContainerBaseTest {
 
     @Inject
@@ -91,7 +92,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         client.toBlocking().exchange(
                 HttpRequest.GET("/workflow/100")
                         .bearerAuth(accessToken),
-                TraceWorkflowRequest.class
+                WorkflowGet.class
         )
 
         then: "a 404 response is obtained"
@@ -116,5 +117,45 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         HttpClientResponseException e = thrown(HttpClientResponseException)
         e.status == HttpStatus.FORBIDDEN
     }
+
+    void "get the list of tasks associated with a workflow"() {
+        given: 'some tasks'
+        DomainCreator domainCreator = new DomainCreator()
+        List<Task> tasks = (1..3).collect {
+            new DomainCreator(save: false).createTask(workflow: null)
+        }
+
+        and: 'a workflow associated with the tasks'
+        Workflow workflow = domainCreator.createWorkflow(tasks: tasks)
+
+        and: "perform the request to obtain the tasks of the workflow"
+        String accessToken = doLogin(domainCreator.generateAllowedUser(), client)
+        HttpResponse<TaskList> response = client.toBlocking().exchange(
+                HttpRequest.GET("/workflow/${workflow.id}/tasks")
+                           .bearerAuth(accessToken),
+                TaskList.class
+        )
+
+        expect: "the tasks data is properly obtained"
+        response.status == HttpStatus.OK
+        response.body().tasks.size() == 3
+        response.body().tasks.every { it.task.relatedWorkflowId == workflow.id.toString() }
+    }
+
+    void "try to get the list of tasks from a non-existing workflow"() {
+        when: "perform the request to obtain the tasks from a non-existing workflow"
+        String accessToken = doLogin(new DomainCreator().generateAllowedUser(), client)
+        client.toBlocking().exchange(
+                HttpRequest.GET("/workflow/100/tasks")
+                        .bearerAuth(accessToken),
+                TaskList.class
+        )
+
+        then: "a 404 response is obtained"
+        HttpClientResponseException e = thrown(HttpClientResponseException)
+        e.status == HttpStatus.NOT_FOUND
+    }
+
+
 
 }
