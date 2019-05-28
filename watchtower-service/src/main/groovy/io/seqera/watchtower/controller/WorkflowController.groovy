@@ -7,7 +7,10 @@ import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.rules.SecurityRule
+import io.seqera.watchtower.domain.Task
 import io.seqera.watchtower.domain.Workflow
+import io.seqera.watchtower.pogo.exchange.task.TaskGet
+import io.seqera.watchtower.pogo.exchange.task.TaskList
 import io.seqera.watchtower.pogo.exchange.workflow.WorkflowGet
 import io.seqera.watchtower.pogo.exchange.workflow.WorkflowList
 import io.seqera.watchtower.service.WorkflowService
@@ -56,5 +59,23 @@ class WorkflowController {
         new WorkflowGet(workflow: workflow, summary: workflow.summaryEntries as List, progress: workflow.progress)
     }
 
+    @Get("/{workflowId}/tasks")
+    @Transactional
+    HttpResponse<TaskList> tasks(Long workflowId) {
+        Workflow workflow = workflowService.get(id)
+
+        if (!workflow) {
+            return HttpResponse.notFound()
+        }
+
+        List<TaskGet> result = workflow.tasks.collect {
+            buildTaskGetResponse(it)
+        }
+        HttpResponse.ok(new TaskList(tasks: result))
+    }
+
+    private static TaskGet buildTaskGetResponse(Task task) {
+        new TaskGet(task: task)
+    }
 
 }
