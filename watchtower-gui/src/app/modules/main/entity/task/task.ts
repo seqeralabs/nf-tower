@@ -8,10 +8,14 @@ export class Task {
   progress: Progress;
 
   constructor(json: any) {
-    json.task.status = TaskStatus[json.workflow.status];
+    json.task.status = TaskStatus[json.task.status];
 
     this.data = <TaskData> json.task;
     this.progress = <Progress> json.progress;
+  }
+
+  get statusTag(): string {
+    return TaskStatus[this.data.status];
   }
 
 }

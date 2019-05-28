@@ -46,3 +46,35 @@ nav {
   }
 }
 
+.workflow-tabs {
+  .tabs {
+    overflow: hidden;
+
+    .tab {
+      text-transform: none;
+      margin-right: 8px;
+
+      a {
+        color: lightgrey;
+      }
+
+      a:not(.active) {
+        border-bottom: 2px solid lightgrey;
+      }
+
+      a:hover {
+        color: black;
+        border-bottom: 2px solid grey;
+      }
+
+      a.active {
+        color: black;
+      }
+    }
+
+    .indicator {
+      background-color: grey;
+    }
+  }
+}
+
