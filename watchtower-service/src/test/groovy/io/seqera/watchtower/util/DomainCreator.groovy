@@ -104,7 +104,8 @@ class DomainCreator {
         fields.email =  fields.containsKey('email') ? fields.email : "user${generateUniqueNamePart()}@email.com"
         fields.userName =  fields.containsKey('userName') ? fields.userName : "user${generateUniqueNamePart()}"
         fields.authToken = fields.containsKey('authToken') ? fields.authToken : "authToken${generateUniqueNamePart()}"
-
+        fields.authTime =  fields.authTime ?: Instant.now()
+        
         createInstance(user, fields)
     }
 

@@ -1,14 +1,11 @@
 package io.seqera.watchtower.service
 
-import io.seqera.mail.MailerConfig
-
 import javax.inject.Inject
+import javax.inject.Singleton
 
 import io.seqera.mail.Mail
 import io.seqera.mail.Mailer
-
-import javax.inject.Singleton
-
+import io.seqera.mail.MailerConfig
 /**
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>

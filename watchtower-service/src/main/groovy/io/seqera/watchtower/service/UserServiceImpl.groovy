@@ -4,6 +4,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import javax.validation.ValidationException
 import java.security.Principal
+import java.time.Instant
 
 import grails.gorm.transactions.Transactional
 import groovy.text.GStringTemplateEngine
@@ -35,19 +36,13 @@ class UserServiceImpl implements UserService {
 
     @CompileDynamic
     User register(String email) {
-        User existingUser = User.findByEmail(email)
+        User user = User.findByEmail(email)
 
-        if (existingUser) {
-            sendAccessEmail(existingUser)
-            return existingUser
-        }
+        def result = user ? updateUserToken(user) : createUser(email, 'ROLE_USER')
+        checkUserSaveErrors(result)
+        sendAccessEmail(result)
 
-        User user = createUser(email, 'ROLE_USER')
-        checkUserSaveErrors(user)
-
-        sendAccessEmail(user)
-
-        return user
+        return result
     }
 
     protected void sendAccessEmail(User user) {
@@ -135,16 +130,22 @@ class UserServiceImpl implements UserService {
             userName = "${userName}${new Random().nextInt(100)}"
         }
 
-        String authToken = UUID.randomUUID().toString()
         Role role = Role.findByAuthority(authority) ?: createRole(authority)
 
-        User user = new User(email: email, authToken: authToken, userName: userName)
+        String authToken = UUID.randomUUID().toString()
+        User user = new User(email: email, authToken: authToken, userName: userName, authTime: Instant.now())
         user.save()
 
         UserRole userRole = new UserRole(user: user, role: role)
         userRole.save()
 
         return user
+    }
+
+    private User updateUserToken(User user) {
+        user.authTime = Instant.now()
+        user.authToken = UUID.randomUUID().toString()
+        user.save()
     }
 
     private Role createRole(String authority) {
