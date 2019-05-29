@@ -1,7 +1,8 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {Task} from '../../entity/task/task';
-import {groupBy} from "lodash";
+import {groupBy, last, sumBy} from "lodash";
 import {TaskStatus} from "../../entity/task/task-status.enum";
+import {HumanizeDuration, HumanizeDurationLanguage, ILanguage} from "humanize-duration-ts";
 
 @Component({
   selector: 'wt-tasks-processes',
@@ -33,19 +34,37 @@ export class TasksProcessesComponent implements OnInit {
     console.log('The processes', this.processes);
   }
 
+  getNTotalProcessTasks(process: string): number {
+    return this.tasksByProcess.get(process).length;
+  }
+
   computeNProcessCompletedTasks(process: string): number {
     let tasks: Task[] = this.tasksByProcess.get(process);
 
-    return tasks.filter((task: Task) => task.data.status == TaskStatus.COMPLETED).length
+    return tasks.filter((task: Task) => task.isCompleted).length
   }
 
   computePercentageProcessCompletedTasks(process: string): string {
     const nCompleted: number = this.computeNProcessCompletedTasks(process);
-    const nTotal: number = this.tasksByProcess.get(process).length;
+    const nTotal: number = this.getNTotalProcessTasks(process);
 
     const percentage: number = (nCompleted / nTotal) * 100;
 
     return `${percentage}%`;
+  }
+
+  computeTotalDurationProcessCompletedTasks(process: string): string {
+    let tasks: Task[] = this.tasksByProcess.get(process).filter((task: Task) => task.isCompleted);
+    let totalDuration: number = sumBy(tasks, (task: Task) => task.data.duration);
+
+    let language: HumanizeDurationLanguage  = new HumanizeDurationLanguage();
+    language.addLanguage('short', <ILanguage> {y: () => 'y', mo: () => 'mo', w: () => 'w', d: () => 'd', h: () => 'h', m: () => 'm', s: () => 's'});
+
+    return new HumanizeDuration(language).humanize(totalDuration, {language: 'short', delimiter: ' '});
+  }
+
+  getProcessLastTask(process: string): Task {
+    return last(this.tasksByProcess.get(process));
   }
 
 }

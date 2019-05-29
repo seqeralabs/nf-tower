@@ -1,0 +1,27 @@
+@import "./src/assets/variables";
+
+.gap {
+  margin-top: 20px;
+}
+
+.tasks-completed {
+  background-color: $succeed-green;
+}
+
+.tasks-running {
+  background-color: $started-blue;
+}
+
+.row.process-summary {
+  margin-bottom: 0;
+  font-size: 1.1em;
+  text-align: right;
+
+  .proccess-name {
+    text-align: left;
+    font-size: 1.2em;
+  }
+}
+
+
+

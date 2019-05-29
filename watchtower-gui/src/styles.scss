@@ -55,11 +55,12 @@ nav {
       margin-right: 8px;
 
       a {
-        color: lightgrey;
+        font-size: 1.2em;
       }
 
       a:not(.active) {
         border-bottom: 2px solid lightgrey;
+        color: lightgrey;
       }
 
       a:hover {
@@ -69,6 +70,11 @@ nav {
 
       a.active {
         color: black;
+        font-weight: bold;
+      }
+
+      &.disabled a {
+        color: lightgrey !important;
       }
     }
 
