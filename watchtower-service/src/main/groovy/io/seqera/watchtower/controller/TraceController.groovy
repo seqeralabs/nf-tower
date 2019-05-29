@@ -1,6 +1,6 @@
 package io.seqera.watchtower.controller
 
-
+import grails.gorm.transactions.Transactional
 import groovy.util.logging.Slf4j
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Body
@@ -37,12 +37,13 @@ class TraceController {
 
 
     @Post("/workflow")
+    @Transactional
     HttpResponse<TraceWorkflowResponse> workflow(@Body TraceWorkflowRequest trace) {
         HttpResponse<TraceWorkflowResponse> response
         try {
             log.info("Receiving workflow trace: ${trace.inspect()}")
             Workflow workflow = traceService.processWorkflowTrace(trace)
-            log.info("Processed workflow trace: ${trace.inspect()}")
+            log.info("Processed workflow trace: ${workflow.inspect()}")
 
             response = HttpResponse.created(new TraceWorkflowResponse(status: TraceProcessingStatus.OK, workflowId: workflow.id.toString()))
         } catch (Exception e) {
@@ -53,12 +54,13 @@ class TraceController {
     }
 
     @Post("/task")
+    @Transactional
     HttpResponse<TraceTaskResponse> task(@Body TraceTaskRequest trace) {
         HttpResponse<TraceTaskResponse> response
         try {
             log.info("Receiving task trace: ${trace.inspect()}")
             Task task = traceService.processTaskTrace(trace)
-            log.info("Processed task trace: ${trace.inspect()}")
+            log.info("Processed task trace: ${task.inspect()}")
 
             response = HttpResponse.created(new TraceTaskResponse(status: TraceProcessingStatus.OK, workflowId: task.workflowId.toString()))
         } catch (Exception e) {
