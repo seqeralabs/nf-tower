@@ -19,8 +19,8 @@ abstract class AbstractContainerBaseTest extends Specification {
 
     static {
 
-        createMongoDatabase()
-//        createPostgreSqlDatabase()
+//        createMongoDatabase()
+        createPostgreSqlDatabase()
 
         DATABASE_CONTAINER.start()
     }

@@ -30,7 +30,7 @@ import java.time.Instant
 
 @MicronautTest(application = Application.class)
 @Transactional
-@Ignore("throws 'IllegalStateException: state should be: open' when executing all tests")
+//@Ignore("throws 'IllegalStateException: state should be: open' when executing all tests")
 class LoginControllerTest extends AbstractContainerBaseTest {
 
     @Inject

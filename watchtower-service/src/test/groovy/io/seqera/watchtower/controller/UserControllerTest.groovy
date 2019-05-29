@@ -24,7 +24,7 @@ import javax.mail.internet.MimeMultipart
 
 @MicronautTest(application = Application.class)
 @Transactional
-@Ignore("throws 'IllegalStateException: state should be: open' when executing all tests")
+//@Ignore("throws 'IllegalStateException: state should be: open' when executing all tests")
 class UserControllerTest extends AbstractContainerBaseTest {
 
     @Inject
