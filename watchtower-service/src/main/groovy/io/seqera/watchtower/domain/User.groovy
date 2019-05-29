@@ -34,7 +34,7 @@ class User {
     }
 
     static mapping = {
-        table 'customer'
+        table 'userSec'
         version false
     }
 

@@ -46,7 +46,10 @@ class UserServiceTest extends AbstractContainerBaseTest {
         String email = 'tomas@seqera.io'
 
         when: "register the user"
-        User user = userService.register(email)
+        User user
+        User.withNewTransaction {
+            user = userService.register(email)
+        }
 
         then: "the user has been created"
         user.id
@@ -56,8 +59,8 @@ class UserServiceTest extends AbstractContainerBaseTest {
         User.count() == 1
 
         and: "a role was attached to the user"
-        UserRole.first().user.id == user.id
-        UserRole.first().role.authority == 'ROLE_USER'
+        UserRole.list().first().user.id == user.id
+        UserRole.list().first().role.authority == 'ROLE_USER'
 
         and: "the access link was sent to the user"
         smtpServer.messages.size() == 1
@@ -76,7 +79,10 @@ class UserServiceTest extends AbstractContainerBaseTest {
         Instant authTime = existingUser.authTime
 
         when: "register a user with the same email of the previous one"
-        User userToRegister = userService.register(existingUser.email)
+        User userToRegister
+        User.withNewTransaction {
+            userToRegister = userService.register(existingUser.email)
+        }
         String userName = userToRegister.userName
 
         then: "the returned user is the same as the previous one"
@@ -100,7 +106,10 @@ class UserServiceTest extends AbstractContainerBaseTest {
     void "register a new user and then a user with a similar email"() {
         when: "register a user"
         String email = 'user@seqera.io'
-        User user = userService.register('user@seqera.io')
+        User user
+        User.withNewTransaction {
+            user = userService.register('user@seqera.io')
+        }
 
         then: "the user has been created"
         user.id
@@ -111,8 +120,10 @@ class UserServiceTest extends AbstractContainerBaseTest {
 
         when: "register a user with a similar email to the first one"
         String email2 = 'user@email.com'
-        User user2 = userService.register(email2)
-
+        User user2
+        User.withNewTransaction {
+            user2 = userService.register(email2)
+        }
 
         then: "the user has been created and the userName has an appended number"
         user2.id
@@ -143,7 +154,10 @@ class UserServiceTest extends AbstractContainerBaseTest {
         User userData = new DomainCreator(save: false).createUser(userName: 'user', firstName: 'User', lastName: 'Userson', avatar: 'https://i.pravatar.cc/200', organization: 'Org', description: 'Desc')
 
         when: 'update the user'
-        User updatedUser = userService.update(new DefaultAuthentication(user.email, null), userData)
+        User updatedUser
+        User.withNewTransaction {
+            updatedUser = userService.update(new DefaultAuthentication(user.email, null), userData)
+        }
 
         then: "the user has been correctly updated"
         updatedUser.userName == userData.userName
@@ -163,7 +177,9 @@ class UserServiceTest extends AbstractContainerBaseTest {
         User userData = new DomainCreator(save: false).createUser(avatar: 'badUrl')
 
         when: 'update the user'
-        User updatedUser = userService.update(new DefaultAuthentication(user.email, null), userData)
+        User.withNewTransaction {
+            userService.update(new DefaultAuthentication(user.email, null), userData)
+        }
 
         then: "a validation exception is thrown"
         ValidationException e = thrown(ValidationException)
@@ -175,19 +191,39 @@ class UserServiceTest extends AbstractContainerBaseTest {
         User userData = new DomainCreator(save: false).createUser(avatar: 'badUrl')
 
         when: 'update a non existing user'
-        userService.update(new DefaultAuthentication('nonexistinguser@email.com', null), userData)
+        User.withNewTransaction {
+            userService.update(new DefaultAuthentication('nonexistinguser@email.com', null), userData)
+        }
 
         then: "a non-existing exception is thrown"
         NonExistingUserException e = thrown(NonExistingUserException)
         e.message == "The user to update doesn't exist"
     }
 
-    void "delete an existing user"() {
+    void "delete an existing user without roles"() {
         given: 'an existing user'
         User user = new DomainCreator().createUser()
 
         when: 'remove the user'
-        userService.delete(new DefaultAuthentication(user.email, null))
+        User.withNewTransaction {
+            userService.delete(new DefaultAuthentication(user.email, null))
+        }
+
+        then: "the user has been correctly deleted"
+        User.count() == 0
+    }
+
+    void "delete an existing user with roles"() {
+        given: 'an existing user'
+        User user = new DomainCreator().createUser()
+
+        and: "grant a role to the user"
+        new DomainCreator().createUserRole(user: user)
+
+        when: 'remove the user'
+        User.withNewTransaction {
+            userService.delete(new DefaultAuthentication(user.email, null))
+        }
 
         then: "the user has been correctly deleted"
         User.count() == 0
@@ -195,7 +231,9 @@ class UserServiceTest extends AbstractContainerBaseTest {
 
     void "try to delete an non-existing user"() {
         when: 'remove a non existing user'
-        userService.delete(new DefaultAuthentication('nonexistinguser@email.com', null))
+        User.withNewTransaction {
+            userService.delete(new DefaultAuthentication('nonexistinguser@email.com', null))
+        }
 
         then: "a non-existing exception is thrown"
         NonExistingUserException e = thrown(NonExistingUserException)

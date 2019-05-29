@@ -59,15 +59,15 @@ class UserControllerTest extends AbstractContainerBaseTest {
         then: 'the user has been registered successfully'
         response.status == HttpStatus.OK
         response.body() == 'User registered! Check your mailbox!'
-        User.count() == 1
-        User.first().email == email
-        User.first().userName
-        User.first().authToken
+        User registeredUser = User.list().first()
+        registeredUser.email == email
+        registeredUser.userName
+        registeredUser.authToken
 
         and: "the access link was sent to the user"
         smtpServer.messages.size() == 1
         Message message = smtpServer.messages.first().mimeMessage
-        message.allRecipients.contains(new InternetAddress(User.first().email))
+        message.allRecipients.contains(new InternetAddress(registeredUser.email))
         message.subject == 'NF-Tower Sign in'
         (message.content as MimeMultipart).getBodyPart(0).content.getBodyPart(0).content.contains('Welcome in NF-Tower!')
         (message.content as MimeMultipart).getBodyPart(0).content.getBodyPart(0).content.contains('http')
@@ -87,9 +87,10 @@ class UserControllerTest extends AbstractContainerBaseTest {
         response.status == HttpStatus.OK
         response.body() == 'User registered! Check your mailbox!'
         User.count() == 1
-        User.first().email == email
-        User.first().userName
-        User.first().authToken
+        User registeredUser = User.list().first()
+        registeredUser.email == email
+        registeredUser.userName
+        registeredUser.authToken
 
         when: 'register the same user again'
         response = client.toBlocking().exchange(
@@ -104,7 +105,7 @@ class UserControllerTest extends AbstractContainerBaseTest {
 
         and: "the access link was sent to the user two times"
         smtpServer.messages.size() == 2
-        smtpServer.messages.mimeMessage.every { it.allRecipients.contains(new InternetAddress(User.first().email)) }
+        smtpServer.messages.mimeMessage.every { it.allRecipients.contains(new InternetAddress(registeredUser.email)) }
         smtpServer.messages.mimeMessage.every { it.subject == 'NF-Tower Sign in' }
         smtpServer.messages.mimeMessage.every { (it.content as MimeMultipart).getBodyPart(0).content.getBodyPart(0).content.contains('Welcome in NF-Tower!') }
         smtpServer.messages.mimeMessage.every { (it.content as MimeMultipart).getBodyPart(0).content.getBodyPart(0).content.contains('http') }
