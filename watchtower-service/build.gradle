@@ -34,23 +34,26 @@ dependencies {
     compile "io.micronaut:micronaut-http-client"
     compile "io.micronaut:micronaut-http-server-netty"
     
-//    compile "io.micronaut.configuration:micronaut-mongo-reactive"
-//    compile "io.micronaut.configuration:micronaut-mongo-gorm"
-    compile "io.micronaut.configuration:micronaut-hibernate-gorm"
-    compile "org.postgresql:postgresql:42.2.5"
+    
+    compile("io.micronaut.configuration:micronaut-mongo-gorm") 
+//            { exclude group: 'org.mongodb', module: 'mongodb-driver-core' }
+//    compile 'org.mongodb:mongo-java-driver:3.10.2'
+    
+//    compile "io.micronaut.configuration:micronaut-hibernate-gorm"
+//    compile "org.postgresql:postgresql:42.2.5"
 
-    compile 'javax.activation:activation:1.1.1'
-    compile 'javax.mail:mail:1.4.7'
-    compile 'org.jsoup:jsoup:1.11.2' 
-    compile 'org.apache.commons:commons-text:1.6'
-    compile 'org.codehaus.groovy:groovy-templates:2.5.3'
-
-
-    compile "io.micronaut:micronaut-management"
+    
+    compile "javax.activation:activation:1.1.1"
+    compile "javax.mail:mail:1.4.7"
+    compile "org.jsoup:jsoup:1.11.2"
+    compile "org.apache.commons:commons-text:1.6"
+    compile "org.codehaus.groovy:groovy-templates:2.5.3"
     
     compileOnly "io.micronaut:micronaut-inject-groovy"
     compileOnly "io.micronaut.configuration:micronaut-openapi"
 
+    compile "io.micronaut:micronaut-management"
+    
     annotationProcessor "io.micronaut:micronaut-security"
     compile "io.micronaut:micronaut-security-jwt"
     
@@ -64,7 +67,7 @@ dependencies {
 
     testCompile "org.testcontainers:testcontainers:1.11.2"
     testCompile "org.testcontainers:spock:1.11.2"
-    testCompile 'org.subethamail:subethasmtp:3.1.7'
+    testCompile "org.subethamail:subethasmtp:3.1.7"
     testCompile 'net.bytebuddy:byte-buddy:1.9.12'
     testCompile "org.objenesis:objenesis:2.1"
 }
