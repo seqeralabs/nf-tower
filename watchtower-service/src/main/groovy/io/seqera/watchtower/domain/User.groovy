@@ -1,5 +1,8 @@
 package io.seqera.watchtower.domain
 
+
+import java.time.Instant
+
 import grails.gorm.annotation.Entity
 import groovy.transform.CompileDynamic
 
@@ -10,6 +13,7 @@ class User {
     String userName
     String email
     String authToken
+    Instant authTime
 
     String firstName
     String lastName

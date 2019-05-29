@@ -1,5 +1,11 @@
 package io.seqera.watchtower.service.auth
 
+import javax.inject.Inject
+import javax.inject.Singleton
+import java.time.Duration
+import java.time.Instant
+
+import io.micronaut.context.annotation.Value
 import io.micronaut.security.authentication.AuthenticationFailed
 import io.micronaut.security.authentication.AuthenticationProvider
 import io.micronaut.security.authentication.AuthenticationRequest
@@ -10,13 +16,13 @@ import io.seqera.watchtower.domain.User
 import io.seqera.watchtower.service.UserService
 import org.reactivestreams.Publisher
 
-import javax.inject.Inject
-import javax.inject.Singleton
-
 @Singleton
 class AuthenticationProviderByAuthToken implements AuthenticationProvider {
 
     private UserService userService
+
+    @Value('${auth.mail.duration:30m}')
+    Duration authMailDuration 
 
     @Inject
     AuthoritiesFetcherService(UserService userService) {
@@ -25,15 +31,25 @@ class AuthenticationProviderByAuthToken implements AuthenticationProvider {
 
     @Override
     Publisher<AuthenticationResponse> authenticate(AuthenticationRequest authenticationRequest) {
-        User user = userService.findByEmailAndAuthToken((String) authenticationRequest.identity, (String) authenticationRequest.secret)
-        if (user) {
-            List<String> authorities = userService.findAuthoritiesByEmail(user.email)
+        final result = authenticate0((String)authenticationRequest.identity, (String) authenticationRequest.secret)
+        return Flowable.just(result) as Publisher<AuthenticationResponse>
+    }
 
-            Map attributes = [email: user.email, userName: user.userName, firstName: user.firstName, lastName: user.lastName, organization: user.organization, description: user.description, avatar: user.avatar]
-            return Flowable.just(new UserDetails(user.email, authorities, (Map) attributes)) as Publisher<AuthenticationResponse>
+    protected authenticate0(String email, String token) {
+        User user = userService.findByEmailAndAuthToken(email, token)
+        if (user) {
+            // check the auth token isn't expired
+            def delta = Duration.between(user.authTime, Instant.now())
+            // provide this value as a config property
+            if( delta < authMailDuration ) {
+                List<String> authorities = userService.findAuthoritiesByEmail(user.email)
+
+                Map attributes = [email: user.email, userName: user.userName, firstName: user.firstName, lastName: user.lastName, organization: user.organization, description: user.description, avatar: user.avatar]
+                return new UserDetails(user.email, authorities, (Map) attributes)
+            }
         }
 
-        return Flowable.just(new AuthenticationFailed()) as Publisher<AuthenticationResponse>
+        return new AuthenticationFailed()
     }
 
 }
