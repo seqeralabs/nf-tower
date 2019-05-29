@@ -18,4 +18,7 @@ export class Task {
     return TaskStatus[this.data.status];
   }
 
+  get isCompleted(): boolean {
+    return (this.data.status == TaskStatus.COMPLETED);
+  }
 }

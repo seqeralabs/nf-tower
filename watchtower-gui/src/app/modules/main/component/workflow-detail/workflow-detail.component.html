@@ -46,7 +46,9 @@
   </div>
 
   <div *ngIf="workflow.tasks" class="row">
-    <wt-workflow-tabs [tasks]="workflow.tasks"></wt-workflow-tabs>
+    <div class="col s12">
+      <wt-workflow-tabs [tasks]="workflow.tasks"></wt-workflow-tabs>
+    </div>
   </div>
 </div>
 

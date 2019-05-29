@@ -1,7 +1,27 @@
+<div class="gap"></div>
 <div class="row" *ngFor="let process of processes">
-  {{process}}
-  <div class="progress">
-    <div class="determinate" [style.width]="computePercentageProcessCompletedTasks(process)"></div>
+  <div class="col s12">
+    <div class="row process-summary">
+      <div class="col s2 proccess-name">
+        {{process}}
+      </div>
+      <div class="col s2 tag-label">
+        ({{getProcessLastTask(process).data.tag}})
+      </div>
+      <div class="col s2">
+        [{{getProcessLastTask(process).data.hash}}]
+      </div>
+      <div class="col s2 offset-s2 duration-label">
+        {{computeTotalDurationProcessCompletedTasks(process)}}
+      </div>
+      <div class="col s2 progress-label">
+        {{computeNProcessCompletedTasks(process)}} of {{(getNTotalProcessTasks(process))}} [{{computePercentageProcessCompletedTasks(process)}}]
+      </div>
+    </div>
+    <div class="progress">
+      <div class="determinate"
+           [ngClass]="{'tasks-completed': computePercentageProcessCompletedTasks(process) == '100%', 'tasks-running': computePercentageProcessCompletedTasks(process) != '100%'}"
+           [style.width]="computePercentageProcessCompletedTasks(process)"></div>
+    </div>
   </div>
-  {{computeNProcessCompletedTasks(process)}}
 </div>
