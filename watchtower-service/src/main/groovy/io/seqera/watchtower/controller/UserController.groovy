@@ -43,6 +43,7 @@ class UserController {
             log.error("Mailing error: ${e.message}", e)
             HttpResponse.badRequest("The mail couldn't be delivered. Try registering your email again.")
         } catch (Exception e) {
+            log.error("Failure on user login: ${e.message}", e)
             HttpResponse.badRequest(e.message)
         }
     }
@@ -56,6 +57,7 @@ class UserController {
 
             HttpResponse.ok('User successfully updated!')
         } catch (Exception e) {
+            log.error("Failure on user update: ${e.message}", e)
             HttpResponse.badRequest(e.message)
         }
     }
@@ -69,6 +71,7 @@ class UserController {
 
             HttpResponse.ok('User successfully deleted!')
         } catch (Exception e) {
+            log.error("Failure on user delete: ${e.message}", e)
             HttpResponse.badRequest(e.message)
         }
     }
