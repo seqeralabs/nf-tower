@@ -5,15 +5,22 @@ import groovy.util.logging.Slf4j
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
+import io.micronaut.http.sse.Event
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.rules.SecurityRule
+import io.reactivex.Emitter
+import io.reactivex.Flowable
+import io.reactivex.functions.Consumer
 import io.seqera.watchtower.domain.Task
 import io.seqera.watchtower.domain.Workflow
+import io.seqera.watchtower.pogo.exchange.live.LiveWorkflowUpdateMultiResponse
 import io.seqera.watchtower.pogo.exchange.task.TaskGet
 import io.seqera.watchtower.pogo.exchange.task.TaskList
 import io.seqera.watchtower.pogo.exchange.workflow.WorkflowGet
 import io.seqera.watchtower.pogo.exchange.workflow.WorkflowList
+import io.seqera.watchtower.service.LiveWorkflowUpdateSseService
 import io.seqera.watchtower.service.WorkflowService
+import org.reactivestreams.Publisher
 
 import javax.inject.Inject
 
@@ -26,10 +33,12 @@ import javax.inject.Inject
 class WorkflowController {
 
     WorkflowService workflowService
+    LiveWorkflowUpdateSseService liveWorkflowUpdateSseService
 
     @Inject
-    WorkflowController(WorkflowService workflowService) {
+    WorkflowController(WorkflowService workflowService, LiveWorkflowUpdateSseService liveWorkflowUpdateSseService) {
         this.workflowService = workflowService
+        this.liveWorkflowUpdateSseService = liveWorkflowUpdateSseService
     }
 
 
@@ -78,6 +87,21 @@ class WorkflowController {
 
     private static TaskGet buildTaskGetResponse(Task task) {
         new TaskGet(task: task)
+    }
+
+    @Get("/{workflowId}/live")
+    Publisher<Event<LiveWorkflowUpdateMultiResponse>> live(Long workflowId) {
+        log.info("Subscribing to live events of workflow: ${workflowId}")
+        Flowable<Event<LiveWorkflowUpdateMultiResponse>> flowable = liveWorkflowUpdateSseService.getFlowable(workflowId)
+
+        if (flowable) {
+            flowable
+        } else {
+            Flowable.generate({ Emitter emitter ->
+//                emitter.onError(new RuntimeException())
+//                TODO: emit map with error key
+            } as Consumer)
+        }
     }
 
 }
