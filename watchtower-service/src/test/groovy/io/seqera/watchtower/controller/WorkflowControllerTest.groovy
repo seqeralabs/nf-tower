@@ -26,7 +26,7 @@ import javax.inject.Inject
 
 @MicronautTest(application = Application.class)
 @Transactional
-@Ignore("throws 'IllegalStateException: state should be: open' when executing all tests")
+//@Ignore("throws 'IllegalStateException: state should be: open' when executing all tests")
 class WorkflowControllerTest extends AbstractContainerBaseTest {
 
     @Inject

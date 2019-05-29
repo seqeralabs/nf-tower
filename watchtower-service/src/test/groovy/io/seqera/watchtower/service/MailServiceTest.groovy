@@ -1,9 +1,12 @@
 package io.seqera.watchtower.service
 
+import grails.gorm.transactions.Transactional
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.mail.Mail
 import io.seqera.mail.Mailer
 import io.seqera.mail.MailerConfig
+import io.seqera.watchtower.Application
+import io.seqera.watchtower.util.AbstractContainerBaseTest
 import org.subethamail.wiser.Wiser
 import spock.lang.Specification
 
@@ -16,8 +19,9 @@ import javax.mail.internet.MimeMultipart
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
-@MicronautTest
-class MailServiceTest extends Specification {
+@MicronautTest(application = Application.class)
+@Transactional
+class MailServiceTest extends AbstractContainerBaseTest {
 
     @Inject
     MailerConfig mailerConfig

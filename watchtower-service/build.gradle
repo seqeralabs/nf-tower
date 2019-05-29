@@ -34,15 +34,17 @@ dependencies {
     compile "io.micronaut:micronaut-http-client"
     compile "io.micronaut:micronaut-http-server-netty"
     
-    compile "io.micronaut.configuration:micronaut-mongo-reactive"
-    compile "io.micronaut.configuration:micronaut-mongo-gorm"
-//    compile "io.micronaut.configuration:micronaut-hibernate-gorm"
-//    compile "org.postgresql:postgresql:42.2.5"
+//    compile "io.micronaut.configuration:micronaut-mongo-reactive"
+//    compile "io.micronaut.configuration:micronaut-mongo-gorm"
+    compile "io.micronaut.configuration:micronaut-hibernate-gorm"
+    compile "org.postgresql:postgresql:42.2.5"
 
     compile ('javax.activation:activation:1.1.1')
     compile ('javax.mail:mail:1.4.7')
     compile ('org.jsoup:jsoup:1.11.2') 
     compile 'org.apache.commons:commons-text:1.6'
+    compile 'org.codehaus.groovy:groovy-templates:2.5.3'
+
 
     compile "io.micronaut:micronaut-management"
     
