@@ -7,18 +7,16 @@
 dataSource:
   pooled: true
   dbCreate: update
-  url: jdbc:postgresql://localhost:5432/watchtower
+  url: jdbc:postgresql://localhost:5433/watchtower
   driverClassName: org.postgresql.Driver
   username: watchtower
   password: watchtower
-
 hibernate:
   cache:
     queries: false
     use_second_level_cache: false
     use_query_cache: false
   dialect: org.hibernate.dialect.PostgreSQLDialect
-
 grails:
   gorm:
     failOnError: false

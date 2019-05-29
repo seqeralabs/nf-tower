@@ -119,17 +119,20 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
     }
 
     void "get the list of tasks associated with a workflow"() {
-        given: 'some tasks'
-        DomainCreator domainCreator = new DomainCreator()
-        List<Task> tasks = (1..3).collect {
-            new DomainCreator(save: false).createTask(workflow: null)
-        }
+        given: 'a task'
+        Task firstTask = new DomainCreator().createTask(taskId: 1)
 
-        and: 'a workflow associated with the tasks'
-        Workflow workflow = domainCreator.createWorkflow(tasks: tasks)
+        and: 'extract its workflow'
+        Workflow workflow = firstTask.workflow
+
+        and: 'generate more tasks associated with the workflow'
+        List<Task> tasks = (2..3).collect {
+            new DomainCreator().createTask(workflow: workflow, taskId: it)
+        }
+        tasks << firstTask
 
         and: "perform the request to obtain the tasks of the workflow"
-        String accessToken = doLogin(domainCreator.generateAllowedUser(), client)
+        String accessToken = doLogin(new DomainCreator().generateAllowedUser(), client)
         HttpResponse<TaskList> response = client.toBlocking().exchange(
                 HttpRequest.GET("/workflow/${workflow.id}/tasks")
                            .bearerAuth(accessToken),

@@ -216,6 +216,7 @@ class UserServiceImpl implements UserService {
             throw new NonExistingUserException("The user to delete doesn't exist")
         }
 
+        UserRole.findAllByUser(existingUser)*.delete()
         existingUser.delete()
     }
 }
