@@ -1,5 +1,6 @@
 package io.seqera.watchtower.service
 
+import grails.gorm.transactions.Transactional
 import io.seqera.watchtower.domain.Task
 import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.exchange.trace.TraceTaskRequest
@@ -11,6 +12,7 @@ import javax.inject.Singleton
 import javax.validation.ValidationException
 
 @Singleton
+@Transactional
 class TraceServiceImpl implements TraceService {
 
     WorkflowService workflowService

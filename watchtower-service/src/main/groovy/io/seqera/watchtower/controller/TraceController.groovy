@@ -43,7 +43,7 @@ class TraceController {
         try {
             log.info("Receiving workflow trace: ${trace.inspect()}")
             Workflow workflow = traceService.processWorkflowTrace(trace)
-            log.info("Processed workflow trace: ${workflow.inspect()}")
+            log.info("Processed workflow trace ${workflow.id}")
 
             response = HttpResponse.created(new TraceWorkflowResponse(status: TraceProcessingStatus.OK, workflowId: workflow.id.toString()))
         } catch (Exception e) {
@@ -60,7 +60,7 @@ class TraceController {
         try {
             log.info("Receiving task trace: ${trace.inspect()}")
             Task task = traceService.processTaskTrace(trace)
-            log.info("Processed task trace: ${task.inspect()}")
+            log.info("Processed task trace ${task.id} (${task.taskId} ${task.status.name()})")
 
             response = HttpResponse.created(new TraceTaskResponse(status: TraceProcessingStatus.OK, workflowId: task.workflowId.toString()))
         } catch (Exception e) {
