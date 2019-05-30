@@ -1,6 +1,6 @@
 package io.seqera.watchtower.service
 
-import grails.gorm.transactions.Transactional
+
 import io.micronaut.test.annotation.MicronautTest
 import io.reactivex.subscribers.TestSubscriber
 import io.seqera.watchtower.Application
@@ -11,38 +11,37 @@ import io.seqera.watchtower.util.AbstractContainerBaseTest
 import javax.inject.Inject
 
 @MicronautTest(application = Application.class)
-@Transactional
-class LiveWorkflowUpdateSseServiceTest extends AbstractContainerBaseTest {
+class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
 
     @Inject
-    LiveWorkflowUpdateSseService liveWorkflowUpdateSseService
+    ServerSentEventsService liveWorkflowUpdateSseService
 
 
     void "create a flowable and retrieve it"() {
-        given: 'a workflow id'
-        Long workflowId = 1
+        given: 'an id for the flowable'
+        Long id = 1
 
         when: 'create a flowable given a workflowId'
-        liveWorkflowUpdateSseService.createFlowable(workflowId)
+        liveWorkflowUpdateSseService.createFlowable(id)
 
         then: 'the flowable can be retrieved'
-        liveWorkflowUpdateSseService.getFlowable(workflowId)
+        liveWorkflowUpdateSseService.getFlowable(id)
     }
 
     void "create a flowable and publish some data for it"() {
-        given: 'a workflow id'
-        Long workflowId = 2
+        given: 'an id for the flowable'
+        Long id = 2
 
         and: 'create a flowable'
-        liveWorkflowUpdateSseService.createFlowable(workflowId)
+        liveWorkflowUpdateSseService.createFlowable(id)
 
         and: 'subscribe to the flowable in order to retrieve the data'
         TestSubscriber subscriber = new TestSubscriber()
-        liveWorkflowUpdateSseService.getFlowable(workflowId).subscribe(subscriber)
+        liveWorkflowUpdateSseService.getFlowable(id).subscribe(subscriber)
 
         when: 'publish some data for it'
         LiveWorkflowUpdateMultiResponse data = new LiveWorkflowUpdateMultiResponse(error: 'wathever')
-        liveWorkflowUpdateSseService.publishUpdate(workflowId, data)
+        liveWorkflowUpdateSseService.publishUpdate(id, data)
 
         then: 'the subscriber has obtained the data correctly'
         subscriber.assertValueCount(1)
@@ -50,24 +49,26 @@ class LiveWorkflowUpdateSseServiceTest extends AbstractContainerBaseTest {
     }
 
     void "create a flowable and complete it"() {
-        given: 'a workflow id'
-        Long workflowId = 3
+        given: 'an id for the flowable'
+        Long id = 3
 
         and: 'create a flowable'
-        liveWorkflowUpdateSseService.createFlowable(workflowId)
+        liveWorkflowUpdateSseService.createFlowable(id)
 
         and: 'subscribe to the flowable in order to retrieve the data'
         TestSubscriber subscriber = new TestSubscriber()
-        liveWorkflowUpdateSseService.getFlowable(workflowId).subscribe(subscriber)
+        liveWorkflowUpdateSseService.getFlowable(id).subscribe(subscriber)
 
         when: 'complete the flowable'
-        liveWorkflowUpdateSseService.completeFlowable(workflowId)
+        liveWorkflowUpdateSseService.completeFlowable(id)
 
         then: 'the flowable has been completed'
         subscriber.assertComplete()
 
-        and: 'the flowable is no longer present'
-        liveWorkflowUpdateSseService.getFlowable(workflowId)
+        when: 'try to get the flowable again'
+        liveWorkflowUpdateSseService.getFlowable(id)
+
+        then: 'the flowable is no longer present'
         thrown(NonExistingFlowableException)
     }
 
