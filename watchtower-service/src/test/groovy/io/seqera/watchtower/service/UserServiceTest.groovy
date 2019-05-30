@@ -18,6 +18,8 @@ import io.seqera.watchtower.util.AbstractContainerBaseTest
 import io.seqera.watchtower.util.DomainCreator
 import org.subethamail.wiser.Wiser
 
+import java.time.Instant
+
 @MicronautTest(application = Application.class)
 @Transactional
 class UserServiceTest extends AbstractContainerBaseTest {
@@ -69,14 +71,18 @@ class UserServiceTest extends AbstractContainerBaseTest {
         given: "an existing user"
         User existingUser = new DomainCreator().createUser()
 
+        and: 'save the authToken and authTime for a later check'
+        String authToken = existingUser.authToken
+        Instant authTime = existingUser.authTime
+
         when: "register a user with the same email of the previous one"
         User userToRegister = userService.register(existingUser.email)
-        def userName = userToRegister.userName
+        String userName = userToRegister.userName
 
         then: "the returned user is the same as the previous one"
-        existingUser.id == userToRegister.id
-        existingUser.email == userToRegister.email
-        existingUser.authToken == userToRegister.authToken
+        userToRegister.id == existingUser.id
+        userToRegister.email == existingUser.email
+        userToRegister.authToken == existingUser.authToken
         User.count() == 1
 
         and: 'the access email has been sent'
@@ -85,6 +91,10 @@ class UserServiceTest extends AbstractContainerBaseTest {
         message.allRecipients.contains(new InternetAddress(existingUser.email))
         message.subject == 'NF-Tower Sign in'
         (message.content as MimeMultipart).getBodyPart(0).content.getBodyPart(0).content.contains("Hi $userName,")
+
+        and: 'the auth token has been refreshed'
+        userToRegister.authToken != authToken
+        userToRegister.authTime > authTime
     }
 
     void "register a new user and then a user with a similar email"() {
