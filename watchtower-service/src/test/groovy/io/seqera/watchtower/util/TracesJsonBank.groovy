@@ -4,8 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.client.BlockingHttpClient
-import io.seqera.watchtower.pogo.enums.TaskStatus
-import io.seqera.watchtower.pogo.enums.WorkflowStatus
 import io.seqera.watchtower.pogo.exchange.trace.TraceTaskRequest
 import io.seqera.watchtower.pogo.exchange.trace.TraceTaskResponse
 import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowRequest
@@ -13,13 +11,27 @@ import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowResponse
 
 import java.util.regex.Matcher
 
+enum WorkflowTraceSnapshotStatus {
+    STARTED, SUCCEEDED, FAILED, MALFORMED
+}
+
+enum TaskTraceSnapshotStatus {
+    SUBMITTED, STARTED, RUNNING, COMPLETED, SUCCEEDED, FAILED, MALFORMED
+}
+
 class TracesJsonBank {
 
     private final static RESOURCES_DIR_PATH = 'src/test/resources'
 
-    static TraceWorkflowRequest extractWorkflowJsonTrace(Integer workflowOrder, Long workflowId, WorkflowStatus workflowStatus) {
-        String fileRelativePath = "workflow_${workflowOrder}/workflow_${workflowStatus.name().toLowerCase()}.json"
-        File jsonFile = new File("${RESOURCES_DIR_PATH}/${fileRelativePath}")
+    private static File getWorkflowDir(Integer workflowOrder) {
+        new File(RESOURCES_DIR_PATH, "workflow_${workflowOrder}")
+    }
+
+    static TraceWorkflowRequest extractWorkflowJsonTrace(Integer workflowOrder, Long workflowId, WorkflowTraceSnapshotStatus workflowStatus) {
+        File workflowDir = getWorkflowDir(workflowOrder)
+
+        String fileNamePart = "workflow_${workflowStatus.name().toLowerCase()}.json"
+        File jsonFile = workflowDir.listFiles().find { it.name.endsWith(fileNamePart) }
 
         TraceWorkflowRequest workflowTrace = new ObjectMapper().readValue(jsonFile, TraceWorkflowRequest.class)
         workflowTrace.workflow.workflowId = workflowId
@@ -27,9 +39,11 @@ class TracesJsonBank {
         workflowTrace
     }
 
-    static TraceTaskRequest extractTaskJsonTrace(Integer workflowOrder, Integer taskOrder, Long workflowId, TaskStatus taskStatus) {
-        String fileRelativePath = "workflow_${workflowOrder}/task_${taskOrder}_${taskStatus.name().toLowerCase()}.json"
-        File jsonFile = new File("${RESOURCES_DIR_PATH}/${fileRelativePath}")
+    static TraceTaskRequest extractTaskJsonTrace(Integer workflowOrder, Integer taskOrder, Long workflowId, TaskTraceSnapshotStatus taskStatus) {
+        File workflowDir = getWorkflowDir(workflowOrder)
+
+        String fileNamePart = "task_${taskOrder}_${taskStatus.name().toLowerCase()}.json"
+        File jsonFile = workflowDir.listFiles().find { it.name.endsWith(fileNamePart) }
 
         TraceTaskRequest taskTrace = new ObjectMapper().readValue(jsonFile, TraceTaskRequest.class)
         taskTrace.task.relatedWorkflowId = workflowId
@@ -37,7 +51,7 @@ class TracesJsonBank {
         taskTrace
     }
 
-    static List<Integer> getUniqueTasksOrders(Integer workflowOrder) {
+    static List<Integer> getTasksIds(Integer workflowOrder) {
         File workflowDir = new File("${RESOURCES_DIR_PATH}/workflow_${workflowOrder}/")
 
         List<File> jsonFiles = workflowDir.listFiles().toList()
@@ -47,9 +61,9 @@ class TracesJsonBank {
                 return null
             }
 
-            Matcher matcher = (filename =~ /\d+/)
+            Matcher matcher = (filename =~ /task_(\d+)_\w+.json/)
             if (matcher) {
-                matcher.group().toInteger()
+                matcher.group(1).toInteger()
             }
         }.unique().sort()
     }
@@ -71,7 +85,7 @@ class NextflowSimulator {
 
     void simulate(Integer nRequests = null) {
         if (!workflowId) {
-            TraceWorkflowRequest workflowStarted = TracesJsonBank.extractWorkflowJsonTrace(workflowOrder, null, WorkflowStatus.STARTED)
+            TraceWorkflowRequest workflowStarted = TracesJsonBank.extractWorkflowJsonTrace(workflowOrder, null, WorkflowTraceSnapshotStatus.STARTED)
             HttpResponse<TraceWorkflowResponse> workflowResponse = client.exchange(HttpRequest.POST(WORKFLOW_TRACE_ENDPOINT, workflowStarted), TraceWorkflowResponse.class)
             workflowId = workflowResponse.body().workflowId.toLong()
 
@@ -94,7 +108,7 @@ class NextflowSimulator {
             }
         }
 
-        TraceWorkflowRequest workflowCompleted = TracesJsonBank.extractWorkflowJsonTrace(workflowOrder, workflowId, WorkflowStatus.SUCCEEDED)
+        TraceWorkflowRequest workflowCompleted = TracesJsonBank.extractWorkflowJsonTrace(workflowOrder, workflowId, WorkflowTraceSnapshotStatus.SUCCEEDED)
         client.exchange(HttpRequest.POST(WORKFLOW_TRACE_ENDPOINT, workflowCompleted), TraceWorkflowResponse.class)
     }
 
@@ -105,11 +119,11 @@ class NextflowSimulator {
     }
 
     private List<TraceTaskRequest> computeTaskTraceSequence() {
-        List<Integer> tasksOrders = TracesJsonBank.getUniqueTasksOrders(workflowOrder)
+        List<Integer> tasksOrders = TracesJsonBank.getTasksIds(workflowOrder)
 
-        List<TraceTaskRequest> taskSubmittedTraces = tasksOrders.collect { Integer taskOrder -> TracesJsonBank.extractTaskJsonTrace(workflowOrder, taskOrder, workflowId, TaskStatus.SUBMITTED) }
-        List<TraceTaskRequest> taskRunningTraces = tasksOrders.collect { Integer taskOrder -> TracesJsonBank.extractTaskJsonTrace(workflowOrder, taskOrder, workflowId, TaskStatus.RUNNING) }
-        List<TraceTaskRequest> taskCompletedTraces = tasksOrders.collect { Integer taskOrder -> TracesJsonBank.extractTaskJsonTrace(workflowOrder, taskOrder, workflowId, TaskStatus.COMPLETED) }
+        List<TraceTaskRequest> taskSubmittedTraces = tasksOrders.collect { Integer taskOrder -> TracesJsonBank.extractTaskJsonTrace(workflowOrder, taskOrder, workflowId, TaskTraceSnapshotStatus.SUBMITTED) }
+        List<TraceTaskRequest> taskRunningTraces = tasksOrders.collect { Integer taskOrder -> TracesJsonBank.extractTaskJsonTrace(workflowOrder, taskOrder, workflowId, TaskTraceSnapshotStatus.RUNNING) }
+        List<TraceTaskRequest> taskCompletedTraces = tasksOrders.collect { Integer taskOrder -> TracesJsonBank.extractTaskJsonTrace(workflowOrder, taskOrder, workflowId, TaskTraceSnapshotStatus.COMPLETED) }
 
         List<TraceTaskRequest> tracesSequence = []
 

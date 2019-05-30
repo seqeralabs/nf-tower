@@ -11,6 +11,7 @@ import io.seqera.watchtower.pogo.exceptions.NonExistingWorkflowException
 import io.seqera.watchtower.pogo.exchange.trace.TraceTaskRequest
 import io.seqera.watchtower.util.AbstractContainerBaseTest
 import io.seqera.watchtower.util.DomainCreator
+import io.seqera.watchtower.util.TaskTraceSnapshotStatus
 import io.seqera.watchtower.util.TracesJsonBank
 
 import javax.inject.Inject
@@ -28,7 +29,7 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         Workflow workflow = new DomainCreator().createWorkflow()
 
         and: "a task JSON submitted trace"
-        TraceTaskRequest taskTraceJson = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskStatus.SUBMITTED)
+        TraceTaskRequest taskTraceJson = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskTraceSnapshotStatus.SUBMITTED)
 
         when: "unmarshall the JSON to a task"
         Task task
@@ -58,13 +59,13 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         Workflow workflow = new DomainCreator().createWorkflow()
 
         and: "a task submitted trace"
-        TraceTaskRequest taskSubmittedTraceJson = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskStatus.SUBMITTED)
+        TraceTaskRequest taskSubmittedTraceJson = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskTraceSnapshotStatus.SUBMITTED)
 
         and: 'a task started trace'
-        TraceTaskRequest taskStartedTrace = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskStatus.RUNNING)
+        TraceTaskRequest taskStartedTrace = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskTraceSnapshotStatus.RUNNING)
 
         and: 'a task succeeded trace'
-        TraceTaskRequest taskSucceededTraceJson = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskStatus.SUCCEEDED)
+        TraceTaskRequest taskSucceededTraceJson = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskTraceSnapshotStatus.SUCCEEDED)
 
         when: "unmarshall the JSON to a task"
         Task taskSubmitted
@@ -122,13 +123,13 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         Workflow workflow = new DomainCreator().createWorkflow()
 
         and: "a task submitted trace"
-        TraceTaskRequest taskSubmittedTraceJson = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskStatus.SUBMITTED)
+        TraceTaskRequest taskSubmittedTraceJson = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskTraceSnapshotStatus.SUBMITTED)
 
         and: 'a task started trace'
-        TraceTaskRequest taskStartedTrace = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskStatus.RUNNING)
+        TraceTaskRequest taskStartedTrace = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskTraceSnapshotStatus.RUNNING)
 
         and: 'a task succeeded trace'
-        TraceTaskRequest taskFailedTraceJson = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskStatus.FAILED)
+        TraceTaskRequest taskFailedTraceJson = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskTraceSnapshotStatus.FAILED)
 
         when: "unmarshall the JSON to a task"
         Task taskSubmitted
@@ -188,7 +189,7 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         Workflow workflow = new DomainCreator().createWorkflow()
 
         and: "a task submitted trace"
-        TraceTaskRequest taskSubmittedTraceJson = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskStatus.SUBMITTED)
+        TraceTaskRequest taskSubmittedTraceJson = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskTraceSnapshotStatus.SUBMITTED)
 
         when: "unmarshall the JSON to a task"
         Task taskSubmitted1
@@ -203,7 +204,7 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         Task.count() == 1
 
         when: "unmarshall the submit JSON to a second task"
-        taskSubmittedTraceJson = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskStatus.SUBMITTED)
+        taskSubmittedTraceJson = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskTraceSnapshotStatus.SUBMITTED)
         Task taskSubmitted2
         Task.withNewTransaction {
             taskSubmitted2 = taskService.processTaskJsonTrace(taskSubmittedTraceJson)
@@ -220,7 +221,7 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         Workflow workflow = new DomainCreator().createWorkflow()
 
         and: "a task submitted trace without taskId"
-        TraceTaskRequest taskSubmittedTraceJson = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskStatus.SUBMITTED)
+        TraceTaskRequest taskSubmittedTraceJson = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskTraceSnapshotStatus.SUBMITTED)
         taskSubmittedTraceJson.task.taskId = null
 
         when: "unmarshall the JSON to a task"
@@ -240,7 +241,7 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         Workflow workflow = new DomainCreator().createWorkflow()
 
         and: "a task started trace"
-        TraceTaskRequest taskStartedTraceJson = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskStatus.RUNNING)
+        TraceTaskRequest taskStartedTraceJson = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskTraceSnapshotStatus.RUNNING)
 
         when: "unmarshall the JSON to a task"
         Task taskSubmitted1
@@ -255,7 +256,7 @@ class TaskServiceTest extends AbstractContainerBaseTest {
 
     void "try to submit a task given a submit trace for a non existing workflow"() {
         given: "a task submitted trace"
-        TraceTaskRequest taskSubmittedTraceJson = TracesJsonBank.extractTaskJsonTrace(1, 1, null, TaskStatus.SUBMITTED)
+        TraceTaskRequest taskSubmittedTraceJson = TracesJsonBank.extractTaskJsonTrace(1, 1, null, TaskTraceSnapshotStatus.SUBMITTED)
 
         when: "unmarshall the JSON to a task"
         Task taskSubmitted

@@ -69,7 +69,7 @@ class UserControllerTest extends AbstractContainerBaseTest {
         Message message = smtpServer.messages.first().mimeMessage
         message.allRecipients.contains(new InternetAddress(registeredUser.email))
         message.subject == 'NF-Tower Sign in'
-        (message.content as MimeMultipart).getBodyPart(0).content.getBodyPart(0).content.contains('Welcome in NF-Tower!')
+        (message.content as MimeMultipart).getBodyPart(0).content.getBodyPart(0).content.contains("Hi ${registeredUser.userName}")
         (message.content as MimeMultipart).getBodyPart(0).content.getBodyPart(0).content.contains('http')
     }
 
@@ -107,7 +107,7 @@ class UserControllerTest extends AbstractContainerBaseTest {
         smtpServer.messages.size() == 2
         smtpServer.messages.mimeMessage.every { it.allRecipients.contains(new InternetAddress(registeredUser.email)) }
         smtpServer.messages.mimeMessage.every { it.subject == 'NF-Tower Sign in' }
-        smtpServer.messages.mimeMessage.every { (it.content as MimeMultipart).getBodyPart(0).content.getBodyPart(0).content.contains('Welcome in NF-Tower!') }
+        smtpServer.messages.mimeMessage.every { (it.content as MimeMultipart).getBodyPart(0).content.getBodyPart(0).content.contains("Hi ${registeredUser.userName}") }
         smtpServer.messages.mimeMessage.every { (it.content as MimeMultipart).getBodyPart(0).content.getBodyPart(0).content.contains('http') }
     }
 
