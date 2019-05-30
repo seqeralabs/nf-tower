@@ -1,17 +1,17 @@
 package io.seqera.watchtower.service
 
+import io.micronaut.http.sse.Event
 import io.reactivex.Flowable
-import io.seqera.watchtower.pogo.exchange.live.LiveWorkflowUpdateMultiResponse
 
 interface ServerSentEventsService {
 
-    void createFlowable(Long id)
+    void createFlowable(String key)
 
-    void publishData(Long id, def data)
+    void publishEvent(String key, Event data)
 
-    Flowable getFlowable(Long id)
+    Flowable getFlowable(String key)
 
-    void completeFlowable(Long id)
+    void completeFlowable(String key)
 
 
 }

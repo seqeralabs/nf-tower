@@ -4,12 +4,18 @@ import grails.gorm.transactions.Transactional
 import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
+import io.micronaut.http.client.DefaultHttpClient
 import io.micronaut.http.client.RxHttpClient
 import io.micronaut.http.client.annotation.Client
+import io.micronaut.http.client.sse.RxSseClient
+import io.micronaut.http.sse.Event
 import io.micronaut.test.annotation.MicronautTest
+import io.reactivex.Flowable
+import io.reactivex.subscribers.TestSubscriber
 import io.seqera.watchtower.Application
 import io.seqera.watchtower.domain.Task
 import io.seqera.watchtower.domain.Workflow
+import io.seqera.watchtower.pogo.enums.SseErrorType
 import io.seqera.watchtower.pogo.enums.TaskStatus
 import io.seqera.watchtower.pogo.enums.TraceProcessingStatus
 import io.seqera.watchtower.pogo.enums.WorkflowStatus
@@ -17,21 +23,28 @@ import io.seqera.watchtower.pogo.exchange.trace.TraceTaskRequest
 import io.seqera.watchtower.pogo.exchange.trace.TraceTaskResponse
 import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowRequest
 import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowResponse
+import io.seqera.watchtower.pogo.exchange.trace.sse.TraceSseResponse
 import io.seqera.watchtower.util.AbstractContainerBaseTest
 import io.seqera.watchtower.util.DomainCreator
 import io.seqera.watchtower.util.NextflowSimulator
 import io.seqera.watchtower.util.TracesJsonBank
 import spock.lang.Ignore
+import spock.lang.IgnoreRest
 
 import javax.inject.Inject
 
 @MicronautTest(application = Application.class)
 @Transactional
+@Ignore("throws 'IllegalStateException: state should be: open' when executing all tests")
 class TraceControllerTest extends AbstractContainerBaseTest {
 
     @Inject
     @Client('/')
     RxHttpClient client
+
+    @Inject
+    @Client('/')
+    DefaultHttpClient sseClient
 
 
     void "save a new workflow given a start trace"() {
@@ -77,7 +90,54 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         Task.count() == 1
     }
 
-    @Ignore("throws 'IllegalStateException: state should be: open' when executing all tests")
+    @Ignore
+    void "get the trace update SSE live events"() {
+        given: 'save a workflow started JSON trace'
+        TraceWorkflowRequest workflowStartedJsonTrace = TracesJsonBank.extractWorkflowJsonTrace(1, null, WorkflowStatus.STARTED)
+
+        when: 'send a save request'
+        HttpResponse<TraceWorkflowResponse> responseWorkflow = client.toBlocking().exchange(
+                HttpRequest.POST('/trace/workflow', workflowStartedJsonTrace),
+                TraceWorkflowResponse.class
+        )
+
+        then: 'the workflow has been saved successfully'
+        responseWorkflow.status == HttpStatus.CREATED
+        responseWorkflow.body().status == TraceProcessingStatus.OK
+        def workflowId = responseWorkflow.body().workflowId
+        !responseWorkflow.body().message
+
+        when: 'subscribe to the live events endpoint'
+        TestSubscriber subscriber = new TestSubscriber()
+        sseClient.eventStream("/trace/live/${workflowId}", TraceSseResponse.class)
+                 .subscribe(subscriber)
+
+        then: 'the flowable is active'
+        subscriber.assertNotComplete()
+
+        and: 'save a task submitted JSON trace'
+        TraceTaskRequest taskSubmittedJsonTrace = TracesJsonBank.extractTaskJsonTrace(1, 1, workflowId as Long, TaskStatus.SUBMITTED)
+
+        when: 'send a save request'
+        HttpResponse<TraceTaskResponse> responseTask = client.toBlocking().exchange(
+                HttpRequest.POST('/trace/task', taskSubmittedJsonTrace),
+                TraceTaskResponse.class
+        )
+
+        then: 'the task has been saved successfully'
+        responseTask.status == HttpStatus.CREATED
+        responseTask.body().status == TraceProcessingStatus.OK
+        responseTask.body().workflowId
+        !responseTask.body().message
+
+        and: 'an event has been sent'
+        sleep(1000) // <-- sleep a prudential time in order to make sure the event has been received
+        subscriber.assertValueCount(1)
+        subscriber.events.first()[0].data.task
+        subscriber.events.first()[0].data.task.task
+        subscriber.events.first()[0].data.task.progress
+    }
+
     void "save traces simulated from a complete sequence"() {
         given: 'a nextflow simulator'
         NextflowSimulator nextflowSimulator = new NextflowSimulator(workflowOrder: 2, client: client.toBlocking(), sleepBetweenRequests: 0)
@@ -88,6 +148,45 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         then: 'the workflow and its tasks have been saved'
         Workflow.count() == 1
         Task.count() == 2
+    }
+
+    void "save traces simulated from a complete sequence and subscribe to the live events in the mean time"() {
+        given: 'a nextflow simulator'
+        NextflowSimulator nextflowSimulator = new NextflowSimulator(workflowOrder: 2, client: client.toBlocking(), sleepBetweenRequests: 0)
+
+        when: 'send the first request to start the workflow'
+        nextflowSimulator.simulate(1)
+
+        then: 'the workflow has been created'
+        Workflow.count() == 1
+
+        when: 'subscribe to the live events endpoint'
+        TestSubscriber subscriber = new TestSubscriber()
+        sseClient.eventStream("/trace/live/${nextflowSimulator.workflowId}", TraceSseResponse.class)
+                 .subscribe(subscriber)
+
+        then: 'the flowable is active'
+        subscriber.assertNotComplete()
+
+        when: 'keep simulating with the next task request'
+        nextflowSimulator.simulate(1)
+
+        then: 'the task has been created'
+        Task.count() == 1
+
+        and: 'the task event has been sent'
+        sleep(500) // <-- sleep a prudential time in order to make sure the event has been received
+        subscriber.assertValueCount(1)
+        subscriber.events.first()[0].data.task
+        subscriber.events.first()[0].data.task.task
+        subscriber.events.first()[0].data.task.progress
+
+        when: 'keep the simulation going'
+        nextflowSimulator.simulate()
+
+        then: 'try to resubscribe to the workflow live updates once completed'
+        TraceSseResponse sseResponse = sseClient.eventStream("/trace/live/${nextflowSimulator.workflowId}", TraceSseResponse.class).blockingFirst().data
+        sseResponse.error.type == SseErrorType.NONEXISTENT
     }
 
 }

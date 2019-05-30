@@ -5,17 +5,24 @@ import groovy.util.logging.Slf4j
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
+import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Post
+import io.micronaut.http.sse.Event
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.rules.SecurityRule
+import io.reactivex.Flowable
 import io.seqera.watchtower.domain.Task
 import io.seqera.watchtower.domain.Workflow
-import io.seqera.watchtower.pogo.enums.TraceProcessingStatus
+import io.seqera.watchtower.pogo.enums.SseErrorType
+import io.seqera.watchtower.pogo.exceptions.NonExistingFlowableException
 import io.seqera.watchtower.pogo.exchange.trace.TraceTaskRequest
 import io.seqera.watchtower.pogo.exchange.trace.TraceTaskResponse
 import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowRequest
 import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowResponse
+import io.seqera.watchtower.pogo.exchange.trace.sse.TraceSseResponse
+import io.seqera.watchtower.service.ServerSentEventsService
 import io.seqera.watchtower.service.TraceService
+import org.reactivestreams.Publisher
 
 import javax.inject.Inject
 
@@ -29,10 +36,12 @@ import javax.inject.Inject
 class TraceController {
 
     TraceService traceService
+    ServerSentEventsService serverSentEventsService
 
     @Inject
-    TraceController(TraceService traceService) {
+    TraceController(TraceService traceService, ServerSentEventsService serverSentEventsService) {
         this.traceService = traceService
+        this.serverSentEventsService = serverSentEventsService
     }
 
 
@@ -45,12 +54,40 @@ class TraceController {
             Workflow workflow = traceService.processWorkflowTrace(trace)
             log.info("Processed workflow trace ${workflow.id}")
 
-            response = HttpResponse.created(new TraceWorkflowResponse(status: TraceProcessingStatus.OK, workflowId: workflow.id.toString()))
+            response = HttpResponse.created(TraceWorkflowResponse.ofSuccess(workflow.id.toString()))
+
+            publishWorkflowEvent(workflow)
         } catch (Exception e) {
-            response = HttpResponse.badRequest(new TraceWorkflowResponse(status: TraceProcessingStatus.KO, message: e.message))
+            response = HttpResponse.badRequest(TraceWorkflowResponse.ofError(e.message))
+            publishErrorEvent(trace.workflow.workflowId, e.message)
         }
 
         response
+    }
+
+    private void publishWorkflowEvent(Workflow workflow) {
+        if (workflow.checkIsStarted()) {
+            serverSentEventsService.createFlowable(workflow.id.toString())
+        }
+
+        try {
+            serverSentEventsService.publishEvent(workflow.id.toString(), Event.of(TraceSseResponse.ofWorkflow(workflow)))
+        } catch (NonExistingFlowableException e) {
+            log.error("No flowable found for id while trying to publish workflow data: ${workflow.id}")
+        }
+
+        if (!workflow.checkIsStarted()) {
+            serverSentEventsService.completeFlowable(workflow.id.toString())
+        }
+    }
+
+    private void publishErrorEvent(String workflowId, String errorMessage) {
+        TraceSseResponse errorResponse = TraceSseResponse.ofError(SseErrorType.BAD_PROCESSING, errorMessage)
+        try {
+            serverSentEventsService.publishEvent(workflowId, Event.of(errorResponse))
+        } catch (NonExistingFlowableException e) {
+            log.error("No flowable found for id while trying to publish error data: ${workflowId}")
+        }
     }
 
     @Post("/task")
@@ -62,12 +99,41 @@ class TraceController {
             Task task = traceService.processTaskTrace(trace)
             log.info("Processed task trace ${task.id} (${task.taskId} ${task.status.name()})")
 
-            response = HttpResponse.created(new TraceTaskResponse(status: TraceProcessingStatus.OK, workflowId: task.workflowId.toString()))
+            response = HttpResponse.created(TraceTaskResponse.ofSuccess(task.workflowId.toString()))
+            publishTaskEvent(task)
         } catch (Exception e) {
-            response = HttpResponse.badRequest(new TraceTaskResponse(status: TraceProcessingStatus.KO, message: e.message))
+            response = HttpResponse.badRequest(TraceTaskResponse.ofError(e.message))
+            publishErrorEvent(trace.task.relatedWorkflowId, e.message)
         }
 
         response
+    }
+
+    private void publishTaskEvent(Task task) {
+        try {
+            serverSentEventsService.publishEvent(task.workflowId.toString(), Event.of(TraceSseResponse.ofTask(task)))
+        } catch (NonExistingFlowableException e) {
+            log.error("No flowable found for id while trying to publish task data: ${task.workflowId}")
+        }
+    }
+
+    @Get("/live/{workflowId}")
+    Publisher<Event<TraceSseResponse>> live(Long workflowId) {
+        log.info("Subscribing to live events of workflow: ${workflowId}")
+
+        Flowable<Event<TraceSseResponse>> flowable
+        try {
+            flowable = serverSentEventsService.getFlowable(workflowId.toString())
+        } catch (NonExistingFlowableException e) {
+            flowable = Flowable.just(Event.of(TraceSseResponse.ofError(SseErrorType.NONEXISTENT, "No live events emitter for workflow: ${workflowId}")))
+        } catch (Exception e) {
+            String errorMessage = "Unexpected error while obtaining event emitter for workflow: ${workflowId}"
+            log.error("${errorMessage} | ${e.message}")
+
+            flowable = Flowable.just(Event.of(TraceSseResponse.ofError(SseErrorType.UNEXPECTED, errorMessage)))
+        }
+
+        flowable
     }
 
 }

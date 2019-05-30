@@ -10,4 +10,8 @@ class WorkflowGet {
     Progress progress
     List<SummaryEntry> summary
 
+    static WorkflowGet of(Workflow workflow) {
+        new WorkflowGet(workflow: workflow, summary: workflow.summaryEntries as List, progress: workflow.progress)
+    }
+
 }
