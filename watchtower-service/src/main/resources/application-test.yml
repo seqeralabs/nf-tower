@@ -20,7 +20,6 @@ grails:
 #grails:
 #  gorm:
 #    failOnError: false
-
 ---
 mail:
   debug: true

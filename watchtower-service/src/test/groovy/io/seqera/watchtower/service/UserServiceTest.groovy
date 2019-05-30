@@ -88,8 +88,11 @@ class UserServiceTest extends AbstractContainerBaseTest {
         then: "the returned user is the same as the previous one"
         userToRegister.id == existingUser.id
         userToRegister.email == existingUser.email
-        userToRegister.authToken == existingUser.authToken
         User.count() == 1
+
+        and: 'the auth token has been refreshed'
+        userToRegister.authToken != authToken
+        userToRegister.authTime > authTime
 
         and: 'the access email has been sent'
         smtpServer.messages.size() == 1
@@ -97,10 +100,6 @@ class UserServiceTest extends AbstractContainerBaseTest {
         message.allRecipients.contains(new InternetAddress(existingUser.email))
         message.subject == 'NF-Tower Sign in'
         (message.content as MimeMultipart).getBodyPart(0).content.getBodyPart(0).content.contains("Hi $userName,")
-
-        and: 'the auth token has been refreshed'
-        userToRegister.authToken != authToken
-        userToRegister.authTime > authTime
     }
 
     void "register a new user and then a user with a similar email"() {
