@@ -7,7 +7,7 @@ interface ServerSentEventsService {
 
     void createFlowable(Long id)
 
-    void publishUpdate(Long id, def data)
+    void publishData(Long id, def data)
 
     Flowable getFlowable(Long id)
 
