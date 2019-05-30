@@ -7,7 +7,6 @@ import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.sse.Event
 import io.micronaut.security.annotation.Secured
-import io.micronaut.security.rules.SecurityRule
 import io.reactivex.Emitter
 import io.reactivex.Flowable
 import io.reactivex.functions.Consumer
@@ -18,7 +17,7 @@ import io.seqera.watchtower.pogo.exchange.task.TaskGet
 import io.seqera.watchtower.pogo.exchange.task.TaskList
 import io.seqera.watchtower.pogo.exchange.workflow.WorkflowGet
 import io.seqera.watchtower.pogo.exchange.workflow.WorkflowList
-import io.seqera.watchtower.service.LiveWorkflowUpdateSseService
+import io.seqera.watchtower.service.ServerSentEventsService
 import io.seqera.watchtower.service.WorkflowService
 import org.reactivestreams.Publisher
 
@@ -33,10 +32,10 @@ import javax.inject.Inject
 class WorkflowController {
 
     WorkflowService workflowService
-    LiveWorkflowUpdateSseService liveWorkflowUpdateSseService
+    ServerSentEventsService liveWorkflowUpdateSseService
 
     @Inject
-    WorkflowController(WorkflowService workflowService, LiveWorkflowUpdateSseService liveWorkflowUpdateSseService) {
+    WorkflowController(WorkflowService workflowService, ServerSentEventsService liveWorkflowUpdateSseService) {
         this.workflowService = workflowService
         this.liveWorkflowUpdateSseService = liveWorkflowUpdateSseService
     }
