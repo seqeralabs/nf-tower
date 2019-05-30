@@ -1,6 +1,7 @@
 package io.seqera.watchtower.controller
 
 import grails.gorm.transactions.Transactional
+import io.micronaut.context.annotation.Value
 import io.micronaut.http.HttpMethod
 import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpResponse
@@ -18,11 +19,14 @@ import io.reactivex.Flowable
 import io.seqera.watchtower.Application
 import io.seqera.watchtower.domain.User
 import io.seqera.watchtower.domain.UserRole
+import io.seqera.watchtower.service.auth.AuthenticationProviderByAuthToken
 import io.seqera.watchtower.util.AbstractContainerBaseTest
 import io.seqera.watchtower.util.DomainCreator
 import spock.lang.Ignore
 
 import javax.inject.Inject
+import java.time.Duration
+import java.time.Instant
 
 @MicronautTest(application = Application.class)
 @Transactional
@@ -31,6 +35,8 @@ class LoginControllerTest extends AbstractContainerBaseTest {
 
     @Inject
     JwtTokenValidator tokenValidator
+    @Inject
+    AuthenticationProviderByAuthToken authenticationProviderByAuthToken
 
     @Inject
     @Client('/')
@@ -73,6 +79,21 @@ class LoginControllerTest extends AbstractContainerBaseTest {
         authentication.attributes.avatar == user.avatar
         authentication.attributes.organization == user.organization
         authentication.attributes.description == user.description
+    }
+
+    void 'try to login with valid credentials (username and authToken) for a user which has an expired authToken'() {
+        given: "a user"
+        User user = new DomainCreator().createUser(authTime: Instant.now().minus(authenticationProviderByAuthToken.authMailDuration))
+
+        when: "do the login request attaching userName and authToken as credentials"
+        HttpRequest request = HttpRequest.create(HttpMethod.POST, '/login')
+                                         .accept(MediaType.APPLICATION_JSON_TYPE)
+                                         .body(new UsernamePasswordCredentials(user.email, user.authToken))
+        client.toBlocking().exchange(request, AccessRefreshToken)
+
+        then: "the server responds UNAUTHORIZED"
+        HttpClientResponseException e = thrown(HttpClientResponseException)
+        e.status == HttpStatus.UNAUTHORIZED
     }
 
     void 'try to login without supplying credentials'() {

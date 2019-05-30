@@ -25,7 +25,7 @@ class AuthenticationProviderByAuthToken implements AuthenticationProvider {
     Duration authMailDuration 
 
     @Inject
-    AuthoritiesFetcherService(UserService userService) {
+    AuthenticationProviderByAuthToken(UserService userService) {
         this.userService = userService
     }
 
@@ -37,19 +37,20 @@ class AuthenticationProviderByAuthToken implements AuthenticationProvider {
 
     protected authenticate0(String email, String token) {
         User user = userService.findByEmailAndAuthToken(email, token)
-        if (user) {
-            // check the auth token isn't expired
-            def delta = Duration.between(user.authTime, Instant.now())
-            // provide this value as a config property
-            if( delta < authMailDuration ) {
-                List<String> authorities = userService.findAuthoritiesByEmail(user.email)
+        if (user && !isAuthTokenExpired(user)) {
+            List<String> authorities = userService.findAuthoritiesByEmail(user.email)
 
-                Map attributes = [email: user.email, userName: user.userName, firstName: user.firstName, lastName: user.lastName, organization: user.organization, description: user.description, avatar: user.avatar]
-                return new UserDetails(user.email, authorities, (Map) attributes)
-            }
+            Map attributes = [email: user.email, userName: user.userName, firstName: user.firstName, lastName: user.lastName, organization: user.organization, description: user.description, avatar: user.avatar]
+            return new UserDetails(user.email, authorities, (Map) attributes)
         }
 
         return new AuthenticationFailed()
+    }
+
+    private boolean isAuthTokenExpired(User user) {
+        Duration delta = Duration.between(user.authTime, Instant.now())
+
+        (delta >= authMailDuration)
     }
 
 }

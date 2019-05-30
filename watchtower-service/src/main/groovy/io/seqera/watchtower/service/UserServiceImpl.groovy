@@ -38,11 +38,11 @@ class UserServiceImpl implements UserService {
     User register(String email) {
         User user = User.findByEmail(email)
 
-        def result = user ? updateUserToken(user) : createUser(email, 'ROLE_USER')
-        checkUserSaveErrors(result)
-        sendAccessEmail(result)
+        user = user ? updateUserToken(user) : createUser(email, 'ROLE_USER')
+        checkUserSaveErrors(user)
+        sendAccessEmail(user)
 
-        return result
+        user
     }
 
     protected void sendAccessEmail(User user) {
@@ -146,6 +146,8 @@ class UserServiceImpl implements UserService {
         user.authTime = Instant.now()
         user.authToken = UUID.randomUUID().toString()
         user.save()
+
+        user
     }
 
     private Role createRole(String authority) {

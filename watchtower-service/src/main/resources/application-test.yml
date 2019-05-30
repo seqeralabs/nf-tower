@@ -44,3 +44,6 @@ mail:
 front:
   url: http://localhost:4200
 ---
+auth:
+  mail:
+    duration: 30m
