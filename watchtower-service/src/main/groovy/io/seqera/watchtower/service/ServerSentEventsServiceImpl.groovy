@@ -18,57 +18,58 @@ import java.util.concurrent.TimeoutException
 @Slf4j
 class ServerSentEventsServiceImpl implements ServerSentEventsService {
 
-    private Map<Long, PublishProcessor<Event>> flowableByIdCache = new ConcurrentHashMap()
+    private Map<String, PublishProcessor<Event>> flowableByKeyCache = new ConcurrentHashMap()
 
     @Value('${sse.idle.timeout:5m}')
     Duration idleFlowableTimeout
 
-    void createFlowable(Long id) {
-        log.info("Creating flowable: ${id}")
 
-        flowableByIdCache[id] = PublishProcessor.create()
-        scheduleFlowableIdleTimeout(id)
+    void createFlowable(String key) {
+        log.info("Creating flowable: ${key}")
+
+        flowableByKeyCache[key] = PublishProcessor.create()
+        scheduleFlowableIdleTimeout(key)
     }
 
-    void publishData(Long id, def data) {
-        log.info("Publishing data for flowable: ${id}")
-        PublishProcessor hotFlowable = (PublishProcessor) getFlowable(id)
+    void publishEvent(String key, Event event) throws NonExistingFlowableException {
+        log.info("Publishing event for flowable: ${key}")
+        PublishProcessor hotFlowable = (PublishProcessor) getFlowable(key)
 
-        hotFlowable.onNext(Event.of(data))
+        hotFlowable.onNext(event)
     }
 
-    void completeFlowable(Long id) {
-        log.info("Completing flowable: ${id}")
-        PublishProcessor hotFlowable = (PublishProcessor) getFlowable(id)
+    void completeFlowable(String key) {
+        log.info("Completing flowable: ${key}")
+        PublishProcessor hotFlowable = (PublishProcessor) getFlowable(key)
 
         hotFlowable.onComplete()
-        flowableByIdCache.remove(id)
+        flowableByKeyCache.remove(key)
     }
 
-    private void scheduleFlowableIdleTimeout(Long id) {
-        Flowable flowable = getFlowable(id)
+    private void scheduleFlowableIdleTimeout(String key) {
+        Flowable flowable = getFlowable(key)
 
         Flowable timeoutFlowable = flowable.timeout(idleFlowableTimeout.toMillis(), TimeUnit.MILLISECONDS)
         timeoutFlowable.subscribe(
                 {
-                    log.info("Data published for flowable: ${id}")
+                    log.info("Data published for flowable: ${key}")
                 } as Consumer,
                 { Throwable t ->
                     if (t instanceof TimeoutException) {
-                        log.info("Idle timeout reached for flowable: ${id}")
-                        completeFlowable(id)
+                        log.info("Idle timeout reached for flowable: ${key}")
+                        completeFlowable(key)
                     } else {
-                        log.info("Unexpected error happened for id: ${id} | ${t.message}")
+                        log.info("Unexpected error happened for id: ${key} | ${t.message}")
                     }
                 } as Consumer
         )
     }
 
-    Flowable getFlowable(Long id) {
-        Flowable hotFlowable = flowableByIdCache[id]
+    Flowable getFlowable(String key) throws NonExistingFlowableException {
+        Flowable hotFlowable = flowableByKeyCache[key]
 
         if (!hotFlowable) {
-            throw new NonExistingFlowableException("No flowable exists for id: ${id}")
+            throw new NonExistingFlowableException("No flowable exists for id: ${key}")
         }
 
         hotFlowable

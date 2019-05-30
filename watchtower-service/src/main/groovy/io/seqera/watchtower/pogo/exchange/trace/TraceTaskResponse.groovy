@@ -15,4 +15,13 @@ class TraceTaskResponse {
     String message
     String workflowId
 
+
+    static TraceTaskResponse ofSuccess(String workflowId) {
+        new TraceTaskResponse(status: TraceProcessingStatus.OK, workflowId: workflowId)
+    }
+
+    static TraceTaskResponse ofError(String message) {
+        new TraceTaskResponse(status: TraceProcessingStatus.KO, message: message)
+    }
+
 }

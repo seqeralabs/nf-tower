@@ -64,18 +64,34 @@ class NextflowSimulator {
     Integer workflowOrder
     BlockingHttpClient client
     Long sleepBetweenRequests
+    Long workflowId
+
+    private List<TraceTaskRequest> tasksRequestSequence
 
 
-    void simulate() {
-        TraceWorkflowRequest workflowStarted = TracesJsonBank.extractWorkflowJsonTrace(workflowOrder, null, WorkflowStatus.STARTED)
-        HttpResponse<TraceWorkflowResponse> workflowResponse = client.exchange(HttpRequest.POST(WORKFLOW_TRACE_ENDPOINT, workflowStarted), TraceWorkflowResponse.class)
-        Long workflowId = workflowResponse.body().workflowId.toLong()
+    void simulate(Integer nRequests = null) {
+        if (!workflowId) {
+            TraceWorkflowRequest workflowStarted = TracesJsonBank.extractWorkflowJsonTrace(workflowOrder, null, WorkflowStatus.STARTED)
+            HttpResponse<TraceWorkflowResponse> workflowResponse = client.exchange(HttpRequest.POST(WORKFLOW_TRACE_ENDPOINT, workflowStarted), TraceWorkflowResponse.class)
+            workflowId = workflowResponse.body().workflowId.toLong()
 
-        List<TraceTaskRequest> tasksRequestSequence = computeTaskTraceSequence(workflowId)
+            if ((nRequests != null) && (--nRequests == 0)) {
+                return
+            }
+        }
 
-        tasksRequestSequence.each { TraceTaskRequest taskRequest ->
+        tasksRequestSequence = tasksRequestSequence ?: computeTaskTraceSequence()
+        Iterator<TraceTaskRequest> i = tasksRequestSequence.iterator()
+        while (i.hasNext()) {
+            TraceTaskRequest taskRequest = i.next()
+            i.remove()
+
             sleepIfSet()
             client.exchange(HttpRequest.POST(TASK_TRACE_ENDPOINT, taskRequest), TraceTaskResponse.class)
+
+            if ((nRequests != null) && (--nRequests == 0)) {
+                return
+            }
         }
 
         TraceWorkflowRequest workflowCompleted = TracesJsonBank.extractWorkflowJsonTrace(workflowOrder, workflowId, WorkflowStatus.SUCCEEDED)
@@ -88,7 +104,7 @@ class NextflowSimulator {
         }
     }
 
-    private List<TraceTaskRequest> computeTaskTraceSequence(Long workflowId) {
+    private List<TraceTaskRequest> computeTaskTraceSequence() {
         List<Integer> tasksOrders = TracesJsonBank.getUniqueTasksOrders(workflowOrder)
 
         List<TraceTaskRequest> taskSubmittedTraces = tasksOrders.collect { Integer taskOrder -> TracesJsonBank.extractTaskJsonTrace(workflowOrder, taskOrder, workflowId, TaskStatus.SUBMITTED) }

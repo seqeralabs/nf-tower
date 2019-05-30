@@ -15,4 +15,12 @@ class TraceWorkflowResponse {
     String message
     String workflowId
 
+    static TraceWorkflowResponse ofSuccess(String workflowId) {
+        new TraceWorkflowResponse(status: TraceProcessingStatus.OK, workflowId: workflowId)
+    }
+
+    static TraceWorkflowResponse ofError(String message) {
+        new TraceWorkflowResponse(status: TraceProcessingStatus.KO, message: message)
+    }
+
 }

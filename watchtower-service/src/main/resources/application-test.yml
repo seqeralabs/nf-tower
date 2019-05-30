@@ -43,3 +43,7 @@ front:
 auth:
   mail:
     duration: 30m
+---
+sse:
+  idle:
+    timeout: 5s
