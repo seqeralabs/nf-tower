@@ -5,11 +5,11 @@ import io.micronaut.test.annotation.MicronautTest
 import io.seqera.watchtower.Application
 import io.seqera.watchtower.domain.SummaryEntry
 import io.seqera.watchtower.domain.Workflow
-import io.seqera.watchtower.pogo.enums.WorkflowStatus
 import io.seqera.watchtower.pogo.exceptions.NonExistingWorkflowException
 import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowRequest
 import io.seqera.watchtower.util.AbstractContainerBaseTest
 import io.seqera.watchtower.util.TracesJsonBank
+import io.seqera.watchtower.util.WorkflowTraceSnapshotStatus
 
 import javax.inject.Inject
 
@@ -23,7 +23,7 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
 
     void "start a workflow given a started trace"() {
         given: "a workflow JSON started trace"
-        TraceWorkflowRequest workflowStartedTraceJson = TracesJsonBank.extractWorkflowJsonTrace(1, null, WorkflowStatus.STARTED)
+        TraceWorkflowRequest workflowStartedTraceJson = TracesJsonBank.extractWorkflowJsonTrace(1, null, WorkflowTraceSnapshotStatus.STARTED)
 
         when: "unmarshall the JSON to a workflow"
         Workflow workflow
@@ -49,7 +49,7 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
 
     void "start a workflow given a started trace, then complete the workflow given a succeeded trace"() {
         given: "a workflow JSON started trace"
-        TraceWorkflowRequest workflowStartedTraceJson = TracesJsonBank.extractWorkflowJsonTrace(1, null, WorkflowStatus.STARTED)
+        TraceWorkflowRequest workflowStartedTraceJson = TracesJsonBank.extractWorkflowJsonTrace(1, null, WorkflowTraceSnapshotStatus.STARTED)
 
         when: "unmarshall the JSON to a workflow"
         Workflow workflowStarted
@@ -64,7 +64,7 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         !workflowStarted.complete
 
         when: "given a workflow succeeded trace, unmarshall the succeeded JSON to a workflow"
-        TraceWorkflowRequest workflowSucceededTraceJson = TracesJsonBank.extractWorkflowJsonTrace(1, workflowStarted.id, WorkflowStatus.SUCCEEDED)
+        TraceWorkflowRequest workflowSucceededTraceJson = TracesJsonBank.extractWorkflowJsonTrace(1, workflowStarted.id, WorkflowTraceSnapshotStatus.SUCCEEDED)
         Workflow workflowSucceeded
         Workflow.withNewTransaction {
             workflowSucceeded = workflowService.processWorkflowJsonTrace(workflowSucceededTraceJson)
@@ -98,7 +98,7 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
 
     void "start a workflow given a started trace, then complete the workflow given a failed trace"() {
         given: "a workflow JSON started trace"
-        TraceWorkflowRequest workflowStartedTraceJson = TracesJsonBank.extractWorkflowJsonTrace(1, null, WorkflowStatus.STARTED)
+        TraceWorkflowRequest workflowStartedTraceJson = TracesJsonBank.extractWorkflowJsonTrace(1, null, WorkflowTraceSnapshotStatus.STARTED)
 
         when: "unmarshall the JSON to a workflow"
         Workflow workflowStarted
@@ -114,7 +114,7 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         Workflow.count() == 1
 
         when: "given a workflow failed trace, unmarshall the failed JSON to a workflow"
-        TraceWorkflowRequest workflowFailedTraceJson = TracesJsonBank.extractWorkflowJsonTrace(1, workflowStarted.id, WorkflowStatus.FAILED)
+        TraceWorkflowRequest workflowFailedTraceJson = TracesJsonBank.extractWorkflowJsonTrace(1, workflowStarted.id, WorkflowTraceSnapshotStatus.FAILED)
         Workflow workflowFailed
         Workflow.withNewTransaction {
             workflowFailed = workflowService.processWorkflowJsonTrace(workflowFailedTraceJson)
@@ -148,7 +148,7 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
 
     void "start a workflow given a started trace, then try to start the same one"() {
         given: "a workflow JSON started trace"
-        TraceWorkflowRequest workflowStarted1TraceJson = TracesJsonBank.extractWorkflowJsonTrace(1, null, WorkflowStatus.STARTED)
+        TraceWorkflowRequest workflowStarted1TraceJson = TracesJsonBank.extractWorkflowJsonTrace(1, null, WorkflowTraceSnapshotStatus.STARTED)
 
         when: "unmarshall the JSON to a workflow"
         Workflow workflowStarted1
@@ -164,7 +164,7 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         Workflow.count() == 1
 
         when: "given a workflow started trace with the same relatedWorkflowId, unmarshall the started JSON to a second workflow"
-        TraceWorkflowRequest workflowStarted2TraceJson = TracesJsonBank.extractWorkflowJsonTrace(1, workflowStarted1.id, WorkflowStatus.STARTED)
+        TraceWorkflowRequest workflowStarted2TraceJson = TracesJsonBank.extractWorkflowJsonTrace(1, workflowStarted1.id, WorkflowTraceSnapshotStatus.STARTED)
         Workflow workflowStarted2
         Workflow.withNewTransaction {
             workflowStarted2 = workflowService.processWorkflowJsonTrace(workflowStarted2TraceJson)
@@ -177,7 +177,7 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
 
     void "try to start a workflow given a started trace without sessionId"() {
         given: "a workflow JSON started trace without sessionId"
-        TraceWorkflowRequest workflowStartedTraceJson = TracesJsonBank.extractWorkflowJsonTrace(1, null, WorkflowStatus.STARTED)
+        TraceWorkflowRequest workflowStartedTraceJson = TracesJsonBank.extractWorkflowJsonTrace(1, null, WorkflowTraceSnapshotStatus.STARTED)
         workflowStartedTraceJson.workflow.sessionId = null
 
         when: "unmarshall the JSON to a workflow"
@@ -194,7 +194,7 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
 
     void "try to complete a workflow given a succeeded trace for a non existing workflow"() {
         given: "a workflow JSON started trace"
-        TraceWorkflowRequest workflowSucceededTraceJson = TracesJsonBank.extractWorkflowJsonTrace(1, 123, WorkflowStatus.SUCCEEDED)
+        TraceWorkflowRequest workflowSucceededTraceJson = TracesJsonBank.extractWorkflowJsonTrace(1, 123, WorkflowTraceSnapshotStatus.SUCCEEDED)
 
         when: "unmarshall the JSON to a workflow"
         Workflow workflowSucceeded

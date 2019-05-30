@@ -7,29 +7,20 @@ import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.DefaultHttpClient
 import io.micronaut.http.client.RxHttpClient
 import io.micronaut.http.client.annotation.Client
-import io.micronaut.http.client.sse.RxSseClient
-import io.micronaut.http.sse.Event
 import io.micronaut.test.annotation.MicronautTest
-import io.reactivex.Flowable
 import io.reactivex.subscribers.TestSubscriber
 import io.seqera.watchtower.Application
 import io.seqera.watchtower.domain.Task
 import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.enums.SseErrorType
-import io.seqera.watchtower.pogo.enums.TaskStatus
 import io.seqera.watchtower.pogo.enums.TraceProcessingStatus
-import io.seqera.watchtower.pogo.enums.WorkflowStatus
 import io.seqera.watchtower.pogo.exchange.trace.TraceTaskRequest
 import io.seqera.watchtower.pogo.exchange.trace.TraceTaskResponse
 import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowRequest
 import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowResponse
 import io.seqera.watchtower.pogo.exchange.trace.sse.TraceSseResponse
-import io.seqera.watchtower.util.AbstractContainerBaseTest
-import io.seqera.watchtower.util.DomainCreator
-import io.seqera.watchtower.util.NextflowSimulator
-import io.seqera.watchtower.util.TracesJsonBank
+import io.seqera.watchtower.util.*
 import spock.lang.Ignore
-import spock.lang.IgnoreRest
 
 import javax.inject.Inject
 
@@ -49,7 +40,7 @@ class TraceControllerTest extends AbstractContainerBaseTest {
 
     void "save a new workflow given a start trace"() {
         given: 'a workflow started JSON trace'
-        TraceWorkflowRequest workflowStartedJsonTrace = TracesJsonBank.extractWorkflowJsonTrace(1, null, WorkflowStatus.STARTED)
+        TraceWorkflowRequest workflowStartedJsonTrace = TracesJsonBank.extractWorkflowJsonTrace(1, null, WorkflowTraceSnapshotStatus.STARTED)
 
         when: 'send a save request'
         HttpResponse<TraceWorkflowResponse> response = client.toBlocking().exchange(
@@ -72,7 +63,7 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         Workflow workflow = new DomainCreator().createWorkflow()
 
         and: 'a task submitted JSON trace'
-        TraceTaskRequest taskSubmittedJsonTrace = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskStatus.SUBMITTED)
+        TraceTaskRequest taskSubmittedJsonTrace = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskTraceSnapshotStatus.SUBMITTED)
 
         when: 'send a save request'
         HttpResponse<TraceTaskResponse> response = client.toBlocking().exchange(
@@ -93,7 +84,7 @@ class TraceControllerTest extends AbstractContainerBaseTest {
     @Ignore
     void "get the trace update SSE live events"() {
         given: 'save a workflow started JSON trace'
-        TraceWorkflowRequest workflowStartedJsonTrace = TracesJsonBank.extractWorkflowJsonTrace(1, null, WorkflowStatus.STARTED)
+        TraceWorkflowRequest workflowStartedJsonTrace = TracesJsonBank.extractWorkflowJsonTrace(1, null, WorkflowTraceSnapshotStatus.STARTED)
 
         when: 'send a save request'
         HttpResponse<TraceWorkflowResponse> responseWorkflow = client.toBlocking().exchange(
@@ -116,7 +107,7 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         subscriber.assertNotComplete()
 
         and: 'save a task submitted JSON trace'
-        TraceTaskRequest taskSubmittedJsonTrace = TracesJsonBank.extractTaskJsonTrace(1, 1, workflowId as Long, TaskStatus.SUBMITTED)
+        TraceTaskRequest taskSubmittedJsonTrace = TracesJsonBank.extractTaskJsonTrace(1, 1, workflowId as Long, TaskTraceSnapshotStatus.SUBMITTED)
 
         when: 'send a save request'
         HttpResponse<TraceTaskResponse> responseTask = client.toBlocking().exchange(
