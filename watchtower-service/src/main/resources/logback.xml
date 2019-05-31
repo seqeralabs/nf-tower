@@ -1,15 +1,33 @@
 <configuration>
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <withJansi>true</withJansi>
         <!-- encoders are assigned the type
              ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
         <encoder>
-            <pattern>%cyan(%d{HH:mm:ss.SSS}) %gray([%thread]) %highlight(%-5level) %magenta(%logger{36}) - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="ROLLING_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>tower.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- daily rollover -->
+            <fileNamePattern>tower.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <!-- keep 30 days' worth of history capped at 3GB total size -->
+            <maxHistory>10</maxHistory>
+            <totalSizeCap>3GB</totalSizeCap>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>%d{MMM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
 
     <root level="info">
         <appender-ref ref="STDOUT" />
+        <appender-ref ref="ROLLING_FILE" />
     </root>
+    <logger name="io.seqera" level="DEBUG"/>
+    <logger name="com.amazonaws" level="WARN" />
+
 </configuration>
