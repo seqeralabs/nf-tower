@@ -1,4 +1,11 @@
 FROM adoptopenjdk/openjdk11-openj9:jdk-11.0.1.13-alpine-slim
-COPY build/libs/*.jar watchtower-service.jar
+COPY build/libs/*.jar /tower/watchtower-service.jar
 EXPOSE 8080
-CMD java  -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Dcom.sun.management.jmxremote -noverify ${JAVA_OPTS} -jar watchtower-service.jar
+CMD java \
+  -XX:+UnlockExperimentalVMOptions \
+  -XX:+UseCGroupMemoryLimitForHeap \
+  -Dcom.sun.management.jmxremote \
+  -noverify \
+  -Dmicronaut.config.files=tower.yml \
+  ${JAVA_OPTS} \
+  -jar /tower/watchtower-service.jar
