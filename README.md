@@ -19,7 +19,7 @@ Tower backend settings can be provided either:
 A minimal config requires the settings for the SMTP 
 server, for example: 
 
-```
+```yml
 mail:
   smtp:
     host: email-smtp.eu-west-1.amazonaws.com
