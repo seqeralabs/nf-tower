@@ -8,6 +8,8 @@ import {NotificationService} from "../../service/notification.service";
 import {ServerSentEventsWorkflowService} from "../../service/server-sent-events-workflow.service";
 import {Task} from "../../entity/task/task";
 import {Subscription} from "rxjs";
+import {SseError} from "../../entity/sse/sse-error";
+import {SseErrorType} from "../../entity/sse/sse-error-type";
 
 @Component({
   selector: 'wt-workflow-detail',
@@ -27,11 +29,11 @@ export class WorkflowDetailComponent implements OnInit {
   ngOnInit() {
     this.route.paramMap.subscribe((params: ParamMap) => {
       this.unsubscribeFromWorkflowLiveEvents();
+
       console.log('Getting params');
-        const workflowId: string = params.get('id');
-        this.fetchWorkflow(workflowId);
-      }
-    );
+      const workflowId: string = params.get('id');
+      this.fetchWorkflow(workflowId);
+    });
   }
 
   private fetchWorkflow(workflowId: string | number): void {
@@ -60,14 +62,13 @@ export class WorkflowDetailComponent implements OnInit {
 
   private subscribeToWorkflowLiveEvents(workflow: Workflow): void {
     this.liveEventsSubscription = this.serverSentEventsWorkflowService.connect(workflow).subscribe(
-      (data: Workflow | Task | any) => {
+      (data: Workflow | Task) => {
         console.log(`Live event data received from workflow ${workflow.data.workflowId}`, data);
-        if (data instanceof Workflow) {
-          this.reactToWorkflowEvent(data);
-          this.unsubscribeFromWorkflowLiveEvents();
-        } else if (data instanceof Task) {
-          this.reactToTaskEvent(data);
-        }
+        this.reactToEvent(data);
+      },
+      (error: SseError) => {
+        console.log(`Live event error received from workflow ${workflow.data.workflowId}`, error);
+        this.reactToErrorEvent(error);
       }
     );
   }
@@ -79,6 +80,15 @@ export class WorkflowDetailComponent implements OnInit {
     }
   }
 
+  private reactToEvent(data: Workflow | Task): void {
+    if (data instanceof Workflow) {
+      this.reactToWorkflowEvent(data);
+      this.unsubscribeFromWorkflowLiveEvents();
+    } else if (data instanceof Task) {
+      this.reactToTaskEvent(data);
+    }
+  }
+
   private reactToWorkflowEvent(workflow: Workflow): void {
     this.workflowService.updateWorkflow(workflow, this.workflow);
     this.workflow = workflow;
@@ -86,6 +96,10 @@ export class WorkflowDetailComponent implements OnInit {
 
   private reactToTaskEvent(task: Task): void {
     this.workflowService.updateTask(task, this.workflow);
+  }
+
+  private reactToErrorEvent(error: SseError): void {
+    this.notificationService.showErrorNotification(error.message);
   }
 
 }
