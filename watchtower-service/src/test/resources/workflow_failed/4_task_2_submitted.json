@@ -1,12 +1,12 @@
 {
   "task": {
     "taskId": 2,
-    "status": "RUNNING",
+    "status": "SUBMITTED",
     "hash": "56/c2d5c7",
     "name": "sayHello (3)",
     "exit": 2147483647,
     "submit": 1557137060579,
-    "start": 1557137060590,
+    "start": 0,
     "process": "sayHello",
     "tag": null,
     "module": [
@@ -28,10 +28,10 @@
   },
   "utcTime": "2019-05-06T10:04:20Z",
   "progress": {
-    "running": 3,
-    "submitted": 0,
+    "running": 1,
+    "submitted": 1,
     "failed": 0,
-    "pending": 1,
+    "pending": 0,
     "succeeded": 0,
     "cached": 0
   }

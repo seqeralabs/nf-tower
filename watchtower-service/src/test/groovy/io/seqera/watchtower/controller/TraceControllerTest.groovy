@@ -40,7 +40,7 @@ class TraceControllerTest extends AbstractContainerBaseTest {
 
     void "save a new workflow given a start trace"() {
         given: 'a workflow started JSON trace'
-        TraceWorkflowRequest workflowStartedJsonTrace = TracesJsonBank.extractWorkflowJsonTrace(1, null, WorkflowTraceSnapshotStatus.STARTED)
+        TraceWorkflowRequest workflowStartedJsonTrace = TracesJsonBank.extractWorkflowJsonTrace('success', null, WorkflowTraceSnapshotStatus.STARTED)
 
         when: 'send a save request'
         HttpResponse<TraceWorkflowResponse> response = client.toBlocking().exchange(
@@ -63,7 +63,7 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         Workflow workflow = new DomainCreator().createWorkflow()
 
         and: 'a task submitted JSON trace'
-        TraceTaskRequest taskSubmittedJsonTrace = TracesJsonBank.extractTaskJsonTrace(1, 1, workflow.id, TaskTraceSnapshotStatus.SUBMITTED)
+        TraceTaskRequest taskSubmittedJsonTrace = TracesJsonBank.extractTaskJsonTrace('success', 1, workflow.id, TaskTraceSnapshotStatus.SUBMITTED)
 
         when: 'send a save request'
         HttpResponse<TraceTaskResponse> response = client.toBlocking().exchange(
@@ -84,7 +84,7 @@ class TraceControllerTest extends AbstractContainerBaseTest {
     @Ignore
     void "get the trace update SSE live events"() {
         given: 'save a workflow started JSON trace'
-        TraceWorkflowRequest workflowStartedJsonTrace = TracesJsonBank.extractWorkflowJsonTrace(1, null, WorkflowTraceSnapshotStatus.STARTED)
+        TraceWorkflowRequest workflowStartedJsonTrace = TracesJsonBank.extractWorkflowJsonTrace('success', null, WorkflowTraceSnapshotStatus.STARTED)
 
         when: 'send a save request'
         HttpResponse<TraceWorkflowResponse> responseWorkflow = client.toBlocking().exchange(
@@ -107,7 +107,7 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         subscriber.assertNotComplete()
 
         and: 'save a task submitted JSON trace'
-        TraceTaskRequest taskSubmittedJsonTrace = TracesJsonBank.extractTaskJsonTrace(1, 1, workflowId as Long, TaskTraceSnapshotStatus.SUBMITTED)
+        TraceTaskRequest taskSubmittedJsonTrace = TracesJsonBank.extractTaskJsonTrace('success', 1, workflowId as Long, TaskTraceSnapshotStatus.SUBMITTED)
 
         when: 'send a save request'
         HttpResponse<TraceTaskResponse> responseTask = client.toBlocking().exchange(
@@ -131,19 +131,19 @@ class TraceControllerTest extends AbstractContainerBaseTest {
 
     void "save traces simulated from a complete sequence"() {
         given: 'a nextflow simulator'
-        NextflowSimulator nextflowSimulator = new NextflowSimulator(workflowOrder: 2, client: client.toBlocking(), sleepBetweenRequests: 0)
+        NextflowSimulator nextflowSimulator = new NextflowSimulator(workflowLabel: 'simulation', client: client.toBlocking(), sleepBetweenRequests: 0)
 
         when: 'simulate nextflow'
         nextflowSimulator.simulate()
 
         then: 'the workflow and its tasks have been saved'
         Workflow.count() == 1
-        Task.count() == 2
+        Task.count() == 4
     }
 
     void "save traces simulated from a complete sequence and subscribe to the live events in the mean time"() {
         given: 'a nextflow simulator'
-        NextflowSimulator nextflowSimulator = new NextflowSimulator(workflowOrder: 2, client: client.toBlocking(), sleepBetweenRequests: 0)
+        NextflowSimulator nextflowSimulator = new NextflowSimulator(workflowLabel: 'simulation', client: client.toBlocking(), sleepBetweenRequests: 0)
 
         when: 'send the first request to start the workflow'
         nextflowSimulator.simulate(1)

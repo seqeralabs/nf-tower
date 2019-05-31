@@ -1,12 +1,12 @@
 {
   "task": {
     "taskId": 1,
-    "status": "RUNNING",
+    "status": "SUBMITTED",
     "hash": "2e/a112fb",
     "name": "sayHello (2)",
     "exit": 2147483647,
     "submit": 1557137060558,
-    "start": 1557137060587,
+    "start": 0,
     "process": "sayHello",
     "tag": null,
     "module": [
@@ -23,13 +23,13 @@
     "disk": null,
     "time": null,
     "env": null,
-    "nativeId": 28417,
+    "nativeId": null,
     "workflowId": "12345"
   },
   "utcTime": "2019-05-06T10:04:20Z",
   "progress": {
-    "running": 1,
-    "submitted": 2,
+    "running": 0,
+    "submitted": 1,
     "failed": 0,
     "pending": 1,
     "succeeded": 0,

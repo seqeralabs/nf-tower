@@ -1,0 +1,62 @@
+{
+    "workflow": {
+        "start": "2019-05-29T07:11:09Z",
+        "projectDir": "/home/salenda/.nextflow/assets/nextflow-io/hello",
+        "manifest": {
+            "nextflowVersion": null,
+            "defaultBranch": "master",
+            "version": null,
+            "homePage": null,
+            "gitmodules": null,
+            "description": null,
+            "name": null,
+            "mainScript": "main.nf",
+            "author": null
+        },
+        "complete": null,
+        "profile": "standard",
+        "homeDir": "/home/salenda",
+        "workDir": "/home/salenda/Programs/nextflow/work",
+        "container": "nextflow/bash",
+        "commitId": "a9012339ce857d6ec7a078281813d8a93645a3e7",
+        "errorMessage": null,
+        "repository": "https://github.com/nextflow-io/hello.git",
+        "containerEngine": null,
+        "scriptFile": "/home/salenda/.nextflow/assets/nextflow-io/hello/main.nf",
+        "userName": "salenda",
+        "launchDir": "/home/salenda/Programs/nextflow",
+        "runName": "small_sammet",
+        "configFiles": [
+            "/home/salenda/.nextflow/assets/nextflow-io/hello/nextflow.config"
+        ],
+        "sessionId": "9de81417-fda1-4141-876e-7f110060cdd5",
+        "errorReport": null,
+        "scriptId": "537c2298d228991eb8a3f7dc1001816f",
+        "revision": "master",
+        "exitStatus": null,
+        "commandLine": "./nextflow-19.05.3-TOWER-all run hello -with-tower 'http://localhost:8500'",
+        "nextflow": {
+            "version": "19.05.3-TOWER",
+            "build": 5097,
+            "timestamp": "2019-05-20T16:04:00Z"
+        },
+        "resume": false,
+        "success": false,
+        "projectName": "nextflow-io/hello",
+        "scriptName": "main.nf",
+        "duration": null,
+        "params": {
+            
+        },
+        "workflowId": null
+    },
+    "utcTime": "2019-05-29T07:11:09Z",
+    "progress": {
+        "pending": 0,
+        "submitted": 0,
+        "running": 0,
+        "succeeded": 0,
+        "failed": 0,
+        "cached": 0
+    }
+}

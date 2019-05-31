@@ -23,12 +23,12 @@ class TracesJsonBank {
 
     private final static RESOURCES_DIR_PATH = 'src/test/resources'
 
-    private static File getWorkflowDir(Integer workflowOrder) {
-        new File(RESOURCES_DIR_PATH, "workflow_${workflowOrder}")
+    private static File getWorkflowDir(String workflowLabel) {
+        new File(RESOURCES_DIR_PATH, "workflow_${workflowLabel}")
     }
 
-    static TraceWorkflowRequest extractWorkflowJsonTrace(Integer workflowOrder, Long workflowId, WorkflowTraceSnapshotStatus workflowStatus) {
-        File workflowDir = getWorkflowDir(workflowOrder)
+    static TraceWorkflowRequest extractWorkflowJsonTrace(String workflowLabel, Long workflowId, WorkflowTraceSnapshotStatus workflowStatus) {
+        File workflowDir = getWorkflowDir(workflowLabel)
 
         String fileNamePart = "workflow_${workflowStatus.name().toLowerCase()}.json"
         File jsonFile = workflowDir.listFiles().find { it.name.endsWith(fileNamePart) }
@@ -39,10 +39,10 @@ class TracesJsonBank {
         workflowTrace
     }
 
-    static TraceTaskRequest extractTaskJsonTrace(Integer workflowOrder, Integer taskOrder, Long workflowId, TaskTraceSnapshotStatus taskStatus) {
-        File workflowDir = getWorkflowDir(workflowOrder)
+    static TraceTaskRequest extractTaskJsonTrace(String workflowLabel, Integer taskId, Long workflowId, TaskTraceSnapshotStatus taskStatus) {
+        File workflowDir = getWorkflowDir(workflowLabel)
 
-        String fileNamePart = "task_${taskOrder}_${taskStatus.name().toLowerCase()}.json"
+        String fileNamePart = "task_${taskId}_${taskStatus.name().toLowerCase()}.json"
         File jsonFile = workflowDir.listFiles().find { it.name.endsWith(fileNamePart) }
 
         TraceTaskRequest taskTrace = new ObjectMapper().readValue(jsonFile, TraceTaskRequest.class)
@@ -51,21 +51,23 @@ class TracesJsonBank {
         taskTrace
     }
 
-    static List<Integer> getTasksIds(Integer workflowOrder) {
-        File workflowDir = new File("${RESOURCES_DIR_PATH}/workflow_${workflowOrder}/")
+    static List<Map> getTasksFeatures(String workflowLabel) {
+        File workflowDir = new File("${RESOURCES_DIR_PATH}/workflow_${workflowLabel}/")
 
         List<File> jsonFiles = workflowDir.listFiles().toList()
 
         jsonFiles.name.findResults { String filename ->
-            if (!filename.startsWith('task')) {
-                return null
-            }
-
-            Matcher matcher = (filename =~ /task_(\d+)_\w+.json/)
+            Matcher matcher = (filename =~ /(\d+)_task_(\d+)_(\w+).json/)
             if (matcher) {
-                matcher.group(1).toInteger()
+                [
+                    order: matcher.group(1).toInteger(),
+                    taskId: matcher.group(2).toInteger(),
+                    status: matcher.group(3),
+                ]
+            } else {
+                null
             }
-        }.unique().sort()
+        }
     }
 
 }
@@ -75,7 +77,7 @@ class NextflowSimulator {
     private static final String WORKFLOW_TRACE_ENDPOINT = '/trace/workflow'
     private static final String TASK_TRACE_ENDPOINT = '/trace/task'
 
-    Integer workflowOrder
+    String workflowLabel
     BlockingHttpClient client
     Long sleepBetweenRequests
     Long workflowId
@@ -85,7 +87,7 @@ class NextflowSimulator {
 
     void simulate(Integer nRequests = null) {
         if (!workflowId) {
-            TraceWorkflowRequest workflowStarted = TracesJsonBank.extractWorkflowJsonTrace(workflowOrder, null, WorkflowTraceSnapshotStatus.STARTED)
+            TraceWorkflowRequest workflowStarted = TracesJsonBank.extractWorkflowJsonTrace(workflowLabel, null, WorkflowTraceSnapshotStatus.STARTED)
             HttpResponse<TraceWorkflowResponse> workflowResponse = client.exchange(HttpRequest.POST(WORKFLOW_TRACE_ENDPOINT, workflowStarted), TraceWorkflowResponse.class)
             workflowId = workflowResponse.body().workflowId.toLong()
 
@@ -108,7 +110,7 @@ class NextflowSimulator {
             }
         }
 
-        TraceWorkflowRequest workflowCompleted = TracesJsonBank.extractWorkflowJsonTrace(workflowOrder, workflowId, WorkflowTraceSnapshotStatus.SUCCEEDED)
+        TraceWorkflowRequest workflowCompleted = TracesJsonBank.extractWorkflowJsonTrace(workflowLabel, workflowId, WorkflowTraceSnapshotStatus.SUCCEEDED)
         client.exchange(HttpRequest.POST(WORKFLOW_TRACE_ENDPOINT, workflowCompleted), TraceWorkflowResponse.class)
     }
 
@@ -119,42 +121,11 @@ class NextflowSimulator {
     }
 
     private List<TraceTaskRequest> computeTaskTraceSequence() {
-        List<Integer> tasksOrders = TracesJsonBank.getTasksIds(workflowOrder)
+        List<Map> tasksFeatures = TracesJsonBank.getTasksFeatures(workflowLabel).sort { it.order }
 
-        List<TraceTaskRequest> taskSubmittedTraces = tasksOrders.collect { Integer taskOrder -> TracesJsonBank.extractTaskJsonTrace(workflowOrder, taskOrder, workflowId, TaskTraceSnapshotStatus.SUBMITTED) }
-        List<TraceTaskRequest> taskRunningTraces = tasksOrders.collect { Integer taskOrder -> TracesJsonBank.extractTaskJsonTrace(workflowOrder, taskOrder, workflowId, TaskTraceSnapshotStatus.RUNNING) }
-        List<TraceTaskRequest> taskCompletedTraces = tasksOrders.collect { Integer taskOrder -> TracesJsonBank.extractTaskJsonTrace(workflowOrder, taskOrder, workflowId, TaskTraceSnapshotStatus.COMPLETED) }
-
-        List<TraceTaskRequest> tracesSequence = []
-
-        Random random = new Random()
-        int nTakenElementsSubmitted = 0, nTakenElementsRunning = 0, nTakenElementsCompleted = 0
-        while (!(taskSubmittedTraces.isEmpty() && taskRunningTraces.isEmpty() && taskCompletedTraces.isEmpty())) {
-            int nElementsSubmittedToTake = random.nextInt(taskSubmittedTraces.size() + 1)
-            nElementsSubmittedToTake.times {
-                takeFirstElementFromList(taskSubmittedTraces, tracesSequence)
-                nTakenElementsSubmitted++
-            }
-
-            int nElementsRunningToTake = random.nextInt(nTakenElementsSubmitted - nTakenElementsRunning + 1)
-            nElementsRunningToTake.times {
-                takeFirstElementFromList(taskRunningTraces, tracesSequence)
-                nTakenElementsRunning++
-            }
-
-            int nElementsCompletedToTake = random.nextInt(nTakenElementsRunning - nTakenElementsCompleted + 1)
-            nElementsCompletedToTake.times {
-                takeFirstElementFromList(taskCompletedTraces, tracesSequence)
-                nTakenElementsCompleted++
-            }
+        tasksFeatures.collect {
+            TracesJsonBank.extractTaskJsonTrace(workflowLabel, it.taskId, workflowId, TaskTraceSnapshotStatus."${it.status.toUpperCase()}")
         }
-
-        tracesSequence
-    }
-
-    private static void takeFirstElementFromList(List originalList, List accumulationList) {
-        accumulationList << originalList.first()
-        originalList.remove(0)
     }
 
 }
