@@ -286,7 +286,7 @@ class MailerTest extends Specification {
 
     void 'should fetch config properties' () {
         given:
-        Map ENV = [TWR_SMTP_USER: 'jim', TWR_SMTP_PASSWORD: 'secret', TWR_SMTP_HOST: 'g.com', TWR_SMTP_PORT: '864']
+        Map ENV = [TOWER_SMTP_USER: 'jim', TOWER_SMTP_PASSWORD: 'secret', TOWER_SMTP_HOST: 'g.com', TOWER_SMTP_PORT: '864']
         Map SMTP = [host:'hola.com', user:'foo', password: 'bar', port: 234]
         Mailer mail
 

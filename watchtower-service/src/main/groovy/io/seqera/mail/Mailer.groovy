@@ -60,8 +60,6 @@ class Mailer {
 
     private final static Pattern HTML_PATTERN = Pattern.compile("("+TAG_START+".*"+TAG_END+")|("+TAG_SELF_CLOSING+")|("+HTML_ENTITY+")", Pattern.DOTALL )
 
-    private long SEND_MAIL_TIMEOUT = 15_000
-
     private static String DEF_CHARSET = Charset.defaultCharset().toString()
 
     /**
@@ -164,7 +162,7 @@ class Mailer {
         def value = props.getProperty("mail.$key")
         if( !value ) {
             // fallback on env properties
-            value = env.get("TWR_${key.toUpperCase().replace('.','_')}".toString())
+            value = env.get("TOWER_${key.toUpperCase().replace('.','_')}".toString())
         }
         return value
     }
@@ -179,19 +177,14 @@ class Mailer {
             throw new IllegalArgumentException("Missing mail message recipient")
         
         final transport = getSession().getTransport()
+        log.debug("Connecting to host=$host port=$port user=$user")
         transport.connect(host, port as int, user, password)
-        log.trace("Connected to host=$host port=$port")
         try {
             transport.sendMessage(message, message.getAllRecipients())
         }
         finally {
             transport.close()
         }
-    }
-
-    protected long getSendTimeout() {
-        // TODO it should be configurable from the config file
-        return SEND_MAIL_TIMEOUT
     }
 
     /**

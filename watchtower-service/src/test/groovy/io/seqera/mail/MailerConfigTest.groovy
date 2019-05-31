@@ -1,11 +1,9 @@
 package io.seqera.mail
 
-import io.micronaut.context.ApplicationContext
-import io.micronaut.test.annotation.MicronautTest
-import spock.lang.Specification
-
 import javax.inject.Inject
 
+import io.micronaut.test.annotation.MicronautTest
+import spock.lang.Specification
 /**
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
@@ -60,6 +58,22 @@ class MailerConfigTest extends Specification {
         then:
         props.'mail.smtp.proxy.host' == 'sys.proxy.name'
         props.'mail.smtp.proxy.port' == '1234'
+
+    }
+
+    def 'should get config from env' () {
+
+        when:
+        def mailer = new Mailer( config: new MailerConfig() )
+        then:
+        mailer.getUser() == null
+        mailer.getPassword() == null
+
+        when:
+        mailer = new Mailer( config: new MailerConfig(), env: [TOWER_SMTP_USER: 'foo', TOWER_SMTP_PASSWORD: 'secret'] )
+        then:
+        mailer.getUser() == 'foo'
+        mailer.getPassword() == 'secret'
 
     }
 
