@@ -3,6 +3,8 @@ import {environment} from "../../../../environments/environment";
 import {Observable, Subscriber} from "rxjs";
 import {Task} from "../entity/task/task";
 import {Workflow} from "../entity/workflow/workflow";
+import {SseError} from "../entity/sse/sse-error";
+import {SseErrorType} from "../entity/sse/sse-error-type";
 
 const endpointUrl: string = `${environment.apiUrl}/trace/live`;
 
@@ -21,10 +23,16 @@ export class ServerSentEventsWorkflowService {
       const eventSource: EventSource = new EventSource(`${endpointUrl}/${workflowId}`);
 
       eventSource.addEventListener('message', (event: MessageEvent) => {
-        subscriber.next(this.transformEventData(JSON.parse(event.data)));
+        const data: any = this.transformEventData(JSON.parse(event.data));
+
+        if (data instanceof SseError) {
+          subscriber.error(data);
+        } else {
+          subscriber.next(this.transformEventData(data));
+        }
       });
       eventSource.addEventListener('error', (event: MessageEvent) => {
-        subscriber.error('Error happened');
+        subscriber.error(new SseError({type: SseErrorType.UNEXPECTED, message: 'Unexpected SSE error happened'}));
       });
 
       return () => {
@@ -41,7 +49,9 @@ export class ServerSentEventsWorkflowService {
     if (data.task) {
       return new Task(data.task);
     }
-    return data;
+    if (data.error) {
+      return new SseError(data.error);
+    }
   }
 
 }

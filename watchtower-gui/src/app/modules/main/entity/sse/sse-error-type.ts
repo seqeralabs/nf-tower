@@ -1,0 +1,5 @@
+export enum SseErrorType {
+
+  NONEXISTENT, BAD_PROCESSING, UNEXPECTED
+
+}
