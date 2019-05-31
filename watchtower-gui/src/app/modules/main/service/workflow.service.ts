@@ -2,9 +2,10 @@ import { Injectable } from '@angular/core';
 import {HttpClient} from "@angular/common/http";
 import {Workflow} from "../entity/workflow/workflow";
 import {environment} from "../../../../environments/environment";
-import {Observable, Subject, of, ReplaySubject} from "rxjs";
+import {Observable, Subject, of, ReplaySubject, BehaviorSubject} from "rxjs";
 import {map, tap} from "rxjs/operators";
 import {Task} from "../entity/task/task";
+import {findIndex, sortBy} from "lodash";
 
 
 const endpointUrl: string = `${environment.apiUrl}/workflow`;
@@ -39,7 +40,7 @@ export class WorkflowService {
     const url: string = `${endpointUrl}/list`;
 
     return this.http.get(url).pipe(
-      map((data: any) => data.workflows.map((item: any) => new Workflow(item)).sort((w1: Workflow, w2: Workflow) =>  (w1.data.start < w2.data.start) ? 1 : ((w1.data.start > w2.data.start) ? -1 : 0))),
+      map((data: any) => data.workflows ? data.workflows.map((item: any) => new Workflow(item)).sort((w1: Workflow, w2: Workflow) =>  (w1.data.start < w2.data.start) ? 1 : ((w1.data.start > w2.data.start) ? -1 : 0))  : []),
       tap((workflows: Workflow[]) => workflows.forEach((workflow: Workflow) => this.workflowsByIdCache.set(workflow.data.workflowId, workflow)))
     );
   }
@@ -66,8 +67,13 @@ export class WorkflowService {
     );
   }
 
-  fetchTasks(workflow: Workflow): void {
-    this.requestTasks(workflow).subscribe();
+  fetchTasks(workflow: Workflow): Observable<Task[]> {
+    let tasks$: ReplaySubject<Task[]> = new ReplaySubject(1);
+    this.requestTasks(workflow).subscribe((tasks: Task[]) => {
+      tasks$.next(tasks)
+    });
+
+    return tasks$.asObservable();
   }
 
   private requestTasks(workflow: Workflow): Observable<Task[]> {
@@ -75,14 +81,28 @@ export class WorkflowService {
     const url: string = `${endpointUrl}/${workflow.data.workflowId}/tasks`;
 
     return this.http.get(url).pipe(
-      map((data: any) => data.tasks.map((item) => new Task(item))),
+      map((data: any) => data.tasks ? data.tasks.map((item) => new Task(item)) : []),
       tap((tasks: Task[]) => workflow.tasks = tasks)
     );
   }
 
-  updateWorkflow(workflow: Workflow): void {
-    this.workflowsByIdCache.set(workflow.data.workflowId, workflow);
+  updateWorkflow(newWorkflow: Workflow, oldWorkflow: Workflow): void {
+    newWorkflow.tasks = oldWorkflow.tasks;
+
+    this.workflowsByIdCache.set(newWorkflow.data.workflowId, newWorkflow);
     this.emitWorkflowsFromCache();
+  }
+
+  updateTask(task: Task, workflow: Workflow): void {
+    const taskIndex: number = findIndex(workflow.tasks, (t: Task) => t.data.taskId == task.data.taskId);
+    if (taskIndex < 0) {
+      workflow.tasks.push(task);
+    } else {
+      workflow.tasks[taskIndex] = task;
+    }
+    workflow.progress = task.progress;
+
+    workflow.tasks = sortBy(Array.from(workflow.tasks), (t: Task) => t.data.taskId);
   }
 
   private emitWorkflowsFromCache(): void {
