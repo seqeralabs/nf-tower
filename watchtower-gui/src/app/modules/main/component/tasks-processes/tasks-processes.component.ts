@@ -1,7 +1,6 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {Task} from '../../entity/task/task';
 import {groupBy, last, sumBy} from "lodash";
-import {TaskStatus} from "../../entity/task/task-status.enum";
 import {HumanizeDuration, HumanizeDurationLanguage, ILanguage} from "humanize-duration-ts";
 
 @Component({
@@ -9,7 +8,7 @@ import {HumanizeDuration, HumanizeDurationLanguage, ILanguage} from "humanize-du
   templateUrl: './tasks-processes.component.html',
   styleUrls: ['./tasks-processes.component.scss']
 })
-export class TasksProcessesComponent implements OnInit {
+export class TasksProcessesComponent implements OnInit, OnChanges {
 
   @Input()
   tasks: Task[];
@@ -23,15 +22,17 @@ export class TasksProcessesComponent implements OnInit {
     this.extractTasksByProcess();
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    this.extractTasksByProcess();
+  }
+
 
   extractTasksByProcess(): void {
     const tasksByProcessObject: any = groupBy(this.tasks, 'data.process');
 
-    console.log('The tasks by process object', tasksByProcessObject);
+    console.log('Computed tasks by process object', tasksByProcessObject);
     this.tasksByProcess = new Map(Object.entries(tasksByProcessObject));
-
     this.processes = Array.from(this.tasksByProcess.keys()).sort();
-    console.log('The processes', this.processes);
   }
 
   getNTotalProcessTasks(process: string): number {
