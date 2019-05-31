@@ -12,6 +12,7 @@ misc/
 *.iml
 *.ipr
 *.iws
+*.log
 .project
 .settings
 .classpath
