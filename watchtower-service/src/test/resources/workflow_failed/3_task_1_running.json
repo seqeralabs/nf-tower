@@ -29,7 +29,7 @@
   "utcTime": "2019-05-06T10:04:20Z",
   "progress": {
     "running": 1,
-    "submitted": 2,
+    "submitted": 0,
     "failed": 0,
     "pending": 1,
     "succeeded": 0,
