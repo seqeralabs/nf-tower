@@ -19,7 +19,6 @@ export class TasksProcessesComponent implements OnInit, OnChanges {
   constructor() { }
 
   ngOnInit() {
-    this.extractTasksByProcess();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
