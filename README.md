@@ -10,6 +10,28 @@ Nextflow Tower system
 
     make run
 
+## Backend settings  
+
+Tower backend settings can be provided either:
+  - `application.yml` in the backend class-path
+  - `tower.yml` in the launching directory
+
+A minimal config requires the settings for the SMTP 
+server, for example: 
+
+```
+mail:
+  smtp:
+    host: email-smtp.eu-west-1.amazonaws.com
+    port: 587
+    auth: true
+    user: <replace with your user id>
+    password: <replace with your password>
+    starttls:
+      enable: true
+      required: true
+```
+
 ## Basic use case
 
 Load data from nextflow:
