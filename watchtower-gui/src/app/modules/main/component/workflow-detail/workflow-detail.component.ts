@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {Workflow} from "../../entity/workflow/workflow";
 import {WorkflowService} from "../../service/workflow.service";
 import {ActivatedRoute} from "@angular/router";
@@ -17,6 +17,7 @@ import {Subscription} from "rxjs";
 export class WorkflowDetailComponent implements OnInit {
 
   workflow: Workflow;
+  private liveEventsSubscription: Subscription;
 
   constructor(private workflowService: WorkflowService,
               private serverSentEventsWorkflowService: ServerSentEventsWorkflowService,
@@ -25,7 +26,8 @@ export class WorkflowDetailComponent implements OnInit {
 
   ngOnInit() {
     this.route.paramMap.subscribe((params: ParamMap) => {
-        console.log('Getting params');
+      this.unsubscribeFromWorkflowLiveEvents();
+      console.log('Getting params');
         const workflowId: string = params.get('id');
         this.fetchWorkflow(workflowId);
       }
@@ -36,7 +38,7 @@ export class WorkflowDetailComponent implements OnInit {
     console.log(`Fetching workflow ${workflowId}`);
 
     this.workflowService.getWorkflow(workflowId, true).subscribe(
-      (workflow: Workflow) => this.receiveWorkflow(workflow),
+      (workflow: Workflow) => this.reactToWorkflowReceived(workflow),
       (error: HttpErrorResponse) => {
         if (error.status === 404) {
           this.notificationService.showErrorNotification("Workflow doesn't exist");
@@ -45,7 +47,7 @@ export class WorkflowDetailComponent implements OnInit {
     )
   }
 
-  private receiveWorkflow(workflow: Workflow): void {
+  private reactToWorkflowReceived(workflow: Workflow): void {
     this.workflow = workflow;
     this.workflowService.fetchTasks(workflow).subscribe(
       () => {
@@ -57,11 +59,12 @@ export class WorkflowDetailComponent implements OnInit {
   }
 
   private subscribeToWorkflowLiveEvents(workflow: Workflow): void {
-    const subscription: Subscription = this.serverSentEventsWorkflowService.connect(workflow).subscribe(
+    this.liveEventsSubscription = this.serverSentEventsWorkflowService.connect(workflow).subscribe(
       (data: Workflow | Task | any) => {
         console.log(`Live event data received from workflow ${workflow.data.workflowId}`, data);
         if (data instanceof Workflow) {
-          this.reactToWorkflowEvent(data, subscription);
+          this.reactToWorkflowEvent(data);
+          this.unsubscribeFromWorkflowLiveEvents();
         } else if (data instanceof Task) {
           this.reactToTaskEvent(data);
         }
@@ -69,10 +72,16 @@ export class WorkflowDetailComponent implements OnInit {
     );
   }
 
-  private reactToWorkflowEvent(workflow: Workflow, subscription: Subscription): void {
+  private unsubscribeFromWorkflowLiveEvents(): void {
+    if (this.liveEventsSubscription) {
+      this.liveEventsSubscription.unsubscribe();
+      this.liveEventsSubscription = null;
+    }
+  }
+
+  private reactToWorkflowEvent(workflow: Workflow): void {
     this.workflowService.updateWorkflow(workflow, this.workflow);
     this.workflow = workflow;
-    subscription.unsubscribe();
   }
 
   private reactToTaskEvent(task: Task): void {
