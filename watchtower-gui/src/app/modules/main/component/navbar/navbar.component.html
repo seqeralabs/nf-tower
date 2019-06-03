@@ -1,0 +1,52 @@
+<!--<mz-dropdown *ngIf="user"-->
+<!--  [id]="'dropdown-profile'" [belowOrigin]="true" [constrainWidth]="false" [dropdownButtonId]="'dropdown-profile-section'" [inDuration]="0" [outDuration]="0"-->
+<!--&gt;-->
+<!--  <mz-dropdown-item>-->
+<!--    <wt-user-detail [user]="user"></wt-user-detail>-->
+<!--  </mz-dropdown-item>-->
+<!--</mz-dropdown>-->
+<!--<nav>-->
+<!--  <div class="nav-wrapper">-->
+<!--    <a href="/" class="brand-logo">{{title}}</a>-->
+<!--    <ul class="right hide-on-med-and-down links">-->
+<!--      <li><a href="/">Docs</a></li>-->
+<!--      <li><a href="/">Support</a></li>-->
+
+<!--      <li *ngIf="!user"><a href="/login">Sign in</a></li>-->
+<!--      <li *ngIf="user" class="profile-link">-->
+<!--        <a id="dropdown-profile-section" class="dropdown-trigger" data-target="dropdown-profile">-->
+<!--            <img alt="avatar" class="circle thumbnail" [src]="user.avatar">-->
+<!--        </a>-->
+<!--      </li>-->
+<!--    </ul>-->
+<!--  </div>-->
+<!--</nav>-->
+<nav id="navbar" class="navbar navbar-dark navbar-expand-lg">
+  <a class="navbar-brand" href="/">
+    <img src="assets/seqera_logo_white.png" alt="" height="30">
+  </a>
+
+  <ul class="navbar-nav">
+    <li class="nav-item">
+      <a class="nav-link" href="/">Docs</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="/">Support</a>
+    </li>
+
+    <li *ngIf="!user" class="nav-item ml-auto">
+      <a class="nav-link" href="/login">Sign in</a>
+    </li>
+    <li *ngIf="user" class="nav-item dropdown ml-auto profile-item">
+      <a class="nav-link dropdown-toggle" id="user-dropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <img class="thumbnail rounded-circle" alt="avatar" [src]="user.avatar">
+      </a>
+      <div class="dropdown-menu profile-card" aria-labelledby="user-dropdown">
+        <a class="dropdown-item" href="#">Action</a>
+        <a class="dropdown-item" href="#">Another action</a>
+        <div class="dropdown-divider"></div>
+        <a class="dropdown-item" href="#">Something else here</a>
+      </div>
+    </li>
+  </ul>
+</nav>

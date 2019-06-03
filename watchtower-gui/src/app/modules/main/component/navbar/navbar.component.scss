@@ -1,0 +1,24 @@
+.navbar-nav {
+  width: 100%;
+}
+
+.profile-item {
+  padding-left: 60px;
+}
+
+.profile-card {
+  left: initial;
+  right: 0;
+}
+
+.thumbnail {
+  max-height: 100%;
+  max-width: 100%;
+
+  position: absolute;
+  margin: auto;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
