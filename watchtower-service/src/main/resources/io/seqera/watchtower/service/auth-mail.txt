@@ -1,6 +1,6 @@
 Hi ${user},
 
-Please click the following link to login in NF-Tower (it will be valid for the next 30 minutes):
+Please click the following link to login in ${app_name} (it will be valid for the next 30 minutes):
 
 ${auth_url}
 
@@ -8,5 +8,5 @@ Not working? Try copying and pasting it to your browser.
 
 
 --
-This email was sent by NF-Tower
+This email was sent by ${app_name}
 ${frontend_url}

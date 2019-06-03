@@ -23,6 +23,9 @@ import org.springframework.validation.FieldError
 class UserServiceImpl implements UserService {
 
 
+    @Value('${app.name:Nextflow Tower}')
+    String appName
+
     @Value('${front.url}')
     String frontendUrl
 
@@ -50,13 +53,14 @@ class UserServiceImpl implements UserService {
 
         // create template binding
         def binding = new HashMap(5)
+        binding.app_name = appName
         binding.auth_url = buildAccessUrl(user)
         binding.frontend_url = frontendUrl
         binding.user = user.firstName ?: user.userName
 
         Mail mail = new Mail()
         mail.to(user.email)
-        mail.subject('NF-Tower Sign in')
+        mail.subject("$appName Sign in")
         mail.text(getTextTemplate(binding))
         mail.body(getHtmlTemplate(binding))
         mail.attach(getLogoAttachment())
