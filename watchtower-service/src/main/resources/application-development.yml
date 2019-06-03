@@ -5,6 +5,7 @@ micronaut:
       enabled: true
 ---
 mail:
+  from: info@seqera.io
   to: qa@salenda.es
   smtp:
     host: smtp.salenda.es
