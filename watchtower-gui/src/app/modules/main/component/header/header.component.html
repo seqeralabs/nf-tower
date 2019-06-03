@@ -1,23 +1,31 @@
-<mz-dropdown *ngIf="user"
-  [id]="'dropdown-profile'" [belowOrigin]="true" [constrainWidth]="false" [dropdownButtonId]="'dropdown-profile-section'" [inDuration]="0" [outDuration]="0"
->
-  <mz-dropdown-item>
-    <wt-user-detail [user]="user"></wt-user-detail>
-  </mz-dropdown-item>
-</mz-dropdown>
-<nav>
-  <div class="nav-wrapper">
-    <a href="/" class="brand-logo">{{title}}</a>
-    <ul class="right hide-on-med-and-down links">
-      <li><a href="/">Docs</a></li>
-      <li><a href="/">Support</a></li>
+<!--<mz-dropdown *ngIf="user"-->
+<!--  [id]="'dropdown-profile'" [belowOrigin]="true" [constrainWidth]="false" [dropdownButtonId]="'dropdown-profile-section'" [inDuration]="0" [outDuration]="0"-->
+<!--&gt;-->
+<!--  <mz-dropdown-item>-->
+<!--    <wt-user-detail [user]="user"></wt-user-detail>-->
+<!--  </mz-dropdown-item>-->
+<!--</mz-dropdown>-->
+<!--<nav>-->
+<!--  <div class="nav-wrapper">-->
+<!--    <a href="/" class="brand-logo">{{title}}</a>-->
+<!--    <ul class="right hide-on-med-and-down links">-->
+<!--      <li><a href="/">Docs</a></li>-->
+<!--      <li><a href="/">Support</a></li>-->
 
-      <li *ngIf="!user"><a href="/login">Sign in</a></li>
-      <li *ngIf="user" class="profile-link">
-        <a id="dropdown-profile-section" class="dropdown-trigger" data-target="dropdown-profile">
-            <img alt="avatar" class="circle thumbnail" [src]="user.avatar">
-        </a>
-      </li>
-    </ul>
-  </div>
+<!--      <li *ngIf="!user"><a href="/login">Sign in</a></li>-->
+<!--      <li *ngIf="user" class="profile-link">-->
+<!--        <a id="dropdown-profile-section" class="dropdown-trigger" data-target="dropdown-profile">-->
+<!--            <img alt="avatar" class="circle thumbnail" [src]="user.avatar">-->
+<!--        </a>-->
+<!--      </li>-->
+<!--    </ul>-->
+<!--  </div>-->
+<!--</nav>-->
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="left">
+      <a class="logo" href="#"> <img src="assets/seqera_logo_white.png" alt="" height="30"> </a>
+    </div>
+  </div><!-- /.container-fluid -->
 </nav>
