@@ -23,12 +23,12 @@ export class ServerSentEventsWorkflowService {
       const eventSource: EventSource = new EventSource(`${endpointUrl}/${workflowId}`);
 
       eventSource.addEventListener('message', (event: MessageEvent) => {
-        const data: any = this.transformEventData(JSON.parse(event.data));
+        const transformedData: any = this.transformEventData(JSON.parse(event.data));
 
-        if (data instanceof SseError) {
-          subscriber.error(data);
+        if (transformedData instanceof SseError) {
+          subscriber.error(transformedData);
         } else {
-          subscriber.next(this.transformEventData(data));
+          subscriber.next(transformedData);
         }
       });
       eventSource.addEventListener('error', (event: MessageEvent) => {
