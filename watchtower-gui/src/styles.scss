@@ -1,8 +1,22 @@
 /* You can add global styles to this file, and also import other style files */
+@import "./src/assets/variables";
 
 html, body {
   height: 100%;
   width: 100%;
+}
+
+body {
+  overflow-x: hidden;
+  background-color: $body-background !important;
+}
+
+#navbar {
+  height: 64px;
+  background-color: $navbar-black;
+  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16);
+  padding-top: 20px;
+  padding-bottom: 20px;
 }
 
 .toast {

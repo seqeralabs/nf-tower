@@ -3,13 +3,11 @@ import {AuthService} from "../../service/auth.service";
 import {User} from "../../entity/user/user";
 
 @Component({
-  selector: 'wt-header',
-  templateUrl: './header.component.html',
-  styleUrls: ['./header.component.scss']
+  selector: 'wt-navbar',
+  templateUrl: './navbar.component.html',
+  styleUrls: ['./navbar.component.scss']
 })
-export class HeaderComponent implements OnInit {
-
-  title: string = 'seqeralabs';
+export class NavbarComponent implements OnInit {
 
   user: User;
 
