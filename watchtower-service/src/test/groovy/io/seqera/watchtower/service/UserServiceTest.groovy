@@ -66,7 +66,7 @@ class UserServiceTest extends AbstractContainerBaseTest {
         smtpServer.messages.size() == 1
         Message message = smtpServer.messages.first().mimeMessage
         message.allRecipients.contains(new InternetAddress(user.email))
-        message.subject == 'NF-Tower Sign in'
+        message.subject == 'Nextflow Tower Sign in'
         (message.content as MimeMultipart).getBodyPart(0).content.getBodyPart(0).content.contains('Hi tomas,')
     }
 
@@ -98,7 +98,7 @@ class UserServiceTest extends AbstractContainerBaseTest {
         smtpServer.messages.size() == 1
         Message message = smtpServer.messages.first().mimeMessage
         message.allRecipients.contains(new InternetAddress(existingUser.email))
-        message.subject == 'NF-Tower Sign in'
+        message.subject == 'Nextflow Tower Sign in'
         (message.content as MimeMultipart).getBodyPart(0).content.getBodyPart(0).content.contains("Hi $userName,")
     }
 

@@ -2,10 +2,20 @@
 
 .workflow-card {
   cursor: pointer;
+
+  .card-content {
+    padding: 6px 12px 12px 12px;
+    font-size: 0.9rem;
+  }
+
+  .card-title {
+    font-size: 1.1rem;
+    margin-bottom: 0.1rem;
+  }
 }
 
 .workflow--succeed {
-  border-left: $succeed-green solid 10px;
+  border-left: $succeed-green solid 5px;
 
   .card-title {
     color: $succeed-green;
@@ -13,7 +23,7 @@
 }
 
 .workflow--started {
-  border-left: $started-blue solid 10px;
+  border-left: $started-blue solid 5px;
 
   .card-title {
     color: $started-blue;
@@ -21,7 +31,7 @@
 }
 
 .workflow--failed {
-  border-left: $failed-red solid 10px;
+  border-left: $failed-red solid 5px;
 
   .card-title {
     color: $failed-red;
