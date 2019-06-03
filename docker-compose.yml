@@ -10,7 +10,6 @@ services:
 
   backend:
     build: ./watchtower-service
-#    image: watchtower-service:latest
     networks:
       - frontend
       - backend
@@ -25,7 +24,6 @@ services:
 
   frontend:
     build: ./watchtower-gui
-#    image: watchtower-gui:latest
     networks:
       - frontend
     ports:
