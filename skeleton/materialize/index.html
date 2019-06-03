@@ -4,15 +4,17 @@
     <!--Import Google Icon Font-->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <!--Import materialize.css-->
-    <link type="text/css" rel="stylesheet" href="css/materialize.min.css"  media="screen,projection"/>
+    <link type="text/css" rel="stylesheet" href="css/materialize.min.css" media="screen,projection"/>
+    <link type="text/css" rel="stylesheet" href="css/style.css" media="screen,projection"/>
 
     <!--Let browser know website is optimized for mobile-->
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 </head>
 
 <body>
-<div class="grey lighten-4" >
-    <nav class="grey darken-4">
+
+<div id="layout">
+    <nav id="header" class="grey darken-4">
         <div class="nav-wrapper">
             <a class="brand-logo" href="#"> <img src="img/seqera-logo-white.png" alt="" height="30"> </a>
             <ul id="nav-mobile" class="right hide-on-med-and-down">
@@ -23,45 +25,97 @@
         </div>
     </nav>
 
+    <ul id="sidebar" class="sidenav sidenav-fixed">
+        <li>
+            <div class="card blue-grey darken-1">
+                <div class="card-content white-text">
+                    <p>Click on "HIDE" to hide the sidebar</p>
+                </div>
+                <div class="card-action">
+                    <a href="#" onclick="toggleSidebar()">Hide</a>
+                </div>
+            </div>
+        </li>
+        <li><a href="#!"><i class="material-icons">cloud</i>First Link With Icon</a></li>
+        <li><a href="#!">Second Link</a></li>
+        <li>
+            <div class="divider"></div>
+        </li>
+        <li><a class="subheader">Subheader</a></li>
+        <li><a class="waves-effect" href="#!">Third Link With Waves</a></li>
+        <li><a class="waves-effect" href="#!">Third Link With Waves</a></li>
+        <li><a class="waves-effect" href="#!">Third Link With Waves</a></li>
+        <li><a class="waves-effect" href="#!">Third Link With Waves</a></li>
+        <li><a class="waves-effect" href="#!">Third Link With Waves</a></li>
+        <li><a class="waves-effect" href="#!">Third Link With Waves</a></li>
+        <li><a class="waves-effect" href="#!">Third Link With Waves</a></li>
+        <li><a class="waves-effect" href="#!">Third Link With Waves</a></li>
+        <li><a class="waves-effect" href="#!">Third Link With Waves</a></li>
+        <li><a class="waves-effect" href="#!">Third Link With Waves</a></li>
+    </ul>
+
+    <!--<div id="sidebar-toggle">-->
+        <!--<a class="btn-floating btn-large waves-effect waves-light grey darken-4" onclick="toggleSidebar()">-->
+            <!--<i class="material-icons">menu</i>-->
+        <!--</a>-->
+    <!--</div>-->
+
     <!-- Page Layout here -->
-    <div class="row">
+    <div id="wrapper">
+        <div id="central">
+            <div id="content" class="container">
+                <!-- Teal page content  -->
 
-        <div class="col s2 z-depth-1 white">
-            <!-- sidebar -->
-            Sidebar here
-        </div>
+                <h1>Big title</h1>
 
-        <div class="col s10 " >
-            <!-- Teal page content  -->
+                <p>
+                    Hello world
+                </p>
 
-            <h1>Big title</h1>
-
-            <p>
-                Hello world
-            </p>
-
-            <div class="divider"></div>
-            <div class="section">
-                <h5>Section 1</h5>
-                <p>Stuff</p>
-            </div>
-            <div class="divider"></div>
-            <div class="section">
-                <h5>Section 2</h5>
-                <p>Stuff</p>
-            </div>
-            <div class="divider"></div>
-            <div class="section">
-                <h5>Section 3</h5>
-                <p>Stuff</p>
+                <div class="divider"></div>
+                <div class="section">
+                    <h5>Section 1</h5>
+                    <p>Stuff</p>
+                </div>
+                <div class="divider"></div>
+                <div class="section">
+                    <h5>Section 2</h5>
+                    <p>Stuff</p>
+                </div>
+                <div class="divider"></div>
+                <div class="section">
+                    <h5>Section 3</h5>
+                    <p>Stuff</p>
+                </div>
+                <div class="divider"></div>
+                <div class="section">
+                    <h5>Section 3</h5>
+                    <p>Stuff</p>
+                </div>
+                <div class="divider"></div>
+                <div class="section">
+                    <h5>Section 3</h5>
+                    <p>Stuff</p>
+                </div>
+                <div class="divider"></div>
+                <div class="section">
+                    <h5>Section 3</h5>
+                    <p>Stuff</p>
+                </div>
+                <div class="divider"></div>
+                <div class="section">
+                    <h5>Section 3</h5>
+                    <p>Stuff</p>
+                </div>
             </div>
         </div>
     </div>
-
 </div>
 
-
 <!--JavaScript at end of body for optimized loading-->
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 <script type="text/javascript" src="js/materialize.min.js"></script>
+<script type="text/javascript" src="js/script.js"></script>
 </body>
 </html>
