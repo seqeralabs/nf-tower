@@ -1,54 +1,65 @@
-<div *ngIf="workflow">
-  <h4>
-    <a class="project-name" [href]="workflow.data.repository" target="_blank">{{workflow.data.projectName}}</a>&nbsp;
+<div class="container">
+  <div *ngIf="workflow">
+    <h1>
+      <a class="project-name" [href]="workflow.data.repository" target="_blank">{{workflow.data.projectName}}</a>&nbsp;
 
-<!--    <mz-spinner *ngIf="workflow.isStarted" [color]="'blue'" [size]="'small'"></mz-spinner>-->
-    <span *ngIf="workflow.isCompleted" class="mdi" [ngClass]="{'mdi-check-circle-outline': workflow.isSuccessful, 'mdi-alert-circle-outline': workflow.isFailed}"></span>
-  </h4>
+      <div *ngIf="workflow.isStarted" class="spinner-border" role="status">
+        <span class="sr-only">Running...</span>
+      </div>
 
-  <h5><span class="mdi mdi-run"></span>{{workflow.data.runName}}</h5>
+      <span *ngIf="workflow.isCompleted" class="mdi" [ngClass]="{'mdi-check-circle-outline': workflow.isSuccessful, 'mdi-alert-circle-outline': workflow.isFailed}"></span>
+    </h1>
 
-  <div class="row">
-    <div class="col-sm mdi mdi-source-commit"> {{workflow.data.revision}} ({{workflow.briefCommitId}})</div>
-    <div class="col-sm mdi mdi-calendar"> Started: {{workflow.getWorkflowStartDateFormatted('ddd MMM D YYYY hh:mm:ss')}}</div>
-  </div>
-  <div class="row">
-    <div class="col-sm mdi mdi-restore-clock"> {{workflow.data.sessionId}}</div>
-    <div class="col-sm mdi mdi-wall"> Running for: {{workflow.humanizedDuration}}</div>
-  </div>
-  <div class="row">
-    <div class="col-sm mdi mdi-server"> {{workflow.data.workDir}}</div>
-    <div class="col-sm mdi mdi-desktop-classic"> CPU time: {{workflow.data.stats?.computeTimeFmt ? workflow.data.stats.computeTimeFmt : 'unknown'}}</div>
-  </div>
-  <div class="row">
-    <div class="col-sm mdi mdi-docker"> {{workflow.data.container}} ({{workflow.data.containerEngine ? workflow.data.containerEngine : 'unknown'}})</div>
-    <div class="col-sm mdi mdi-account"> {{workflow.data.userName}}</div>
-  </div>
+    <h2><span class="mdi mdi-run"></span>{{workflow.data.runName}}</h2>
 
-  <div class="row">
-    <div class="col-sm">
-      <p>Command line<p>
-      <code class="col-sm command-line">{{workflow.data.commandLine}}</code>
+    <div class="row mb-3">
+      <div class="col-sm mdi mdi-source-commit"> {{workflow.data.revision}} ({{workflow.briefCommitId}})</div>
+      <div class="col-sm mdi mdi-calendar">
+        Started: {{workflow.getWorkflowStartDateFormatted('ddd MMM D YYYY hh:mm:ss')}}</div>
     </div>
-  </div>
-
-  <div class="row">
-    <div class="col-sm">
-      <wt-multicolored-progress-bar [progress]="workflow.progress"></wt-multicolored-progress-bar>
+    <div class="row mb-3">
+      <div class="col-sm mdi mdi-restore-clock"> {{workflow.data.sessionId}}</div>
+      <div class="col-sm mdi mdi-wall"> Running for: {{workflow.humanizedDuration}}</div>
     </div>
-  </div>
-
-  <div *ngIf="workflow.isFailed" class="row">
-    <div class="col-sm">
-      <p>Error<p>
-      <div class="error-report">{{workflow.data.errorReport}}</div>
+    <div class="row mb-3">
+      <div class="col-sm mdi mdi-server"> {{workflow.data.workDir}}</div>
+      <div class="col-sm mdi mdi-desktop-classic"> CPU
+        time: {{workflow.data.stats?.computeTimeFmt ? workflow.data.stats.computeTimeFmt : 'unknown'}}</div>
     </div>
-  </div>
+    <div class="row mb-3">
+      <div class="col-sm mdi mdi-docker"> {{workflow.data.container}}
+        ({{workflow.data.containerEngine ? workflow.data.containerEngine : 'unknown'}})
+      </div>
+      <div class="col-sm mdi mdi-account"> {{workflow.data.userName}}</div>
+    </div>
 
-  <div *ngIf="workflow.tasks" class="row">
-    <div class="col-sm">
-      <wt-workflow-tabs [tasks]="workflow.tasks"></wt-workflow-tabs>
+    <div class="row mb-1">
+      <div class="col-sm">Command line</div>
+    </div>
+    <div class="row mb-3">
+      <div class="col-sm">
+        <code class="command-line">{{workflow.data.commandLine}}</code>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-sm">
+        <wt-multicolored-progress-bar [progress]="workflow.progress"></wt-multicolored-progress-bar>
+      </div>
+    </div>
+
+    <div *ngIf="workflow.isFailed" class="row">
+      <div class="col-sm">
+        <p>Error
+        <p>
+        <div class="error-report">{{workflow.data.errorReport}}</div>
+      </div>
+    </div>
+
+    <div *ngIf="workflow.tasks" class="row">
+      <div class="col-sm">
+        <wt-workflow-tabs [tasks]="workflow.tasks"></wt-workflow-tabs>
+      </div>
     </div>
   </div>
 </div>
-

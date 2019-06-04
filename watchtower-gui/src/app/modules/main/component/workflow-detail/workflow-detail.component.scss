@@ -1,11 +1,20 @@
 @import "./src/assets/variables";
 
+.spinner-border {
+  color: $started-blue;
+  font-size: 5px;
+  vertical-align: middle;
+}
+
+
 .mdi-check-circle-outline {
   color: $succeed-green;
+  vertical-align: text-top;
 }
 
 .mdi-alert-circle-outline {
-  color: $failed-red
+  color: $failed-red;
+  vertical-align: text-top;
 }
 
 .project-name {
@@ -16,18 +25,15 @@
   text-decoration: underline;
 }
 
-.command-line {
-  background: lightgrey;
-  padding: 5px 0 30px;
-}
-
 .error-report {
   padding: 15px;
   white-space: pre-wrap;
   background-color: #fdddcf;
 }
 
-code.command-line {
+.command-line {
+  display: inline-block;
+  width: 100%;
   white-space: pre-wrap;
   border: 1px solid #ccc;
   padding: 10px 15px;
