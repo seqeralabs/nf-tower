@@ -11,12 +11,33 @@ body {
   background-color: $body-background !important;
 }
 
+#layout {
+  display: flex;
+}
+
 #navbar {
   height: 64px;
-  background-color: $navbar-black;
+  background-color: $navbar-background;
   box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16);
   padding-top: 20px;
   padding-bottom: 20px;
+}
+
+#sidebar {
+  position: sticky;
+  top: 0;
+  flex-grow: 1;
+  align-self: flex-start;
+  background-color: $sidebar-background;
+  border-right: $sidebar-border;
+
+  overflow-y: auto;
+  height: 100vh;
+}
+
+#central {
+  flex-grow: 5;
+  min-height: 100%;
 }
 
 .toast {
