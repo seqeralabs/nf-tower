@@ -10,6 +10,17 @@ Nextflow Tower system
 
     make run
 
+See: `docker-compose.yml` file
+
+## Launch stack in dev mode
+
+    make dev-up 
+
+Note: note the very first time it can take some minutes to download all the front-end modules. 
+
+See: `docker-livedev.yml` file
+
+
 ## Backend settings  
 
 Tower backend settings can be provided either:
