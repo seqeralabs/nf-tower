@@ -1,27 +1,28 @@
-<div class="gap"></div>
+<div class="mt-4"></div>
 <div class="row" *ngFor="let process of processes">
-  <div class="col s12">
-    <div class="row process-summary">
-      <div class="col s2 proccess-name">
+  <div class="col-sm">
+    <div class="row mb-0 process-summary">
+      <div class="col-sm proccess-name">
         {{process}}
       </div>
-      <div class="col s2 tag-label">
+      <div class="col-sm tag-label">
         ({{getProcessLastTask(process).data.tag}})
       </div>
-      <div class="col s2">
+      <div class="col-sm">
         [{{getProcessLastTask(process).data.hash}}]
       </div>
-      <div class="col s2 offset-s2 duration-label">
+      <div class="col-sm offset-sm-2 duration-label">
         {{computeTotalDurationProcessCompletedTasks(process)}}
       </div>
-      <div class="col s2 progress-label">
+      <div class="col-sm progress-label">
         {{computeNProcessCompletedTasks(process)}} of {{(getNTotalProcessTasks(process))}} [{{computePercentageProcessCompletedTasks(process)}}]
       </div>
     </div>
     <div class="progress">
-      <div class="determinate"
+      <div class="progress-bar"
            [ngClass]="{'tasks-completed': computePercentageProcessCompletedTasks(process) == '100%', 'tasks-running': computePercentageProcessCompletedTasks(process) != '100%'}"
-           [style.width]="computePercentageProcessCompletedTasks(process)"></div>
+           [style.width]="computePercentageProcessCompletedTasks(process)">
+      </div>
     </div>
   </div>
 </div>

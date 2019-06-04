@@ -13,6 +13,7 @@
 .segment {
   padding: 10px 0 10px 8px;
   color: white;
+  transition: flex-grow .6s ease;
 
   .figure {
     font-weight: bold;
