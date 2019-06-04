@@ -10,7 +10,7 @@ import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
 import { WorkflowCardComponent } from './component/workflow-card/workflow-card.component';
 import { WorkflowDetailComponent } from './component/workflow-detail/workflow-detail.component';
 import { MulticoloredProgressBarComponent } from './component/multicolored-progress-bar/multicolored-progress-bar.component';
-import { HomeComponent } from './component/home/home.component';
+import { WelcomeComponent } from './component/welcome/welcome.component';
 import { LoginComponent } from './component/login/login.component';
 import {FormsModule} from "@angular/forms";
 import { AuthComponent } from './component/auth/auth.component';
@@ -32,7 +32,7 @@ import { TasksProcessesComponent } from './component/tasks-processes/tasks-proce
     WorkflowCardComponent,
     WorkflowDetailComponent,
     MulticoloredProgressBarComponent,
-    HomeComponent,
+    WelcomeComponent,
     LoginComponent,
     AuthComponent,
     LogoutComponent,
