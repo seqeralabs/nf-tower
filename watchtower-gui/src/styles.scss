@@ -13,6 +13,7 @@ body {
 
 #layout {
   display: flex;
+  width: 100%;
 }
 
 #navbar {
@@ -26,17 +27,17 @@ body {
 #sidebar {
   position: sticky;
   top: 0;
-  flex-grow: 1;
-  align-self: flex-start;
+  flex: 0 0 25%;
   background-color: $sidebar-background;
   border-right: $sidebar-border;
 
+  overflow-x: hidden;
   overflow-y: auto;
   height: 100vh;
 }
 
 #central {
-  flex-grow: 5;
+  flex: 1 0 75%;
   min-height: 100%;
 }
 
