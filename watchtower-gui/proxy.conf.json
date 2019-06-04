@@ -1,0 +1,11 @@
+{
+  "/api/*": {
+    "target": "http://backend:8080",
+    "pathRewrite": {
+      "^/api/": "/"
+    },
+    "secure": false,
+    "logLevel": "debug",
+    "changeOrigin": true
+  }
+}

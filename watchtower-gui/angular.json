@@ -61,6 +61,14 @@
                   "maximumError": "5mb"
                 }
               ]
+            },
+            "livedev": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.livedev.ts"
+                }
+              ]
             }
           }
         },
@@ -72,6 +80,9 @@
           "configurations": {
             "production": {
               "browserTarget": "watchtower-gui:build:production"
+            },
+            "livedev": {
+              "browserTarget": "watchtower-gui:build:livedev"
             }
           }
         },
