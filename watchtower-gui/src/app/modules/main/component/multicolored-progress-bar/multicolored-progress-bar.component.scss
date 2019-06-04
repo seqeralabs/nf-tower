@@ -2,13 +2,16 @@
 
 .multi-progress-bar {
   width: 100%;
-  height: 35px;
+  height: 40px;
   display: flex;
+
+  border: 1px solid $thin-grey;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 .segment {
-
-  padding: 10px 0 10px 5px;
+  padding: 10px 0 10px 8px;
   color: white;
 
   .figure {

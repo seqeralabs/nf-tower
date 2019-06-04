@@ -4,8 +4,8 @@
       <span class="mdi" [ngClass]="{'mdi-check-circle-outline': workflow.isSuccessful, 'mdi-progress-check': workflow.isStarted, 'mdi-alert-circle-outline': workflow.isFailed}"></span>
       {{workflow.data.projectName}}
     </h4>
-    <p><span class="mdi mdi-run"></span> {{workflow.data.runName}}</p>
-    <p><span class="mdi mdi-clock-outline"></span> Duration: {{workflow.humanizedDuration}}</p>
-    <p><span class="mdi mdi-calendar"></span> Started: {{workflow.getWorkflowStartDateFormatted('ddd MMM D YYYY hh:mm:ss')}}</p>
+    <p class="mb-0"><span class="mdi mdi-run"></span> {{workflow.data.runName}}</p>
+    <p class="mb-0"><span class="mdi mdi-clock-outline"></span> Duration: {{workflow.humanizedDuration}}</p>
+    <p class="mb-0"><span class="mdi mdi-calendar"></span> Started: {{workflow.getWorkflowStartDateFormatted('ddd MMM D YYYY hh:mm:ss')}}</p>
   </div>
 </div>

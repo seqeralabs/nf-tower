@@ -1,11 +1,12 @@
 /* You can add global styles to this file, and also import other style files */
 
+$thin-grey: #dee2e6;
+
 $body-background: #f8f9fa;
 $navbar-background: #343a40;
 $sidebar-background: #fff;
-$sidebar-border: 1px solid #dee2e6;
+$sidebar-border: 1px solid $thin-grey;
 
-$iron-grey: #d1d2d4;
 $started-blue: #199fdb;
 $succeed-green: #28ae61;
 $failed-red: #e7363e;
