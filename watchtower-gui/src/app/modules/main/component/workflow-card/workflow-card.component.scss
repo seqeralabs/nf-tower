@@ -1,21 +1,17 @@
 @import "./src/assets/variables";
 
-.workflow-card {
+.card {
   cursor: pointer;
+  margin: 5px 5px 10px 5px;
+  border-left: solid 7px;
 
-  .card-content {
-    padding: 6px 12px 12px 12px;
-    font-size: 0.9rem;
-  }
-
-  .card-title {
-    font-size: 1.1rem;
-    margin-bottom: 0.1rem;
+  p {
+    margin-bottom: 0;
   }
 }
 
 .workflow--succeed {
-  border-left: $succeed-green solid 5px;
+  border-left-color: $succeed-green;
 
   .card-title {
     color: $succeed-green;
@@ -23,7 +19,7 @@
 }
 
 .workflow--started {
-  border-left: $started-blue solid 5px;
+  border-left-color: $started-blue;
 
   .card-title {
     color: $started-blue;
@@ -31,7 +27,7 @@
 }
 
 .workflow--failed {
-  border-left: $failed-red solid 5px;
+  border-left-color: $failed-red;
 
   .card-title {
     color: $failed-red;
