@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {AuthService} from "../../service/auth.service";
 import {User} from "../../entity/user/user";
 
@@ -9,16 +9,14 @@ import {User} from "../../entity/user/user";
 })
 export class NavbarComponent implements OnInit {
 
+  @Input()
   user: User;
 
-  constructor(private authService: AuthService) {
+  constructor() {
 
   }
 
   ngOnInit() {
-    this.authService.user$.subscribe(
-      (user: User) => this.user = user
-    )
   }
 
 

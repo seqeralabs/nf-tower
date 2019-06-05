@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import {AuthService} from "./service/auth.service";
+import {User} from "./entity/user/user";
 
 @Component({
   selector: 'wt-main',
@@ -8,13 +9,16 @@ import {AuthService} from "./service/auth.service";
 })
 export class MainComponent {
 
-  isUserAuthenticated: boolean;
+  user: User;
 
-  constructor(private authService: AuthService) { }
+  constructor(private authService: AuthService) {
 
+  }
 
   ngOnInit() {
-    this.isUserAuthenticated = this.authService.isUserAuthenticated;
+    this.authService.user$.subscribe(
+      (user: User) => this.user = user
+    )
   }
 
 

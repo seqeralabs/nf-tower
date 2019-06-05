@@ -19,6 +19,7 @@ export class SidebarComponent implements OnInit {
 
 
   ngOnInit() {
+    console.log('The router URL', this.router.url);
     this.initializeWorkflows();
   }
 
@@ -26,7 +27,10 @@ export class SidebarComponent implements OnInit {
     this.workflowService.workflows$.subscribe(
       (workflows: Workflow[]) => {
         this.workflows = workflows;
-        this.showWorkflowDetail(this.workflows[0]);
+
+        if (this.router.url == '/' || this.router.url.startsWith('/auth')) {
+          this.showWorkflowDetail(this.workflows[0]);
+        }
       }
     )
   }

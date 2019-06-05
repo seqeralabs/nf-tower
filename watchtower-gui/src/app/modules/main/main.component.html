@@ -1,13 +1,13 @@
-<wt-navbar></wt-navbar>
+<wt-navbar [user]="user"></wt-navbar>
 
 <div id="layout">
-  <div id="sidebar" *ngIf="isUserAuthenticated">
+  <div id="sidebar" *ngIf="user">
     <wt-sidebar></wt-sidebar>
   </div>
 
   <div id="central">
     <router-outlet></router-outlet>
 
-    <wt-welcome *ngIf="!isUserAuthenticated"></wt-welcome>
+    <wt-welcome *ngIf="!user"></wt-welcome>
   </div>
 </div>

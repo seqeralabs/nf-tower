@@ -1,78 +1,77 @@
 <div class="container">
-  <div class="row">
-    <div class="col s4 offset-s4">
-      <h2 class="center-align">User profile</h2>
-      <div class="row">
-        <form class="col s12" #profileForm="ngForm" (ngSubmit)="update()">
-          <div class="row">
-            <div class="input-field col s12">
-              <input id="email" name="email" type="email" required email class="validate" [(ngModel)]="userCopy.data.email">
-              <label for="email" data-error="Should be an email">Email</label>
-            </div>
-          </div>
-          <div class="row">
-            <div class="input-field col s12">
-              <input id="userName" name="userName" type="text" required pattern="[^\s]+"  class="validate" [(ngModel)]="userCopy.data.userName">
-              <label for="userName" data-error="No blanks allowed">User name</label>
-            </div>
-          </div>
-          <div class="row">
-            <div class="input-field col s6">
-              <input id="firstName" name="firstName" type="text" class="validate" [(ngModel)]="userCopy.data.firstName">
-              <label for="firstName">First name</label>
-            </div>
-            <div class="input-field col s6">
-              <input id="lastName" name="lastName" type="text" class="validate" [(ngModel)]="userCopy.data.lastName">
-              <label for="lastName">Last name</label>
-            </div>
-          </div>
-          <div class="row">
-            <div class="input-field col s12">
-              <input id="avatar" name="avatar" placeholder="URL" type="url" pattern="https?://.+" class="validate" [(ngModel)]="userCopy.data.avatar">
-              <label for="avatar" data-error="Should be a URL">Avatar</label>
-            </div>
-          </div>
-          <div class="row">
-            <div class="input-field col s12">
-              <input id="organization" name="organization" type="text" maxlength="10" class="validate" [(ngModel)]="userCopy.data.organization">
-              <label for="organization" data-error="Max 10 characters long">Organization</label>
-            </div>
-          </div>
-          <div class="row">
-            <div class="input-field col s12">
-              <input id="description" name="description" type="text" maxlength="10" class="validate" [(ngModel)]="userCopy.data.description">
-              <label for="description" data-error="Max 10 characters long">Description</label>
-            </div>
-          </div>
+  <h1 class="center-align">User profile</h1>
 
-          <div class="row actions">
-            <div class="col s12">
-                <button class="btn btn-large waves-effect waves grey lighten-5 black-text" type="submit" name="action" [disabled]="!isSubmitEnabled()">Update</button>
-            </div>
-          </div>
-          <div class="divider"></div>
-          <div class="row actions">
-            <div class="col s12">
-              <button class="btn btn-large waves-effect waves-light red accent-1 black-text" type="button" name="action" (click)="deleteConfirmModal.openModal()" [disabled]="!isSubmitEnabled()">Delete</button>
-            </div>
-          </div>
-        </form>
+  <form class="needs-validation" [ngClass]="{'was-validated': isSubmitted}" novalidate #profileForm="ngForm" (ngSubmit)="update()">
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" class="form-control" required email [(ngModel)]="userCopy.data.email">
+      <div class="invalid-feedback">Should be an email</div>
+    </div>
+    <div class="form-group">
+      <label for="userName">User name</label>
+      <input id="userName" name="userName" type="text" class="form-control" required pattern="[^\s]+" [(ngModel)]="userCopy.data.userName">
+      <div class="invalid-feedback">No blanks allowed</div>
+    </div>
+    <div class="form-row">
+      <div class="form-group col">
+        <label for="firstName">First name</label>
+        <input id="firstName" name="firstName" type="text" class="form-control" [(ngModel)]="userCopy.data.firstName">
+      </div>
+      <div class="form-group col">
+        <label for="lastName">Last name</label>
+        <input id="lastName" name="lastName" type="text" class="form-control" [(ngModel)]="userCopy.data.lastName">
       </div>
     </div>
+    <div class="form-group">
+      <label for="avatar">Avatar</label>
+      <input id="avatar" name="avatar" placeholder="URL" type="url" class="form-control" pattern="https?://.+" [(ngModel)]="userCopy.data.avatar">
+      <div class="invalid-feedback">Should be a URL</div>
+    </div>
+    <div class="form-group">
+      <label for="organization">Organization</label>
+      <input id="organization" name="organization" type="text" class="form-control" maxlength="10" [(ngModel)]="userCopy.data.organization">
+      <div class="invalid-feedback">Max 10 characters long</div>
+    </div>
+    <div class="form-group">
+      <label for="description">Description</label>
+      <input id="description" name="description" type="text" class="form-control" maxlength="10" [(ngModel)]="userCopy.data.description">
+      <div class="invalid-feedback">Max 10 characters long</div>
+    </div>
 
+    <div class="row">
+      <div class="col">
+        <button class="btn btn-primary btn-block" type="submit" name="action" [disabled]="!isSubmitEnabled()">Update
+        </button>
+      </div>
+    </div>
+    <hr>
+    <div class="row">
+      <div class="col">
+        <button class="btn btn-danger btn-block" type="button" name="action" data-toggle="modal" data-target="#delete-modal" [disabled]="isSubmitted">Delete</button>
+      </div>
+    </div>
+  </form>
+
+  <div class="modal" id="delete-modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Confirm user delete</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="delete-email">Please provide your user email to confirm deletion:</label>
+            <input id="delete-email" type="email" class="form-control" placeholder="Email" [(ngModel)]="confimationDeleteEmail">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-dismiss="modal" [disabled]="!isUserDeletionEnabled()" (click)="delete()">Delete</button>
+        </div>
+      </div>
+    </div>
   </div>
 
-<!--  <mz-modal #deleteConfirmModal [options]="{dismissible: false}">-->
-<!--    <mz-modal-header>-->
-<!--      <h4>Confirm user delete</h4>-->
-<!--    </mz-modal-header>-->
-<!--    <mz-modal-content>-->
-<!--      Please provide your user email to confirm deletion:-->
-<!--      <input id="deleteEmail" name="deleteEmail" type="email" required email placeholder="Email" [(ngModel)]="confimationDeleteEmail">-->
-<!--    </mz-modal-content>-->
-<!--    <mz-modal-footer>-->
-<!--      <button class="btn waves-effect waves-light red accent-1 black-text" type="button" name="action" (click)="deleteConfirmModal.closeModal(); delete()" [disabled]="!isUserDeletionEnabled()">Delete</button>-->
-<!--      <button class="btn waves-effect waves grey lighten-5 black-text" type="button" name="action" (click)="deleteConfirmModal.closeModal()">Cancel</button>-->
-<!--    </mz-modal-footer>-->
-<!--  </mz-modal>-->
 </div>
