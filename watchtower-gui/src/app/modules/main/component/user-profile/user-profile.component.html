@@ -1,5 +1,5 @@
-<div class="container">
-  <h1 class="center-align">User profile</h1>
+<div class="container mt-5">
+  <h1 class="mb-4">User profile</h1>
 
   <form class="needs-validation" [ngClass]="{'was-validated': isSubmitted}" novalidate #profileForm="ngForm" (ngSubmit)="update()">
     <div class="form-group">
@@ -53,7 +53,7 @@
   </form>
 
   <div class="modal" id="delete-modal" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">Confirm user delete</h5>

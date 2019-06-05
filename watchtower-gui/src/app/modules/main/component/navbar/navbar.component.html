@@ -42,9 +42,8 @@
         <img class="thumbnail rounded-circle" alt="avatar" [src]="user.avatar">
       </a>
       <div class="dropdown-menu profile-card" aria-labelledby="user-dropdown">
-        <a class="dropdown-item" href="#">Signed in as <span class="font-weight-bold">{{user.nameToDisplay}}</span></a>
+        <a class="dropdown-item" href="/profile">Signed in as <span class="font-weight-bold">{{user.nameToDisplay}}</span></a>
         <div class="dropdown-divider"></div>
-        <a class="dropdown-item" href="/profile">Profile</a>
         <a class="dropdown-item" href="/logout">Logout</a>
       </div>
     </li>

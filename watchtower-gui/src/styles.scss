@@ -1,33 +1,40 @@
 /* You can add global styles to this file, and also import other style files */
 @import "./src/assets/variables";
 
-html, body {
+html {
   height: 100%;
   width: 100%;
 }
 
 body {
+  height: 100%;
+  width: 100%;
+
   overflow-x: hidden;
   background-color: $body-background !important;
 }
 
-#layout {
-  display: flex;
-  width: 100%;
-}
-
 #navbar {
-  height: 64px;
+  width: 100%;
+  height: $navbar-height;
+
   background-color: $navbar-background;
   box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16);
   padding-top: 20px;
   padding-bottom: 20px;
 }
 
+#layout {
+  display: flex;
+  min-height: calc(100% - #{$navbar-height});
+  width: 100%;
+}
+
 #sidebar {
   position: sticky;
   top: 0;
   flex: 0 0 25%;
+
   background-color: $sidebar-background;
   border-right: $sidebar-border;
 
@@ -37,8 +44,9 @@ body {
 }
 
 #central {
+  width: 100%;
+  min-height: inherit;
   flex: 1 0 75%;
-  min-height: 100%;
 }
 
 .toast {
@@ -65,58 +73,3 @@ body {
   }
 
 }
-
-h4 .preloader-wrapper.small {
-  width: 2rem;
-  height: 2rem;
-}
-
-
-nav {
-  ul.dropdown-content {
-    overflow: visible;
-
-    li {
-      cursor: default;
-    }
-  }
-}
-
-.workflow-tabs {
-  .tabs {
-    overflow: hidden;
-
-    .tab {
-      text-transform: none;
-      margin-right: 8px;
-
-      a {
-        font-size: 1.2em;
-      }
-
-      a:not(.active) {
-        border-bottom: 2px solid lightgrey;
-        color: lightgrey;
-      }
-
-      a:hover {
-        color: black;
-        border-bottom: 2px solid grey;
-      }
-
-      a.active {
-        color: black;
-        font-weight: bold;
-      }
-
-      &.disabled a {
-        color: lightgrey !important;
-      }
-    }
-
-    .indicator {
-      background-color: grey;
-    }
-  }
-}
-
