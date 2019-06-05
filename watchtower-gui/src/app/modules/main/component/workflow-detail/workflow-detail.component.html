@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container mt-3">
   <div *ngIf="workflow">
     <h1>
       <a class="project-name" [href]="workflow.data.repository" target="_blank">{{workflow.data.projectName}}</a>&nbsp;
@@ -6,7 +6,6 @@
       <div *ngIf="workflow.isStarted" class="spinner-border" role="status">
         <span class="sr-only">Running...</span>
       </div>
-
       <span *ngIf="workflow.isCompleted" class="mdi" [ngClass]="{'mdi-check-circle-outline': workflow.isSuccessful, 'mdi-alert-circle-outline': workflow.isFailed}"></span>
     </h1>
 
