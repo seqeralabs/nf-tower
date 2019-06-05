@@ -9,7 +9,11 @@ services:
       - 27017:27017
 
   backend:
-    build: ./watchtower-service
+    build:
+      context: ./watchtower-service
+      dockerfile: Dockerfile-livedev
+    image: tower-backend:livedev
+    command: ./gradlew watchtower-service:run --continuous
     networks:
       - frontend
       - backend
@@ -19,15 +23,19 @@ services:
       MONGO_HOST: mongo
       MONGO_PORT: 27017
       MICRONAUT_ENVIRONMENTS: livedev
+      MICRONAUT_CONFIG_FILES: $PWD/tower.yml
+      TOWER_LOG_DIR: $PWD
     volumes:
-      - $PWD:/work
-    working_dir: /work
+      - $HOME/.me:/root/.me
+      - $HOME/.gradle:/root/.gradle
+      - $PWD:$PWD
+    working_dir: $PWD
 
   frontend:
     build:
       context: ./watchtower-gui
       dockerfile: Dockerfile-livedev
-    image: ng-tower:livedev
+    image: tower-frontend:livedev
     command: bash -c 'npm i; ng serve --watch --host 0.0.0.0 --port 4200 --proxy-config proxy.conf.json -c livedev'
     volumes:
       - $PWD/watchtower-gui:$PWD/watchtower-gui
