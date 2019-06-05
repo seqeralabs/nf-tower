@@ -6,6 +6,10 @@ micronaut:
   server:
     cors:
       enabled: true
+  io:
+    watch:
+      paths: src/main
+      restart: true
 ---
 mail:
   from: info@seqera.io

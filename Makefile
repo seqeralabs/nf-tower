@@ -19,7 +19,6 @@ deps:
 	./gradlew -q watchtower-service:dependencies --configuration ${config}
 
 dev-up:
-	./gradlew assemble
 	docker-compose -f docker-livedev.yml up --build
 	echo Open your browser --> http://localhost:4200/
 
