@@ -1,36 +1,21 @@
-<div class="container">
-  <div class="row">
-
-    <div class="col s4 offset-s4" [hidden]="isRegistered">
-      <h2 class="center-align">Sign in</h2>
-      <div class="row">
-        <form class="col s12" #loginForm="ngForm" (ngSubmit)="submit()">
-          <div class="row">
-            <div class="input-field col s12">
-              <input id="email" name="email" type="email" email required class="validate" [(ngModel)]="email">
-              <label for="email" data-error="Should be an email">Email</label>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col m12">
-              <p class="right-align">
-                <button class="btn btn-large waves-effect waves grey lighten-5 black-text" type="submit" name="action" [disabled]="!isSubmitEnabled()">Submit</button>
-              </p>
-            </div>
-          </div>
-        </form>
+<div class="container mt-5" [hidden]="isRegistered">
+  <h1 class="mb-4">Register</h1>
+  <form #loginForm="ngForm" (ngSubmit)="submit()">
+    <div class="form-group">
+      <label for="email" data-error="Should be an email">Email</label>
+      <input id="email" name="email" type="email" email required class="form-control" [(ngModel)]="email">
+    </div>
+    <div class="row">
+      <div class="col">
+        <button class="btn btn-primary btn-block" type="submit" name="action" [disabled]="!isSubmitEnabled()">Register
+        </button>
       </div>
     </div>
+  </form>
+</div>
 
-    <div class="col s12 registered" *ngIf="isRegistered">
-      <div class="row">
-        <div class="col s12">
-          <div class="card-panel grey lighten-5">
-            <h1>{{registeredMessage}}</h1>
-          </div>
-        </div>
-      </div>
-    </div>
-
+<div class="row h-100" *ngIf="isRegistered">
+  <div class="m-auto">
+    <h2 class="text-center">{{registeredMessage}}</h2>
   </div>
 </div>
