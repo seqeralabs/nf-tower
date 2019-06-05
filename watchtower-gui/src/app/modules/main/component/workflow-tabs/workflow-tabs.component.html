@@ -1,18 +1,9 @@
-<!--<mz-tab class="workflow-tabs" [fixedTabWidth]="true">-->
-<!--  <mz-tab-item [active]="true" [label]="'processes'">-->
-<!--    <wt-tasks-processes [tasks]="tasks"></wt-tasks-processes>-->
-<!--  </mz-tab-item>-->
-<!--  <mz-tab-item [label]="'tasks'">-->
-<!--    <wt-tasks-table [tasks]="tasks"></wt-tasks-table>-->
-<!--  </mz-tab-item>-->
-<!--  <mz-tab-item [label]="'resources'" [disabled]="true">resources</mz-tab-item>-->
-<!--</mz-tab>-->
 <ul class="nav nav-pills nav-fill mt-5">
   <li class="nav-item">
     <a class="nav-link active" id="processes-tab" data-toggle="tab" href="#processes" role="tab" aria-controls="processes">Processes</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link" href="#">Tasks</a>
+    <a class="nav-link" id="tasks-tab" data-toggle="tab" href="#tasks" role="tab" aria-controls="tasks">Tasks</a>
   </li>
   <li class="nav-item">
     <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Resources</a>
@@ -23,6 +14,8 @@
   <div class="tab-pane fade show active" id="processes" role="tabpanel" aria-labelledby="processes-tab">
     <wt-tasks-processes [tasks]="tasks"></wt-tasks-processes>
   </div>
-  <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">...</div>
+  <div class="tab-pane fade" id="tasks" role="tabpanel" aria-labelledby="tasks-tab">
+    <wt-tasks-table [tasks]="tasks"></wt-tasks-table>
+  </div>
   <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">...</div>
 </div>
