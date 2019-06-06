@@ -21,6 +21,7 @@ import {WorkflowTabsComponent} from "./component/workflow-tabs/workflow-tabs.com
 import { TasksTableComponent } from './component/tasks-table/tasks-table.component';
 import { TasksProcessesComponent } from './component/tasks-processes/tasks-processes.component';
 import { HomeComponent } from './component/home/home.component';
+import { NotificationComponent } from './component/notification/notification.component';
 
 @NgModule({
   declarations: [
@@ -39,6 +40,7 @@ import { HomeComponent } from './component/home/home.component';
     TasksTableComponent,
     TasksProcessesComponent,
     HomeComponent,
+    NotificationComponent,
   ],
   imports: [
     BrowserModule,
