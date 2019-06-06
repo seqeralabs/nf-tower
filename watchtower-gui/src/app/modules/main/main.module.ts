@@ -5,7 +5,6 @@ import { MainRoutingModule } from './main-routing.module';
 import { MainComponent } from './main.component';
 import { SidebarComponent } from './component/sidebar/sidebar.component';
 import { NavbarComponent } from './component/navbar/navbar.component';
-import { CentralComponent } from './component/central/central.component';
 import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
 import { WorkflowCardComponent } from './component/workflow-card/workflow-card.component';
 import { WorkflowDetailComponent } from './component/workflow-detail/workflow-detail.component';
@@ -28,7 +27,6 @@ import { HomeComponent } from './component/home/home.component';
     MainComponent,
     SidebarComponent,
     NavbarComponent,
-    CentralComponent,
     WorkflowCardComponent,
     WorkflowDetailComponent,
     MulticoloredProgressBarComponent,

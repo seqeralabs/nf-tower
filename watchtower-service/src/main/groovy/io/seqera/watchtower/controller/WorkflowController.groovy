@@ -6,6 +6,7 @@ import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
 import io.micronaut.security.annotation.Secured
+import io.micronaut.security.rules.SecurityRule
 import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.exchange.task.TaskGet
 import io.seqera.watchtower.pogo.exchange.task.TaskList
@@ -19,7 +20,6 @@ import javax.inject.Inject
  * Implements the `workflow` API
  */
 @Controller("/workflow")
-@Secured(['ROLE_USER'])
 @Slf4j
 class WorkflowController {
 
@@ -33,6 +33,7 @@ class WorkflowController {
 
     @Get("/list")
     @Transactional
+    @Secured(['ROLE_USER'])
     HttpResponse<WorkflowList> list() {
         List<Workflow> workflows = workflowService.list()
 
@@ -44,6 +45,7 @@ class WorkflowController {
 
     @Get("/{id}")
     @Transactional
+    @Secured(SecurityRule.IS_ANONYMOUS)
     HttpResponse<WorkflowGet> get(Long id) {
         Workflow workflow = workflowService.get(id)
 
@@ -55,6 +57,7 @@ class WorkflowController {
 
     @Get("/{workflowId}/tasks")
     @Transactional
+    @Secured(SecurityRule.IS_ANONYMOUS)
     HttpResponse<TaskList> tasks(Long workflowId) {
         Workflow workflow = workflowService.get(workflowId)
 
