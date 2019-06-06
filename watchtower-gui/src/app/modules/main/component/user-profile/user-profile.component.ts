@@ -15,10 +15,10 @@ export class UserProfileComponent implements OnInit {
 
   @ViewChild('profileForm')
   private profileForm: NgForm;
-  private isSubmitted: boolean;
 
   userCopy: User;
 
+  isSubmitted: boolean;
   confimationDeleteEmail: string;
 
   constructor(private authService: AuthService,
