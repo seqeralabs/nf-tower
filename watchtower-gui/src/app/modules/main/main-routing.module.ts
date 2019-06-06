@@ -10,11 +10,13 @@ import {UserProfileComponent} from "./component/user-profile/user-profile.compon
 import {MainComponent} from "./main.component";
 
 const routes: Routes = [
-  {path: 'login',   component: LoginComponent},
-  {path: 'auth',    component: AuthComponent},
-  {path: 'logout',  component: LogoutComponent},
+  {path: '',             component: WelcomeComponent},
+  {path: 'login',        component: LoginComponent},
+  {path: 'auth',         component: AuthComponent},
+  {path: 'logout',       component: LogoutComponent},
+
   {path: 'workflow/:id', component: WorkflowDetailComponent, canActivate: [AuthGuard]},
-  {path: 'profile', component: UserProfileComponent, canActivate: [AuthGuard]},
+  {path: 'profile',      component: UserProfileComponent, canActivate: [AuthGuard]},
 
   {path: '**', redirectTo: ''}
 ];

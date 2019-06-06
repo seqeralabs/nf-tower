@@ -17,7 +17,6 @@ import { AuthComponent } from './component/auth/auth.component';
 import {JwtInterceptor} from "./interceptor/jwt.interceptor";
 import {ErrorInterceptor} from "./interceptor/error.interceptor";
 import { LogoutComponent } from './component/logout/logout.component';
-import { UserDetailComponent } from './component/user-detail/user-detail.component';
 import { UserProfileComponent } from './component/user-profile/user-profile.component';
 import {WorkflowTabsComponent} from "./component/workflow-tabs/workflow-tabs.component";
 import { TasksTableComponent } from './component/tasks-table/tasks-table.component';
@@ -36,7 +35,6 @@ import { TasksProcessesComponent } from './component/tasks-processes/tasks-proce
     LoginComponent,
     AuthComponent,
     LogoutComponent,
-    UserDetailComponent,
     UserProfileComponent,
     WorkflowTabsComponent,
     TasksTableComponent,
@@ -47,11 +45,6 @@ import { TasksProcessesComponent } from './component/tasks-processes/tasks-proce
     MainRoutingModule,
     HttpClientModule,
     FormsModule,
-    // MzToastModule,
-    // MzSpinnerModule,
-    // MzDropdownModule,
-    // MzModalModule,
-    // MzTabModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
