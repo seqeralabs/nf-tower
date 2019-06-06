@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, OnInit} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {NotificationService} from "../../service/notification.service";
 import {Notification} from "../../entity/notification/notification";
 import {NotificationType} from "../../entity/notification/notification-type.enum";

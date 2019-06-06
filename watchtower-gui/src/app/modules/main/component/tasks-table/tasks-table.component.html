@@ -1,15 +1,44 @@
 <div class="mt-4"></div>
-<table class="table table-bordered">
+<table id="tasks-table" class="table table-bordered w-100">
   <thead>
   <tr>
-    <th>Task ID</th>
-    <th>Process</th>
-    <th>Tag</th>
-    <th>Status</th>
-    <th>Hash</th>
+    <th>task_id</th>
+    <th>process</th>
+    <th>tag</th>
+    <th>status</th>
+    <th>hash</th>
+    <th>allocated cpus</th>
+    <th>%cpu</th>
+    <th>allocated memory</th>
+    <th>%mem</th>
+    <th>vmem</th>
+    <th>rss</th>
+    <th>peak_vmem</th>
+    <th>peak_rss</th>
+    <th>allocated time</th>
+    <th>duration</th>
+    <th>realtime</th>
+    <th>script</th>
+    <th>exit</th>
+    <th>submit</th>
+    <th>start</th>
+    <th>complete</th>
+    <th>rchar</th>
+    <th>wchar</th>
+    <th>syscr</th>
+    <th>syscw</th>
+    <th>read_bytes</th>
+    <th>write_bytes</th>
+    <th>native_id</th>
+    <th>name</th>
+    <th>module</th>
+    <th>container</th>
+    <th>disk</th>
+    <th>attempt</th>
+    <th>scratch</th>
+<!--    <th>workdir</th>-->
   </tr>
   </thead>
-
   <tbody>
   <tr *ngFor="let task of tasks">
     <td>{{task.data.taskId}}</td>
@@ -17,6 +46,36 @@
     <td>{{task.data.tag}}</td>
     <td>{{task.statusTag}}</td>
     <td>{{task.data.hash}}</td>
+    <td>{{task.data.cpus}}</td>
+    <td>{{task.data.pcpu}}</td>
+    <td>{{task.data.memory}}</td>
+    <td>{{task.data.pmem}}</td>
+    <td>{{task.data.vmem}}</td>
+    <td>{{task.data.rss}}</td>
+    <td>{{task.data.peakVmem}}</td>
+    <td>{{task.data.peakRss}}</td>
+    <td>{{task.data.time}}</td>
+    <td>{{task.data.duration}}</td>
+    <td>{{task.data.realtime}}</td>
+    <td>{{task.data.script}}</td>
+    <td>{{task.data.exit}}</td>
+    <td>{{task.data.submit}}</td>
+    <td>{{task.data.start}}</td>
+    <td>{{task.data.complete}}</td>
+    <td>{{task.data.rchar}}</td>
+    <td>{{task.data.wchar}}</td>
+    <td>{{task.data.syscr}}</td>
+    <td>{{task.data.syscw}}</td>
+    <td>{{task.data.readBytes}}</td>
+    <td>{{task.data.writeBytes}}</td>
+    <td>{{task.data.nativeId}}</td>
+    <td>{{task.data.name}}</td>
+    <td>{{task.data.module}}</td>
+    <td>{{task.data.container}}</td>
+    <td>{{task.data.disk}}</td>
+    <td>{{task.data.attempt}}</td>
+    <td>{{task.data.scratch}}</td>
+<!--    <td>{{task.data.workdir}}</td>-->
   </tr>
   </tbody>
 </table>
