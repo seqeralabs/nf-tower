@@ -1,0 +1,11 @@
+<div id="layout">
+  <div id="sidebar" *ngIf="thereAreWorkflows">
+    <wt-sidebar [workflows]="workflows"></wt-sidebar>
+  </div>
+
+  <div id="central">
+    <router-outlet></router-outlet>
+
+    <wt-welcome *ngIf="!thereAreWorkflows"></wt-welcome>
+  </div>
+</div>
