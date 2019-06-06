@@ -13,7 +13,7 @@ import {HomeComponent} from "./component/home/home.component";
 const routes: Routes = [
   {path: '',                component: HomeComponent,
    children: [
-     {path: 'workflow/:id', component: WorkflowDetailComponent, canActivate: [AuthGuard]},
+     {path: 'workflow/:id', component: WorkflowDetailComponent},
      {path: 'profile',      component: UserProfileComponent, canActivate: [AuthGuard]}
    ]
   },

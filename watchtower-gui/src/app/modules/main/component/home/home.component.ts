@@ -12,8 +12,6 @@ import {WorkflowService} from "../../service/workflow.service";
 })
 export class HomeComponent implements OnInit {
 
-  isWelcomeMessageLoaded: boolean;
-
   user: User;
   workflows: Workflow[];
 
@@ -26,6 +24,10 @@ export class HomeComponent implements OnInit {
     this.authService.user$.subscribe(
       (user: User) => {
         this.user = user;
+        if (!this.user) {
+          return;
+        }
+
         this.workflowService.workflows$.subscribe( (workflows: Workflow[]) => {
           this.workflows = workflows;
         });
@@ -33,8 +35,12 @@ export class HomeComponent implements OnInit {
     )
   }
 
-  get thereAreWorkflows(): boolean {
+  get shouldLoadSidebar(): boolean {
     return (this.user && this.workflows && (this.workflows.length > 0))
+  }
+
+  get shouldLoadWelcomeMessage(): boolean {
+    return ((this.router.url == '/') && !this.shouldLoadSidebar);
   }
 
 }

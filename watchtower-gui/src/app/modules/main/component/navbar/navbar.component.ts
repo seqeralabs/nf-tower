@@ -9,16 +9,17 @@ import {User} from "../../entity/user/user";
 })
 export class NavbarComponent implements OnInit {
 
-  @Input()
   user: User;
 
-  constructor() {
+  constructor(private authService: AuthService) {
 
   }
 
   ngOnInit() {
+    this.authService.user$.subscribe(
+      (user: User) => this.user = user
+    )
   }
-
 
 
 }
