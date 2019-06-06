@@ -1,21 +1,44 @@
-<div class="container mt-5" [hidden]="isRegistered">
-  <h1 class="mb-4">Register</h1>
-  <form #loginForm="ngForm" (ngSubmit)="submit()">
-    <div class="form-group">
-      <label for="email" data-error="Should be an email">Email</label>
-      <input id="email" name="email" type="email" email required class="form-control" [(ngModel)]="email">
+<div class="container mt-5 w-50" [hidden]="isRegistered">
+
+  <div class="card">
+    <div class="card-header">
+      Nextflow Tower Sign in
     </div>
-    <div class="row">
-      <div class="col">
-        <button class="btn btn-primary btn-block" type="submit" name="action" [disabled]="!isSubmitEnabled()">Register
-        </button>
-      </div>
+    <div class="card-body">
+      <form #loginForm="ngForm" (ngSubmit)="submit()">
+        <div class="form-group">
+          <label for="email" data-error="Should be an email">Email</label>
+          <input id="email" name="email" type="email" email required class="form-control" [(ngModel)]="email">
+        </div>
+        <div class="row">
+          <div class="col">
+            <button class="btn btn-primary btn-block" type="submit" name="action" [disabled]="!isSubmitEnabled()">
+              Sign in
+            </button>
+          </div>
+        </div>
+      </form>
     </div>
-  </form>
+
+    <div class="card-footer text-muted">
+      Passwords are boring, aren't they?
+      Nextflow Tower does not require yet another password or registration procedure.
+      Just provide your email address and we'll send you an authentication link to login.
+      That's all!
+    </div>
+
+  </div>
 </div>
 
-<div class="row h-100" *ngIf="isRegistered">
+<!-- Sign-in confirmation message card -->
+<div class="container mt-5 w-50" *ngIf="isRegistered">
   <div class="m-auto">
-    <h2 class="text-center">{{registeredMessage}}</h2>
+    <div class="alert alert-success" role="alert">
+      <h4 class="alert-heading">Well done!</h4>
+      <hr>
+      <p class="mb-0">
+        The login in email has just been sent you. Check your inbox!
+      </p>
+    </div>
   </div>
 </div>
