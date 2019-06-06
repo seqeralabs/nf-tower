@@ -3,7 +3,7 @@
     <img src="assets/seqera_logo_white.png" alt="" height="30">
   </a>
 
-  <ul class="navbar-nav">
+  <ul class="navbar-nav ml-auto">
     <li class="nav-item">
       <a class="nav-link" href="/">Docs</a>
     </li>
@@ -14,7 +14,7 @@
     <li *ngIf="!user" class="nav-item ml-auto">
       <a class="nav-link" href="/login">Sign in</a>
     </li>
-    <li *ngIf="user" class="nav-item dropdown ml-auto profile-item">
+    <li *ngIf="user" class="nav-item dropdown profile-item">
       <a class="nav-link dropdown-toggle" id="user-dropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         <img class="thumbnail rounded-circle" alt="avatar" [src]="user.avatar">
       </a>
