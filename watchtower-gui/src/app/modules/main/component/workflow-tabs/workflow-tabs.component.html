@@ -6,16 +6,16 @@
     <a class="nav-link" id="tasks-tab" data-toggle="tab" href="#tasks" role="tab" aria-controls="tasks">Tasks</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Resources</a>
+    <a class="nav-link disabled" id="resources-tab" data-toggle="tab" href="#" tabindex="-1" aria-disabled="true">Resources</a>
   </li>
 </ul>
 
-<div class="tab-content" id="myTabContent">
+<div class="tab-content">
   <div class="tab-pane fade show active" id="processes" role="tabpanel" aria-labelledby="processes-tab">
     <wt-tasks-processes [tasks]="tasks"></wt-tasks-processes>
   </div>
   <div class="tab-pane fade" id="tasks" role="tabpanel" aria-labelledby="tasks-tab">
     <wt-tasks-table [tasks]="tasks"></wt-tasks-table>
   </div>
-  <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">...</div>
+  <div class="tab-pane fade" id="resources" role="tabpanel" aria-labelledby="resources-tab">...</div>
 </div>

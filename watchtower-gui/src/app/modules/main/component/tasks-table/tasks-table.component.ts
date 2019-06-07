@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, Input, OnInit} from '@angular/core';
+import {AfterContentChecked, AfterViewChecked, AfterViewInit, Component, Input, OnChanges, OnInit} from '@angular/core';
 import {Task} from "../../entity/task/task";
 
 declare var $: any;
@@ -8,20 +8,38 @@ declare var $: any;
   templateUrl: './tasks-table.component.html',
   styleUrls: ['./tasks-table.component.scss']
 })
-export class TasksTableComponent implements OnInit, AfterViewInit {
+export class TasksTableComponent implements OnInit, OnChanges {
 
   @Input()
   tasks: Task[];
+  dataTable: any;
 
   constructor() { }
 
   ngOnInit() {
   }
 
-  ngAfterViewInit(): void {
-    $('#tasks-table').DataTable({
+  ngOnChanges(): void {
+    this.destroyDataTable();
+    setTimeout(() => this.initializeDataTable());
+  }
+
+  private destroyDataTable(): void {
+    if (this.dataTable) {
+      this.dataTable.destroy();
+    }
+  }
+
+  private initializeDataTable(): void {
+    this.dataTable = $('#tasks-table').DataTable({
       scrollX: true
     });
+  }
+
+  adjustTableColumns(): void {
+    if (this.dataTable) {
+      this.dataTable.columns.adjust().draw();
+    }
   }
 
 }
