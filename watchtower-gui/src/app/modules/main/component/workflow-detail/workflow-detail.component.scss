@@ -7,14 +7,20 @@
 }
 
 
-.mdi-check-circle-outline {
-  color: $succeed-green;
+.workflow-status {
   vertical-align: text-top;
-}
 
-.mdi-alert-circle-outline {
-  color: $failed-red;
-  vertical-align: text-top;
+  &.succeed {
+    color: $succeed-green;
+  }
+
+  &.failed {
+    color: $failed-red;
+  }
+
+  &.partialFailed {
+    color: $partialFailed-orange;
+  }
 }
 
 .project-name {
