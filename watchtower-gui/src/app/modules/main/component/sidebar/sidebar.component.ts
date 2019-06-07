@@ -20,7 +20,6 @@ export class SidebarComponent implements OnInit {
 
 
   ngOnInit() {
-    console.log('The router URL', this.router.url);
     this.goToFirstWorkflow()
   }
 
