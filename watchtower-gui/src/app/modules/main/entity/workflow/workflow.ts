@@ -29,14 +29,19 @@ export class Workflow {
     return (this.computeStatus() === WorkflowStatus.FAILED);
   }
 
+  get isPartialFailed(): boolean {
+    return (this.computeStatus() === WorkflowStatus.PARTIAL_FAILED);
+  }
+
   get isCompleted(): boolean {
-    return (this.isSuccessful || this.isFailed);
+    return !this.isStarted;
   }
 
   private computeStatus(): WorkflowStatus {
-    return (!this.data.complete) ? WorkflowStatus.STARTED   :
-           (this.data.success)   ? WorkflowStatus.SUCCEEDED :
-                                   WorkflowStatus.FAILED
+    return (!this.data.complete)                               ? WorkflowStatus.STARTED   :
+           (this.data.success && this.data.stats.ignoredCount) ? WorkflowStatus.PARTIAL_FAILED :
+           (this.data.success)                                 ? WorkflowStatus.SUCCEEDED :
+                                                                 WorkflowStatus.FAILED
 
   }
 
