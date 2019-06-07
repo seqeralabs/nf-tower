@@ -57,6 +57,22 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         response.body().progress
     }
 
+    void "get a workflow as non-authenticated"() {
+        given: "a workflow with some summaries"
+        DomainCreator domainCreator = new DomainCreator()
+        Workflow workflow = domainCreator.createWorkflow()
+
+        when: "perform the request to obtain the workflow as a not allowed user"
+        HttpResponse<WorkflowGet> response = client.toBlocking().exchange(
+                HttpRequest.GET("/workflow/${workflow.id}"),
+                WorkflowGet.class
+        )
+
+        then: "the workflow data is properly obtained"
+        response.status == HttpStatus.OK
+        response.body().workflow.workflowId == workflow.id.toString()
+    }
+
     void "get a list of workflows"() {
         given: "a workflow"
         DomainCreator domainCreator = new DomainCreator()
@@ -93,24 +109,6 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         then: "a 404 response is obtained"
         HttpClientResponseException e = thrown(HttpClientResponseException)
         e.status == HttpStatus.NOT_FOUND
-    }
-
-    void "try to get a workflow as a not allowed user"() {
-        given: "a workflow with some summaries"
-        DomainCreator domainCreator = new DomainCreator()
-        Workflow workflow = domainCreator.createWorkflow()
-
-        when: "perform the request to obtain the workflow as a not allowed user"
-        String accessToken = doLogin(domainCreator.generateNotAllowedUser(), client)
-        HttpResponse<WorkflowGet> response = client.toBlocking().exchange(
-                HttpRequest.GET("/workflow/${workflow.id}")
-                           .bearerAuth(accessToken),
-                WorkflowGet.class
-        )
-
-        then: "a 403 response is obtained"
-        HttpClientResponseException e = thrown(HttpClientResponseException)
-        e.status == HttpStatus.FORBIDDEN
     }
 
     void "get the list of tasks associated with a workflow"() {

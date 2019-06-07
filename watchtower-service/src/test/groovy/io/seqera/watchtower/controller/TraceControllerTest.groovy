@@ -81,54 +81,6 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         Task.count() == 1
     }
 
-    @Ignore
-    void "get the trace update SSE live events"() {
-        given: 'save a workflow started JSON trace'
-        TraceWorkflowRequest workflowStartedJsonTrace = TracesJsonBank.extractWorkflowJsonTrace('success', null, WorkflowTraceSnapshotStatus.STARTED)
-
-        when: 'send a save request'
-        HttpResponse<TraceWorkflowResponse> responseWorkflow = client.toBlocking().exchange(
-                HttpRequest.POST('/trace/workflow', workflowStartedJsonTrace),
-                TraceWorkflowResponse.class
-        )
-
-        then: 'the workflow has been saved successfully'
-        responseWorkflow.status == HttpStatus.CREATED
-        responseWorkflow.body().status == TraceProcessingStatus.OK
-        def workflowId = responseWorkflow.body().workflowId
-        !responseWorkflow.body().message
-
-        when: 'subscribe to the live events endpoint'
-        TestSubscriber subscriber = new TestSubscriber()
-        sseClient.eventStream("/trace/live/${workflowId}", TraceSseResponse.class)
-                 .subscribe(subscriber)
-
-        then: 'the flowable is active'
-        subscriber.assertNotComplete()
-
-        and: 'save a task submitted JSON trace'
-        TraceTaskRequest taskSubmittedJsonTrace = TracesJsonBank.extractTaskJsonTrace('success', 1, workflowId as Long, TaskTraceSnapshotStatus.SUBMITTED)
-
-        when: 'send a save request'
-        HttpResponse<TraceTaskResponse> responseTask = client.toBlocking().exchange(
-                HttpRequest.POST('/trace/task', taskSubmittedJsonTrace),
-                TraceTaskResponse.class
-        )
-
-        then: 'the task has been saved successfully'
-        responseTask.status == HttpStatus.CREATED
-        responseTask.body().status == TraceProcessingStatus.OK
-        responseTask.body().workflowId
-        !responseTask.body().message
-
-        and: 'an event has been sent'
-        sleep(1000) // <-- sleep a prudential time in order to make sure the event has been received
-        subscriber.assertValueCount(1)
-        subscriber.events.first()[0].data.task
-        subscriber.events.first()[0].data.task.task
-        subscriber.events.first()[0].data.task.progress
-    }
-
     void "save traces simulated from a complete sequence"() {
         given: 'a nextflow simulator'
         NextflowSimulator nextflowSimulator = new NextflowSimulator(workflowLabel: 'simulation', client: client.toBlocking(), sleepBetweenRequests: 0)

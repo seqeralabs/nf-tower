@@ -68,7 +68,7 @@ class UserControllerTest extends AbstractContainerBaseTest {
         smtpServer.messages.size() == 1
         Message message = smtpServer.messages.first().mimeMessage
         message.allRecipients.contains(new InternetAddress(registeredUser.email))
-        message.subject == 'NF-Tower Sign in'
+        message.subject == 'Nextflow Tower Sign in'
         (message.content as MimeMultipart).getBodyPart(0).content.getBodyPart(0).content.contains("Hi ${registeredUser.userName}")
         (message.content as MimeMultipart).getBodyPart(0).content.getBodyPart(0).content.contains('http')
     }
@@ -106,7 +106,7 @@ class UserControllerTest extends AbstractContainerBaseTest {
         and: "the access link was sent to the user two times"
         smtpServer.messages.size() == 2
         smtpServer.messages.mimeMessage.every { it.allRecipients.contains(new InternetAddress(registeredUser.email)) }
-        smtpServer.messages.mimeMessage.every { it.subject == 'NF-Tower Sign in' }
+        smtpServer.messages.mimeMessage.every { it.subject == 'Nextflow Tower Sign in' }
         smtpServer.messages.mimeMessage.every { (it.content as MimeMultipart).getBodyPart(0).content.getBodyPart(0).content.contains("Hi ${registeredUser.userName}") }
         smtpServer.messages.mimeMessage.every { (it.content as MimeMultipart).getBodyPart(0).content.getBodyPart(0).content.contains('http') }
     }
