@@ -12,6 +12,7 @@ import groovy.transform.CompileDynamic
 import io.micronaut.context.annotation.Value
 import io.seqera.mail.Attachment
 import io.seqera.mail.Mail
+import io.seqera.util.TokenHelper
 import io.seqera.watchtower.domain.Role
 import io.seqera.watchtower.domain.User
 import io.seqera.watchtower.domain.UserRole
@@ -136,7 +137,7 @@ class UserServiceImpl implements UserService {
 
         Role role = Role.findByAuthority(authority) ?: createRole(authority)
 
-        String authToken = UUID.randomUUID().toString()
+        String authToken = TokenHelper.createHexToken()
         User user = new User(email: email, authToken: authToken, userName: userName, authTime: Instant.now())
         user.save()
 
@@ -148,10 +149,9 @@ class UserServiceImpl implements UserService {
 
     private User updateUserToken(User user) {
         user.authTime = Instant.now()
-        user.authToken = UUID.randomUUID().toString()
+        user.authToken = TokenHelper.createHexToken()
         user.save()
-
-        user
+        return user
     }
 
     private Role createRole(String authority) {
