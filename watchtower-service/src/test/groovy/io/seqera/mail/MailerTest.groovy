@@ -25,14 +25,12 @@ import java.nio.file.Path
 
 import groovy.util.logging.Slf4j
 import org.subethamail.wiser.Wiser
-import spock.lang.IgnoreIf
 import spock.lang.Specification
 import spock.lang.Timeout
 import spock.lang.Unroll
 import spock.util.environment.RestoreSystemProperties
 
 @Slf4j
-@IgnoreIf({System.getenv('NXF_SMOKE')})
 class MailerTest extends Specification {
 
     @Timeout(1)

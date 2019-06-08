@@ -8,6 +8,7 @@ import io.micronaut.security.authentication.AuthenticationFailed
 import io.micronaut.security.authentication.UserDetails
 import io.micronaut.test.annotation.MicronautTest
 import io.micronaut.test.annotation.MockBean
+import io.seqera.util.TokenHelper
 import io.seqera.watchtower.domain.User
 import io.seqera.watchtower.service.MailService
 import io.seqera.watchtower.service.MailServiceImpl
@@ -67,8 +68,9 @@ class AuthenticationProviderByAuthTokenTest extends Specification {
     @MockBean(UserServiceImpl)
     UserService mockUserService() {
         final now = Instant.now()
+        final tkn = TokenHelper.createHexToken()
         GroovyMock(UserServiceImpl) {
-            register(_ as String) >> { String email -> new User(email:email, userName: email, authToken: UUID.randomUUID().toString(), authTime: now) }
+            register(_ as String) >> { String email -> new User(email:email, userName: email, authToken: tkn, authTime: now) }
             findByEmailAndAuthToken(_ as String, _ as String) >> { args -> new User(email:args[0], userName:args[0], authToken: args[1], authTime: now) }
             findAuthoritiesByEmail(_ as String) >> ['role_a', 'role_b']
         }
