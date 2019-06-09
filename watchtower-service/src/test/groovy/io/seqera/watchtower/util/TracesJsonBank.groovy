@@ -44,6 +44,7 @@ class TracesJsonBank {
 
         String fileNamePart = "task_${taskId}_${taskStatus.name().toLowerCase()}.json"
         File jsonFile = workflowDir.listFiles().find { it.name.endsWith(fileNamePart) }
+        println "JsonFile=$jsonFile"
 
         TraceTaskRequest taskTrace = new ObjectMapper().readValue(jsonFile, TraceTaskRequest.class)
         taskTrace.task.relatedWorkflowId = workflowId
