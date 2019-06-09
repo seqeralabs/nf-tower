@@ -33,3 +33,12 @@ environment:
   - MONGO_HOST: mongo
   - MONGO_PORT: 27017
  
+
+## Email authentication
+
+- User receive an email containing a link to <host>/auth?email=<email>&authToken=<authToken>
+  (see UserServiceImpl#buildAccessUrl)
+
+- The link is handled by the front-end which make a post. See `auth.component.ts`
+
+EMAIL -- (HOST/auth?email=XX&authToken=YY) --> FRONTEND -- (POST: HOST/login?username=email&password=authToken) --> BACKEND --> AuthenticationProviderByAuthToken
