@@ -21,6 +21,8 @@ class User {
     String description
     String avatar
 
+    List<AccessToken> accessTokens
+
     static constraints = {
         email(email: true, unique: true)
         userName(unique: true)
@@ -37,5 +39,7 @@ class User {
         table 'userSec'
         version false
     }
+
+    static hasMany = [accessTokens: AccessToken]
 
 }
