@@ -19,12 +19,12 @@ export class UserProfileComponent implements OnInit {
   userCopy: User;
 
   isSubmitted: boolean;
-  confimationDeleteEmail: string;
+  confirmationDeleteEmail: string;
 
   constructor(private authService: AuthService,
               private notificationService: NotificationService,
               private router: Router) {
-    this.confimationDeleteEmail = '';
+    this.confirmationDeleteEmail = '';
   }
 
   ngOnInit() {
@@ -58,7 +58,7 @@ export class UserProfileComponent implements OnInit {
   isUserDeletionEnabled(): boolean {
     const userEmail: string = this.authService.currentUser.data.email;
 
-    return (this.confimationDeleteEmail == userEmail);
+    return (this.confirmationDeleteEmail == userEmail);
   }
 
   private handleOperationSuccess(message: string): void {
