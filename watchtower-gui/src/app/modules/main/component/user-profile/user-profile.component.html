@@ -1,5 +1,5 @@
 <div class="container mt-5">
-  <h1 class="mb-4">User profile</h1>
+  <h1 class="mb-4">User information</h1>
 
   <form class="needs-validation" [ngClass]="{'was-validated': isSubmitted}" novalidate #profileForm="ngForm" (ngSubmit)="update()">
     <div class="form-group">
@@ -34,7 +34,8 @@
     </div>
     <div class="form-group">
       <label for="description">Description</label>
-      <input id="description" name="description" type="text" class="form-control" maxlength="10" [(ngModel)]="userCopy.data.description">
+      <textarea id="description" name="description" type="text" class="form-control" maxlength="10" [(ngModel)]="userCopy.data.description">
+      </textarea>
       <div class="invalid-feedback">Max 10 characters long</div>
     </div>
 
@@ -44,10 +45,21 @@
         </button>
       </div>
     </div>
-    <hr>
+
     <div class="row">
       <div class="col">
-        <button class="btn btn-danger btn-block" type="button" name="action" data-toggle="modal" data-target="#delete-modal" [disabled]="isSubmitted">Delete</button>
+
+        <div class="card border-danger mt-3" >
+          <div class="card-body">
+            <h5 class="card-title">Danger zone</h5>
+            <p class="card-text">
+              Delete your account and all related records. This operation is not recoverable.
+
+              <button class="btn btn-danger btn-block mt-3" type="button" name="action" data-toggle="modal" data-target="#delete-modal" [disabled]="isSubmitted">Delete your account</button>
+            </p>
+          </div>
+        </div>
+
       </div>
     </div>
   </form>
@@ -55,15 +67,15 @@
   <div class="modal" id="delete-modal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Confirm user delete</h5>
+        <div class="modal-header bg-warning">
+          <h5 class="modal-title">Delete account confirmation</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
         <div class="modal-body">
           <div class="form-group">
-            <label for="delete-email">Please provide your user email to confirm deletion:</label>
+            <label for="delete-email">Please provide your user email to confirm the account deletion</label>
             <input id="delete-email" type="email" class="form-control" placeholder="Email" [(ngModel)]="confirmationDeleteEmail">
           </div>
         </div>
