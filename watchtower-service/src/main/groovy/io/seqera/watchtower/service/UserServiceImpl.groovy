@@ -13,6 +13,7 @@ import io.micronaut.context.annotation.Value
 import io.seqera.mail.Attachment
 import io.seqera.mail.Mail
 import io.seqera.util.TokenHelper
+import io.seqera.watchtower.domain.AccessToken
 import io.seqera.watchtower.domain.Role
 import io.seqera.watchtower.domain.User
 import io.seqera.watchtower.domain.UserRole
@@ -139,6 +140,7 @@ class UserServiceImpl implements UserService {
 
         String authToken = TokenHelper.createHexToken()
         User user = new User(email: email, authToken: authToken, userName: userName, authTime: Instant.now())
+        user.addToAccessTokens(new AccessToken(token: TokenHelper.createHexToken(), name: 'default', dateCreated: Instant.now()))
         user.save()
 
         UserRole userRole = new UserRole(user: user, role: role)

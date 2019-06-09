@@ -5,20 +5,20 @@ import javax.mail.Message
 import javax.mail.internet.InternetAddress
 import javax.mail.internet.MimeMultipart
 import javax.validation.ValidationException
+import java.time.Instant
 
 import grails.gorm.transactions.Transactional
 import io.micronaut.security.authentication.DefaultAuthentication
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.mail.MailerConfig
 import io.seqera.watchtower.Application
+import io.seqera.watchtower.domain.AccessToken
 import io.seqera.watchtower.domain.User
 import io.seqera.watchtower.domain.UserRole
 import io.seqera.watchtower.pogo.exceptions.NonExistingUserException
 import io.seqera.watchtower.util.AbstractContainerBaseTest
 import io.seqera.watchtower.util.DomainCreator
 import org.subethamail.wiser.Wiser
-
-import java.time.Instant
 
 @MicronautTest(application = Application.class)
 @Transactional
@@ -57,6 +57,10 @@ class UserServiceTest extends AbstractContainerBaseTest {
         user.userName == email.replaceAll(/@.*/, '')
         user.authToken
         User.count() == 1
+        
+        and:
+        user.accessTokens.size() == 1
+        AccessToken.count() == 1
 
         and: "a role was attached to the user"
         UserRole.list().first().user.id == user.id
