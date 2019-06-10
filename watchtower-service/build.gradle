@@ -34,14 +34,8 @@ dependencies {
     compile "io.micronaut:micronaut-http-client"
     compile "io.micronaut:micronaut-http-server-netty"
     
-    
-    compile("io.micronaut.configuration:micronaut-mongo-gorm") 
-//            { exclude group: 'org.mongodb', module: 'mongodb-driver-core' }
-//    compile 'org.mongodb:mongo-java-driver:3.10.2'
-    
-//    compile "io.micronaut.configuration:micronaut-hibernate-gorm"
-//    compile "org.postgresql:postgresql:42.2.5"
-
+    compile "io.micronaut.configuration:micronaut-hibernate-gorm"
+    compile "org.postgresql:postgresql:42.2.5"
     
     compile "javax.activation:activation:1.1.1"
     compile "javax.mail:mail:1.4.7"
