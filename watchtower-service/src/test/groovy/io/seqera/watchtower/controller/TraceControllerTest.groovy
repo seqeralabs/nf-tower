@@ -26,7 +26,6 @@ import javax.inject.Inject
 
 @MicronautTest(application = Application.class)
 @Transactional
-//@Ignore("throws 'IllegalStateException: state should be: open' when executing all tests")
 class TraceControllerTest extends AbstractContainerBaseTest {
 
     @Inject
@@ -55,7 +54,9 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         !response.body().message
 
         and: 'the workflow is in the database'
-        Workflow.count() == 1
+        Workflow.withNewTransaction {
+            Workflow.count() == 1
+        }
     }
 
     void "save a new task given a submit trace"() {
@@ -78,7 +79,9 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         !response.body().message
 
         and: 'the task is in the database'
-        Task.count() == 1
+        Task.withNewTransaction {
+            Task.count() == 1
+        }
     }
 
     void "save traces simulated from a complete sequence"() {
@@ -89,8 +92,12 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         nextflowSimulator.simulate()
 
         then: 'the workflow and its tasks have been saved'
-        Workflow.count() == 1
-        Task.count() == 4
+        Workflow.withNewTransaction {
+            Workflow.count() == 1
+        }
+        Workflow.withNewTransaction {
+            Task.count() == 4
+        }
     }
 
     void "save traces simulated from a complete sequence and subscribe to the live events in the mean time"() {
@@ -101,7 +108,10 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         nextflowSimulator.simulate(1)
 
         then: 'the workflow has been created'
-        Workflow.count() == 1
+        Workflow.withNewTransaction {
+            Workflow.count() == 1
+        }
+
 
         when: 'subscribe to the live events endpoint'
         TestSubscriber subscriber = new TestSubscriber()
@@ -115,7 +125,9 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         nextflowSimulator.simulate(1)
 
         then: 'the task has been created'
-        Task.count() == 1
+        Task.withNewTransaction {
+            Task.count() == 1
+        }
 
         and: 'the task event has been sent'
         sleep(500) // <-- sleep a prudential time in order to make sure the event has been received

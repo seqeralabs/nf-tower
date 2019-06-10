@@ -56,11 +56,15 @@ class UserServiceTest extends AbstractContainerBaseTest {
         user.email == email
         user.userName == email.replaceAll(/@.*/, '')
         user.authToken
-        User.count() == 1
-        
+        User.withNewTransaction {
+            User.count() == 1
+        }
+
         and:
         user.accessTokens.size() == 1
-        AccessToken.count() == 1
+        AccessToken.withNewTransaction {
+            AccessToken.count() == 1
+        }
 
         and: "a role was attached to the user"
         UserRole.list().first().user.id == user.id
@@ -92,7 +96,9 @@ class UserServiceTest extends AbstractContainerBaseTest {
         then: "the returned user is the same as the previous one"
         userToRegister.id == existingUser.id
         userToRegister.email == existingUser.email
-        User.count() == 1
+        User.withNewTransaction {
+            User.count() == 1
+        }
 
         and: 'the auth token has been refreshed'
         userToRegister.authToken != authToken
@@ -119,7 +125,9 @@ class UserServiceTest extends AbstractContainerBaseTest {
         user.email == email
         user.userName == email.replaceAll(/@.*/, '')
         user.authToken
-        User.count() == 1
+        User.withNewTransaction {
+            User.count() == 1
+        }
 
         when: "register a user with a similar email to the first one"
         String email2 = 'user@email.com'
@@ -133,7 +141,9 @@ class UserServiceTest extends AbstractContainerBaseTest {
         user2.email == email2
         user2.userName ==~ /${email2.replaceAll(/@.*/, '')}\d+/
         user2.authToken
-        User.count() == 2
+        User.withNewTransaction {
+            User.count() == 2
+        }
     }
 
     void "try to register a user given an invalid email"() {
@@ -146,7 +156,9 @@ class UserServiceTest extends AbstractContainerBaseTest {
         then: "the user couldn't be created"
         ValidationException e = thrown(ValidationException)
         e.message == "Can't save a user with bad email format"
-        User.count() == 0
+        User.withNewTransaction {
+            User.count() == 0
+        }
     }
 
     void "update an existing user given new user data"() {
@@ -169,7 +181,9 @@ class UserServiceTest extends AbstractContainerBaseTest {
         updatedUser.avatar == userData.avatar
         updatedUser.organization == userData.organization
         updatedUser.description == userData.description
-        User.count() == 1
+        User.withNewTransaction {
+            User.count() == 1
+        }
     }
 
     void "try to update an existing user, but with some invalid data"() {
@@ -213,7 +227,9 @@ class UserServiceTest extends AbstractContainerBaseTest {
         }
 
         then: "the user has been correctly deleted"
-        User.count() == 0
+        User.withNewTransaction {
+            User.count() == 0
+        }
     }
 
     void "delete an existing user with roles"() {
@@ -229,7 +245,9 @@ class UserServiceTest extends AbstractContainerBaseTest {
         }
 
         then: "the user has been correctly deleted"
-        User.count() == 0
+        User.withNewTransaction {
+            User.count() == 0
+        }
     }
 
     void "try to delete an non-existing user"() {
