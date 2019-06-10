@@ -18,16 +18,9 @@ abstract class AbstractContainerBaseTest extends Specification {
     static GenericContainer DATABASE_CONTAINER
 
     static {
-        createMongoDatabase()
-//        createPostgreSqlDatabase()
+        createPostgreSqlDatabase()
 
         DATABASE_CONTAINER.start()
-    }
-
-    private static createMongoDatabase() {
-        DATABASE_CONTAINER = new FixedHostPortGenericContainer("mongo:4.1")
-                .withFixedExposedPort(27018, 27017)
-                .waitingFor(Wait.forListeningPort())
     }
 
     private static createPostgreSqlDatabase() {
