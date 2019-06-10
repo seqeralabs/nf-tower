@@ -24,7 +24,6 @@ import javax.mail.internet.MimeMultipart
 
 @MicronautTest(application = Application.class)
 @Transactional
-//@Ignore("throws 'IllegalStateException: state should be: open' when executing all tests")
 class UserControllerTest extends AbstractContainerBaseTest {
 
     @Inject
@@ -101,7 +100,9 @@ class UserControllerTest extends AbstractContainerBaseTest {
         then: 'a new user has not been created'
         response.status == HttpStatus.OK
         response.body() == 'User registered! Check your mailbox!'
-        User.count() == 1
+        User.withNewTransaction {
+            User.count() == 1
+        }
 
         and: "the access link was sent to the user two times"
         smtpServer.messages.size() == 2
@@ -125,7 +126,10 @@ class UserControllerTest extends AbstractContainerBaseTest {
         HttpClientResponseException e = thrown(HttpClientResponseException)
         e.status == HttpStatus.BAD_REQUEST
         e.response.body() == "Can't save a user with bad email format"
-        User.count() == 0
+        User.withNewTransaction {
+            User.count() == 0
+        }
+
     }
 
     void "update the user data"() {
@@ -167,7 +171,9 @@ class UserControllerTest extends AbstractContainerBaseTest {
         HttpClientResponseException e = thrown(HttpClientResponseException)
         e.status == HttpStatus.BAD_REQUEST
         e.response.body() == "Can't save a user with bad avatar URL format"
-        User.count() == 1
+        User.withNewTransaction {
+            User.count() == 1
+        }
     }
 
     void "delete a user"() {

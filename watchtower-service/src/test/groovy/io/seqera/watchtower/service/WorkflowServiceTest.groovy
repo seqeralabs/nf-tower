@@ -36,7 +36,9 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         workflow.checkIsStarted()
         workflow.submit
         !workflow.complete
-        Workflow.count() == 1
+        Workflow.withNewTransaction {
+            Workflow.count() == 1
+        }
 
         and: "there is progress info"
         workflow.progress.running == 0
@@ -75,7 +77,9 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         workflowSucceeded.checkIsSucceeded()
         workflowSucceeded.submit
         workflowSucceeded.complete
-        Workflow.count() == 1
+        Workflow.withNewTransaction {
+            Workflow.count() == 1
+        }
 
         and: "there is summary info"
         workflowSucceeded.summaryEntries.size() == 1
@@ -85,7 +89,9 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         workflowSucceeded.summaryEntries.first().reads
         workflowSucceeded.summaryEntries.first().writes
         workflowSucceeded.summaryEntries.first().cpuUsage
-        SummaryEntry.count() == 1
+        SummaryEntry.withNewTransaction {
+            SummaryEntry.count() == 1
+        }
 
         and: "there is progress info"
         workflowSucceeded.progress.running == 0
@@ -111,7 +117,9 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         workflowStarted.checkIsStarted()
         workflowStarted.submit
         !workflowStarted.complete
-        Workflow.count() == 1
+        Workflow.withNewTransaction {
+            Workflow.count() == 1
+        }
 
         when: "given a workflow failed trace, unmarshall the failed JSON to a workflow"
         TraceWorkflowRequest workflowFailedTraceJson = TracesJsonBank.extractWorkflowJsonTrace('failed', workflowStarted.id, WorkflowTraceSnapshotStatus.FAILED)
@@ -125,7 +133,9 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         workflowFailed.checkIsFailed()
         workflowFailed.submit
         workflowFailed.complete
-        Workflow.count() == 1
+        Workflow.withNewTransaction {
+            Workflow.count() == 1
+        }
 
         and: "there is summary info"
         workflowFailed.summaryEntries.size() == 1
@@ -135,7 +145,9 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         workflowFailed.summaryEntries.first().reads
         workflowFailed.summaryEntries.first().writes
         workflowFailed.summaryEntries.first().cpuUsage
-        SummaryEntry.count() == 1
+        SummaryEntry.withNewTransaction {
+            SummaryEntry.count() == 1
+        }
 
         and: "there is progress info"
         workflowFailed.progress.running == 0
@@ -161,7 +173,9 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         workflowStarted1.checkIsStarted()
         workflowStarted1.submit
         !workflowStarted1.complete
-        Workflow.count() == 1
+        Workflow.withNewTransaction {
+            Workflow.count() == 1
+        }
 
         when: "given a workflow started trace with the same relatedWorkflowId, unmarshall the started JSON to a second workflow"
         TraceWorkflowRequest workflowStarted2TraceJson = TracesJsonBank.extractWorkflowJsonTrace('success', workflowStarted1.id, WorkflowTraceSnapshotStatus.STARTED)
@@ -172,7 +186,9 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
 
         then: "the second workflow is treated as a new one, and sessionId/runName combination cannot be repeated"
         workflowStarted2.errors.getFieldError('sessionId').code == 'unique'
-        Workflow.count() == 1
+        Workflow.withNewTransaction {
+            Workflow.count() == 1
+        }
     }
 
     void "try to start a workflow given a started trace without sessionId"() {
@@ -189,7 +205,9 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         then: "the workflow has validation errors"
         workflowStarted.hasErrors()
         workflowStarted.errors.getFieldError('sessionId').code == 'nullable'
-        Workflow.count() == 0
+        Workflow.withNewTransaction {
+            Workflow.count() == 0
+        }
     }
 
     void "try to complete a workflow given a succeeded trace for a non existing workflow"() {

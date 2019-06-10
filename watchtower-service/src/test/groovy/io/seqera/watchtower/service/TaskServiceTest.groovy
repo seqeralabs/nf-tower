@@ -43,7 +43,9 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         task.submit
         !task.start
         !task.complete
-        Task.count() == 1
+        Task.withNewTransaction {
+            Task.count() == 1
+        }
 
         and: "the workflow progress info was updated"
         task.workflow.progress.running == 0
@@ -79,7 +81,9 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         taskSubmitted.submit
         !taskSubmitted.start
         !taskSubmitted.complete
-        Task.count() == 1
+        Task.withNewTransaction {
+            Task.count() == 1
+        }
 
         when: "unmarshall the started task trace"
         Task taskStarted
@@ -93,7 +97,9 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         taskStarted.submit
         taskStarted.start
         !taskStarted.complete
-        Task.count() == 1
+        Task.withNewTransaction {
+            Task.count() == 1
+        }
 
         when: "unmarshall the succeeded task trace"
         Task taskCompleted
@@ -107,7 +113,9 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         taskCompleted.submit
         taskCompleted.start
         taskCompleted.complete
-        Task.count() == 1
+        Task.withNewTransaction {
+            Task.count() == 1
+        }
 
         and: "the workflow progress info was updated"
         taskCompleted.workflow.progress.running == 0
@@ -143,7 +151,9 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         taskSubmitted.submit
         !taskSubmitted.start
         !taskSubmitted.complete
-        Task.count() == 1
+        Task.withNewTransaction {
+            Task.count() == 1
+        }
 
         when: "unmarshall the started task trace"
         Task taskStarted
@@ -153,7 +163,9 @@ class TaskServiceTest extends AbstractContainerBaseTest {
 
         then: "the task has been started"
         taskStarted.id == taskSubmitted.id
-        Task.count()
+        Task.withNewTransaction {
+            Task.count() == 1
+        }
 
         taskStarted.checkIsRunning()
         taskStarted.submit
@@ -173,7 +185,9 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         taskCompleted.start
         taskCompleted.complete
         taskCompleted.errorAction
-        Task.count() == 1
+        Task.withNewTransaction {
+            Task.count() == 1
+        }
 
         and: "the workflow progress info was updated"
         taskCompleted.workflow.progress.running == 3
@@ -201,7 +215,9 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         taskSubmitted1.id
         taskSubmitted1.checkIsSubmitted()
         taskSubmitted1.submit
-        Task.count() == 1
+        Task.withNewTransaction {
+            Task.count() == 1
+        }
 
         when: "unmarshall the submit JSON to a second task"
         taskSubmittedTraceJson = TracesJsonBank.extractTaskJsonTrace('success', 1, workflow.id, TaskTraceSnapshotStatus.SUBMITTED)
@@ -213,7 +229,9 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         then: "the task can't be saved because a task with the same taskId already exists for the same workflow"
         taskSubmitted2.hasErrors()
         taskSubmitted2.errors.getFieldError('taskId').code == 'unique'
-        Task.count() == 1
+        Task.withNewTransaction {
+            Task.count() == 1
+        }
     }
 
     void "try to submit a task without taskId"() {
@@ -233,7 +251,9 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         then: "the task has a validation error"
         taskSubmitted.hasErrors()
         taskSubmitted.errors.getFieldError('taskId').code == 'nullable'
-        Task.count() == 0
+        Task.withNewTransaction {
+            Task.count() == 0
+        }
     }
 
     void "try to start a task not previously submitted given start trace"() {
@@ -251,7 +271,9 @@ class TaskServiceTest extends AbstractContainerBaseTest {
 
         then: "the task doesn't exist"
         thrown(NonExistingTaskException)
-        Task.count() == 0
+        Task.withNewTransaction {
+            Task.count() == 0
+        }
     }
 
     void "try to submit a task given a submit trace for a non existing workflow"() {
@@ -266,7 +288,9 @@ class TaskServiceTest extends AbstractContainerBaseTest {
 
         then: "the workflow doesn't exist"
         thrown(NonExistingWorkflowException)
-        Task.count() == 0
+        Task.withNewTransaction {
+            Task.count() == 0
+        }
     }
 
 }

@@ -57,7 +57,7 @@ class Task {
 
     String errorAction
 
-    Long exit
+    Long exitStatus
     Long duration
     Long realtime
     Long nativeId
@@ -118,6 +118,10 @@ class Task {
     void deserializeWorkflowId(String workflowId) {
         relatedWorkflowId = workflowId
     }
+    @JsonSetter('exit')
+    void deserializeExistStatus(Long exit) {
+        exitStatus = exit
+    }
 
 
     @JsonGetter('submit')
@@ -140,6 +144,11 @@ class Task {
         workflowId?.toString() ?: relatedWorkflowId
     }
 
+    @JsonGetter('exit')
+    String serializeExitStatus() {
+        exitStatus
+    }
+
     static transients = ['relatedWorkflowId']
 
     static mapping = {
@@ -151,7 +160,7 @@ class Task {
 
         process(nullable: true)
         tag(nullable: true)
-        exit(nullable: true)
+        exitStatus(nullable: true)
         start(nullable: true)
         complete(nullable: true)
         module(nullable: true)

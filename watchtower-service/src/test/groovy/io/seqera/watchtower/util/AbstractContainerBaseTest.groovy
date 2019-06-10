@@ -18,16 +18,17 @@ abstract class AbstractContainerBaseTest extends Specification {
     static GenericContainer DATABASE_CONTAINER
 
     static {
-        createPostgreSqlDatabase()
+        createMySqlDatabase()
 
         DATABASE_CONTAINER.start()
     }
 
-    private static createPostgreSqlDatabase() {
-        DATABASE_CONTAINER = new FixedHostPortGenericContainer("postgres:11.3")
-                .withFixedExposedPort(5433, 5432)
-                .withEnv([POSTGRES_USER: 'watchtower', POSTGRES_PASSWORD: 'watchtower', POSTGRES_DB: 'watchtower'])
+    private static createMySqlDatabase() {
+        DATABASE_CONTAINER = new FixedHostPortGenericContainer("mysql:8.0")
+                .withFixedExposedPort(3307, 3306)
+                .withEnv([MYSQL_ROOT_PASSWORD: 'root', MYSQL_USER: 'watchtower', MYSQL_PASSWORD: 'watchtower', MYSQL_DATABASE: 'watchtower'])
                 .waitingFor(Wait.forListeningPort())
+                .waitingFor(Wait.forLogMessage(/MySQL init process done.*/, 1))
     }
 
     protected String doLogin(User user, HttpClient client) {
