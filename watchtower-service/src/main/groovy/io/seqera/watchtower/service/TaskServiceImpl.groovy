@@ -1,5 +1,6 @@
 package io.seqera.watchtower.service
 
+import grails.gorm.PagedResultList
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
 import io.seqera.watchtower.domain.Progress
@@ -86,6 +87,15 @@ class TaskServiceImpl implements TaskService {
         taskToUpdate.invCtxt = originalTask.invCtxt
 
         taskToUpdate.errorAction = originalTask.errorAction
+    }
+
+    @CompileDynamic
+    PagedResultList<Task> findTasks(Long workflowId, Long max, Long offset) {
+        Task.createCriteria().list(max: max, offset: offset) {
+            workflow {
+                idEq(workflowId)
+            }
+        }
     }
 
 }
