@@ -1,24 +1,12 @@
 version: "3.3"
 
 services:
-  mongo:
-    image: mongo:4.1
+  mysql:
+    image: mysql:8.0
     ports:
-      - 27017:27017
-
-  mongo-express:
-    image: mongo-express
-    ports:
-      - 8081:8081
+      - 3307:3306
     environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: watchtower
-      ME_CONFIG_MONGODB_ADMINPASSWORD: watchtower
-
-#  postgres:
-#    image: postgres:11.3
-#    ports:
-#      - 5432:5432
-#    environment:
-#      POSTGRES_USER: watchtower
-#      POSTGRES_PASSWORD: watchtower
-#      POSTGRES_DB: watchtower
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: watchtower
+      MYSQL_PASSWORD: watchtower
+      MYSQL_DATABASE: watchtower
