@@ -1,5 +1,6 @@
 package io.seqera.watchtower.service
 
+import grails.gorm.PagedResultList
 import grails.gorm.transactions.Transactional
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.watchtower.Application
@@ -291,6 +292,28 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         Task.withNewTransaction {
             Task.count() == 0
         }
+    }
+
+    void "find some tasks belonging to a workflow"() {
+        given: 'a first task'
+        Task firstTask = new DomainCreator().createTask(taskId: 1)
+
+        and: 'extract its workflow'
+        Workflow workflow = firstTask.workflow
+
+        and: 'generate more tasks associated with the workflow'
+        List<Task> tasks = (2..3).collect {
+            new DomainCreator().createTask(workflow: workflow, taskId: it)
+        }
+        tasks << firstTask
+
+        when: 'search for the tasks associated with the workflow'
+        PagedResultList<Task> obtainedTasks = taskService.findTasks(workflow.id, 10, 0)
+
+        then:
+        obtainedTasks.totalCount == 3
+        obtainedTasks.resultList == tasks
+
     }
 
 }

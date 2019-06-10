@@ -2,6 +2,7 @@ package io.seqera.watchtower.controller
 
 import grails.gorm.transactions.Transactional
 import groovy.util.logging.Slf4j
+import io.micronaut.http.HttpParameters
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
@@ -58,7 +59,7 @@ class WorkflowController {
     @Get("/{workflowId}/tasks")
     @Transactional
     @Secured(SecurityRule.IS_ANONYMOUS)
-    HttpResponse<TaskList> tasks(Long workflowId) {
+    HttpResponse<TaskList> tasks(Long workflowId, HttpParameters filterParams) {
         Workflow workflow = workflowService.get(workflowId)
 
         if (!workflow) {
