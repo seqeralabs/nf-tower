@@ -40,14 +40,13 @@ grails:
 ---
 mail:
   from: info@seqera.io
-  to: qa@salenda.es
   smtp:
-    host: smtp.salenda.es
-    port: 25
-    auth: false
+    host: email-smtp.eu-west-1.amazonaws.com
+    port: 587
+    auth: true
     starttls:
-      enable: false
-      required: false
+      enable: true
+      required: true
 ---
 front:
   url: http://localhost:8000
