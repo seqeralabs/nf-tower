@@ -23,6 +23,9 @@ class ServerSentEventsServiceImpl implements ServerSentEventsService {
     @Value('${sse.idle.timeout:5m}')
     Duration idleFlowableTimeout
 
+    @Value('${sse.throttle.time:0ms}')
+    Duration throttleFlowableTime
+
 
     void createFlowable(String key) {
         log.info("Creating flowable: ${key}")
@@ -33,21 +36,21 @@ class ServerSentEventsServiceImpl implements ServerSentEventsService {
 
     void publishEvent(String key, Event event) throws NonExistingFlowableException {
         log.info("Publishing event for flowable: ${key}")
-        PublishProcessor hotFlowable = (PublishProcessor) getFlowable(key)
+        PublishProcessor hotFlowable = (PublishProcessor) getFlowableInternal(key)
 
         hotFlowable.onNext(event)
     }
 
     void completeFlowable(String key) {
         log.info("Completing flowable: ${key}")
-        PublishProcessor hotFlowable = (PublishProcessor) getFlowable(key)
+        PublishProcessor hotFlowable = (PublishProcessor) getFlowableInternal(key)
 
         hotFlowable.onComplete()
         flowableByKeyCache.remove(key)
     }
 
     private void scheduleFlowableIdleTimeout(String key) {
-        Flowable flowable = getFlowable(key)
+        Flowable flowable = getFlowableInternal(key)
 
         Flowable timeoutFlowable = flowable.timeout(idleFlowableTimeout.toMillis(), TimeUnit.MILLISECONDS)
         timeoutFlowable.subscribe(
@@ -65,7 +68,7 @@ class ServerSentEventsServiceImpl implements ServerSentEventsService {
         )
     }
 
-    Flowable getFlowable(String key) throws NonExistingFlowableException {
+    private Flowable getFlowableInternal(String key) throws NonExistingFlowableException {
         Flowable hotFlowable = flowableByKeyCache[key]
 
         if (!hotFlowable) {
@@ -73,6 +76,12 @@ class ServerSentEventsServiceImpl implements ServerSentEventsService {
         }
 
         hotFlowable
+    }
+
+    Flowable getFlowable(String key) throws NonExistingFlowableException {
+        Flowable flowable = getFlowableInternal(key)
+
+        flowable.throttleLatest(throttleFlowableTime.toMillis(), TimeUnit.MILLISECONDS, true)
     }
 
 }
