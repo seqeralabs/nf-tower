@@ -6,8 +6,6 @@ plugins {
     id "com.google.cloud.tools.jib" version "0.9.9"
 }
 
-
-
 version "0.1"
 group "io.sequera.watchtower"
 
@@ -35,7 +33,7 @@ dependencies {
     compile "io.micronaut:micronaut-http-server-netty"
     
     compile "io.micronaut.configuration:micronaut-hibernate-gorm"
-    compile "org.postgresql:postgresql:42.2.5"
+    compile 'mysql:mysql-connector-java:8.0.16'
     
     compile "javax.activation:activation:1.1.1"
     compile "javax.mail:mail:1.4.7"

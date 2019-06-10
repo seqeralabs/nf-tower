@@ -1,9 +1,9 @@
 ---
 dataSource:
   pooled: true
-  dbCreate: update
-  url: jdbc:postgresql://localhost:5433/watchtower
-  driverClassName: org.postgresql.Driver
+  dbCreate: create-drop
+  url: jdbc:mysql://localhost:3307/watchtower
+  driverClassName: com.mysql.jdbc.Driver
   username: watchtower
   password: watchtower
 hibernate:
@@ -11,7 +11,7 @@ hibernate:
     queries: false
     use_second_level_cache: false
     use_query_cache: false
-  dialect: org.hibernate.dialect.PostgreSQLDialect
+  dialect: org.hibernate.dialect.MySQL8Dialect
 grails:
   gorm:
     failOnError: false
