@@ -1,7 +1,7 @@
 version: "3"
 services:
 
-  mysql:
+  db:
     image: mysql:8
     networks:
       - backend
@@ -13,8 +13,7 @@ services:
       MYSQL_PASSWORD: watchtower
       MYSQL_DATABASE: watchtower
     healthcheck:
-#      test: mysqladmin ping -h 127.0.0.1 -u watchtower --password=watchtower
-      test: ["CMD", 'wait-for-it mysql:3306']
+      test: ["CMD", 'wait-for-it db:3306']
       interval: 10s
       timeout: 2s
       retries: 10
@@ -27,11 +26,13 @@ services:
     ports:
       - 8080:8080
     environment:
-      MYSQL_HOST: mysql
+      MYSQL_HOST: db
       MYSQL_PORT: 3306
     volumes:
       - $PWD:/work
     working_dir: /work
+    depends_on:
+      - db
 
   frontend:
     build: ./watchtower-gui
@@ -39,6 +40,8 @@ services:
       - frontend
     ports:
       - 8000:80
+    depends_on:
+      - backend
 
 networks:
   frontend: {}
