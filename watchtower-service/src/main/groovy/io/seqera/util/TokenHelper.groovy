@@ -23,7 +23,11 @@ class TokenHelper {
         final secureRandom = new SecureRandom();
         byte[] token = new byte[20]
         secureRandom.nextBytes(token)
-        new BigInteger(1, token).toString(16)
+        def result = new BigInteger(1, token).toString(16)
+        // pad with extra zeros if necessary
+        while( result.size()<40 )
+            result = '0'+result
+        return result
     }
 
 }
