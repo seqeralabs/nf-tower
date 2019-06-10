@@ -25,7 +25,7 @@ dataSource:
   pooled: true
   dbCreate: update
   url: "jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/watchtower"
-  driverClassName: com.mysql.jdbc.Driver
+  driverClassName: com.mysql.cj.jdbc.Driver
   username: watchtower
   password: watchtower
 hibernate:
