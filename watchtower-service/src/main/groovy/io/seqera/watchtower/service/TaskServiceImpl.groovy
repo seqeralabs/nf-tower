@@ -1,5 +1,6 @@
 package io.seqera.watchtower.service
 
+import grails.gorm.DetachedCriteria
 import grails.gorm.PagedResultList
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
@@ -91,11 +92,11 @@ class TaskServiceImpl implements TaskService {
 
     @CompileDynamic
     PagedResultList<Task> findTasks(Long workflowId, Long max, Long offset) {
-        Task.createCriteria().list(max: max, offset: offset) {
+        new DetachedCriteria<Task>(Task).build {
             workflow {
-                idEq(workflowId)
+                eq('id', workflowId)
             }
-        }
+        }.list(max: max, offset: offset, sort: 'taskId')
     }
 
 }

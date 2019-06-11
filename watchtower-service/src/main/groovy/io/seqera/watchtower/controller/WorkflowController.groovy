@@ -13,6 +13,7 @@ import io.seqera.watchtower.pogo.exchange.task.TaskGet
 import io.seqera.watchtower.pogo.exchange.task.TaskList
 import io.seqera.watchtower.pogo.exchange.workflow.WorkflowGet
 import io.seqera.watchtower.pogo.exchange.workflow.WorkflowList
+import io.seqera.watchtower.service.TaskService
 import io.seqera.watchtower.service.WorkflowService
 
 import javax.inject.Inject
@@ -25,10 +26,12 @@ import javax.inject.Inject
 class WorkflowController {
 
     WorkflowService workflowService
+    TaskService taskService
 
     @Inject
-    WorkflowController(WorkflowService workflowService) {
+    WorkflowController(WorkflowService workflowService, TaskService taskService) {
         this.workflowService = workflowService
+        this.taskService = taskService
     }
 
 
@@ -60,15 +63,10 @@ class WorkflowController {
     @Transactional
     @Secured(SecurityRule.IS_ANONYMOUS)
     HttpResponse<TaskList> tasks(Long workflowId, HttpParameters filterParams) {
-        Workflow workflow = workflowService.get(workflowId)
+        Long max = filterParams.getFirst('start', Long.class, 10l)
+        Long offset = filterParams.getFirst('length', Long.class, 0l)
 
-        if (!workflow) {
-            return HttpResponse.notFound()
-        }
-
-        List<TaskGet> result = workflow.tasks.sort {
-            it.taskId
-        }.collect {
+        List<TaskGet> result = taskService.findTasks(workflowId, max, offset).collect {
             TaskGet.of(it)
         }
         HttpResponse.ok(TaskList.of(result))

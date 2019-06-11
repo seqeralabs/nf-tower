@@ -113,13 +113,14 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
     void "get the list of tasks associated with a workflow"() {
         given: 'a task'
         Task firstTask = new DomainCreator().createTask(taskId: 1)
+        List<Task> tasks = [firstTask]
 
         and: 'extract its workflow'
         Workflow workflow = firstTask.workflow
 
         and: 'generate more tasks associated with the workflow'
-        List<Task> tasks = (2..3).collect {
-            new DomainCreator().createTask(workflow: workflow, taskId: it)
+        (2..3).each {
+            tasks << new DomainCreator().createTask(workflow: workflow, taskId: it)
         }
         tasks << firstTask
 
@@ -137,18 +138,18 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         response.body().tasks.every { it.task.relatedWorkflowId == workflow.id.toString() }
     }
 
-    void "try to get the list of tasks from a non-existing workflow"() {
+    void "try to get the list of tasks from a nonexistent workflow"() {
         when: "perform the request to obtain the tasks from a non-existing workflow"
         String accessToken = doLogin(new DomainCreator().generateAllowedUser(), client)
-        client.toBlocking().exchange(
+        HttpResponse<TaskList> response = client.toBlocking().exchange(
                 HttpRequest.GET("/workflow/100/tasks")
                         .bearerAuth(accessToken),
                 TaskList.class
         )
 
-        then: "a 404 response is obtained"
-        HttpClientResponseException e = thrown(HttpClientResponseException)
-        e.status == HttpStatus.NOT_FOUND
+        then: "the tasks list is empty"
+        response.status == HttpStatus.OK
+        response.body().tasks.size() == 0
     }
 
 
