@@ -14,6 +14,7 @@ import io.seqera.watchtower.util.AbstractContainerBaseTest
 import io.seqera.watchtower.util.DomainCreator
 import io.seqera.watchtower.util.TaskTraceSnapshotStatus
 import io.seqera.watchtower.util.TracesJsonBank
+import spock.lang.Unroll
 
 import javax.inject.Inject
 
@@ -294,26 +295,42 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         }
     }
 
+    @Unroll
     void "find some tasks belonging to a workflow"() {
         given: 'a first task'
         Task firstTask = new DomainCreator().createTask(taskId: 1)
+        List<Task> tasks = [firstTask]
 
         and: 'extract its workflow'
         Workflow workflow = firstTask.workflow
 
         and: 'generate more tasks associated with the workflow'
-        List<Task> tasks = (2..3).collect {
-            new DomainCreator().createTask(workflow: workflow, taskId: it)
+        (2..nTasks).each {
+            tasks << new DomainCreator().createTask(workflow: workflow, taskId: it)
         }
-        tasks << firstTask
 
         when: 'search for the tasks associated with the workflow'
-        PagedResultList<Task> obtainedTasks = taskService.findTasks(workflow.id, 10, 0)
+        PagedResultList<Task> obtainedTasks = taskService.findTasks(workflow.id, max, offset)
 
-        then:
-        obtainedTasks.totalCount == 3
-        obtainedTasks.resultList == tasks
+        then: 'the obtained tasks are as expected'
+        obtainedTasks.totalCount == nTasks
+        obtainedTasks.size() == max
+        obtainedTasks.id == tasks[offset..<(offset + max)].id
 
+        where: 'the pagination params are'
+        nTasks | max | offset
+        20     | 10  | 0
+        20     | 10  | 10
+    }
+
+    @Unroll
+    void "try to find some tasks for a nonexistent workflow"() {
+        when: 'search for the tasks associated with a nonexistent workflow'
+        PagedResultList<Task> obtainedTasks = taskService.findTasks(100, 10, 0)
+
+        then: 'there are no tasks'
+        obtainedTasks.totalCount == 0
+        obtainedTasks.size() == 0
     }
 
 }
