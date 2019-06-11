@@ -6,7 +6,6 @@ import java.time.Duration
 import java.time.Instant
 
 import io.micronaut.context.annotation.Value
-import io.micronaut.security.authentication.AuthenticationFailed
 import io.micronaut.security.authentication.AuthenticationProvider
 import io.micronaut.security.authentication.AuthenticationRequest
 import io.micronaut.security.authentication.AuthenticationResponse
@@ -35,10 +34,10 @@ class AuthenticationProviderByAuthToken implements AuthenticationProvider {
         return Flowable.just(result) as Publisher<AuthenticationResponse>
     }
 
-    protected authenticate0(String identity, String token) {
+    protected AuthenticationResponse authenticate0(String identity, String token) {
         if( !identity ) {
             // a more explanatory message should be returned
-            return new AuthenticationFailed()
+            return new AuthFailure('Missing user identity')
         }
 
         final isEmail = identity.contains('@')
@@ -48,12 +47,12 @@ class AuthenticationProviderByAuthToken implements AuthenticationProvider {
 
         if( !user ) {
             // a more explanatory message should be returned
-            return new AuthenticationFailed()
+            return new AuthFailure("Unknow user with identity: $identity")
         }
 
         if( isEmail && isAuthTokenExpired(user) ) {
             // a more explanatory message should be returned
-            return new AuthenticationFailed()
+            return new AuthFailure("Authentication token expired for user: $identity")
         }
 
         // TODO the user name should be used instead user email the later could not be unique
@@ -62,7 +61,7 @@ class AuthenticationProviderByAuthToken implements AuthenticationProvider {
         return new UserDetails(user.email, authorities, (Map) attributes)
     }
 
-    private boolean isAuthTokenExpired(User user) {
+    protected boolean isAuthTokenExpired(User user) {
         Duration delta = Duration.between(user.authTime, Instant.now())
 
         return (delta >= authMailDuration)
