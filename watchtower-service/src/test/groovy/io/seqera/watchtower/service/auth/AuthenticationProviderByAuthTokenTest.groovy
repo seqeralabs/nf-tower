@@ -60,6 +60,60 @@ class AuthenticationProviderByAuthTokenTest extends Specification {
         result instanceof AuthenticationFailed
     }
 
+
+    def 'should auth with email' () {
+        given:
+        def EMAIL = 'foo@gmail.com'
+        def TOKEN = 'xyz'
+        def USER = new User(email: EMAIL)
+        def userService = Mock(UserService)
+        AuthenticationProviderByAuthToken provider = Spy(AuthenticationProviderByAuthToken, constructorArgs: [userService])
+
+        when:
+        def result = provider.authenticate0(EMAIL, TOKEN)
+        then:
+        1 * userService.findByEmailAndAuthToken (EMAIL,TOKEN) >> USER
+        1 * provider.isAuthTokenExpired(USER) >> false
+        1 * userService.findAuthoritiesByEmail(EMAIL) >> ['role_x']
+        then:
+        result instanceof UserDetails
+        (result as UserDetails).username == EMAIL
+        (result as UserDetails).roles == ['role_x']
+
+        when:
+        result = provider.authenticate0(EMAIL, TOKEN)
+        then:
+        1 * userService.findByEmailAndAuthToken (EMAIL,TOKEN) >> USER
+        1 * provider.isAuthTokenExpired(USER) >> true
+        0 * userService.findAuthoritiesByEmail(EMAIL) >> null
+        then:
+        result instanceof AuthFailure
+        (result as AuthFailure).message.get() == ("Authentication token expired for user: $EMAIL")
+
+    }
+
+    def 'should auth with user name' () {
+        given:
+        def NAME = 'the_user_name'
+        def EMAIL = 'foo@gmail'
+        def TOKEN = 'xyz'
+        def USER = new User(userName: NAME, email:EMAIL)
+        def userService = Mock(UserService)
+        AuthenticationProviderByAuthToken provider = Spy(AuthenticationProviderByAuthToken, constructorArgs: [userService])
+
+        when:
+        def result = provider.authenticate0(NAME, TOKEN)
+        then:
+        1 * userService.findByUserNameAndAccessToken (NAME,TOKEN) >> USER
+        1 * userService.findAuthoritiesByEmail(EMAIL) >> ['role_x']
+        then:
+        result instanceof UserDetails
+        (result as UserDetails).username == EMAIL
+        (result as UserDetails).roles == ['role_x']
+
+    }
+
+
     @MockBean(MailServiceImpl)
     MailService mockMailService() {
         GroovyMock(MailService)
