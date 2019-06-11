@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {AfterContentInit, AfterViewInit, Component, OnInit} from '@angular/core';
 import {User} from "../../entity/user/user";
 import {AuthService} from "../../service/auth.service";
 import {Router} from "@angular/router";
@@ -25,6 +25,9 @@ export class HomeComponent implements OnInit {
       (user: User) => {
         this.user = user;
         if (!this.user) {
+          if (this.isAtRoot) {
+            this.goToLandingPage();
+          }
           return;
         }
 
@@ -35,12 +38,25 @@ export class HomeComponent implements OnInit {
     )
   }
 
+
+  private get isAtRoot(): boolean {
+    return (this.router.url == '/');
+  }
+
+  private goToLandingPage(): void {
+    window.location.replace('/landing');
+  }
+
   get shouldLoadSidebar(): boolean {
-    return (this.user && this.workflows && (this.workflows.length > 0))
+    return (this.user && this.areWorkflowsInitiatied)
   }
 
   get shouldLoadWelcomeMessage(): boolean {
-    return ((this.router.url == '/') && !this.shouldLoadSidebar);
+    return (this.user && !this.areWorkflowsInitiatied && this.isAtRoot);
+  }
+
+  private get areWorkflowsInitiatied() {
+    return (this.workflows && (this.workflows.length > 0));
   }
 
 }
