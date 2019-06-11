@@ -56,7 +56,6 @@ class LoginControllerTest extends AbstractContainerBaseTest {
 
         then:
         response.status == HttpStatus.OK
-        response.body.isPresent()
         response.body.get().accessToken
         response.body.get().refreshToken
 
@@ -73,6 +72,7 @@ class LoginControllerTest extends AbstractContainerBaseTest {
 
         authentication.attributes.email == user.email
         authentication.attributes.userName == user.userName
+        authentication.attributes.accessToken == user.accessTokens.first().token
         authentication.attributes.firstName == user.firstName
         authentication.attributes.lastName == user.lastName
         authentication.attributes.avatar == user.avatar

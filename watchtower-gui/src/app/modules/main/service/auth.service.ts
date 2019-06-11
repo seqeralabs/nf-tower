@@ -40,15 +40,16 @@ export class AuthService {
   }
 
   private retrieveUserFromAuthResponse(authData: any) {
-    let userData: UserData = <UserData> {email: authData.username, accessToken: authData['access_token'], roles: authData.roles};
+    let userData: UserData = <UserData> {email: authData.username, jwtAccessToken: authData['access_token'], roles: authData.roles};
 
-    let attributes = this.parseJwt(userData.accessToken);
+    let attributes: any = this.parseJwt(userData.jwtAccessToken);
     userData.userName = attributes.userName;
     userData.firstName = attributes.firstName;
     userData.lastName = attributes.lastName;
     userData.organization = attributes.organization;
     userData.description = attributes.description;
     userData.avatar = attributes.avatar;
+    userData.nfAccessToken = attributes.accessToken;
 
     return new User(userData);
   }
