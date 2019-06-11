@@ -40,18 +40,16 @@ export class NotificationComponent implements OnInit {
   private addNotificationToCache(notification: Notification) {
     this.notificationsCache.set(notification.id, notification);
     this.notifications = Array.from(this.notificationsCache.values());
-    console.log('Added notif cache', this.notificationsCache);
   }
 
   private removeNotificationFromCache(notification: Notification) {
     this.notificationsCache.delete(notification.id);
     this.notifications = Array.from(this.notificationsCache.values());
-    console.log('Removed notif from cache', this.notificationsCache);
   }
 
   getAlertClass(notification: Notification): string {
-    return (notification.type == NotificationType.ERROR) ?   'danger'  :
-           (notification.type == NotificationType.SUCCESS) ? 'success' : 'info'
+    return (notification.type == NotificationType.ERROR)   ? 'danger'  :
+           (notification.type == NotificationType.SUCCESS) ? 'success' : 'info';
   }
 
 }
