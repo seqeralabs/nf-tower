@@ -1,7 +1,7 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Workflow} from "../../entity/workflow/workflow";
 import {WorkflowService} from "../../service/workflow.service";
-import {ActivatedRoute} from "@angular/router";
+import {ActivatedRoute, Router} from "@angular/router";
 import {ParamMap} from "@angular/router/src/shared";
 import {HttpErrorResponse} from "@angular/common/http";
 import {NotificationService} from "../../service/notification.service";
@@ -16,7 +16,7 @@ import {SseErrorType} from "../../entity/sse/sse-error-type";
   templateUrl: './workflow-detail.component.html',
   styleUrls: ['./workflow-detail.component.scss']
 })
-export class WorkflowDetailComponent implements OnInit {
+export class WorkflowDetailComponent implements OnInit, OnDestroy {
 
   workflow: Workflow;
   private liveEventsSubscription: Subscription;
@@ -24,7 +24,8 @@ export class WorkflowDetailComponent implements OnInit {
   constructor(private workflowService: WorkflowService,
               private serverSentEventsWorkflowService: ServerSentEventsWorkflowService,
               private notificationService: NotificationService,
-              private route: ActivatedRoute) { }
+              private route: ActivatedRoute,
+              private router: Router) { }
 
   ngOnInit() {
     this.route.paramMap.subscribe((params: ParamMap) => {
@@ -36,6 +37,10 @@ export class WorkflowDetailComponent implements OnInit {
     });
   }
 
+  ngOnDestroy(): void {
+    this.unsubscribeFromWorkflowLiveEvents();
+  }
+
   private fetchWorkflow(workflowId: string | number): void {
     console.log(`Fetching workflow ${workflowId}`);
 
@@ -45,6 +50,7 @@ export class WorkflowDetailComponent implements OnInit {
         if (error.status === 404) {
           this.notificationService.showErrorNotification("Workflow doesn't exist");
         }
+        this.router.navigate(['/']);
       }
     )
   }

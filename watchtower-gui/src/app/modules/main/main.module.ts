@@ -40,7 +40,7 @@ import { NotificationComponent } from './component/notification/notification.com
     TasksTableComponent,
     TasksProcessesComponent,
     HomeComponent,
-    NotificationComponent,
+    NotificationComponent
   ],
   imports: [
     BrowserModule,
