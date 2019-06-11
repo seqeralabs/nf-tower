@@ -1,9 +1,8 @@
 package io.seqera.watchtower.service
 
-import io.micronaut.security.authentication.Authentication
-import io.seqera.watchtower.domain.User
-
 import java.security.Principal
+
+import io.seqera.watchtower.domain.User
 
 interface UserService {
 
@@ -13,7 +12,9 @@ interface UserService {
 
     void delete(Principal userSecurityData)
 
-    User findByEmailAndAuthToken(String username, String authToken)
+    User findByEmailAndAuthToken(String email, String token)
+
+    User findByUserNameAndAccessToken(String userName, String token)
 
     List<String> findAuthoritiesByEmail(String email)
 
