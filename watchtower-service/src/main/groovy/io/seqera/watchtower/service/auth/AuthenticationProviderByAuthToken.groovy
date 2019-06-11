@@ -57,7 +57,10 @@ class AuthenticationProviderByAuthToken implements AuthenticationProvider {
 
         // TODO the user name should be used instead user email the later could not be unique
         List<String> authorities = userService.findAuthoritiesByEmail(user.email)
-        Map attributes = [email: user.email, userName: user.userName, firstName: user.firstName, lastName: user.lastName, organization: user.organization, description: user.description, avatar: user.avatar]
+        Map attributes = [
+                email: user.email, userName: user.userName, accessToken: user.accessTokens?.getAt(0)?.token,
+                firstName: user.firstName, lastName: user.lastName, organization: user.organization, description: user.description, avatar: user.avatar,
+        ]
         return new UserDetails(user.email, authorities, (Map) attributes)
     }
 

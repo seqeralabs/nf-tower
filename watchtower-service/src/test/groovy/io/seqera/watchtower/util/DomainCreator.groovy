@@ -1,6 +1,6 @@
 package io.seqera.watchtower.util
 
-
+import io.seqera.watchtower.domain.AccessToken
 import io.seqera.watchtower.domain.SummaryData
 import io.seqera.watchtower.domain.SummaryEntry
 import io.seqera.watchtower.domain.Task
@@ -105,8 +105,20 @@ class DomainCreator {
         fields.userName =  fields.containsKey('userName') ? fields.userName : "user${generateUniqueNamePart()}"
         fields.authToken = fields.containsKey('authToken') ? fields.authToken : "authToken${generateUniqueNamePart()}"
         fields.authTime =  fields.containsKey('authTime') ? fields.authTime : Instant.now()
+        fields.accessTokens = fields.containsKey('accessTokens') ? fields.accessTokens : [new DomainCreator(save: false).createAccesToken(user: user)]
         
         createInstance(user, fields)
+    }
+
+    AccessToken createAccesToken(Map fields = [:]) {
+        AccessToken accessToken = new AccessToken()
+
+        fields.token =  fields.containsKey('token') ? fields.token : "accessToken${generateUniqueNamePart()}"
+        fields.name =  fields.containsKey('name') ? fields.name : 'accessTokenName'
+        fields.dateCreated = fields.containsKey('dateCreated') ? fields.dateCreated : Instant.now()
+        fields.user = fields.containsKey('user') ? fields.user : createUser(acessTokens: accessToken)
+
+        createInstance(accessToken, fields)
     }
 
     User createUserWithRole(Map fields = [:], String authority) {

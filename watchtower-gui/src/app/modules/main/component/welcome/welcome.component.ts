@@ -1,7 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import {AuthService} from "../../service/auth.service";
-import {WorkflowService} from "../../service/workflow.service";
-import {Workflow} from "../../entity/workflow/workflow";
+import {Component, Input, OnInit} from '@angular/core';
+import {User} from "../../entity/user/user";
 
 @Component({
   selector: 'wt-welcome',
@@ -9,6 +7,10 @@ import {Workflow} from "../../entity/workflow/workflow";
   styleUrls: ['./welcome.component.scss']
 })
 export class WelcomeComponent implements OnInit {
+
+  @Input()
+  user: User;
+
 
   constructor() { }
 
