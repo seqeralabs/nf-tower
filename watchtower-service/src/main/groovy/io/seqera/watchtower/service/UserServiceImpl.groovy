@@ -118,14 +118,13 @@ class UserServiceImpl implements UserService {
 
     @CompileDynamic
     User findByEmailAndAuthToken(String email, String token) {
-        User.findByEmailAndAuthToken(email, token)
+        User.findByEmailAndAuthToken(email, token, [fetch: [accessTokens: 'join']])
     }
 
     @CompileDynamic
     User findByUserNameAndAccessToken(String userName, String token) {
-        final User user = AccessToken.findByToken(token)
-        // TODO temporary implementation until the project does not switch mysql DB
-        return user.userName == userName ? user : null
+        final AccessToken accessToken = AccessToken.findByToken(token)
+        return accessToken.user.userName == userName ? accessToken.user : null
     }
 
     @CompileDynamic

@@ -1,9 +1,9 @@
 export interface UserData {
   userName: string;
   email: string;
-  authToken: string;
   roles: string[];
-  accessToken: string;
+  jwtAccessToken: string;
+  nfAccessToken: string;
 
   firstName: string;
   lastName: string;

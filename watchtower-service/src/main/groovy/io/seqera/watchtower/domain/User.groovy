@@ -1,5 +1,6 @@
 package io.seqera.watchtower.domain
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 import java.time.Instant
 
@@ -7,6 +8,7 @@ import grails.gorm.annotation.Entity
 import groovy.transform.CompileDynamic
 
 @Entity
+@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'accessTokens'])
 @CompileDynamic
 class User {
 
@@ -21,7 +23,6 @@ class User {
     String description
     String avatar
 
-//    List<AccessToken> accessTokens
     static hasMany = [accessTokens: AccessToken]
 
     static constraints = {
@@ -37,7 +38,7 @@ class User {
     }
 
     static mapping = {
-        table 'userSec'
+        table 'usersec'
         version false
     }
 
