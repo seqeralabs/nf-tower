@@ -2,6 +2,7 @@ package io.seqera.watchtower.service
 
 import grails.gorm.transactions.Transactional
 import io.seqera.watchtower.domain.Task
+import io.seqera.watchtower.domain.User
 import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.exchange.trace.TraceTaskRequest
 import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowRequest
@@ -26,8 +27,8 @@ class TraceServiceImpl implements TraceService {
     }
 
 
-    Workflow processWorkflowTrace(TraceWorkflowRequest traceJson) {
-        Workflow workflow = workflowService.processWorkflowJsonTrace(traceJson)
+    Workflow processWorkflowTrace(TraceWorkflowRequest traceJson, User owner) {
+        Workflow workflow = workflowService.processWorkflowJsonTrace(traceJson, owner)
         checkWorkflowSaveErrors(workflow)
 
         workflow

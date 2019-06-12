@@ -4,10 +4,12 @@ import grails.gorm.transactions.Transactional
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.watchtower.Application
 import io.seqera.watchtower.domain.SummaryEntry
+import io.seqera.watchtower.domain.User
 import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.exceptions.NonExistingWorkflowException
 import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowRequest
 import io.seqera.watchtower.util.AbstractContainerBaseTest
+import io.seqera.watchtower.util.DomainCreator
 import io.seqera.watchtower.util.TracesJsonBank
 import io.seqera.watchtower.util.WorkflowTraceSnapshotStatus
 
@@ -25,14 +27,18 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         given: "a workflow JSON started trace"
         TraceWorkflowRequest workflowStartedTraceJson = TracesJsonBank.extractWorkflowJsonTrace('success', null, WorkflowTraceSnapshotStatus.STARTED)
 
+        and: 'a user owner for the workflow'
+        User owner = new DomainCreator().createUser()
+
         when: "unmarshall the JSON to a workflow"
         Workflow workflow
         Workflow.withNewTransaction {
-            workflow = workflowService.processWorkflowJsonTrace(workflowStartedTraceJson)
+            workflow = workflowService.processWorkflowJsonTrace(workflowStartedTraceJson, owner)
         }
 
         then: "the workflow has been correctly saved"
         workflow.id
+        workflow.owner
         workflow.checkIsStarted()
         workflow.submit
         !workflow.complete
@@ -53,14 +59,18 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         given: "a workflow JSON started trace"
         TraceWorkflowRequest workflowStartedTraceJson = TracesJsonBank.extractWorkflowJsonTrace('success', null, WorkflowTraceSnapshotStatus.STARTED)
 
+        and: 'a user owner for the workflow'
+        User owner = new DomainCreator().createUser()
+
         when: "unmarshall the JSON to a workflow"
         Workflow workflowStarted
         Workflow.withNewTransaction {
-            workflowStarted = workflowService.processWorkflowJsonTrace(workflowStartedTraceJson)
+            workflowStarted = workflowService.processWorkflowJsonTrace(workflowStartedTraceJson, owner)
         }
 
         then: "the workflow has been correctly saved"
         workflowStarted.id
+        workflowStarted.owner
         workflowStarted.checkIsStarted()
         workflowStarted.submit
         !workflowStarted.complete
@@ -69,11 +79,11 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         TraceWorkflowRequest workflowSucceededTraceJson = TracesJsonBank.extractWorkflowJsonTrace('success', workflowStarted.id, WorkflowTraceSnapshotStatus.SUCCEEDED)
         Workflow workflowSucceeded
         Workflow.withNewTransaction {
-            workflowSucceeded = workflowService.processWorkflowJsonTrace(workflowSucceededTraceJson)
+            workflowSucceeded = workflowService.processWorkflowJsonTrace(workflowSucceededTraceJson, owner)
         }
 
         then: "the workflow has been completed"
-        workflowStarted.id == workflowSucceeded.id
+        workflowSucceeded.id == workflowStarted.id
         workflowSucceeded.checkIsSucceeded()
         workflowSucceeded.submit
         workflowSucceeded.complete
@@ -106,14 +116,18 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         given: "a workflow JSON started trace"
         TraceWorkflowRequest workflowStartedTraceJson = TracesJsonBank.extractWorkflowJsonTrace('success', null, WorkflowTraceSnapshotStatus.STARTED)
 
+        and: 'a user owner for the workflow'
+        User owner = new DomainCreator().createUser()
+
         when: "unmarshall the JSON to a workflow"
         Workflow workflowStarted
         Workflow.withNewTransaction {
-            workflowStarted = workflowService.processWorkflowJsonTrace(workflowStartedTraceJson)
+            workflowStarted = workflowService.processWorkflowJsonTrace(workflowStartedTraceJson, owner)
         }
 
         then: "the workflow has been correctly saved"
         workflowStarted.id
+        workflowStarted.owner
         workflowStarted.checkIsStarted()
         workflowStarted.submit
         !workflowStarted.complete
@@ -125,11 +139,11 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         TraceWorkflowRequest workflowFailedTraceJson = TracesJsonBank.extractWorkflowJsonTrace('failed', workflowStarted.id, WorkflowTraceSnapshotStatus.FAILED)
         Workflow workflowFailed
         Workflow.withNewTransaction {
-            workflowFailed = workflowService.processWorkflowJsonTrace(workflowFailedTraceJson)
+            workflowFailed = workflowService.processWorkflowJsonTrace(workflowFailedTraceJson, owner)
         }
 
         then: "the workflow has been completed"
-        workflowStarted.id == workflowFailed.id
+        workflowFailed.id == workflowStarted.id
         workflowFailed.checkIsFailed()
         workflowFailed.submit
         workflowFailed.complete
@@ -162,14 +176,18 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         given: "a workflow JSON started trace"
         TraceWorkflowRequest workflowStarted1TraceJson = TracesJsonBank.extractWorkflowJsonTrace('success', null, WorkflowTraceSnapshotStatus.STARTED)
 
+        and: 'a user owner for the workflow'
+        User owner = new DomainCreator().createUser()
+
         when: "unmarshall the JSON to a workflow"
         Workflow workflowStarted1
         Workflow.withNewTransaction {
-            workflowStarted1 = workflowService.processWorkflowJsonTrace(workflowStarted1TraceJson)
+            workflowStarted1 = workflowService.processWorkflowJsonTrace(workflowStarted1TraceJson, owner)
         }
 
         then: "the workflow has been correctly saved"
         workflowStarted1.id
+        workflowStarted1.owner
         workflowStarted1.checkIsStarted()
         workflowStarted1.submit
         !workflowStarted1.complete
@@ -181,7 +199,7 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         TraceWorkflowRequest workflowStarted2TraceJson = TracesJsonBank.extractWorkflowJsonTrace('success', workflowStarted1.id, WorkflowTraceSnapshotStatus.STARTED)
         Workflow workflowStarted2
         Workflow.withNewTransaction {
-            workflowStarted2 = workflowService.processWorkflowJsonTrace(workflowStarted2TraceJson)
+            workflowStarted2 = workflowService.processWorkflowJsonTrace(workflowStarted2TraceJson, owner)
         }
 
         then: "the second workflow is treated as a new one, and sessionId/runName combination cannot be repeated"
@@ -196,10 +214,13 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         TraceWorkflowRequest workflowStartedTraceJson = TracesJsonBank.extractWorkflowJsonTrace('success', null, WorkflowTraceSnapshotStatus.STARTED)
         workflowStartedTraceJson.workflow.sessionId = null
 
+        and: 'a user owner for the workflow'
+        User owner = new DomainCreator().createUser()
+
         when: "unmarshall the JSON to a workflow"
         Workflow workflowStarted
         Workflow.withNewTransaction {
-            workflowStarted = workflowService.processWorkflowJsonTrace(workflowStartedTraceJson)
+            workflowStarted = workflowService.processWorkflowJsonTrace(workflowStartedTraceJson, owner)
         }
 
         then: "the workflow has validation errors"
@@ -214,14 +235,38 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         given: "a workflow JSON started trace"
         TraceWorkflowRequest workflowSucceededTraceJson = TracesJsonBank.extractWorkflowJsonTrace('success', 123, WorkflowTraceSnapshotStatus.SUCCEEDED)
 
+        and: 'a user owner for the workflow'
+        User owner = new DomainCreator().createUser()
+
         when: "unmarshall the JSON to a workflow"
         Workflow workflowSucceeded
         Workflow.withNewTransaction {
-            workflowSucceeded = workflowService.processWorkflowJsonTrace(workflowSucceededTraceJson)
+            workflowSucceeded = workflowService.processWorkflowJsonTrace(workflowSucceededTraceJson, owner)
         }
 
         then: "the workflow has been correctly saved"
         thrown(NonExistingWorkflowException)
+    }
+
+    void 'delete a workflow'() {
+        given: 'a workflow with some summary entries'
+        DomainCreator domainCreator = new DomainCreator()
+        Workflow workflow = domainCreator.createWorkflow(summaryEntries: [domainCreator.createSummaryEntry(), domainCreator.createSummaryEntry()])
+
+        and: 'some tasks associated with the workflow'
+        (1..3).each {
+            domainCreator.createTask(taskId: it, workflow: workflow)
+        }
+
+        when: 'delete the workflow'
+        Workflow.withNewTransaction {
+            workflowService.delete(workflow.refresh())
+        }
+
+        then: 'the workflow is no longer in the database'
+        Workflow.withNewTransaction {
+            Workflow.count() == 0
+        }
     }
 
 }

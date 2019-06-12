@@ -33,6 +33,8 @@ class DomainCreator {
     Workflow createWorkflow(Map fields = [:]) {
         Workflow workflow = new Workflow()
 
+        fields.owner = fields.containsKey('owner') ? fields.owner : createUser()
+
         fields.sessionId = fields.containsKey('sessionId') ? fields.sessionId : "35cce421-4712-4da5-856b-6557635e54${generateUniqueNamePart()}d".toString()
         fields.runName = fields.containsKey('runName') ? fields.runName : "astonishing_majorana${generateUniqueNamePart()}".toString()
         fields.submit = fields.containsKey('submit') ? fields.submit : Instant.now()

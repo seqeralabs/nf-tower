@@ -8,6 +8,7 @@ import io.micronaut.http.MutableHttpRequest
 import io.micronaut.http.client.DefaultHttpClient
 import io.micronaut.http.client.RxHttpClient
 import io.micronaut.http.client.annotation.Client
+import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.test.annotation.MicronautTest
 import io.reactivex.subscribers.TestSubscriber
 import io.seqera.watchtower.Application
@@ -21,6 +22,7 @@ import io.seqera.watchtower.pogo.exchange.trace.TraceTaskResponse
 import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowRequest
 import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowResponse
 import io.seqera.watchtower.pogo.exchange.trace.sse.TraceSseResponse
+import io.seqera.watchtower.service.UserService
 import io.seqera.watchtower.util.*
 import spock.lang.Ignore
 
@@ -41,10 +43,7 @@ class TraceControllerTest extends AbstractContainerBaseTest {
 
     void "save a new workflow given a start trace"() {
         given: 'an allowed user'
-        User user
-        User.withNewTransaction {
-            user = new DomainCreator().createUserWithRole( 'ROLE_USER')
-        }
+        User user = new DomainCreator().generateAllowedUser()
 
         and: 'a workflow started JSON trace'
         TraceWorkflowRequest workflowStartedJsonTrace = TracesJsonBank.extractWorkflowJsonTrace('success', null, WorkflowTraceSnapshotStatus.STARTED)
@@ -68,14 +67,16 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         Workflow.withNewTransaction {
             Workflow.count() == 1
         }
+
+        and: 'the user has been associated with the workflow'
+        User.withNewTransaction {
+            user.refresh().workflows
+        }
     }
 
     void "save a new task given a submit trace"() {
         given: 'an allowed user'
-        User user
-        User.withNewTransaction {
-            user = new DomainCreator().createUserWithRole( 'ROLE_USER')
-        }
+        User user = new DomainCreator().generateAllowedUser()
 
         and: 'a workflow'
         Workflow workflow = new DomainCreator().createWorkflow()
@@ -104,12 +105,44 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         }
     }
 
+    void "try to save a new workflow without being authenticated"() {
+        given: 'a workflow started JSON trace'
+        TraceWorkflowRequest workflowStartedJsonTrace = TracesJsonBank.extractWorkflowJsonTrace('success', null, WorkflowTraceSnapshotStatus.STARTED)
+
+        when: 'send a save request'
+        MutableHttpRequest request = HttpRequest.POST('/trace/workflow', workflowStartedJsonTrace)
+        client.toBlocking().exchange(
+                request,
+                TraceWorkflowResponse.class
+        )
+
+        then: "the server responds UNAUTHORIZED"
+        HttpClientResponseException e = thrown(HttpClientResponseException)
+        e.status == HttpStatus.UNAUTHORIZED
+    }
+
+    void "try to save a new task without being authenticated"() {
+        given: 'a workflow'
+        Workflow workflow = new DomainCreator().createWorkflow()
+
+        and: 'a task submitted JSON trace'
+        TraceTaskRequest taskSubmittedJsonTrace = TracesJsonBank.extractTaskJsonTrace('success', 1, workflow.id, TaskTraceSnapshotStatus.SUBMITTED)
+
+        when: 'send a save request'
+        MutableHttpRequest request = HttpRequest.POST('/trace/task', taskSubmittedJsonTrace)
+        client.toBlocking().exchange(
+            request,
+            TraceTaskResponse.class
+        )
+
+        then: "the server responds UNAUTHORIZED"
+        HttpClientResponseException e = thrown(HttpClientResponseException)
+        e.status == HttpStatus.UNAUTHORIZED
+    }
+
     void "save traces simulated from a complete sequence"() {
         given: 'an allowed user'
-        User user
-        User.withNewTransaction {
-            user = new DomainCreator().createUserWithRole( 'ROLE_USER')
-        }
+        User user = new DomainCreator().generateAllowedUser()
 
         and: 'a nextflow simulator'
         NextflowSimulator nextflowSimulator = new NextflowSimulator(user: user, workflowLabel: 'simulation', client: client.toBlocking(), sleepBetweenRequests: 0)
@@ -128,10 +161,7 @@ class TraceControllerTest extends AbstractContainerBaseTest {
 
     void "save traces simulated from a complete sequence and subscribe to the live events in the mean time"() {
         given: 'an allowed user'
-        User user
-        User.withNewTransaction {
-            user = new DomainCreator().createUserWithRole( 'ROLE_USER')
-        }
+        User user = new DomainCreator().generateAllowedUser()
 
         and: 'a nextflow simulator'
         NextflowSimulator nextflowSimulator = new NextflowSimulator(user: user, workflowLabel: 'simulation', client: client.toBlocking(), sleepBetweenRequests: 0)

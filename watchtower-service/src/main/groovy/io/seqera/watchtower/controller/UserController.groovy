@@ -53,7 +53,7 @@ class UserController {
     @Secured(SecurityRule.IS_AUTHENTICATED)
     HttpResponse<String> update(@Body User userData, Authentication authentication) {
         try {
-            userService.update(authentication, userData)
+            userService.update(userService.getFromAuthData(authentication), userData)
 
             HttpResponse.ok('User successfully updated!')
         } catch (Exception e) {
@@ -67,7 +67,7 @@ class UserController {
     @Secured(SecurityRule.IS_AUTHENTICATED)
     HttpResponse<String> delete(Authentication authentication) {
         try {
-            userService.delete(authentication)
+            userService.delete(userService.getFromAuthData(authentication))
 
             HttpResponse.ok('User successfully deleted!')
         } catch (Exception e) {
