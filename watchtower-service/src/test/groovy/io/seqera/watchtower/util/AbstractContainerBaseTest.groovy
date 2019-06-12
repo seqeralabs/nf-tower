@@ -4,6 +4,7 @@ import io.micronaut.http.HttpMethod
 import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.MediaType
+import io.micronaut.http.MutableHttpRequest
 import io.micronaut.http.client.HttpClient
 import io.micronaut.security.authentication.UsernamePasswordCredentials
 import io.micronaut.security.token.jwt.render.AccessRefreshToken
@@ -31,13 +32,17 @@ abstract class AbstractContainerBaseTest extends Specification {
                 .waitingFor(Wait.forLogMessage(/MySQL init process done.*/, 1))
     }
 
-    protected String doLogin(User user, HttpClient client) {
+    protected String doJwtLogin(User user, HttpClient client) {
         HttpRequest request = HttpRequest.create(HttpMethod.POST, '/login')
                 .accept(MediaType.APPLICATION_JSON_TYPE)
                 .body(new UsernamePasswordCredentials(user.email, user.authToken))
         HttpResponse<AccessRefreshToken> response = client.toBlocking().exchange(request, AccessRefreshToken)
 
         response.body.get().accessToken
+    }
+
+    protected HttpRequest appendBasicAuth(User user, MutableHttpRequest request) {
+        request.basicAuth(user.userName, user.accessTokens.first().token)
     }
 
     void cleanup() {

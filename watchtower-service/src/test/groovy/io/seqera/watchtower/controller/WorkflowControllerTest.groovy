@@ -15,7 +15,6 @@ import io.seqera.watchtower.pogo.exchange.workflow.WorkflowGet
 import io.seqera.watchtower.pogo.exchange.workflow.WorkflowList
 import io.seqera.watchtower.util.AbstractContainerBaseTest
 import io.seqera.watchtower.util.DomainCreator
-import spock.lang.Ignore
 
 import javax.inject.Inject
 
@@ -39,7 +38,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         )
 
         and: "perform the request to obtain the workflow"
-        String accessToken = doLogin(domainCreator.generateAllowedUser(), client)
+        String accessToken = doJwtLogin(domainCreator.generateAllowedUser(), client)
         HttpResponse<WorkflowGet> response = client.toBlocking().exchange(
                 HttpRequest.GET("/workflow/${workflow.id}")
                            .bearerAuth(accessToken),
@@ -81,7 +80,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         )
 
         and: "perform the request to obtain the workflows"
-        String accessToken = doLogin(domainCreator.generateAllowedUser(), client)
+        String accessToken = doJwtLogin(domainCreator.generateAllowedUser(), client)
         HttpResponse<WorkflowList> response = client.toBlocking().exchange(
                 HttpRequest.GET("/workflow/list")
                            .bearerAuth(accessToken),
@@ -98,7 +97,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
 
     void "try to get a non-existing workflow"() {
         when: "perform the request to obtain a non-existing workflow"
-        String accessToken = doLogin(new DomainCreator().generateAllowedUser(), client)
+        String accessToken = doJwtLogin(new DomainCreator().generateAllowedUser(), client)
         client.toBlocking().exchange(
                 HttpRequest.GET("/workflow/100")
                         .bearerAuth(accessToken),
@@ -125,7 +124,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         tasks << firstTask
 
         and: "perform the request to obtain the tasks of the workflow"
-        String accessToken = doLogin(new DomainCreator().generateAllowedUser(), client)
+        String accessToken = doJwtLogin(new DomainCreator().generateAllowedUser(), client)
         HttpResponse<TaskList> response = client.toBlocking().exchange(
                 HttpRequest.GET("/workflow/${workflow.id}/tasks")
                            .bearerAuth(accessToken),
@@ -140,8 +139,8 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
 
     void "try to get the list of tasks from a nonexistent workflow"() {
         when: "perform the request to obtain the tasks from a non-existing workflow"
-        String accessToken = doLogin(new DomainCreator().generateAllowedUser(), client)
-        HttpResponse<TaskList> response = client.toBlocking().exchange(
+        String accessToken = doJwtLogin(new DomainCreator().generateAllowedUser(), client)
+        client.toBlocking().exchange(
                 HttpRequest.GET("/workflow/100/tasks")
                         .bearerAuth(accessToken),
                 TaskList.class

@@ -1,5 +1,7 @@
 package io.seqera.watchtower.service
 
+import grails.gorm.DetachedCriteria
+
 import javax.inject.Inject
 import javax.inject.Singleton
 import javax.validation.ValidationException
@@ -123,17 +125,27 @@ class UserServiceImpl implements UserService {
 
     @CompileDynamic
     User findByUserNameAndAccessToken(String userName, String token) {
-        final AccessToken accessToken = AccessToken.findByToken(token)
-        return accessToken.user.userName == userName ? accessToken.user : null
+        new DetachedCriteria<User>(User).build {
+            accessTokens {
+                eq('token', token)
+            }
+        }.get()
     }
 
     @CompileDynamic
     List<String> findAuthoritiesByEmail(String email) {
         User user = User.findByEmail(email)
+
+        findAuthoritiesOfUser(user)
+    }
+
+    @CompileDynamic
+    List<String> findAuthoritiesOfUser(User user) {
         List<UserRole> rolesOfUser = UserRole.findAllByUser(user)
 
         return rolesOfUser.role.authority
     }
+
 
     @CompileDynamic
     private User createUser(String email, String authority) {
