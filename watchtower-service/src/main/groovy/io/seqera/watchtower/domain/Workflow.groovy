@@ -16,11 +16,12 @@ import java.time.Instant
  * @see https://www.nextflow.io/docs/latest/tracing.html#execution-report
  */
 @Entity
-@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'tasks', 'summaryEntries', 'progress'])
+@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'tasks', 'summaryEntries', 'progress', 'owner'])
 @CompileDynamic
 class Workflow {
 
     static hasMany = [tasks: Task, summaryEntries: SummaryEntry]
+    static belongsTo = [owner: User]
 
     Progress progress
 
