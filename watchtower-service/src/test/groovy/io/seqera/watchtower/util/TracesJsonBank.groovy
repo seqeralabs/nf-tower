@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.client.BlockingHttpClient
+import io.seqera.watchtower.domain.User
 import io.seqera.watchtower.pogo.exchange.trace.TraceTaskRequest
 import io.seqera.watchtower.pogo.exchange.trace.TraceTaskResponse
 import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowRequest
@@ -78,6 +79,7 @@ class NextflowSimulator {
     private static final String WORKFLOW_TRACE_ENDPOINT = '/trace/workflow'
     private static final String TASK_TRACE_ENDPOINT = '/trace/task'
 
+    User user
     String workflowLabel
     BlockingHttpClient client
     Long sleepBetweenRequests
@@ -89,7 +91,7 @@ class NextflowSimulator {
     void simulate(Integer nRequests = null) {
         if (!workflowId) {
             TraceWorkflowRequest workflowStarted = TracesJsonBank.extractWorkflowJsonTrace(workflowLabel, null, WorkflowTraceSnapshotStatus.STARTED)
-            HttpResponse<TraceWorkflowResponse> workflowResponse = client.exchange(HttpRequest.POST(WORKFLOW_TRACE_ENDPOINT, workflowStarted), TraceWorkflowResponse.class)
+            HttpResponse<TraceWorkflowResponse> workflowResponse = client.exchange(buildRequest(WORKFLOW_TRACE_ENDPOINT, workflowStarted), TraceWorkflowResponse.class)
             workflowId = workflowResponse.body().workflowId.toLong()
 
             if ((nRequests != null) && (--nRequests == 0)) {
@@ -104,7 +106,7 @@ class NextflowSimulator {
             i.remove()
 
             sleepIfSet()
-            client.exchange(HttpRequest.POST(TASK_TRACE_ENDPOINT, taskRequest), TraceTaskResponse.class)
+            client.exchange(buildRequest(TASK_TRACE_ENDPOINT, taskRequest), TraceTaskResponse.class)
 
             if ((nRequests != null) && (--nRequests == 0)) {
                 return
@@ -112,7 +114,11 @@ class NextflowSimulator {
         }
 
         TraceWorkflowRequest workflowCompleted = TracesJsonBank.extractWorkflowJsonTrace(workflowLabel, workflowId, WorkflowTraceSnapshotStatus.SUCCEEDED)
-        client.exchange(HttpRequest.POST(WORKFLOW_TRACE_ENDPOINT, workflowCompleted), TraceWorkflowResponse.class)
+        client.exchange(buildRequest(WORKFLOW_TRACE_ENDPOINT, workflowCompleted), TraceWorkflowResponse.class)
+    }
+
+    private buildRequest(String endpoint, def body) {
+        HttpRequest.POST(endpoint, body).basicAuth(user.userName, user.accessTokens.first().token)
     }
 
     private void sleepIfSet() {

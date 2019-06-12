@@ -74,7 +74,7 @@ class AuthenticationProviderByAuthTokenTest extends Specification {
         then:
         1 * userService.findByEmailAndAuthToken (EMAIL,TOKEN) >> USER
         1 * provider.isAuthTokenExpired(USER) >> false
-        1 * userService.findAuthoritiesByEmail(EMAIL) >> ['role_x']
+        1 * userService.findAuthoritiesOfUser(USER) >> ['role_x']
         then:
         result instanceof UserDetails
         (result as UserDetails).username == EMAIL
@@ -85,31 +85,10 @@ class AuthenticationProviderByAuthTokenTest extends Specification {
         then:
         1 * userService.findByEmailAndAuthToken (EMAIL,TOKEN) >> USER
         1 * provider.isAuthTokenExpired(USER) >> true
-        0 * userService.findAuthoritiesByEmail(EMAIL) >> null
+        0 * userService.findAuthoritiesOfUser(USER) >> null
         then:
         result instanceof AuthFailure
         (result as AuthFailure).message.get() == ("Authentication token expired for user: $EMAIL")
-
-    }
-
-    def 'should auth with user name' () {
-        given:
-        def NAME = 'the_user_name'
-        def EMAIL = 'foo@gmail'
-        def TOKEN = 'xyz'
-        def USER = new User(userName: NAME, email:EMAIL)
-        def userService = Mock(UserService)
-        AuthenticationProviderByAuthToken provider = Spy(AuthenticationProviderByAuthToken, constructorArgs: [userService])
-
-        when:
-        def result = provider.authenticate0(NAME, TOKEN)
-        then:
-        1 * userService.findByUserNameAndAccessToken (NAME,TOKEN) >> USER
-        1 * userService.findAuthoritiesByEmail(EMAIL) >> ['role_x']
-        then:
-        result instanceof UserDetails
-        (result as UserDetails).username == EMAIL
-        (result as UserDetails).roles == ['role_x']
 
     }
 
@@ -126,7 +105,7 @@ class AuthenticationProviderByAuthTokenTest extends Specification {
         GroovyMock(UserServiceImpl) {
             register(_ as String) >> { String email -> new User(email:email, userName: email, authToken: tkn, authTime: now) }
             findByEmailAndAuthToken(_ as String, _ as String) >> { args -> new User(email:args[0], userName:args[0], authToken: args[1], authTime: now) }
-            findAuthoritiesByEmail(_ as String) >> ['role_a', 'role_b']
+            findAuthoritiesOfUser(_ as User) >> ['role_a', 'role_b']
         }
     }
 

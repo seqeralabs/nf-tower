@@ -47,6 +47,7 @@ class TraceController {
 
     @Post("/workflow")
     @Transactional
+    @Secured(['ROLE_USER'])
     HttpResponse<TraceWorkflowResponse> workflow(@Body TraceWorkflowRequest trace) {
         HttpResponse<TraceWorkflowResponse> response
         try {
@@ -91,6 +92,7 @@ class TraceController {
 
     @Post("/task")
     @Transactional
+    @Secured(['ROLE_USER'])
     HttpResponse<TraceTaskResponse> task(@Body TraceTaskRequest trace) {
         HttpResponse<TraceTaskResponse> response
         try {
