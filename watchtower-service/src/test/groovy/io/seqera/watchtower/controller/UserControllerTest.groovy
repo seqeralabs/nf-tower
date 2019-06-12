@@ -15,7 +15,6 @@ import io.seqera.watchtower.domain.User
 import io.seqera.watchtower.util.AbstractContainerBaseTest
 import io.seqera.watchtower.util.DomainCreator
 import org.subethamail.wiser.Wiser
-import spock.lang.Ignore
 
 import javax.inject.Inject
 import javax.mail.Message
@@ -140,7 +139,7 @@ class UserControllerTest extends AbstractContainerBaseTest {
         User userData = new DomainCreator(save: false).createUser(userName: 'user', firstName: 'User', lastName: 'Userson', avatar: 'https://i.pravatar.cc/200', organization: 'Org', description: 'Desc')
 
         when: "perform the request to update the data"
-        String accessToken = doLogin(user, client)
+        String accessToken = doJwtLogin(user, client)
         HttpResponse<String> response = client.toBlocking().exchange(
                 HttpRequest.POST("/user/update", userData)
                            .bearerAuth(accessToken),
@@ -160,7 +159,7 @@ class UserControllerTest extends AbstractContainerBaseTest {
         User userData = new DomainCreator(save: false).createUser(avatar: 'badUrl')
 
         when: "perform the request to update the data"
-        String accessToken = doLogin(user, client)
+        String accessToken = doJwtLogin(user, client)
         HttpResponse<String> response = client.toBlocking().exchange(
                 HttpRequest.POST("/user/update", userData)
                         .bearerAuth(accessToken),
@@ -181,7 +180,7 @@ class UserControllerTest extends AbstractContainerBaseTest {
         User user = new DomainCreator().createUserWithRole([:], 'ROLE_USER')
 
         when: "perform the request to delete the user"
-        String accessToken = doLogin(user, client)
+        String accessToken = doJwtLogin(user, client)
         HttpResponse<String> response = client.toBlocking().exchange(
                 HttpRequest.DELETE("/user/delete")
                            .bearerAuth(accessToken),

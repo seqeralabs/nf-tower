@@ -1,10 +1,5 @@
 package io.seqera.watchtower.service.auth
 
-import javax.inject.Inject
-import javax.inject.Singleton
-import java.time.Duration
-import java.time.Instant
-
 import io.micronaut.context.annotation.Value
 import io.micronaut.security.authentication.AuthenticationProvider
 import io.micronaut.security.authentication.AuthenticationRequest
@@ -15,16 +10,16 @@ import io.seqera.watchtower.domain.User
 import io.seqera.watchtower.service.UserService
 import org.reactivestreams.Publisher
 
+import javax.inject.Inject
+import javax.inject.Singleton
+
 @Singleton
-class AuthenticationProviderByAuthToken implements AuthenticationProvider {
+class AuthenticationProviderByAccessToken implements AuthenticationProvider {
 
     private UserService userService
 
-    @Value('${auth.mail.duration:30m}')
-    Duration authMailDuration 
-
     @Inject
-    AuthenticationProviderByAuthToken(UserService userService) {
+    AuthenticationProviderByAccessToken(UserService userService) {
         this.userService = userService
     }
 
@@ -35,34 +30,19 @@ class AuthenticationProviderByAuthToken implements AuthenticationProvider {
     }
 
     protected AuthenticationResponse authenticate0(String identity, String token) {
-        if (!identity) {
+        if( !identity ) {
             // a more explanatory message should be returned
             return new AuthFailure('Missing user identity')
         }
 
-        User user = userService.findByEmailAndAuthToken(identity, token)
-        if (!user) {
+        User user = userService.findByUserNameAndAccessToken(identity, token)
+
+        if( !user ) {
             // a more explanatory message should be returned
             return new AuthFailure("Unknow user with identity: $identity")
         }
 
-        if (isAuthTokenExpired(user)) {
-            // a more explanatory message should be returned
-            return new AuthFailure("Authentication token expired for user: $identity")
-        }
-
         List<String> authorities = userService.findAuthoritiesOfUser(user)
-        Map attributes = [
-                email: user.email, userName: user.userName, accessToken: user.accessTokens?.getAt(0)?.token,
-                firstName: user.firstName, lastName: user.lastName, organization: user.organization, description: user.description, avatar: user.avatar,
-        ]
-        return new UserDetails(user.email, authorities, (Map) attributes)
+        return new UserDetails(user.email, authorities)
     }
-
-    protected boolean isAuthTokenExpired(User user) {
-        Duration delta = Duration.between(user.authTime, Instant.now())
-
-        return (delta >= authMailDuration)
-    }
-
 }
