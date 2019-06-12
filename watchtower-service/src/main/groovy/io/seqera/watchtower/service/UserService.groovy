@@ -8,9 +8,11 @@ interface UserService {
 
     User register(String email)
 
-    User update(Principal userSecurityData, User updatedUserData)
+    User getFromAuthData(Principal userSecurityData)
 
-    void delete(Principal userSecurityData)
+    User update(User existingUser, User updatedUserData)
+
+    void delete(User existingUser)
 
     User findByEmailAndAuthToken(String email, String token)
 

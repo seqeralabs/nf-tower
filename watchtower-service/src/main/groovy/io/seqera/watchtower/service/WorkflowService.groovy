@@ -1,5 +1,6 @@
 package io.seqera.watchtower.service
 
+import io.seqera.watchtower.domain.User
 import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowRequest
 
@@ -7,8 +8,10 @@ interface WorkflowService {
 
     Workflow get(Serializable id)
 
-    List<Workflow> list()
+    List<Workflow> list(User owner)
 
-    Workflow processWorkflowJsonTrace(TraceWorkflowRequest traceWorkflowRequest)
+    void delete(Workflow workflow)
+
+    Workflow processWorkflowJsonTrace(TraceWorkflowRequest traceWorkflowRequest, User owner)
 
 }

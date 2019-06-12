@@ -17,6 +17,7 @@ import io.seqera.watchtower.util.AbstractContainerBaseTest
 import io.seqera.watchtower.util.DomainCreator
 
 import javax.inject.Inject
+import java.time.Instant
 
 @MicronautTest(application = Application.class)
 @Transactional
@@ -55,7 +56,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         response.body().progress
     }
 
-    void "get a workflow as non-authenticated"() {
+    void "get a workflow as non-authenticated user"() {
         given: "a workflow with some summaries"
         DomainCreator domainCreator = new DomainCreator()
         Workflow workflow = domainCreator.createWorkflow()
@@ -72,15 +73,30 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
     }
 
     void "get a list of workflows"() {
-        given: "a workflow"
+        given: 'a user owner of the workflow'
+        User owner
+        User.withNewTransaction {
+            owner = new DomainCreator().generateAllowedUser()
+        }
+
+        and: "some workflows owned by the user and ordered by start date in ascending order"
         DomainCreator domainCreator = new DomainCreator()
-        Workflow workflow = domainCreator.createWorkflow(
-                summaryEntries: [domainCreator.createSummaryEntry(), domainCreator.createSummaryEntry()],
-                progress: new Progress(running: 0, submitted: 0, failed: 0, pending: 0, succeeded: 0, cached: 0)
-        )
+        List<Workflow> workflows = (1..4).collect { Integer i ->
+            domainCreator.createWorkflow(
+                    owner: owner,
+                    start: Instant.now().plusSeconds(i),
+                    summaryEntries: [domainCreator.createSummaryEntry(), domainCreator.createSummaryEntry()],
+                    progress: new Progress(running: 0, submitted: 0, failed: 0, pending: 0, succeeded: 0, cached: 0)
+            )
+        }
+
+        and: 'some other workflows belonging to other users'
+        5.times {
+            domainCreator.createWorkflow()
+        }
 
         and: "perform the request to obtain the workflows"
-        String accessToken = doJwtLogin(domainCreator.generateAllowedUser(), client)
+        String accessToken = doJwtLogin(owner, client)
         HttpResponse<WorkflowList> response = client.toBlocking().exchange(
                 HttpRequest.GET("/workflow/list")
                            .bearerAuth(accessToken),
@@ -89,10 +105,12 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
 
         expect: "the workflows data is properly obtained"
         response.status == HttpStatus.OK
-        response.body().workflows.size() == 1
-        response.body().workflows.first().workflow.workflowId == workflow.id.toString()
-        response.body().workflows.first().progress
-        response.body().workflows.first().summary.size() == 2
+        response.body().workflows.size() == workflows.size()
+        response.body().workflows.every { it.progress }
+        response.body().workflows.every { it.summary.size() == 2 }
+
+        and: 'the workflows are ordered by start date in descending order'
+        response.body().workflows.workflow.workflowId == workflows.reverse().id*.toString()
     }
 
     void "try to get a non-existing workflow"() {

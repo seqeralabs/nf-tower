@@ -171,7 +171,7 @@ class UserServiceTest extends AbstractContainerBaseTest {
         when: 'update the user'
         User updatedUser
         User.withNewTransaction {
-            updatedUser = userService.update(new DefaultAuthentication(user.email, null), userData)
+            updatedUser = userService.update(user, userData)
         }
 
         then: "the user has been correctly updated"
@@ -195,7 +195,7 @@ class UserServiceTest extends AbstractContainerBaseTest {
 
         when: 'update the user'
         User.withNewTransaction {
-            userService.update(new DefaultAuthentication(user.email, null), userData)
+            userService.update(user, userData)
         }
 
         then: "a validation exception is thrown"
@@ -209,7 +209,7 @@ class UserServiceTest extends AbstractContainerBaseTest {
 
         when: 'update a non existing user'
         User.withNewTransaction {
-            userService.update(new DefaultAuthentication('nonexistinguser@email.com', null), userData)
+            userService.update(null, userData)
         }
 
         then: "a non-existing exception is thrown"
@@ -223,7 +223,7 @@ class UserServiceTest extends AbstractContainerBaseTest {
 
         when: 'remove the user'
         User.withNewTransaction {
-            userService.delete(new DefaultAuthentication(user.email, null))
+            userService.delete(user)
         }
 
         then: "the user has been correctly deleted"
@@ -232,16 +232,21 @@ class UserServiceTest extends AbstractContainerBaseTest {
         }
     }
 
-    void "delete an existing user with roles"() {
+    void "delete an existing user with roles and associated workflows"() {
         given: 'an existing user'
         User user = new DomainCreator().createUser()
 
         and: "grant a role to the user"
         new DomainCreator().createUserRole(user: user)
 
+        and: 'associate some workflows to the user'
+        3.times {
+            new DomainCreator().createWorkflow(owner: user)
+        }
+
         when: 'remove the user'
         User.withNewTransaction {
-            userService.delete(new DefaultAuthentication(user.email, null))
+            userService.delete(user)
         }
 
         then: "the user has been correctly deleted"
@@ -250,10 +255,10 @@ class UserServiceTest extends AbstractContainerBaseTest {
         }
     }
 
-    void "try to delete an non-existing user"() {
+    void "try to delete an nonexistent user"() {
         when: 'remove a non existing user'
         User.withNewTransaction {
-            userService.delete(new DefaultAuthentication('nonexistinguser@email.com', null))
+            userService.delete(null)
         }
 
         then: "a non-existing exception is thrown"
