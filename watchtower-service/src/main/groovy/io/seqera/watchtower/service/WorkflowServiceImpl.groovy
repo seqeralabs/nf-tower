@@ -4,10 +4,13 @@ import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
 import io.seqera.watchtower.domain.Progress
 import io.seqera.watchtower.domain.SummaryEntry
+import io.seqera.watchtower.domain.Task
+import io.seqera.watchtower.domain.User
 import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.exceptions.NonExistingWorkflowException
 import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowRequest
 
+import javax.inject.Inject
 import javax.inject.Singleton
 
 @Transactional
@@ -19,19 +22,20 @@ class WorkflowServiceImpl implements WorkflowService {
         Workflow.get(id)
     }
 
-    List<Workflow> list() {
-        Workflow.list()
+    @CompileDynamic
+    List<Workflow> list(User owner) {
+        Workflow.findAllByOwner(owner, [sort: 'start', order: 'desc'])
     }
 
-
-    Workflow processWorkflowJsonTrace(TraceWorkflowRequest traceWorkflowRequest) {
-        traceWorkflowRequest.workflow.checkIsStarted() ? createFromJson(traceWorkflowRequest.workflow, traceWorkflowRequest.progress) : updateFromJson(traceWorkflowRequest.workflow, traceWorkflowRequest.progress, traceWorkflowRequest.summary)
+    Workflow processWorkflowJsonTrace(TraceWorkflowRequest traceWorkflowRequest, User owner) {
+        traceWorkflowRequest.workflow.checkIsStarted() ? createFromJson(traceWorkflowRequest.workflow, traceWorkflowRequest.progress, owner) : updateFromJson(traceWorkflowRequest.workflow, traceWorkflowRequest.progress, traceWorkflowRequest.summary)
     }
 
-    private Workflow createFromJson(Workflow workflow, Progress progress) {
+    private Workflow createFromJson(Workflow workflow, Progress progress, User owner) {
         workflow.submit = workflow.start
 
         workflow.progress = progress
+        workflow.owner = owner
         workflow.save()
         workflow
     }
@@ -68,6 +72,17 @@ class WorkflowServiceImpl implements WorkflowService {
         summary.each { SummaryEntry summaryEntry ->
             workflow.addToSummaryEntries(summaryEntry)
         }
+    }
+
+    void delete(Workflow workflow) {
+        workflow.tasks?.each { Task task ->
+            task.delete()
+        }
+        workflow.summaryEntries?.each { SummaryEntry summaryEntry ->
+            summaryEntry.delete()
+        }
+
+        workflow.delete()
     }
 
 }

@@ -7,13 +7,18 @@ import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
 import io.micronaut.security.annotation.Secured
+import io.micronaut.security.authentication.Authentication
 import io.micronaut.security.rules.SecurityRule
 import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.exchange.task.TaskGet
 import io.seqera.watchtower.pogo.exchange.task.TaskList
 import io.seqera.watchtower.pogo.exchange.workflow.WorkflowGet
 import io.seqera.watchtower.pogo.exchange.workflow.WorkflowList
+<<<<<<< HEAD
 import io.seqera.watchtower.service.TaskService
+=======
+import io.seqera.watchtower.service.UserService
+>>>>>>> Associate workflows to a user
 import io.seqera.watchtower.service.WorkflowService
 
 import javax.inject.Inject
@@ -26,20 +31,29 @@ import javax.inject.Inject
 class WorkflowController {
 
     WorkflowService workflowService
+<<<<<<< HEAD
     TaskService taskService
 
     @Inject
     WorkflowController(WorkflowService workflowService, TaskService taskService) {
         this.workflowService = workflowService
         this.taskService = taskService
+=======
+    UserService userService
+
+    @Inject
+    WorkflowController(WorkflowService workflowService, UserService userService) {
+        this.workflowService = workflowService
+        this.userService = userService
+>>>>>>> Associate workflows to a user
     }
 
 
     @Get("/list")
     @Transactional
     @Secured(['ROLE_USER'])
-    HttpResponse<WorkflowList> list() {
-        List<Workflow> workflows = workflowService.list()
+    HttpResponse<WorkflowList> list(Authentication authentication) {
+        List<Workflow> workflows = workflowService.list(userService.getFromAuthData(authentication))
 
         List<WorkflowGet> result = workflows.collect { Workflow workflow ->
             WorkflowGet.of(workflow)

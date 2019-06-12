@@ -1,6 +1,7 @@
 package io.seqera.watchtower.service
 
 import grails.gorm.DetachedCriteria
+import io.seqera.watchtower.domain.Workflow
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -29,15 +30,19 @@ class UserServiceImpl implements UserService {
 
     @Value('${app.name:Nextflow Tower}')
     String appName
-
     @Value('${front.url}')
     String frontendUrl
 
     MailService mailService
+    WorkflowService workflowService
+
+    UserServiceImpl() {
+    }
 
     @Inject
-    UserServiceImpl(MailService mailService) {
+    UserServiceImpl(MailService mailService, WorkflowService workflowService) {
         this.mailService = mailService
+        this.workflowService = workflowService
     }
 
 
@@ -213,8 +218,12 @@ class UserServiceImpl implements UserService {
     }
 
     @CompileDynamic
-    User update(Principal userSecurityData, User updatedUserData) {
-        User existingUser = User.findByEmail(userSecurityData.name)
+    User getFromAuthData(Principal userSecurityData) {
+        User.findByEmail(userSecurityData.name)
+    }
+
+    @CompileDynamic
+    User update(User existingUser, User updatedUserData) {
         if (!existingUser) {
             throw new NonExistingUserException("The user to update doesn't exist")
         }
@@ -234,13 +243,16 @@ class UserServiceImpl implements UserService {
     }
 
     @CompileDynamic
-    void delete(Principal userSecurityData) {
-        User existingUser = User.findByEmail(userSecurityData.name)
+    void delete(User existingUser) {
         if (!existingUser) {
             throw new NonExistingUserException("The user to delete doesn't exist")
         }
 
         UserRole.findAllByUser(existingUser)*.delete()
+        workflowService.list(existingUser).each { Workflow workflow ->
+            workflowService.delete(workflow)
+        }
+
         existingUser.delete()
     }
 }

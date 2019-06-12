@@ -8,7 +8,7 @@ import grails.gorm.annotation.Entity
 import groovy.transform.CompileDynamic
 
 @Entity
-@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'accessTokens'])
+@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'workflows', 'accessTokens'])
 @CompileDynamic
 class User {
 
@@ -23,7 +23,7 @@ class User {
     String description
     String avatar
 
-    static hasMany = [accessTokens: AccessToken]
+    static hasMany = [workflows: Workflow, accessTokens: AccessToken]
 
     static constraints = {
         email(email: true, unique: true)

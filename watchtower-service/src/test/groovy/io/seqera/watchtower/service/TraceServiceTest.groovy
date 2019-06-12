@@ -36,10 +36,10 @@ class TraceServiceTest extends AbstractContainerBaseTest {
     void "process a successful workflow trace"() {
         given: "mock the workflow JSON processor to return a successful workflow"
         Workflow workflow = new DomainCreator().createWorkflow()
-        workflowService.processWorkflowJsonTrace(_) >> workflow
+        workflowService.processWorkflowJsonTrace(_, _) >> workflow
 
         when: "process the workflow (we don't mind about the given JSON because the processor is mocked)"
-        Workflow processedWorkflow = traceService.processWorkflowTrace(null)
+        Workflow processedWorkflow = traceService.processWorkflowTrace(null, null)
 
         then: "the result indicates a successful processing"
         processedWorkflow.id
@@ -50,10 +50,10 @@ class TraceServiceTest extends AbstractContainerBaseTest {
         given: "mock the workflow JSON processor to return a workflow with the same sessionId+runName combination as a previous one"
         Workflow workflow1 = new DomainCreator().createWorkflow()
         Workflow workflow2 = new DomainCreator(failOnError: false).createWorkflow(sessionId: workflow1.sessionId, runName: workflow1.runName)
-        workflowService.processWorkflowJsonTrace(_) >> workflow2
+        workflowService.processWorkflowJsonTrace(_, _) >> workflow2
 
         when: "process the workflow (we don't mind about the given JSON because the processor is mocked)"
-        traceService.processWorkflowTrace(null)
+        traceService.processWorkflowTrace(null, null)
 
         then: "the result indicates an error"
         Exception e = thrown(ValidationException)
@@ -63,10 +63,10 @@ class TraceServiceTest extends AbstractContainerBaseTest {
     void "process a workflow trace to try to start workflow without submitTime"() {
         given: "mock the workflow JSON processor to return a workflow without submitTime"
         Workflow workflow = new DomainCreator(failOnError: false).createWorkflow(submit: null)
-        workflowService.processWorkflowJsonTrace(_) >> workflow
+        workflowService.processWorkflowJsonTrace(_, _) >> workflow
 
         when: "process the workflow (we don't mind about the given JSON because the processor is mocked)"
-        traceService.processWorkflowTrace(null)
+        traceService.processWorkflowTrace(null, null)
 
         then: "the result indicates an error"
         Exception e = thrown(ValidationException)
@@ -76,10 +76,10 @@ class TraceServiceTest extends AbstractContainerBaseTest {
     void "process a workflow trace, but throw a NonExistingWorkflow exception"() {
         given: "mock the workflow JSON processor to throw an exception"
         String exceptionMessage = 'message'
-        workflowService.processWorkflowJsonTrace(_) >> { throw(new NonExistingWorkflowException(exceptionMessage)) }
+        workflowService.processWorkflowJsonTrace(_, _) >> { throw(new NonExistingWorkflowException(exceptionMessage)) }
 
         when: "process the workflow (we don't mind about the given JSON because the processor is mocked)"
-        traceService.processWorkflowTrace(null)
+        traceService.processWorkflowTrace(null, null)
 
         then: "the result indicates an error"
         Exception e = thrown(NonExistingWorkflowException)
@@ -89,10 +89,10 @@ class TraceServiceTest extends AbstractContainerBaseTest {
     void "process a workflow trace, but throw a generic exception"() {
         given: "mock the workflow JSON processor to throw an exception"
         String exceptionMessage = 'message'
-        workflowService.processWorkflowJsonTrace(_) >> { throw(new RuntimeException(exceptionMessage)) }
+        workflowService.processWorkflowJsonTrace(_, _) >> { throw(new RuntimeException(exceptionMessage)) }
 
         when: "process the workflow (we don't mind about the given JSON because the processor is mocked)"
-        traceService.processWorkflowTrace(null)
+        traceService.processWorkflowTrace(null, null)
 
         then: "the result indicates an error"
         Exception e = thrown(RuntimeException)
