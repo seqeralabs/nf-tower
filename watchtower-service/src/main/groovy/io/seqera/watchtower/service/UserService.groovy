@@ -18,4 +18,6 @@ interface UserService {
 
     List<String> findAuthoritiesByEmail(String email)
 
+    List<String> findAuthoritiesOfUser(User user)
+
 }

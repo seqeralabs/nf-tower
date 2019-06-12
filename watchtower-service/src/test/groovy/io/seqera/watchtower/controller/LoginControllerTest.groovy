@@ -41,7 +41,7 @@ class LoginControllerTest extends AbstractContainerBaseTest {
     @Client('/')
     RxHttpClient client
 
-    void 'login with valid credentials (username and authToken) for a user'() {
+    void 'login with valid credentials (email and authToken) for a user'() {
         given: "a user"
         User user = new DomainCreator().createUser(firstName: 'User', lastName: 'Userson', avatar: 'http://image.com', organization: 'org', description: 'description')
 
@@ -80,7 +80,7 @@ class LoginControllerTest extends AbstractContainerBaseTest {
         authentication.attributes.description == user.description
     }
 
-    void 'try to login with valid credentials (username and authToken) for a user which has an expired authToken'() {
+    void 'try to login with valid credentials (email and authToken) for a user which has an expired authToken'() {
         given: "a user"
         User user = new DomainCreator().createUser(authTime: Instant.now().minus(authenticationProviderByAuthToken.authMailDuration))
 
