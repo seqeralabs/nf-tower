@@ -70,6 +70,7 @@ class LoginControllerTest extends AbstractContainerBaseTest {
         authentication.attributes.exp
         authentication.attributes.iat
 
+        authentication.attributes.id == user.id
         authentication.attributes.email == user.email
         authentication.attributes.userName == user.userName
         authentication.attributes.accessToken == user.accessTokens.first().token

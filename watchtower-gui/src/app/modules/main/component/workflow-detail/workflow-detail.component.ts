@@ -60,20 +60,20 @@ export class WorkflowDetailComponent implements OnInit, OnDestroy {
     this.workflowService.fetchTasks(workflow).subscribe(
       () => {
         if (workflow.isStarted) {
-          this.subscribeToWorkflowLiveEvents(workflow);
+          this.subscribeToWorkflowDetailLiveEvents(workflow);
         }
       }
     );
   }
 
-  private subscribeToWorkflowLiveEvents(workflow: Workflow): void {
-    this.liveEventsSubscription = this.serverSentEventsWorkflowService.connect(workflow).subscribe(
+  private subscribeToWorkflowDetailLiveEvents(workflow: Workflow): void {
+    this.liveEventsSubscription = this.serverSentEventsWorkflowService.connectToWorkflowDetailLive(workflow).subscribe(
       (data: Workflow | Task) => {
-        console.log(`Live event data received from workflow ${workflow.data.workflowId}`, data);
+        console.log('Live workflow details event received', data);
         this.reactToEvent(data);
       },
       (error: SseError) => {
-        console.log(`Live event error received from workflow ${workflow.data.workflowId}`, error);
+        console.log('Live workflow details event received', error);
         this.reactToErrorEvent(error);
       }
     );
@@ -96,7 +96,7 @@ export class WorkflowDetailComponent implements OnInit, OnDestroy {
   }
 
   private reactToWorkflowEvent(workflow: Workflow): void {
-    this.workflowService.updateWorkflow(workflow, this.workflow);
+    this.workflowService.updateWorkflow(workflow);
     this.workflow = workflow;
   }
 

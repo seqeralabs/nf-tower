@@ -5,7 +5,7 @@ import {environment} from "../../../../environments/environment";
 import {Observable, Subject, of, ReplaySubject, BehaviorSubject} from "rxjs";
 import {map, tap} from "rxjs/operators";
 import {Task} from "../entity/task/task";
-import {findIndex, sortBy} from "lodash";
+import {findIndex, orderBy} from "lodash";
 
 
 const endpointUrl: string = `${environment.apiUrl}/workflow`;
@@ -86,8 +86,11 @@ export class WorkflowService {
     );
   }
 
-  updateWorkflow(newWorkflow: Workflow, oldWorkflow: Workflow): void {
-    newWorkflow.tasks = oldWorkflow.tasks;
+  updateWorkflow(newWorkflow: Workflow): void {
+    const oldWorkflow: Workflow = this.workflowsByIdCache.get(newWorkflow.data.workflowId);
+    if (oldWorkflow) {
+      newWorkflow.tasks = oldWorkflow.tasks;
+    }
 
     this.workflowsByIdCache.set(newWorkflow.data.workflowId, newWorkflow);
     this.emitWorkflowsFromCache();
@@ -102,11 +105,13 @@ export class WorkflowService {
     }
     workflow.progress = task.progress;
 
-    workflow.tasks = sortBy(Array.from(workflow.tasks), (t: Task) => t.data.taskId);
+    workflow.tasks = orderBy(Array.from(workflow.tasks), [(t: Task) => t.data.taskId]);
   }
 
   private emitWorkflowsFromCache(): void {
-    this.workflowsSubject.next(Array.from(this.workflowsByIdCache.values()));
+    const cachedWorkflows: Workflow[] = Array.from(this.workflowsByIdCache.values());
+
+    this.workflowsSubject.next(orderBy(cachedWorkflows, [(w: Workflow) => w.data.start], ['desc']));
   }
 
   private isWorkflowsCacheEmpty(): boolean {
