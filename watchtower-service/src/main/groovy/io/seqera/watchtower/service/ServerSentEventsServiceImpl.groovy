@@ -20,18 +20,31 @@ class ServerSentEventsServiceImpl implements ServerSentEventsService {
 
     private Map<String, PublishProcessor<Event>> flowableByKeyCache = new ConcurrentHashMap()
 
-    @Value('${sse.idle.timeout:5m}')
-    Duration idleFlowableTimeout
 
-    @Value('${sse.throttle.time:0ms}')
-    Duration throttleFlowableTime
-
-
-    void createFlowable(String key) {
+    void createFlowable(String key, Duration idleTimeout) {
         log.info("Creating flowable: ${key}")
 
         flowableByKeyCache[key] = PublishProcessor.create()
-        scheduleFlowableIdleTimeout(key)
+        scheduleFlowableIdleTimeout(key, idleTimeout)
+    }
+
+    private void scheduleFlowableIdleTimeout(String key, Duration idleTimeout) {
+        Flowable flowable = getFlowableInternal(key)
+
+        Flowable timeoutFlowable = flowable.timeout(idleTimeout.toMillis(), TimeUnit.MILLISECONDS)
+        timeoutFlowable.subscribe(
+                {
+                    log.info("Data published for flowable: ${key}")
+                } as Consumer,
+                { Throwable t ->
+                    if (t instanceof TimeoutException) {
+                        log.info("Idle timeout reached for flowable: ${key}")
+                        completeFlowable(key)
+                    } else {
+                        log.info("Unexpected error happened for id: ${key} | ${t.message}")
+                    }
+                } as Consumer
+        )
     }
 
     void publishEvent(String key, Event event) throws NonExistingFlowableException {
@@ -49,25 +62,6 @@ class ServerSentEventsServiceImpl implements ServerSentEventsService {
         flowableByKeyCache.remove(key)
     }
 
-    private void scheduleFlowableIdleTimeout(String key) {
-        Flowable flowable = getFlowableInternal(key)
-
-        Flowable timeoutFlowable = flowable.timeout(idleFlowableTimeout.toMillis(), TimeUnit.MILLISECONDS)
-        timeoutFlowable.subscribe(
-                {
-                    log.info("Data published for flowable: ${key}")
-                } as Consumer,
-                { Throwable t ->
-                    if (t instanceof TimeoutException) {
-                        log.info("Idle timeout reached for flowable: ${key}")
-                        completeFlowable(key)
-                    } else {
-                        log.info("Unexpected error happened for id: ${key} | ${t.message}")
-                    }
-                } as Consumer
-        )
-    }
-
     private Flowable getFlowableInternal(String key) throws NonExistingFlowableException {
         Flowable hotFlowable = flowableByKeyCache[key]
 
@@ -78,10 +72,10 @@ class ServerSentEventsServiceImpl implements ServerSentEventsService {
         hotFlowable
     }
 
-    Flowable getFlowable(String key) throws NonExistingFlowableException {
+    Flowable getFlowable(String key, Duration throttleTime) throws NonExistingFlowableException {
         Flowable flowable = getFlowableInternal(key)
 
-        flowable.throttleLatest(throttleFlowableTime.toMillis(), TimeUnit.MILLISECONDS, true)
+        flowable.throttleLatest(throttleTime.toMillis(), TimeUnit.MILLISECONDS, true)
     }
 
 }

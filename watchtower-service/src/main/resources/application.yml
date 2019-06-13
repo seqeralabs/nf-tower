@@ -16,6 +16,8 @@ micronaut:
           secret:
             generator:
               secret: pleaseChangeThisSecretForANewOne
+        generator:
+          access-token-expiration: 3600
 ---
 jackson:
   serialization:
@@ -52,5 +54,12 @@ front:
   url: http://localhost:8000
 ---
 sse:
-  throttle:
-    time: 1s
+  time:
+    idle:
+      workflow-detail: 5m
+      workflow-list: 3600s
+    throttle:
+      workflow-detail: 1s
+      workflow-list: 0s
+
+
