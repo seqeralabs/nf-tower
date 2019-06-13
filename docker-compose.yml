@@ -20,6 +20,7 @@ services:
 
   backend:
     build: ./watchtower-service
+    command: bash -c 'wait-for-it.sh db:3306; backend-up.sh'
     networks:
       - frontend
       - backend
