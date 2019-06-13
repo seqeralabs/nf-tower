@@ -166,7 +166,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
 
         then: "the tasks list is empty"
         response.status == HttpStatus.OK
-        response.body().tasks.size() == 0
+        !response.body().tasks?.size()
     }
 
 

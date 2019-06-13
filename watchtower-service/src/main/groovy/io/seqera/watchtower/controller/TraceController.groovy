@@ -2,6 +2,7 @@ package io.seqera.watchtower.controller
 
 import grails.gorm.transactions.Transactional
 import groovy.util.logging.Slf4j
+import io.micronaut.context.annotation.Value
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
@@ -27,6 +28,7 @@ import io.seqera.watchtower.service.UserService
 import org.reactivestreams.Publisher
 
 import javax.inject.Inject
+import java.time.Duration
 
 /**
  * Implements the `trace` API
@@ -36,6 +38,12 @@ import javax.inject.Inject
 @Secured(SecurityRule.IS_ANONYMOUS)
 @Slf4j
 class TraceController {
+
+
+    @Value('${sse.time.idle.workflow-detail:5m}')
+    Duration idleWorkflowDetailFlowableTimeout
+    @Value('${sse.time.idle.workflow-list:1h}')
+    Duration idleWorkflowListFlowableTimeout
 
     TraceService traceService
     UserService userService
@@ -71,7 +79,7 @@ class TraceController {
 
     private void publishWorkflowEvent(Workflow workflow) {
         if (workflow.checkIsStarted()) {
-            serverSentEventsService.createFlowable(workflow.id.toString())
+            serverSentEventsService.createFlowable(workflow.id.toString(), idleWorkflowDetailFlowableTimeout)
         }
 
         try {
@@ -97,7 +105,7 @@ class TraceController {
     @Post("/task")
     @Transactional
     @Secured(['ROLE_USER'])
-    HttpResponse<TraceTaskResponse> task(@Body TraceTaskRequest trace, Authentication authentication) {
+    HttpResponse<TraceTaskResponse> task(@Body TraceTaskRequest trace) {
         HttpResponse<TraceTaskResponse> response
         try {
             log.info("Receiving task trace: ${trace.inspect()}")
@@ -127,7 +135,7 @@ class TraceController {
 
         Flowable<Event<TraceSseResponse>> flowable
         try {
-            flowable = serverSentEventsService.getFlowable(workflowId.toString())
+            flowable = serverSentEventsService.getFlowable(workflowId.toString(), idleWorkflowDetailFlowableTimeout)
         } catch (NonExistingFlowableException e) {
             String message = "No live events emitter for workflow: ${workflowId}"
             log.info(message)

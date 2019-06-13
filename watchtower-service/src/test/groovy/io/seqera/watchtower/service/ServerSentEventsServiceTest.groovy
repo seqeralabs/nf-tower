@@ -24,10 +24,10 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
         String key = '1'
 
         when: 'create the flowable given a key'
-        serverSentEventsService.createFlowable(key)
+        serverSentEventsService.createFlowable(key, Duration.ofMinutes(1))
 
         then: 'the flowable can be retrieved'
-        serverSentEventsService.getFlowable(key)
+        serverSentEventsService.getFlowable(key, Duration.ofMinutes(0))
     }
 
     void "create a flowable and publish some data for it"() {
@@ -35,11 +35,11 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
         String key = '2'
 
         and: 'create the flowable'
-        serverSentEventsService.createFlowable(key)
+        serverSentEventsService.createFlowable(key, Duration.ofMinutes(1))
 
         and: 'subscribe to the flowable in order to retrieve the data'
         TestSubscriber subscriber = new TestSubscriber()
-        serverSentEventsService.getFlowable(key).subscribe(subscriber)
+        serverSentEventsService.getFlowable(key, Duration.ofMinutes(0)).subscribe(subscriber)
 
         when: 'publish some data for it'
         Event event = Event.of([text: 'Data published'])
@@ -55,11 +55,11 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
         String key = '3'
 
         and: 'create the flowable'
-        serverSentEventsService.createFlowable(key)
+        serverSentEventsService.createFlowable(key, Duration.ofMinutes(1))
 
         and: 'subscribe to the flowable in order to retrieve the data'
         TestSubscriber subscriber = new TestSubscriber()
-        serverSentEventsService.getFlowable(key).subscribe(subscriber)
+        serverSentEventsService.getFlowable(key, Duration.ofMinutes(0)).subscribe(subscriber)
 
         when: 'complete the flowable'
         serverSentEventsService.completeFlowable(key)
@@ -68,36 +68,63 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
         subscriber.assertComplete()
 
         when: 'try to get the flowable again'
-        serverSentEventsService.getFlowable(key)
+        serverSentEventsService.getFlowable(key, Duration.ofMinutes(0))
 
         then: 'the flowable is no longer present'
         thrown(NonExistingFlowableException)
     }
 
-    void "create a flowable and leave it idle until the timeout strikes"() {
+    void "create a flowable and throttle the events"() {
         given: 'a key for the flowable'
         String key = '4'
 
-        and: 'modify the time duration for this test'
-        Duration previousDuration = serverSentEventsService.idleFlowableTimeout
-        Duration shortDuration = Duration.ofMillis(300)
-        serverSentEventsService.idleFlowableTimeout = shortDuration
+        and: 'set a short throttle time'
+        Duration throttleTime = Duration.ofMillis(500)
 
         and: 'create the flowable'
-        serverSentEventsService.createFlowable(key)
+        serverSentEventsService.createFlowable(key, Duration.ofMinutes(1))
 
         and: 'subscribe to the flowable in order to retrieve data'
         TestSubscriber subscriber = new TestSubscriber()
-        serverSentEventsService.getFlowable(key).subscribe(subscriber)
+        serverSentEventsService.getFlowable(key, throttleTime).subscribe(subscriber)
+
+        when: 'publish some data for it'
+        serverSentEventsService.publishEvent(key, Event.of([text: 'Data published 1']))
+
+        and: 'publish more data right after the previous one'
+        serverSentEventsService.publishEvent(key, Event.of([text: 'Data published 2']))
+
+        then: 'the subscriber has obtained only the first published data'
+        subscriber.assertValueCount(1)
+        subscriber.events.first()[0].data.text == 'Data published 1'
+
+        when: 'make sure the throttle time has been surpassed'
+        sleep(throttleTime.toMillis() + 100)
+
+        then: 'the subscriber has obtained the last published data'
+        subscriber.assertValueCount(2)
+        subscriber.events.first()[1].data.text == 'Data published 2'
+    }
+
+    void "create a flowable and leave it idle until the timeout strikes"() {
+        given: 'a key for the flowable'
+        String key = '5'
+
+        and: 'set a short idle timeout'
+        Duration idleTimeout = Duration.ofMillis(300)
+
+        and: 'create the flowable'
+        serverSentEventsService.createFlowable(key, idleTimeout)
+
+        and: 'subscribe to the flowable in order to retrieve data'
+        TestSubscriber subscriber = new TestSubscriber()
+        serverSentEventsService.getFlowable(key, Duration.ofMinutes(0)).subscribe(subscriber)
 
         when: 'sleep until the timeout plus a prudential time to make sure it was reached'
-        sleep(shortDuration.toMillis() + 100)
+        sleep(idleTimeout.toMillis() + 100)
 
         then: 'the flowable has been completed'
         subscriber.assertComplete()
-
-        cleanup: 'restore the timeout duration'
-        serverSentEventsService.idleFlowableTimeout = previousDuration
     }
 
 }

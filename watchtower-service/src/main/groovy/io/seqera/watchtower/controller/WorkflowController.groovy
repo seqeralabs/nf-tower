@@ -14,11 +14,8 @@ import io.seqera.watchtower.pogo.exchange.task.TaskGet
 import io.seqera.watchtower.pogo.exchange.task.TaskList
 import io.seqera.watchtower.pogo.exchange.workflow.WorkflowGet
 import io.seqera.watchtower.pogo.exchange.workflow.WorkflowList
-<<<<<<< HEAD
 import io.seqera.watchtower.service.TaskService
-=======
 import io.seqera.watchtower.service.UserService
->>>>>>> Associate workflows to a user
 import io.seqera.watchtower.service.WorkflowService
 
 import javax.inject.Inject
@@ -31,21 +28,14 @@ import javax.inject.Inject
 class WorkflowController {
 
     WorkflowService workflowService
-<<<<<<< HEAD
     TaskService taskService
-
-    @Inject
-    WorkflowController(WorkflowService workflowService, TaskService taskService) {
-        this.workflowService = workflowService
-        this.taskService = taskService
-=======
     UserService userService
 
     @Inject
-    WorkflowController(WorkflowService workflowService, UserService userService) {
+    WorkflowController(WorkflowService workflowService, TaskService taskService, UserService userService) {
         this.workflowService = workflowService
+        this.taskService = taskService
         this.userService = userService
->>>>>>> Associate workflows to a user
     }
 
 
@@ -77,7 +67,7 @@ class WorkflowController {
     @Transactional
     @Secured(SecurityRule.IS_ANONYMOUS)
     HttpResponse<TaskList> tasks(Long workflowId, HttpParameters filterParams) {
-        Long max = filterParams.getFirst('start', Long.class, 10l)
+        Long max = filterParams.getFirst('start', Long.class, 10000l)
         Long offset = filterParams.getFirst('length', Long.class, 0l)
 
         List<TaskGet> result = taskService.findTasks(workflowId, max, offset).collect {
