@@ -1,27 +1,32 @@
 version: "3"
 services:
 
-  mongo:
-    image: mongo
+  db:
+    image: mysql:8
     networks:
       - backend
     ports:
-      - 27017:27017
+      - 3306:3306
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_USER: watchtower
+      MYSQL_PASSWORD: watchtower
+      MYSQL_DATABASE: watchtower
 
   backend:
     build:
       context: ./watchtower-service
       dockerfile: Dockerfile-livedev
     image: tower-backend:livedev
-    command: ./gradlew watchtower-service:run --continuous
+    command: bash -c 'wait-for-it.sh db:3306; ./gradlew watchtower-service:run --continuous'
     networks:
       - frontend
       - backend
     ports:
       - 8080:8080
     environment:
-      MONGO_HOST: mongo
-      MONGO_PORT: 27017
+      MYSQL_HOST: db
+      MYSQL_PORT: 3306
       MICRONAUT_ENVIRONMENTS: livedev
       MICRONAUT_CONFIG_FILES: $PWD/tower.yml
       TOWER_LOG_DIR: $PWD
@@ -30,6 +35,8 @@ services:
       - $HOME/.gradle:/root/.gradle
       - $PWD:$PWD
     working_dir: $PWD
+    depends_on:
+      - db
 
   frontend:
     build:
@@ -44,6 +51,8 @@ services:
       - frontend
     ports:
       - 4200:4200
+    depends_on:
+      - backend
 
 networks:
   frontend: {}
