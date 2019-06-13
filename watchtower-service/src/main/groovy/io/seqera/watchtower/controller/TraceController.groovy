@@ -42,8 +42,14 @@ class TraceController {
 
     @Value('${sse.time.idle.workflow-detail:5m}')
     Duration idleWorkflowDetailFlowableTimeout
-    @Value('${sse.time.idle.workflow-list:1h}')
+    @Value('${sse.time.throttle.workflow-detail:1s}')
+    Duration throttleWorkflowDetailFlowableTimeout
+    @Value('${sse.time.idle.workflow-list:5m}')
     Duration idleWorkflowListFlowableTimeout
+    @Value('${sse.time.throttle.workflow-list:1h}')
+    Duration throttleWorkflowListFlowableTimeout
+
+
 
     TraceService traceService
     UserService userService
@@ -78,27 +84,20 @@ class TraceController {
     }
 
     private void publishWorkflowEvent(Workflow workflow) {
+        String workflowDetailFlowableKey = getWorkflowDetailFlowableKey(workflow.id)
+
         if (workflow.checkIsStarted()) {
-            serverSentEventsService.createFlowable(workflow.id.toString(), idleWorkflowDetailFlowableTimeout)
+            serverSentEventsService.createFlowable(workflowDetailFlowableKey, idleWorkflowDetailFlowableTimeout)
         }
 
         try {
-            serverSentEventsService.publishEvent(workflow.id.toString(), Event.of(TraceSseResponse.ofWorkflow(workflow)))
+            serverSentEventsService.publishEvent(workflowDetailFlowableKey, Event.of(TraceSseResponse.ofWorkflow(workflow)))
         } catch (NonExistingFlowableException e) {
-            log.error("No flowable found for id while trying to publish workflow data: ${workflow.id}")
+            log.error("No flowable found while trying to publish workflow data: ${workflowDetailFlowableKey}")
         }
 
         if (!workflow.checkIsStarted()) {
-            serverSentEventsService.completeFlowable(workflow.id.toString())
-        }
-    }
-
-    private void publishErrorEvent(String workflowId, String errorMessage) {
-        TraceSseResponse errorResponse = TraceSseResponse.ofError(SseErrorType.BAD_PROCESSING, errorMessage)
-        try {
-            serverSentEventsService.publishEvent(workflowId, Event.of(errorResponse))
-        } catch (NonExistingFlowableException e) {
-            log.error("No flowable found for id while trying to publish error data: ${workflowId}")
+            serverSentEventsService.completeFlowable(workflowDetailFlowableKey)
         }
     }
 
@@ -122,31 +121,38 @@ class TraceController {
     }
 
     private void publishTaskEvent(Task task) {
+        String workflowDetailFlowableKey = getWorkflowDetailFlowableKey(task.workflowId)
+
         try {
-            serverSentEventsService.publishEvent(task.workflowId.toString(), Event.of(TraceSseResponse.ofTask(task)))
+            serverSentEventsService.publishEvent(workflowDetailFlowableKey, Event.of(TraceSseResponse.ofTask(task)))
         } catch (NonExistingFlowableException e) {
-            log.error("No flowable found for id while trying to publish task data: ${task.workflowId}")
+            log.error("No flowable found while trying to publish task data: ${workflowDetailFlowableKey}")
         }
     }
 
-    @Get("/live/{workflowId}")
-    Publisher<Event<TraceSseResponse>> live(Long workflowId) {
-        log.info("Subscribing to live events of workflow: ${workflowId}")
+    @Get("/live/workflowDetail/{workflowId}")
+    Publisher<Event<TraceSseResponse>> liveWorkflowDetail(Long workflowId) {
+        String workflowDetailFlowableKey = getWorkflowDetailFlowableKey(workflowId)
 
+        log.info("Subscribing to live events of workflow: ${workflowDetailFlowableKey}")
         Flowable<Event<TraceSseResponse>> flowable
         try {
-            flowable = serverSentEventsService.getFlowable(workflowId.toString(), idleWorkflowDetailFlowableTimeout)
+            flowable = serverSentEventsService.getFlowable(workflowDetailFlowableKey, throttleWorkflowDetailFlowableTimeout)
         } catch (NonExistingFlowableException e) {
-            String message = "No live events emitter for workflow: ${workflowId}"
+            String message = "No live events emitter: ${workflowDetailFlowableKey}"
             log.info(message)
             flowable = Flowable.just(Event.of(TraceSseResponse.ofError(SseErrorType.NONEXISTENT, message)))
         } catch (Exception e) {
-            String message = "Unexpected error while obtaining event emitter for workflow: ${workflowId}"
+            String message = "Unexpected error while obtaining event emitter: ${workflowDetailFlowableKey}"
             log.error("${message} | ${e.message}")
             flowable = Flowable.just(Event.of(TraceSseResponse.ofError(SseErrorType.UNEXPECTED, message)))
         }
 
         flowable
+    }
+
+    private static String getWorkflowDetailFlowableKey(def workflowId) {
+        return "workflow-${workflowId}"
     }
 
 }
