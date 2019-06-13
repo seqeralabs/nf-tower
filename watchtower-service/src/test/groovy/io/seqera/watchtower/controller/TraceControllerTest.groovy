@@ -181,13 +181,6 @@ class TraceControllerTest extends AbstractContainerBaseTest {
             Workflow.count() == 1
         }
 
-        and: 'the workflow event has been sent'
-        sleep(500) // <-- sleep a prudential time in order to make sure the event has been received
-        listSubscriber.assertValueCount(1)
-        listSubscriber.events.first()[0].data.workflow
-        listSubscriber.events.first()[0].data.workflow.workflow
-        listSubscriber.events.first()[0].data.workflow.progress
-
         when: 'subscribe to the live events for the workflow detail endpoint'
         TestSubscriber detailSubscriber = sseClient.eventStream("/trace/live/workflowDetail/${nextflowSimulator.workflowId}", TraceSseResponse.class).test()
 

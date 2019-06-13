@@ -43,6 +43,7 @@ export class AuthService {
     let userData: UserData = <UserData> {email: authData.username, jwtAccessToken: authData['access_token'], roles: authData.roles};
 
     let attributes: any = this.parseJwt(userData.jwtAccessToken);
+    userData.id = attributes.id;
     userData.userName = attributes.userName;
     userData.firstName = attributes.firstName;
     userData.lastName = attributes.lastName;

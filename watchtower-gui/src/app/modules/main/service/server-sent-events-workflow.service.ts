@@ -5,8 +5,9 @@ import {Task} from "../entity/task/task";
 import {Workflow} from "../entity/workflow/workflow";
 import {SseError} from "../entity/sse/sse-error";
 import {SseErrorType} from "../entity/sse/sse-error-type";
+import {User} from "../entity/user/user";
 
-const endpointUrl: string = `${environment.apiUrl}/trace/live/workflowDetail`;
+const endpointUrl: string = `${environment.apiUrl}/trace/live`;
 
 @Injectable({
   providedIn: 'root'
@@ -15,13 +16,23 @@ export class ServerSentEventsWorkflowService {
 
   constructor() { }
 
-  connect(workflow: Workflow): Observable<Workflow | Task | any> {
+  connectToWorkflowDetailLive(workflow: Workflow): Observable<Workflow | Task | SseError> {
+    const workflowDetailUrl: string = `${endpointUrl}/workflowDetail/${workflow.data.workflowId}`;
+
+    return this.connect(workflowDetailUrl);
+  }
+
+  connectToWorkflowListLive(user: User): Observable<Workflow | Task | SseError> {
+    const workflowListUrl: string = `${endpointUrl}/workflowList/${user.data.id}`;
+
+    return this.connect(workflowListUrl);
+  }
+
+  private connect(url: string): Observable<Workflow | Task | SseError> {
     return new Observable((subscriber: Subscriber<Workflow | Task>) => {
-      const workflowId: number | string = workflow.data.workflowId;
+      console.log('Connecting to receive live events', url);
 
-      console.log(`Connecting to receive live events from workflow ${workflowId}`);
-      const eventSource: EventSource = new EventSource(`${endpointUrl}/${workflowId}`);
-
+      const eventSource: EventSource = new EventSource(url);
       eventSource.addEventListener('message', (event: MessageEvent) => {
         const transformedData: any = this.transformEventData(JSON.parse(event.data));
 
@@ -31,18 +42,18 @@ export class ServerSentEventsWorkflowService {
           subscriber.next(transformedData);
         }
       });
-      eventSource.addEventListener('error', (event: MessageEvent) => {
+      eventSource.addEventListener('error', () => {
         subscriber.error(new SseError({type: SseErrorType.UNEXPECTED, message: 'Unexpected SSE error happened'}));
       });
 
       return () => {
-        console.log(`Disconnecting of live events from workflow: ${workflowId}`);
+        console.log('Disconnecting of live events', url);
         eventSource.close();
       };
     });
   }
 
-  private transformEventData(data: any): Workflow | Task | any {
+  private transformEventData(data: any): Workflow | Task | SseError {
     if (data.workflow) {
       return new Workflow(data.workflow);
     }

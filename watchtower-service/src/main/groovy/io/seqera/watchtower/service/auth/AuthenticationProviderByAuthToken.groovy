@@ -53,7 +53,7 @@ class AuthenticationProviderByAuthToken implements AuthenticationProvider {
 
         List<String> authorities = userService.findAuthoritiesOfUser(user)
         Map attributes = [
-                email: user.email, userName: user.userName, accessToken: user.accessTokens?.getAt(0)?.token,
+                id: user.id, email: user.email, userName: user.userName, accessToken: user.accessTokens?.getAt(0)?.token,
                 firstName: user.firstName, lastName: user.lastName, organization: user.organization, description: user.description, avatar: user.avatar,
         ]
         return new UserDetails(user.email, authorities, (Map) attributes)
