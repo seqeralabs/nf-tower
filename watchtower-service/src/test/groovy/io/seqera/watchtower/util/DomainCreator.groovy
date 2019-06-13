@@ -21,12 +21,13 @@ class DomainCreator {
 
     static void cleanupDatabase() {
         Workflow.withNewTransaction {
-            UserRole.deleteAll(UserRole.list())
-            Role.deleteAll(Role.list())
-            User.deleteAll(User.list())
             SummaryEntry.deleteAll(SummaryEntry.list())
             Task.deleteAll(Task.list())
             Workflow.deleteAll(Workflow.list())
+            AccessToken.deleteAll(AccessToken.list())
+            UserRole.deleteAll(UserRole.list())
+            Role.deleteAll(Role.list())
+            User.deleteAll(User.list())
         }
     }
 

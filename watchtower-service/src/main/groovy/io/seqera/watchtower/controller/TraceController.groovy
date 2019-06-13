@@ -14,6 +14,7 @@ import io.micronaut.security.authentication.Authentication
 import io.micronaut.security.rules.SecurityRule
 import io.reactivex.Flowable
 import io.seqera.watchtower.domain.Task
+import io.seqera.watchtower.domain.User
 import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.enums.SseErrorType
 import io.seqera.watchtower.pogo.exceptions.NonExistingFlowableException
@@ -69,13 +70,14 @@ class TraceController {
     HttpResponse<TraceWorkflowResponse> workflow(@Body TraceWorkflowRequest trace, Authentication authentication) {
         HttpResponse<TraceWorkflowResponse> response
         try {
+            User user = userService.getFromAuthData(authentication)
             log.info("Receiving workflow trace: ${trace.inspect()}")
-            Workflow workflow = traceService.processWorkflowTrace(trace, userService.getFromAuthData(authentication))
+            Workflow workflow = traceService.processWorkflowTrace(trace, user)
             log.info("Processed workflow trace ${workflow.id}")
 
             response = HttpResponse.created(TraceWorkflowResponse.ofSuccess(workflow.id.toString()))
 
-            publishWorkflowEvent(workflow)
+            publishWorkflowEvent(workflow, user)
         } catch (Exception e) {
             response = HttpResponse.badRequest(TraceWorkflowResponse.ofError(e.message))
         }
@@ -83,8 +85,9 @@ class TraceController {
         response
     }
 
-    private void publishWorkflowEvent(Workflow workflow) {
+    private void publishWorkflowEvent(Workflow workflow, User user) {
         String workflowDetailFlowableKey = getWorkflowDetailFlowableKey(workflow.id)
+        String workflowListFlowableKey = getWorkflowListFlowableKey(user.id)
 
         if (workflow.checkIsStarted()) {
             serverSentEventsService.createFlowable(workflowDetailFlowableKey, idleWorkflowDetailFlowableTimeout)
@@ -94,6 +97,11 @@ class TraceController {
             serverSentEventsService.publishEvent(workflowDetailFlowableKey, Event.of(TraceSseResponse.ofWorkflow(workflow)))
         } catch (NonExistingFlowableException e) {
             log.error("No flowable found while trying to publish workflow data: ${workflowDetailFlowableKey}")
+        }
+        try {
+            serverSentEventsService.publishEvent(workflowListFlowableKey, Event.of(TraceSseResponse.ofWorkflow(workflow)))
+        } catch (NonExistingFlowableException e) {
+            log.error("No flowable found while trying to publish workflow data: ${workflowListFlowableKey}")
         }
 
         if (!workflow.checkIsStarted()) {
@@ -153,6 +161,34 @@ class TraceController {
 
     private static String getWorkflowDetailFlowableKey(def workflowId) {
         return "workflow-${workflowId}"
+    }
+
+    @Get("/live/workflowList/{userId}")
+    Publisher<Event<TraceSseResponse>> liveWorkflowList(Long userId) {
+        String workflowListFlowableKey = getWorkflowListFlowableKey(userId)
+
+        log.info("Subscribing to live events of user: ${workflowListFlowableKey}")
+        Flowable<Event<TraceSseResponse>> flowable
+        try {
+            flowable = serverSentEventsService.getFlowable(workflowListFlowableKey, throttleWorkflowListFlowableTimeout)
+        } catch (NonExistingFlowableException e) {
+            String message = "No live events emitter. Generating one: ${workflowListFlowableKey}"
+            log.info(message)
+
+            serverSentEventsService.createFlowable(workflowListFlowableKey, idleWorkflowListFlowableTimeout)
+            flowable = serverSentEventsService.getFlowable(workflowListFlowableKey, throttleWorkflowListFlowableTimeout)
+        } catch (Exception e) {
+            String message = "Unexpected error while obtaining event emitter: ${workflowListFlowableKey}"
+            log.error("${message} | ${e.message}")
+
+            flowable = Flowable.just(Event.of(TraceSseResponse.ofError(SseErrorType.UNEXPECTED, message)))
+        }
+
+        flowable
+    }
+
+    private static String getWorkflowListFlowableKey(def userId) {
+        return "user-${userId}"
     }
 
 }
