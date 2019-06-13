@@ -25,6 +25,7 @@ import io.seqera.watchtower.pogo.exchange.trace.sse.TraceSseResponse
 import io.seqera.watchtower.service.UserService
 import io.seqera.watchtower.util.*
 import spock.lang.Ignore
+import spock.lang.IgnoreRest
 
 import javax.inject.Inject
 
@@ -166,7 +167,13 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         and: 'a nextflow simulator'
         NextflowSimulator nextflowSimulator = new NextflowSimulator(user: user, workflowLabel: 'simulation', client: client.toBlocking(), sleepBetweenRequests: 0)
 
-        when: 'send the first request to start the workflow'
+        when: 'subscribe to the live events for the workflow list endpoint'
+        TestSubscriber listSubscriber = sseClient.eventStream("/trace/live/workflowList/${user.id}", TraceSseResponse.class).test()
+
+        then: 'the list flowable has just been created (is active)'
+        listSubscriber.assertNotComplete()
+
+        and: 'send the first request to start the workflow'
         nextflowSimulator.simulate(1)
 
         then: 'the workflow has been created'
@@ -174,14 +181,18 @@ class TraceControllerTest extends AbstractContainerBaseTest {
             Workflow.count() == 1
         }
 
+        and: 'the workflow event has been sent'
+        sleep(500) // <-- sleep a prudential time in order to make sure the event has been received
+        listSubscriber.assertValueCount(1)
+        listSubscriber.events.first()[0].data.workflow
+        listSubscriber.events.first()[0].data.workflow.workflow
+        listSubscriber.events.first()[0].data.workflow.progress
 
-        when: 'subscribe to the live events endpoint'
-        TestSubscriber subscriber = new TestSubscriber()
-        sseClient.eventStream("/trace/live/workflowDetail/${nextflowSimulator.workflowId}", TraceSseResponse.class)
-                 .subscribe(subscriber)
+        when: 'subscribe to the live events for the workflow detail endpoint'
+        TestSubscriber detailSubscriber = sseClient.eventStream("/trace/live/workflowDetail/${nextflowSimulator.workflowId}", TraceSseResponse.class).test()
 
-        then: 'the flowable is active'
-        subscriber.assertNotComplete()
+        then: 'the detail flowable is active'
+        detailSubscriber.assertNotComplete()
 
         when: 'keep simulating with the next task request'
         nextflowSimulator.simulate(1)
@@ -193,10 +204,10 @@ class TraceControllerTest extends AbstractContainerBaseTest {
 
         and: 'the task event has been sent'
         sleep(500) // <-- sleep a prudential time in order to make sure the event has been received
-        subscriber.assertValueCount(1)
-        subscriber.events.first()[0].data.task
-        subscriber.events.first()[0].data.task.task
-        subscriber.events.first()[0].data.task.progress
+        detailSubscriber.assertValueCount(1)
+        detailSubscriber.events.first()[0].data.task
+        detailSubscriber.events.first()[0].data.task.task
+        detailSubscriber.events.first()[0].data.task.progress
 
         when: 'keep the simulation going'
         nextflowSimulator.simulate()

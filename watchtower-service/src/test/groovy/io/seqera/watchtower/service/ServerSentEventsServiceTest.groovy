@@ -38,8 +38,7 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
         serverSentEventsService.createFlowable(key, Duration.ofMinutes(1))
 
         and: 'subscribe to the flowable in order to retrieve the data'
-        TestSubscriber subscriber = new TestSubscriber()
-        serverSentEventsService.getFlowable(key, Duration.ofMinutes(0)).subscribe(subscriber)
+        TestSubscriber subscriber = serverSentEventsService.getFlowable(key, Duration.ofMinutes(0)).test()
 
         when: 'publish some data for it'
         Event event = Event.of([text: 'Data published'])
@@ -58,8 +57,7 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
         serverSentEventsService.createFlowable(key, Duration.ofMinutes(1))
 
         and: 'subscribe to the flowable in order to retrieve the data'
-        TestSubscriber subscriber = new TestSubscriber()
-        serverSentEventsService.getFlowable(key, Duration.ofMinutes(0)).subscribe(subscriber)
+        TestSubscriber subscriber = serverSentEventsService.getFlowable(key, Duration.ofMinutes(0)).test()
 
         when: 'complete the flowable'
         serverSentEventsService.completeFlowable(key)
@@ -85,8 +83,7 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
         serverSentEventsService.createFlowable(key, Duration.ofMinutes(1))
 
         and: 'subscribe to the flowable in order to retrieve data'
-        TestSubscriber subscriber = new TestSubscriber()
-        serverSentEventsService.getFlowable(key, throttleTime).subscribe(subscriber)
+        TestSubscriber subscriber = serverSentEventsService.getFlowable(key, throttleTime).test()
 
         when: 'publish some data for it'
         serverSentEventsService.publishEvent(key, Event.of([text: 'Data published 1']))
@@ -117,8 +114,7 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
         serverSentEventsService.createFlowable(key, idleTimeout)
 
         and: 'subscribe to the flowable in order to retrieve data'
-        TestSubscriber subscriber = new TestSubscriber()
-        serverSentEventsService.getFlowable(key, Duration.ofMinutes(0)).subscribe(subscriber)
+        TestSubscriber subscriber = serverSentEventsService.getFlowable(key, Duration.ofMinutes(0)).test()
 
         when: 'sleep until the timeout plus a prudential time to make sure it was reached'
         sleep(idleTimeout.toMillis() + 100)

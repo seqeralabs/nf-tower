@@ -41,5 +41,10 @@ auth:
     duration: 30m
 ---
 sse:
-  idle:
-    timeout: 5s
+  time:
+    idle:
+      workflow-detail: 1m
+      workflow-list: 1m
+    throttle:
+      workflow-detail: 0s
+      workflow-list: 0s
