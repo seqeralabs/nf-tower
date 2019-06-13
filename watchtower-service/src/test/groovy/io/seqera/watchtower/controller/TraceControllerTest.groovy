@@ -177,7 +177,7 @@ class TraceControllerTest extends AbstractContainerBaseTest {
 
         when: 'subscribe to the live events endpoint'
         TestSubscriber subscriber = new TestSubscriber()
-        sseClient.eventStream("/trace/live/${nextflowSimulator.workflowId}", TraceSseResponse.class)
+        sseClient.eventStream("/trace/live/workflowDetail/${nextflowSimulator.workflowId}", TraceSseResponse.class)
                  .subscribe(subscriber)
 
         then: 'the flowable is active'
@@ -202,7 +202,7 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         nextflowSimulator.simulate()
 
         then: 'try to resubscribe to the workflow live updates once completed'
-        TraceSseResponse sseResponse = sseClient.eventStream("/trace/live/${nextflowSimulator.workflowId}", TraceSseResponse.class).blockingFirst().data
+        TraceSseResponse sseResponse = sseClient.eventStream("/trace/live/workflowDetail/${nextflowSimulator.workflowId}", TraceSseResponse.class).blockingFirst().data
         sseResponse.error.type == SseErrorType.NONEXISTENT
     }
 

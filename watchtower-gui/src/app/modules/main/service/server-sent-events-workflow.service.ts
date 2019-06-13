@@ -6,7 +6,7 @@ import {Workflow} from "../entity/workflow/workflow";
 import {SseError} from "../entity/sse/sse-error";
 import {SseErrorType} from "../entity/sse/sse-error-type";
 
-const endpointUrl: string = `${environment.apiUrl}/trace/live`;
+const endpointUrl: string = `${environment.apiUrl}/trace/live/workflowDetail`;
 
 @Injectable({
   providedIn: 'root'
