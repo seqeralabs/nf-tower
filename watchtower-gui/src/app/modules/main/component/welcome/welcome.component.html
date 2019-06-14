@@ -1,4 +1,4 @@
-<div class="container mt-5 w-50">
+<div class="container mt-5 w-75">
 
   <div class="card">
     <div class="card-header">
@@ -10,22 +10,36 @@
         Nextflow Tower allows you to monitor the execution of any of your Nextflow data analysis pipelines.
       </p>
 
-      <h6>1. Download latest version of Nextflow</h6>
-      <p>
-        To use Nextflow Tower download the latest Nextflow snapshot.
-      </p>
+      <div class='bd-callout bd-callout-success'>
+        <h5>1. Download latest version of Nextflow</h5>
+        <p>
+          To use Nextflow Tower download the latest Nextflow snapshot.
+        </p>
+      </div>
 
-      <h6>2. Set the Tower access token in your environment</h6>
+      <div class='bd-callout bd-callout-success'>
+      <h5>2. Set the access token</h5>
+        <p>
+        Define the following environment variable in your environment
+        </p>
+        <pre class="p-3 bg-light text-dark">export TOWER_ACCESS_TOKEN={{user.data.userName}}:{{user.data.nfAccessToken}}</pre>
+      </div>
 
-      <pre class="p-3 bg-light text-dark">export TOWER_ACCESS_TOKEN={{user.data.userName}}:{{user.data.nfAccessToken}}</pre>
+      <div class='bd-callout bd-callout-success'>
+        <h5>3. Run Nextflow</h5>
+        <p>
+          Launch nextflow as usual adding the -with-tower command line option
+        </p>
+        <pre class="p-3 bg-light text-dark">nextflow run hello -with-tower</pre>
+      </div>
 
-      <h6>3. Run Nextflow with Tower option</h6>
-      <p>
-        Launch nextflow as usual adding the -with-tower command line option
-      </p>
-      <pre class="p-3 bg-light text-dark">nextflow run hello -with-tower</pre>
+      <div class='bd-callout bd-callout-success'>
+        <h5>Enjoy it</h5>
+        <p>
+          The pipeline execution will popup here!
+        </p>
+      </div>
 
-      <h6>Enjoy it!</h6>
 
     </div>
   </div>

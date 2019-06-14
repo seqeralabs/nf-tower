@@ -2,7 +2,7 @@
 <div class="row mb-3" *ngFor="let process of processes">
   <div class="col-sm">
     <div class="row mb-0 process-summary">
-      <div class="col-sm proccess-name">
+      <div class="col-sm process-name">
         {{process}}
       </div>
       <div class="col-sm offset-sm-1">
@@ -15,7 +15,7 @@
         {{computeNProcessCompletedTasks(process)}} of {{(getNTotalProcessTasks(process))}}
       </div>
     </div>
-    <div class="progress">
+    <div class="progress progress-thin">
       <div class="progress-bar"
            [ngClass]="{'tasks-completed': computePercentageProcessCompletedTasks(process) == '100%', 'tasks-running': computePercentageProcessCompletedTasks(process) != '100%'}"
            [style.width]="computePercentageProcessCompletedTasks(process)">
