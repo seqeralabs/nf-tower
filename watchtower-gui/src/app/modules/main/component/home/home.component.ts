@@ -65,7 +65,7 @@ export class HomeComponent implements OnInit {
       },
       (error: SseError) => {
         console.log('Live workflow list error event received', error);
-        this.notificationService.showErrorNotification(error.message);
+        this.notificationService.showErrorNotification(error.message, false);
       }
     );
   }
