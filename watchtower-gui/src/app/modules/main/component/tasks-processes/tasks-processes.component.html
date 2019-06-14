@@ -1,21 +1,18 @@
 <div class="mt-4"></div>
-<div class="row" *ngFor="let process of processes">
+<div class="row mb-3" *ngFor="let process of processes">
   <div class="col-sm">
     <div class="row mb-0 process-summary">
       <div class="col-sm proccess-name">
         {{process}}
       </div>
-      <div class="col-sm tag-label">
-        ({{getProcessLastTask(process).data.tag}})
-      </div>
-      <div class="col-sm">
+      <div class="col-sm offset-sm-1">
         [{{getProcessLastTask(process).data.hash}}]
       </div>
       <div class="col-sm offset-sm-2 duration-label">
         {{computeTotalDurationProcessCompletedTasks(process)}}
       </div>
       <div class="col-sm progress-label">
-        {{computeNProcessCompletedTasks(process)}} of {{(getNTotalProcessTasks(process))}} [{{computePercentageProcessCompletedTasks(process)}}]
+        {{computeNProcessCompletedTasks(process)}} of {{(getNTotalProcessTasks(process))}}
       </div>
     </div>
     <div class="progress">
