@@ -12,15 +12,10 @@ services:
       MYSQL_USER: watchtower
       MYSQL_PASSWORD: watchtower
       MYSQL_DATABASE: watchtower
-    healthcheck:
-      test: ["CMD", 'wait-for-it db:3306']
-      interval: 10s
-      timeout: 2s
-      retries: 10
 
   backend:
     build: ./watchtower-service
-    command: bash -c 'wait-for-it.sh db:3306; backend-up.sh'
+    command: bash -c 'wait-for-it.sh db:3306 -t 60; backend-up.sh'
     networks:
       - frontend
       - backend
