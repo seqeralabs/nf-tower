@@ -22,6 +22,7 @@ import { TasksTableComponent } from './component/tasks-table/tasks-table.compone
 import { TasksProcessesComponent } from './component/tasks-processes/tasks-processes.component';
 import { HomeComponent } from './component/home/home.component';
 import { NotificationComponent } from './component/notification/notification.component';
+import { LandingComponent } from './component/landing/landing.component';
 
 @NgModule({
   declarations: [
@@ -40,7 +41,8 @@ import { NotificationComponent } from './component/notification/notification.com
     TasksTableComponent,
     TasksProcessesComponent,
     HomeComponent,
-    NotificationComponent
+    NotificationComponent,
+    LandingComponent
   ],
   imports: [
     BrowserModule,

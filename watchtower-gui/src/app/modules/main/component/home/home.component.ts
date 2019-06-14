@@ -1,4 +1,4 @@
-import {AfterContentInit, AfterViewInit, Component, OnInit} from '@angular/core';
+import {AfterContentInit, AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {User} from "../../entity/user/user";
 import {AuthService} from "../../service/auth.service";
 import {Router} from "@angular/router";
@@ -21,6 +21,8 @@ export class HomeComponent implements OnInit {
   workflows: Workflow[];
   private liveEventsSubscription: Subscription;
 
+  shouldLoadLandingPage: boolean;
+
   constructor(private authService: AuthService,
               private workflowService: WorkflowService,
               private serverSentEventsWorkflowService: ServerSentEventsWorkflowService,
@@ -28,36 +30,30 @@ export class HomeComponent implements OnInit {
               private router: Router) {
   }
 
+
   ngOnInit() {
     this.authService.user$.subscribe(
       (user: User) => {
         this.user = user;
         if (!this.user) {
-          if (this.isAtRoot) {
-            this.goToLandingPage();
-          }
+          this.shouldLoadLandingPage = this.isAtRoot;
           return;
         }
 
-        this.subscribeToWorkflowListLiveEvents();
         this.workflowService.workflows$.subscribe( (workflows: Workflow[]) => {
           this.workflows = workflows;
+          this.subscribeToWorkflowListLiveEvents();
         });
 
       }
     )
   }
 
-
-  private get isAtRoot(): boolean {
-    return (this.router.url == '/');
-  }
-
-  private goToLandingPage(): void {
-    window.location.replace('/landing');
-  }
-
   private subscribeToWorkflowListLiveEvents(): void {
+    if (this.liveEventsSubscription) {
+      return;
+    }
+
     this.liveEventsSubscription = this.serverSentEventsWorkflowService.connectToWorkflowListLive(this.user).subscribe(
       (workflow: Workflow) => {
         console.log('Live workflow list event received', workflow);
@@ -70,8 +66,12 @@ export class HomeComponent implements OnInit {
     );
   }
 
+  private get isAtRoot(): boolean {
+    return (this.router.url == '/');
+  }
+
   get shouldLoadSidebar(): boolean {
-    return (this.user && this.areWorkflowsInitiatied)
+    return (this.user && this.areWorkflowsInitiatied && (this.isAtRoot || this.router.url.startsWith('/workflow')))
   }
 
   get shouldLoadWelcomeMessage(): boolean {
