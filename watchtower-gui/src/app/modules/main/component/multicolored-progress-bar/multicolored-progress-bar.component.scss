@@ -2,7 +2,7 @@
 
 .multi-progress-bar {
   width: 100%;
-  height: 40px;
+  height: 36px;
   display: flex;
 
   border: 1px solid $thin-grey;
@@ -16,8 +16,8 @@
   transition: flex-grow .6s ease;
 
   .figure {
-    font-weight: bold;
-    font-size: 1.2em;
+    font-weight: bolder;
+    font-size: 1.1em;
   }
 
   &.running {
