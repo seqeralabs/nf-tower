@@ -2,7 +2,7 @@ config ?= compile
 
 clean:
 	./gradlew clean
-	docker rm nf-tower_mysql_1 || true
+	docker rm nf-tower_db_1 || true
 
 test:
 	./gradlew test
