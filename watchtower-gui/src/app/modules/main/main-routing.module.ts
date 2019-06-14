@@ -13,12 +13,12 @@ import {HomeComponent} from "./component/home/home.component";
 const routes: Routes = [
   {path: '',                component: HomeComponent,
    children: [
-     {path: 'workflow/:id', component: WorkflowDetailComponent}
+     {path: 'workflow/:id', component: WorkflowDetailComponent},
+     {path: 'profile',      component: UserProfileComponent, canActivate: [AuthGuard]},
+     {path: 'login',        component: LoginComponent},
    ]
   },
-  {path: 'profile',      component: UserProfileComponent, canActivate: [AuthGuard]},
   {path: 'auth',         component: AuthComponent},
-  {path: 'login',        component: LoginComponent},
   {path: 'logout',       component: LogoutComponent},
 
   {path: '**', redirectTo: ''}

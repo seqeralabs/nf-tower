@@ -1,4 +1,7 @@
-<div id="layout">
+<wt-landing *ngIf="shouldLoadLandingPage"></wt-landing>
+
+<wt-navbar *ngIf="!shouldLoadLandingPage"></wt-navbar>
+<div *ngIf="!shouldLoadLandingPage" id="layout">
   <div id="sidebar" *ngIf="shouldLoadSidebar">
     <wt-sidebar [workflows]="workflows"></wt-sidebar>
   </div>
