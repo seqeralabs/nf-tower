@@ -42,3 +42,10 @@ environment:
 - The link is handled by the front-end which make a post. See `auth.component.ts`
 
 EMAIL -- (HOST/auth?email=XX&authToken=YY) --> FRONTEND -- (POST: HOST/login?username=email&password=authToken) --> BACKEND --> AuthenticationProviderByAuthToken
+
+
+## Landing page 
+
+It's static html page contained at the path: 
+  
+  watchtower-gui/src/assets/landing/
