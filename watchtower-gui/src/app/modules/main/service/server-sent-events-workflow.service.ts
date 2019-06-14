@@ -43,7 +43,7 @@ export class ServerSentEventsWorkflowService {
         }
       });
       eventSource.addEventListener('error', () => {
-        subscriber.error(new SseError({type: SseErrorType.UNEXPECTED, message: 'Unexpected SSE error happened'}));
+        console.log('Event source error. Possible idle timeout', new Date().toISOString());
       });
 
       return () => {

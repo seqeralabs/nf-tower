@@ -17,12 +17,12 @@ export class NotificationService {
   }
 
 
-  showSuccessNotification(message: string, msDelay: number = 3000): void {
-    this.showNotification(new Notification(NotificationType.SUCCESS, message, msDelay));
+  showSuccessNotification(message: string, autohide: boolean = true, msDelay: number = 3000): void {
+    this.showNotification(new Notification(NotificationType.SUCCESS, message, autohide, msDelay));
   }
 
-  showErrorNotification(message: string, msDelay: number = 3000): void {
-    this.showNotification(new Notification(NotificationType.ERROR, message, msDelay));
+  showErrorNotification(message: string, autohide: boolean = true, msDelay: number = 3000): void {
+    this.showNotification(new Notification(NotificationType.ERROR, message, autohide, msDelay));
   }
 
   private showNotification(notification: Notification): void {

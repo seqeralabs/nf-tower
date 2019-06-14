@@ -7,12 +7,14 @@ export class Notification {
   id: number;
   type: NotificationType;
   message: string;
+  autohide: boolean;
   msDelay: number;
 
-  constructor(type: NotificationType, message: string, msDelay: number) {
+  constructor(type: NotificationType, message: string, autohide: boolean, msDelay: number) {
     this.id = Notification.nextId++;
     this.type = type;
     this.message = message;
+    this.autohide = autohide;
     this.msDelay = msDelay;
   }
 
