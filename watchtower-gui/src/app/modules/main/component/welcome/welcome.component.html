@@ -7,11 +7,26 @@
     <div class="card-body">
       <h5 class="card-title">Welcome in Nextflow Tower</h5>
       <p class="card-text">
-        Launch your workflow and watch it on Tower! Just add the <code>-with-tower</code> option to your usual Nextflow command line.
+        Nextflow Tower allows you to monitor the execution of any of your Nextflow data analysis pipelines.
       </p>
-      <p class="card-text">
-        Your access token is: <code>{{user.data.nfAccessToken}}</code>
+
+      <h6>1. Download latest version of Nextflow</h6>
+      <p>
+        To use Nextflow Tower download the latest Nextflow snapshot.
       </p>
+
+      <h6>2. Set the Tower access token in your environment</h6>
+
+      <pre class="p-3 bg-light text-dark">export TOWER_ACCESS_TOKEN={{user.data.userName}}:{{user.data.nfAccessToken}}</pre>
+
+      <h6>3. Run Nextflow with Tower option</h6>
+      <p>
+        Launch nextflow as usual adding the -with-tower command line option
+      </p>
+      <pre class="p-3 bg-light text-dark">nextflow run hello -with-tower</pre>
+
+      <h6>Enjoy it!</h6>
+
     </div>
   </div>
   
