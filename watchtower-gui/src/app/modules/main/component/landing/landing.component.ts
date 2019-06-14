@@ -7,7 +7,7 @@ import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 })
 export class LandingComponent implements OnInit {
 
-  @ViewChild('landing')
+  @ViewChild('iframe')
   iframe: ElementRef;
 
   constructor() { }
@@ -15,7 +15,10 @@ export class LandingComponent implements OnInit {
   ngOnInit() {
   }
 
-  resizeFrame() {
+  /**
+   * Set the height of the iframe to the height of its content in order to integrate the window scrollbar with the iframe content
+   */
+  resizeIFrame() {
     const contentIframeHeight: number = this.iframe.nativeElement.contentWindow.document.body.scrollHeight;
     this.iframe.nativeElement.height = contentIframeHeight;
   }
