@@ -79,6 +79,7 @@ class TraceController {
 
             publishWorkflowEvent(workflow, user)
         } catch (Exception e) {
+            log.error("Failed to handle workflow trace=$trace", e)
             response = HttpResponse.badRequest(TraceWorkflowResponse.ofError(e.message))
         }
 
@@ -122,6 +123,7 @@ class TraceController {
             response = HttpResponse.created(TraceTaskResponse.ofSuccess(task.workflowId.toString()))
             publishTaskEvent(task)
         } catch (Exception e) {
+            log.error("Failed to handle trace trace=$trace", e)
             response = HttpResponse.badRequest(TraceTaskResponse.ofError(e.message))
         }
 
@@ -152,7 +154,7 @@ class TraceController {
             flowable = Flowable.just(Event.of(TraceSseResponse.ofError(SseErrorType.NONEXISTENT, message)))
         } catch (Exception e) {
             String message = "Unexpected error while obtaining event emitter: ${workflowDetailFlowableKey}"
-            log.error("${message} | ${e.message}")
+            log.error("${message} | ${e.message}", e)
             flowable = Flowable.just(Event.of(TraceSseResponse.ofError(SseErrorType.UNEXPECTED, message)))
         }
 
@@ -179,7 +181,7 @@ class TraceController {
             flowable = serverSentEventsService.getFlowable(workflowListFlowableKey, throttleWorkflowListFlowableTimeout)
         } catch (Exception e) {
             String message = "Unexpected error while obtaining event emitter: ${workflowListFlowableKey}"
-            log.error("${message} | ${e.message}")
+            log.error("${message} | ${e.message}", e)
 
             flowable = Flowable.just(Event.of(TraceSseResponse.ofError(SseErrorType.UNEXPECTED, message)))
         }
