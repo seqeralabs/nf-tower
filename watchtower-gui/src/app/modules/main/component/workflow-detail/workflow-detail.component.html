@@ -52,9 +52,12 @@
 
     <div *ngIf="workflow.isFailed" class="row">
       <div class="col-sm">
-        <p>Error
-        <p>
-        <div class="error-report">{{workflow.data.errorReport}}</div>
+        <div class="card border-danger my-3" >
+          <div class="card-header text-danger">Execution failed</div>
+          <div class="card-body">
+            <pre class="card-text">{{workflow.data.errorReport}}</pre>
+          </div>
+        </div>
       </div>
     </div>
 
