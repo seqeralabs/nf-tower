@@ -16,9 +16,7 @@ See: `docker-compose.yml` file
 
     make dev-up 
 
-Note: note the very first time it can take some minutes to download all the front-end modules. 
-
-See: `docker-livedev.yml` file
+See: `docker-livedev.yml` file for details. 
 
 
 ## Backend settings  
@@ -44,14 +42,9 @@ mail:
 ```
 
 ## Basic use case
-
-Load data from nextflow:
-
-    ./nextflow-19.05.0-TOWER-all run hello -with-tower http://localhost:8000/api/trace/save
     
-Navigate to GUI in `http://localhost:8000`.
+Navigate to GUI in `http://localhost:8000` and follow the instructions.
 
-Play around.
 
 ## Tower Mock Server 
 

@@ -26,12 +26,10 @@ Config:
   - watchtower-service/src/main/resources/application.yml
   - watchtower-service/src/main/resources/application-livedev.yml
 
-## MongoDB
+## MySQL
 
-environment:
-
-  - MONGO_HOST: mongo
-  - MONGO_PORT: 27017
+    MYSQL_HOST: db
+    MYSQL_PORT: 3306
  
 
 ## Email authentication
