@@ -43,14 +43,14 @@ services:
       context: ./watchtower-gui
       dockerfile: Dockerfile-livedev
     image: tower-frontend:livedev
-    command: bash -c 'npm i; ng serve --live-reload --watch --poll 3000 --host 0.0.0.0 --port 4200 --proxy-config proxy.conf.json -c livedev'
+    command: bash -c 'npm i; ng serve --live-reload --watch --poll 3000 --host 0.0.0.0 --port 8000 --proxy-config proxy.conf.json -c livedev'
     volumes:
       - $PWD/watchtower-gui:$PWD/watchtower-gui
     working_dir: $PWD/watchtower-gui
     networks:
       - frontend
     ports:
-      - 4200:4200
+      - 8000:8000
     depends_on:
       - backend
 
