@@ -15,6 +15,7 @@ import grails.gorm.DetachedCriteria
 import grails.gorm.PagedResultList
 import javax.inject.Inject
 import javax.inject.Singleton
+
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
 import io.seqera.watchtower.domain.Progress

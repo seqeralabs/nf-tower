@@ -243,14 +243,6 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         Task.withNewTransaction {
             Task.count() == 1
         }
-
-        and: "the workflow progress info was updated"
-        task.workflow.progress.running == 1
-        task.workflow.progress.submitted == 0
-        task.workflow.progress.failed == 0
-        task.workflow.progress.pending == 1
-        task.workflow.progress.succeeded == 0
-        task.workflow.progress.cached == 0
     }
 
     void "submit several tasks at once with a multitask trace"() {
@@ -270,17 +262,6 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         then: "the tasks have been correctly saved"
         tasks.size() == 7
         tasks.every { it.status == TaskStatus.RUNNING }
-        Task.withNewTransaction {
-            Task.count() == 7
-        }
-
-        and: "the workflow progress info has been updated"
-        aTask.workflow.progress.running == 7
-        aTask.workflow.progress.submitted == 0
-        aTask.workflow.progress.failed == 0
-        aTask.workflow.progress.pending == 8
-        aTask.workflow.progress.succeeded == 0
-        aTask.workflow.progress.cached == 0
     }
 
     void "try to submit a task without taskId"() {
