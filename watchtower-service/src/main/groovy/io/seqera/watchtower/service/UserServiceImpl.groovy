@@ -130,7 +130,7 @@ class UserServiceImpl implements UserService {
     }
 
     protected String buildAccessUrl(User user) {
-        String accessUrl = "${frontendUrl}/auth?email=${user.email}&authToken=${user.authToken}"
+        String accessUrl = "${frontendUrl}/auth?email=${URLEncoder.encode(user.email,'UTF-8')}&authToken=${user.authToken}"
         return new URI(accessUrl).toString()
     }
 

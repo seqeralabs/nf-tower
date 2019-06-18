@@ -101,4 +101,17 @@ class UserServiceImplTest extends Specification {
         }
 
     }
+
+    def 'should encode url' () {
+        given:
+        def service = new UserServiceImpl(frontendUrl: 'http://host.com')
+
+        expect:
+        service.buildAccessUrl(new User(email:EMAIL, authToken: 'abc')) == EXPECTED
+
+        where:
+        EMAIL               | EXPECTED
+        'yo@gmail.com'      | 'http://host.com/auth?email=yo%40gmail.com&authToken=abc'
+        'yo+xyz@gmail.com'  | 'http://host.com/auth?email=yo%2Bxyz%40gmail.com&authToken=abc'
+    }
 }
