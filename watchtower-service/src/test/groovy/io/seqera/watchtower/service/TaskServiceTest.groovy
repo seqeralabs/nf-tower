@@ -250,7 +250,7 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         Workflow workflow = new DomainCreator().createWorkflow()
 
         and: "a task JSON submitted trace"
-        TraceTaskRequest taskTraceJson = TracesJsonBank.extractTaskJsonTrace('multitasks', 67811121314, workflow.id, TaskTraceSnapshotStatus.MULTITASK)
+        TraceTaskRequest taskTraceJson = TracesJsonBank.extractTaskJsonTrace('multitasks', 3567912, workflow.id, TaskTraceSnapshotStatus.MULTITASK)
 
         when: "unmarshall the JSON to a task list"
         List<Task> tasks
@@ -259,7 +259,7 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         }
 
         then: "the tasks have been correctly saved"
-        tasks.size() == 7
+        tasks.size() == 6
         tasks.every { it.status == TaskStatus.RUNNING }
     }
 

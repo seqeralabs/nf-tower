@@ -42,7 +42,8 @@
             "peakRss": 203890688,
             "volCtxt": 3,
             "invCtxt": 312,
-            "nativeId": 14328
+            "nativeId": 14328,
+            "workflowId": "12345"
         }
     ],
     "workflowId": "12345",
