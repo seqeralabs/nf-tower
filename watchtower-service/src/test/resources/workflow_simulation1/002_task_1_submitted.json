@@ -1,0 +1,41 @@
+{
+    "tasks": [
+        {
+            "taskId": 1,
+            "status": "SUBMITTED",
+            "hash": "6e/7c3112",
+            "name": "sayHello (1)",
+            "exit": 2147483647,
+            "submit": 1559113870047,
+            "start": 0,
+            "process": "sayHello",
+            "tag": null,
+            "module": [
+
+            ],
+            "container": "nextflow/bash",
+            "attempt": 1,
+            "script": "\n    echo 'Bonjour world!'\n    ",
+            "scratch": null,
+            "workdir": "/home/salenda/Programs/nextflow/work/6e/7c311281a3e208480d1bba1aeea0b5",
+            "queue": null,
+            "cpus": 1,
+            "memory": null,
+            "disk": null,
+            "time": null,
+            "env": null,
+            "nativeId": null,
+            "workflowId": "12345"
+        }
+    ],
+    "workflowId": "12345",
+    "utcTime": "2019-05-29T07:11:10Z",
+    "progress": {
+        "pending": 3,
+        "submitted": 1,
+        "running": 0,
+        "succeeded": 0,
+        "failed": 0,
+        "cached": 0
+    }
+}
