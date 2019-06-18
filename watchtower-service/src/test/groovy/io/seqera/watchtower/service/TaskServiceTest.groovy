@@ -257,7 +257,6 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         Task.withNewTransaction {
             tasks = taskService.processTaskJsonTrace(taskTraceJson)
         }
-        Task aTask = tasks[0]
 
         then: "the tasks have been correctly saved"
         tasks.size() == 7
