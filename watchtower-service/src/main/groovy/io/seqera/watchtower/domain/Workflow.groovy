@@ -164,7 +164,9 @@ class Workflow {
 
     static mapping = {
         version false
-        errorReport type: 'text'
+        errorReport(type: 'text')
+        params(type: 'text')
+        configFiles(type: 'text')
     }
 
 }
