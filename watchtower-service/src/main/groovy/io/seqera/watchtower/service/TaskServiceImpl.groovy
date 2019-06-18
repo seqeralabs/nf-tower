@@ -21,7 +21,6 @@ import groovy.transform.CompileDynamic
 import io.seqera.watchtower.domain.Progress
 import io.seqera.watchtower.domain.Task
 import io.seqera.watchtower.domain.Workflow
-import io.seqera.watchtower.pogo.exceptions.NonExistingTaskException
 import io.seqera.watchtower.pogo.exceptions.NonExistingWorkflowException
 import io.seqera.watchtower.pogo.exchange.trace.TraceTaskRequest
 
@@ -48,6 +47,26 @@ class TaskServiceImpl implements TaskService {
 
     @CompileDynamic
     private Task saveFromJson(Task task, String workflowId, Progress progress) {
+        task.checkIsSubmitted() ? createFromJson(task, workflowId, progress) : updateFromJson(task, workflowId, progress)
+    }
+
+    @CompileDynamic
+    private Task createFromJson(Task task, String workflowId, Progress progress) {
+        Workflow existingWorkflow = Workflow.get(workflowId)
+        if (!existingWorkflow) {
+            throw new NonExistingWorkflowException("Can't create task associated with non existing workflow")
+        }
+
+        existingWorkflow.progress = progress
+        task.workflow = existingWorkflow
+
+        existingWorkflow.save()
+        task.save()
+        return task
+    }
+
+    @CompileDynamic
+    private Task updateFromJson(Task task, String workflowId, Progress progress) {
         Workflow existingWorkflow = Workflow.get(workflowId)
         if (!existingWorkflow) {
             throw new NonExistingWorkflowException("Can't find workflow associated with the task")
