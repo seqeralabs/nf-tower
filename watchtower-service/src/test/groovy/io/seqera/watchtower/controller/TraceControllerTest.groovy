@@ -157,7 +157,7 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         User user = new DomainCreator().generateAllowedUser()
 
         and: 'a nextflow simulator'
-        NextflowSimulator nextflowSimulator = new NextflowSimulator(user: user, workflowLabel: 'simulation1', client: client.toBlocking(), sleepBetweenRequests: 0)
+        NextflowSimulator nextflowSimulator = new NextflowSimulator(user: user, workflowLabel: 'simulation', client: client.toBlocking(), sleepBetweenRequests: 0)
 
         when: 'simulate nextflow'
         nextflowSimulator.simulate()
@@ -176,7 +176,7 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         User user = new DomainCreator().generateAllowedUser()
 
         and: 'a nextflow simulator'
-        NextflowSimulator nextflowSimulator = new NextflowSimulator(user: user, workflowLabel: 'simulation1', client: client.toBlocking(), sleepBetweenRequests: 0)
+        NextflowSimulator nextflowSimulator = new NextflowSimulator(user: user, workflowLabel: 'simulation', client: client.toBlocking(), sleepBetweenRequests: 0)
 
         when: 'subscribe to the live events for the workflow list endpoint'
         TestSubscriber listSubscriber = sseClient.eventStream("/trace/live/workflowList/${user.id}", TraceSseResponse.class).test()

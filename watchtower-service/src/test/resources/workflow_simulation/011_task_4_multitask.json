@@ -24,7 +24,8 @@
             "disk": null,
             "time": null,
             "env": null,
-            "nativeId": 18270
+            "nativeId": 18270,
+            "workflowId": "12345"
         }
     ],
     "workflowId": "12345",
