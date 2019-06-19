@@ -25,6 +25,7 @@ import io.seqera.watchtower.util.AbstractContainerBaseTest
 import io.seqera.watchtower.util.DomainCreator
 import io.seqera.watchtower.util.TaskTraceSnapshotStatus
 import io.seqera.watchtower.util.TracesJsonBank
+import spock.lang.IgnoreRest
 import spock.lang.Unroll
 
 import javax.inject.Inject
@@ -322,17 +323,27 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         }
 
         when: 'search for the tasks associated with the workflow'
-        PagedResultList<Task> obtainedTasks = taskService.findTasks(workflow.id, max, offset)
+        PagedResultList<Task> obtainedTasks = taskService.findTasks(workflow.id, max, offset, sort, order)
 
         then: 'the obtained tasks are as expected'
         obtainedTasks.totalCount == nTasks
         obtainedTasks.size() == max
-        obtainedTasks.id == tasks[offset..<(offset + max)].id
+        if (order == 'asc') assert obtainedTasks.id == tasks[offset..<(offset + max)].sort {
+            it."${sort ?: 'taskId'}"
+        }.id
+        else if (order == 'desc') assert obtainedTasks.id == tasks[offset..<(offset + max)].sort {
+            it."${sort ?: 'taskId'}"
+        }.reverse().id
 
         where: 'the pagination params are'
-        nTasks | max | offset
-        20     | 10  | 0
-        20     | 10  | 10
+        nTasks | max | offset | sort | order
+        20     | 10  | 0      | null | null
+        20     | 10  | 10     | null | null
+        20     | 10  | 0      | null | 'asc'
+        20     | 10  | 10     | null | 'desc'
+        20     | 10  | 0      | 'hash' | null
+        20     | 10  | 0      | 'hash' | 'asc'
+        20     | 10  | 0      | 'hash' | 'desc'
     }
 
     @Unroll
