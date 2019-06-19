@@ -93,12 +93,12 @@ class TaskServiceImpl implements TaskService {
     }
 
     @CompileDynamic
-    PagedResultList<Task> findTasks(Long workflowId, Long max, Long offset) {
+    PagedResultList<Task> findTasks(Long workflowId, Long max, Long offset, String sort = null, String order = null) {
         new DetachedCriteria<Task>(Task).build {
             workflow {
                 eq('id', workflowId)
             }
-        }.list(max: max, offset: offset, sort: 'taskId')
+        }.list(max: max, offset: offset, sort: sort?: 'taskId', order: order?: 'asc')
     }
 
 }
