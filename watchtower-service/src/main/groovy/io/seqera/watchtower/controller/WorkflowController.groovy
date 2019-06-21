@@ -84,7 +84,7 @@ class WorkflowController {
         Long max = filterParams.getFirst('start', Long.class, 10000l)
         Long offset = filterParams.getFirst('length', Long.class, 0l)
 
-        List<TaskGet> result = taskService.findTasks(workflowId, max, offset).collect {
+        List<TaskGet> result = taskService.findTasks(workflowId, max, offset, null, null).collect {
             TaskGet.of(it)
         }
         HttpResponse.ok(TaskList.of(result))
