@@ -83,8 +83,20 @@ class WorkflowController {
     HttpResponse<TaskList> tasks(Long workflowId, HttpParameters filterParams) {
         Long max = filterParams.getFirst('start', Long.class, 10000l)
         Long offset = filterParams.getFirst('length', Long.class, 0l)
+        String order = filterParams.getFirst('order[0][dir]', String.class, 'desc')
 
-        List<TaskGet> result = taskService.findTasks(workflowId, max, offset, null, null).collect {
+        /*String sort = 'id'
+        switch (params.'order[0][column]'){
+            case '3':
+                sort = 'manufacturerAlias.sortName'
+                break
+            case '4':
+                sort = 'modelAlias.sortName'
+                break
+        }*/
+
+
+        List<TaskGet> result = taskService.findTasks(workflowId, max, offset, null, order).collect {
             TaskGet.of(it)
         }
         HttpResponse.ok(TaskList.of(result))
