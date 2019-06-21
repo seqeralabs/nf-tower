@@ -10,8 +10,13 @@
  */
 import {AfterContentChecked, AfterViewChecked, AfterViewInit, Component, Input, OnChanges, OnInit} from '@angular/core';
 import {Task} from "../../entity/task/task";
+import {environment} from "../../../../../environments/environment";
+import {Workflow} from "../../entity/workflow/workflow";
+import {AuthService} from "../../service/auth.service";
 
 declare var $: any;
+
+const endpointUrl: string = `${environment.apiUrl}`;
 
 @Component({
   selector: 'wt-tasks-table',
@@ -20,9 +25,11 @@ declare var $: any;
 })
 export class TasksTableComponent implements OnInit, OnChanges {
 
+  @Input()
+  workflow: Workflow;
   dataTable: any;
 
-  constructor() { }
+  constructor(private authService: AuthService) { }
 
   ngOnInit() {
   }
@@ -40,7 +47,15 @@ export class TasksTableComponent implements OnInit, OnChanges {
 
   private initializeDataTable(): void {
     this.dataTable = $('#tasks-table').DataTable({
-      scrollX: true
+      scrollX: true,
+      serverSide: true,
+      ajax: {
+        url: `${endpointUrl}/workflow/${this.workflow.data.workflowId}/tasks`,
+        headers: {
+          'Authorization':'Bearer ' + `${this.authService.currentUser.data.jwtAccessToken}`
+        },
+        dataType: 'json'
+      }
     });
   }
 
