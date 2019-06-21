@@ -331,7 +331,7 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         if (order == 'asc') assert obtainedTasks.id == tasks[offset..<(offset + max)].sort {
             it."${sort ?: 'taskId'}"
         }.id
-        else if (order == 'desc') assert obtainedTasks.id == tasks[offset..<(offset + max)].sort {
+        else if (order == 'desc') assert obtainedTasks.id == tasks.reverse()[offset..<(offset + max)].sort {
             it."${sort ?: 'taskId'}"
         }.reverse().id
 
