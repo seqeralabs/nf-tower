@@ -9,15 +9,19 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 
-package io.seqera.watchtower.service
+package io.seqera.watchtower.domain
 
-import io.seqera.watchtower.domain.ProcessProgress
-import io.seqera.watchtower.domain.TasksProgress
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import grails.gorm.annotation.Entity
+import groovy.transform.CompileDynamic
 
-interface ProgressService {
+@Entity
+@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version'])
+@CompileDynamic
+class ProcessProgress {
 
-    TasksProgress computeTasksProgress(Long workflowId)
-
-    List<ProcessProgress> computeProcessesProgress(Long workflowId)
+    String process
+    Long completed = 0
+    Long total = 0
 
 }
