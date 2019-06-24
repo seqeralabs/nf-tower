@@ -14,9 +14,10 @@ package io.seqera.watchtower.pogo.exchange.task
 class TaskList {
 
     List<TaskGet> tasks
+    Long total
 
-    static TaskList of(List<TaskGet> tasks) {
-        new TaskList(tasks: tasks)
+    static TaskList of(List<TaskGet> tasks, Long total) {
+        new TaskList(tasks: tasks, total: total)
     }
 
 }

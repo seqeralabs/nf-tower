@@ -11,15 +11,18 @@
 
 package io.seqera.watchtower.controller
 
+import grails.gorm.PagedResultList
 import grails.gorm.transactions.Transactional
 import groovy.util.logging.Slf4j
-import io.micronaut.http.HttpParameters
 import io.micronaut.http.HttpResponse
+import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
+import io.micronaut.http.annotation.Post
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.micronaut.security.rules.SecurityRule
+import io.seqera.watchtower.domain.Task
 import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.exchange.task.TaskGet
 import io.seqera.watchtower.pogo.exchange.task.TaskList
@@ -77,29 +80,35 @@ class WorkflowController {
         HttpResponse.ok(progressService.buildWorkflowGet(workflow))
     }
 
-    @Get("/{workflowId}/tasks")
+    @Post("/{workflowId}/tasks")
     @Transactional
     @Secured(SecurityRule.IS_ANONYMOUS)
-    HttpResponse<TaskList> tasks(Long workflowId, HttpParameters filterParams) {
-        Long max = filterParams.getFirst('start', Long.class, 10000l)
-        Long offset = filterParams.getFirst('length', Long.class, 0l)
-        String order = filterParams.getFirst('order[0][dir]', String.class, 'desc')
+    HttpResponse<TaskList> tasks(Long workflowId, @Body Map filterParams) {
+        Long max = filterParams.length ? filterParams.length as Long : 10000l
+        Long offset = filterParams.start ? filterParams.start as Long : 0l
+        List<Map> orderList = filterParams.order as List<Map>
+        String order = 'desc'
+        String sort = 'taskId'
 
-        /*String sort = 'id'
-        switch (params.'order[0][column]'){
-            case '3':
-                sort = 'manufacturerAlias.sortName'
-                break
-            case '4':
-                sort = 'modelAlias.sortName'
-                break
-        }*/
+        //TODO: Complete all columns or search if is possible to send the column name
+        if (filterParams.order) {
+            order = orderList.first().dir
+            switch (orderList.first().column) {
+                case '0':
+                    sort = 'taskId'
+                    break
+                case '1':
+                    sort = 'process'
+                    break
+            }
+        }
 
+        PagedResultList<Task> taskPagedResultList = taskService.findTasks(workflowId, max, offset, sort, order)
 
-        List<TaskGet> result = taskService.findTasks(workflowId, max, offset, null, order).collect {
+        List<TaskGet> result = taskPagedResultList.collect {
             TaskGet.of(it)
         }
-        HttpResponse.ok(TaskList.of(result))
+        HttpResponse.ok(TaskList.of(result, taskPagedResultList.totalCount))
     }
 
 }
