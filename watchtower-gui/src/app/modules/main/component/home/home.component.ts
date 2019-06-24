@@ -20,6 +20,7 @@ import {Task} from "../../entity/task/task";
 import {SseError} from "../../entity/sse/sse-error";
 import {Subscription} from "rxjs";
 import {NotificationService} from "../../service/notification.service";
+import {SseHeartbeat} from "../../entity/sse/sse-heartbeat";
 
 @Component({
   selector: 'wt-home',
@@ -66,15 +67,21 @@ export class HomeComponent implements OnInit {
     }
 
     this.liveEventsSubscription = this.serverSentEventsWorkflowService.connectToWorkflowListLive(this.user).subscribe(
-      (workflow: Workflow) => {
-        console.log('Live workflow list event received', workflow);
-        this.workflowService.updateWorkflow(workflow);
-      },
+      (data: Workflow | SseHeartbeat) => this.reactToEvent(data),
       (error: SseError) => {
         console.log('Live workflow list error event received', error);
         this.notificationService.showErrorNotification(error.message, false);
       }
     );
+  }
+
+  private reactToEvent(data: Workflow | SseHeartbeat) {
+    if (data instanceof Workflow) {
+      console.log('Live workflow list event received', data);
+      this.workflowService.updateWorkflow(data);
+    } else if (data instanceof SseHeartbeat) {
+      console.log('Heartbeat event received', data);
+    }
   }
 
   private get isAtRoot(): boolean {

@@ -14,6 +14,7 @@ package io.seqera.watchtower.service
 import grails.gorm.transactions.Transactional
 import io.micronaut.http.sse.Event
 import io.micronaut.test.annotation.MicronautTest
+import io.reactivex.Flowable
 import io.reactivex.subscribers.TestSubscriber
 import io.seqera.watchtower.Application
 import io.seqera.watchtower.pogo.exceptions.NonExistingFlowableException
@@ -38,7 +39,7 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
         serverSentEventsService.createFlowable(key, Duration.ofMinutes(1))
 
         then: 'the flowable can be retrieved'
-        serverSentEventsService.getFlowable(key, Duration.ofMinutes(0))
+        serverSentEventsService.getThrottledFlowable(key, Duration.ofMinutes(0))
     }
 
     void "create a flowable and publish some data for it"() {
@@ -49,7 +50,7 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
         serverSentEventsService.createFlowable(key, Duration.ofMinutes(1))
 
         and: 'subscribe to the flowable in order to retrieve the data'
-        TestSubscriber subscriber = serverSentEventsService.getFlowable(key, Duration.ofMinutes(0)).test()
+        TestSubscriber subscriber = serverSentEventsService.getThrottledFlowable(key, Duration.ofMinutes(0)).test()
 
         when: 'publish some data for it'
         Event event = Event.of([text: 'Data published'])
@@ -68,7 +69,7 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
         serverSentEventsService.createFlowable(key, Duration.ofMinutes(1))
 
         and: 'subscribe to the flowable in order to retrieve the data'
-        TestSubscriber subscriber = serverSentEventsService.getFlowable(key, Duration.ofMinutes(0)).test()
+        TestSubscriber subscriber = serverSentEventsService.getThrottledFlowable(key, Duration.ofMinutes(0)).test()
 
         when: 'complete the flowable'
         serverSentEventsService.completeFlowable(key)
@@ -77,7 +78,7 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
         subscriber.assertComplete()
 
         when: 'try to get the flowable again'
-        serverSentEventsService.getFlowable(key, Duration.ofMinutes(0))
+        serverSentEventsService.getThrottledFlowable(key, Duration.ofMinutes(0))
 
         then: 'the flowable is no longer present'
         thrown(NonExistingFlowableException)
@@ -94,7 +95,7 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
         serverSentEventsService.createFlowable(key, Duration.ofMinutes(1))
 
         and: 'subscribe to the flowable in order to retrieve data'
-        TestSubscriber subscriber = serverSentEventsService.getFlowable(key, throttleTime).test()
+        TestSubscriber subscriber = serverSentEventsService.getThrottledFlowable(key, throttleTime).test()
 
         when: 'publish some data for it'
         serverSentEventsService.publishEvent(key, Event.of([text: 'Data published 1']))
@@ -125,13 +126,38 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
         serverSentEventsService.createFlowable(key, idleTimeout)
 
         and: 'subscribe to the flowable in order to retrieve data'
-        TestSubscriber subscriber = serverSentEventsService.getFlowable(key, Duration.ofMinutes(0)).test()
+        TestSubscriber subscriber = serverSentEventsService.getThrottledFlowable(key, Duration.ofMinutes(0)).test()
 
         when: 'sleep until the timeout plus a prudential time to make sure it was reached'
         sleep(idleTimeout.toMillis() + 100)
 
         then: 'the flowable has been completed'
         subscriber.assertComplete()
+    }
+
+    void "create a heartbeat flowable and receive the herartbeat events"() {
+        given: 'a heartbeat interval'
+        Duration interval = Duration.ofMillis(250)
+
+        and: 'the heatbeat flowable'
+        Flowable heartbeatFlowable = serverSentEventsService.generateHeartbeatFlowable(interval, { Event.of([text: "Heartbeat ${it}"]) })
+
+        when: 'subscribe to the flowable'
+        TestSubscriber subscriber = heartbeatFlowable.test()
+
+        and: 'sleep a prudential time to generate a heartbeat'
+        sleep(interval.toMillis() + 1)
+
+        then: 'the data has been generated'
+        subscriber.assertValueCount(1)
+        subscriber.events.first()[0].data.text == 'Heartbeat 0'
+
+        and: 'sleep a prudential time to generate another heartbeat'
+        sleep(interval.toMillis() + 1)
+
+        then: 'the data has been generated'
+        subscriber.assertValueCount(2)
+        subscriber.events.first()[1].data.text == 'Heartbeat 1'
     }
 
 }

@@ -17,12 +17,14 @@ import io.seqera.watchtower.pogo.enums.SseErrorType
 import io.seqera.watchtower.pogo.exchange.task.TaskGet
 import io.seqera.watchtower.pogo.exchange.workflow.WorkflowGet
 
+import java.time.Instant
+
 class TraceSseResponse {
 
     WorkflowGet workflow
     TaskGet task
+    SseHeartbeat heartbeat
     SseError error
-
 
     static TraceSseResponse ofWorkflow(Workflow workflow) {
         new TraceSseResponse(workflow: WorkflowGet.of(workflow))
@@ -37,5 +39,12 @@ class TraceSseResponse {
 
         new TraceSseResponse(error: sseError)
     }
+
+    static TraceSseResponse ofHeartbeat(String message) {
+        SseHeartbeat sseHeartbeat = new SseHeartbeat(message: message, timestamp: Instant.now())
+
+        new TraceSseResponse(heartbeat: sseHeartbeat)
+    }
+
 
 }

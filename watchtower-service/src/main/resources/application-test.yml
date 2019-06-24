@@ -48,3 +48,5 @@ sse:
     throttle:
       workflow-detail: 0s
       workflow-list: 0s
+    heartbeat:
+      workflow-list: 1m

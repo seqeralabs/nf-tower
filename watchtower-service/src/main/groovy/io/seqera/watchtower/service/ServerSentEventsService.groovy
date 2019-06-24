@@ -22,7 +22,9 @@ interface ServerSentEventsService {
 
     void publishEvent(String key, Event data)
 
-    Flowable getFlowable(String key, Duration throttleTime)
+    Flowable getThrottledFlowable(String key, Duration throttleTime)
+
+    Flowable generateHeartbeatFlowable(Duration interval, Closure<Event> heartbeatGenerator)
 
     void completeFlowable(String key)
 
