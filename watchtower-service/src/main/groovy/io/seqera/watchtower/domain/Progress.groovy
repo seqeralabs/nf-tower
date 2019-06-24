@@ -20,17 +20,17 @@ import groovy.transform.CompileDynamic
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
-@Deprecated
 @Entity
 @JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version'])
 @CompileDynamic
 class Progress {
 
-    Integer running
-    Integer submitted
-    Integer failed
-    Integer pending
-    Integer succeeded
-    Integer cached
+    Integer running = 0
+    Integer submitted = 0
+    Integer failed = 0
+    Integer pending = 0
+    Integer succeeded = 0
+    Integer cached = 0
+
 
 }

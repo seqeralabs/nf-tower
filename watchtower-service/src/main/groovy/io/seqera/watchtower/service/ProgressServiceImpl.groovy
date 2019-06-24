@@ -12,27 +12,35 @@
 package io.seqera.watchtower.service
 
 import grails.gorm.DetachedCriteria
+import grails.gorm.transactions.Transactional
+import groovy.transform.CompileDynamic
 import io.seqera.watchtower.domain.Progress
 import io.seqera.watchtower.domain.Task
 import io.seqera.watchtower.domain.Workflow
+import io.seqera.watchtower.pogo.enums.TaskStatus
 
 import javax.inject.Singleton
 
+@Transactional
 @Singleton
 class ProgressServiceImpl implements ProgressService {
 
-    Progress computeProgress(Workflow workflow) {
-//        def p = new DetachedCriteria<Task>(Task).build {
-//            eq('workflow', workflow)
-//
-//            projections {
-//                groupProperty('status')
-//                countDistinct('status')
-//            }
-//        }.get()
-//
-//        p as Progress
-        null
+    @CompileDynamic
+    Progress computeProgress(Long workflowId) {
+        DetachedCriteria criteria = new DetachedCriteria(Task).build {
+            workflow {
+                eq('id', workflowId)
+            }
+
+            projections {
+                groupProperty('status')
+                countDistinct('id')
+            }
+        }
+        Map progressProperties = criteria.list()
+                .groupBy { Object[] tuple -> tuple[0] }
+                .collectEntries { TaskStatus status, List<Object[]> tuples -> [(status.toProgressString()): tuples.first()[1]] }
+        new Progress(progressProperties)
     }
 
     void computeProcessStatus(Workflow workflow) {
