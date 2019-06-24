@@ -2,7 +2,7 @@
   "tasks": [
     {
       "taskId": 1,
-      "status": "COMPLETED",
+      "status": "FAILED",
       "hash": "2e/a112fb",
       "name": "sayHello (2)",
       "exit": 0,

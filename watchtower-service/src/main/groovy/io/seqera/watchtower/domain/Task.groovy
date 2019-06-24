@@ -101,7 +101,7 @@ class Task {
     }
 
     boolean checkIsFailed() {
-        (status == TaskStatus.COMPLETED) && errorAction
+        status == TaskStatus.FAILED
     }
 
     @JsonSetter('submit')

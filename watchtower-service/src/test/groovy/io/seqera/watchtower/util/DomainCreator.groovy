@@ -75,7 +75,7 @@ class DomainCreator {
         Task task = new Task()
 
         fields.workflow = fields.containsKey('workflow') ? fields.workflow : createWorkflow()
-        fields.taskId = fields.containsKey('taskId') ? fields.taskId : 1
+        fields.taskId = fields.containsKey('taskId') ? fields.taskId : generateUniqueNumber()
         fields.name = fields.containsKey('name') ? fields.name : "taskName_${generateUniqueNamePart()}"
         fields.hash = fields.containsKey('hash') ? fields.hash : "taskHash_${generateUniqueNamePart()}"
         fields.status = fields.containsKey('currentStatus') ? fields.currentStatus : TaskStatus.SUBMITTED
@@ -236,6 +236,10 @@ class DomainCreator {
         collection?.each {
             instance."addTo${collectionName.capitalize()}"(it)
         }
+    }
+
+    private Long generateUniqueNumber() {
+        UniqueIdentifierGenerator.generateUniqueId()
     }
 
     /**
