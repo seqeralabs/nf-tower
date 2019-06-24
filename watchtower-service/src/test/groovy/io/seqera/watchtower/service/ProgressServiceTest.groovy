@@ -14,6 +14,7 @@ package io.seqera.watchtower.service
 import grails.gorm.transactions.Transactional
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.watchtower.Application
+import io.seqera.watchtower.domain.ProcessProgress
 import io.seqera.watchtower.domain.TasksProgress
 import io.seqera.watchtower.domain.Task
 import io.seqera.watchtower.domain.Workflow
@@ -45,15 +46,50 @@ class ProgressServiceTest extends AbstractContainerBaseTest {
         }
 
         when: "compute the tasks progress of the workflow"
-        TasksProgress progress = progressService.computeProgress(workflow.id)
+        TasksProgress progress = progressService.computeTasksProgress(workflow.id)
 
-        then: "the progress has been successfully computes"
+        then: "the progress has been successfully computed"
         progress.pending == 1
         progress.submitted == 2
         progress.running == 2
         progress.cached == 2
         progress.failed == 2
         progress.succeeded == 2
+    }
+
+    void "compute the process progress info of a workflow"() {
+        given: 'create a pending task of a process and associated with a workflow'
+        DomainCreator domainCreator = new DomainCreator()
+        Task task1 = domainCreator.createTask(status: TaskStatus.NEW, process: 'process1')
+        Workflow workflow = task1.workflow
+
+        and: 'two more completed tasks'
+        2.times {
+            domainCreator.createTask(status: TaskStatus.COMPLETED, workflow: workflow, process: 'process1')
+        }
+
+        and: 'a pending task of another process'
+        domainCreator.createTask(status: TaskStatus.NEW, workflow: workflow, process: 'process2')
+
+        and: 'a failed task'
+        domainCreator.createTask(status: TaskStatus.FAILED, workflow: workflow, process: 'process2')
+
+        and: 'two more completed tasks'
+        2.times {
+            domainCreator.createTask(status: TaskStatus.COMPLETED, workflow: workflow, process: 'process2')
+        }
+
+        when: "compute the process progress of the workflow"
+        List<ProcessProgress> processesProgress = progressService.computeProcessesProgress(workflow.id)
+
+        then: "the progress has been successfully computed"
+        processesProgress.size() == 2
+        ProcessProgress progress1 = processesProgress.find { it.process == 'process1' }
+        progress1.total == 3
+        progress1.completed == 2
+        ProcessProgress progress2 = processesProgress.find { it.process == 'process2' }
+        progress2.total == 4
+        progress2.completed == 2
     }
 
 

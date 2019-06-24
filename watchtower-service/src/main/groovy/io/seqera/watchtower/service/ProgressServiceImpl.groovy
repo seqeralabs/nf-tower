@@ -14,6 +14,7 @@ package io.seqera.watchtower.service
 import grails.gorm.DetachedCriteria
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
+import io.seqera.watchtower.domain.ProcessProgress
 import io.seqera.watchtower.domain.Task
 import io.seqera.watchtower.domain.TasksProgress
 import io.seqera.watchtower.pogo.enums.TaskStatus
@@ -25,8 +26,8 @@ import javax.inject.Singleton
 class ProgressServiceImpl implements ProgressService {
 
     @CompileDynamic
-    TasksProgress computeProgress(Long workflowId) {
-        DetachedCriteria criteria = new DetachedCriteria(Task).build {
+    TasksProgress computeTasksProgress(Long workflowId) {
+        List<Object[]> tuples = new DetachedCriteria(Task).build {
             workflow {
                 eq('id', workflowId)
             }
@@ -35,20 +36,26 @@ class ProgressServiceImpl implements ProgressService {
                 groupProperty('status')
                 countDistinct('id')
             }
+        }.list()
+
+        Map<String, Long> progressProperties = tuples.collectEntries { Object[] tuple ->
+            [(tuple[0].toProgressString()): tuple[1]]
         }
-        Map progressProperties = criteria.list()
-                .groupBy { Object[] tuple -> tuple[0] }
-                .collectEntries { TaskStatus status, List<Object[]> tuples -> [(status.toProgressString()): tuples.first()[1]] }
         new TasksProgress(progressProperties)
     }
 
-    void computeProcessesStatus(Long workflowId) {
-        queryProcessesTasksStatus(workflowId, TaskStatus.COMPLETED)
+    List<ProcessProgress> computeProcessesProgress(Long workflowId) {
+        Map<String, Long> totalCountByProcess = queryProcessesTasksStatus(workflowId)
+        Map<String, Long> completedCountByProcess = queryProcessesTasksStatus(workflowId, TaskStatus.COMPLETED)
+
+        totalCountByProcess.collect { String process, Long totalCount ->
+            new ProcessProgress(process: process, total: totalCount, completed: completedCountByProcess[process])
+        }
     }
 
     @CompileDynamic
-    private Map queryProcessesTasksStatus(Long workflowId, TaskStatus status = null) {
-        DetachedCriteria criteria = new DetachedCriteria(Task).build {
+    private Map<String, Long> queryProcessesTasksStatus(Long workflowId, TaskStatus status = null) {
+        List<Object[]> tuples = new DetachedCriteria(Task).build {
             if (status) {
                 eq('status', status)
             }
@@ -58,11 +65,14 @@ class ProgressServiceImpl implements ProgressService {
             }
 
             projections {
-                groupProperty('status')
+                groupProperty('process')
                 countDistinct('id')
             }
-        }
+        }.list()
 
-        [:]
+        Map<String, Long> statusCountByProcess = tuples.collectEntries { Object[] tuple ->
+            [(tuple[0]): tuple[1]]
+        }
+        statusCountByProcess
     }
 }
