@@ -57,13 +57,8 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
             Workflow.count() == 1
         }
 
-        and: "there is progress info"
-        workflow.progress.running == 0
-        workflow.progress.submitted == 0
-        workflow.progress.failed == 0
-        workflow.progress.pending == 0
-        workflow.progress.succeeded == 0
-        workflow.progress.cached == 0
+        and: "there is no progress info"
+        !workflow.progress
     }
 
     void "start a workflow given a started trace, then complete the workflow given a succeeded trace"() {
@@ -114,12 +109,12 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
             SummaryEntry.count() == 1
         }
 
-        and: "there is progress info"
+        and: "there progress info has been computed"
         workflowSucceeded.progress.running == 0
         workflowSucceeded.progress.submitted == 0
         workflowSucceeded.progress.failed == 0
         workflowSucceeded.progress.pending == 0
-        workflowSucceeded.progress.succeeded == 2
+        workflowSucceeded.progress.succeeded == 0
         workflowSucceeded.progress.cached == 0
     }
 
@@ -174,12 +169,12 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
             SummaryEntry.count() == 1
         }
 
-        and: "there is progress info"
+        and: "the progress info has been computed"
         workflowFailed.progress.running == 0
         workflowFailed.progress.submitted == 0
         workflowFailed.progress.failed == 0
         workflowFailed.progress.pending == 0
-        workflowFailed.progress.succeeded == 4
+        workflowFailed.progress.succeeded == 0
         workflowFailed.progress.cached == 0
     }
 

@@ -28,6 +28,13 @@ import javax.inject.Singleton
 @Singleton
 class WorkflowServiceImpl implements WorkflowService {
 
+    ProgressService progressService
+
+    @Inject
+    WorkflowServiceImpl(ProgressService progressService) {
+        this.progressService = progressService
+    }
+
     @CompileDynamic
     Workflow get(Serializable id) {
         Workflow.get(id)
@@ -39,28 +46,27 @@ class WorkflowServiceImpl implements WorkflowService {
     }
 
     Workflow processWorkflowJsonTrace(TraceWorkflowRequest traceWorkflowRequest, User owner) {
-        traceWorkflowRequest.workflow.checkIsStarted() ? createFromJson(traceWorkflowRequest.workflow, traceWorkflowRequest.progress, owner) : updateFromJson(traceWorkflowRequest.workflow, traceWorkflowRequest.progress, traceWorkflowRequest.summary)
+        traceWorkflowRequest.workflow.checkIsStarted() ? createFromJson(traceWorkflowRequest.workflow, owner) : updateFromJson(traceWorkflowRequest.workflow, traceWorkflowRequest.summary)
     }
 
-    private Workflow createFromJson(Workflow workflow, Progress progress, User owner) {
+    private Workflow createFromJson(Workflow workflow, User owner) {
         workflow.submit = workflow.start
 
-        workflow.progress = progress
         workflow.owner = owner
         workflow.save()
         workflow
     }
 
     @CompileDynamic
-    private Workflow updateFromJson(Workflow workflow, Progress progress, List<SummaryEntry> summary) {
+    private Workflow updateFromJson(Workflow workflow, List<SummaryEntry> summary) {
         Workflow existingWorkflow = Workflow.get(workflow.workflowId)
         if (!existingWorkflow) {
             throw new NonExistingWorkflowException("Can't update a non-existing workflow")
         }
 
-        associateSummaryEntries(existingWorkflow, summary)
-        existingWorkflow.progress = progress
         updateChangeableFields(existingWorkflow, workflow)
+        associateSummaryEntries(existingWorkflow, summary)
+        associateProgress(existingWorkflow)
 
         existingWorkflow.save()
         existingWorkflow
@@ -82,6 +88,12 @@ class WorkflowServiceImpl implements WorkflowService {
     private void associateSummaryEntries(Workflow workflow, List<SummaryEntry> summary) {
         summary.each { SummaryEntry summaryEntry ->
             workflow.addToSummaryEntries(summaryEntry)
+        }
+    }
+
+    private void associateProgress(Workflow workflow) {
+        if (!workflow.checkIsStarted()) {
+            workflow.progress = progressService.computeProgress(workflow.id)
         }
     }
 
