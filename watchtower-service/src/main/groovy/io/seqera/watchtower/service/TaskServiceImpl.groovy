@@ -13,6 +13,9 @@ package io.seqera.watchtower.service
 
 import grails.gorm.DetachedCriteria
 import grails.gorm.PagedResultList
+import javax.inject.Inject
+import javax.inject.Singleton
+
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
 import io.seqera.watchtower.domain.Progress
@@ -21,9 +24,6 @@ import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.exceptions.NonExistingTaskException
 import io.seqera.watchtower.pogo.exceptions.NonExistingWorkflowException
 import io.seqera.watchtower.pogo.exchange.trace.TraceTaskRequest
-
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Transactional
 @Singleton
@@ -36,44 +36,35 @@ class TaskServiceImpl implements TaskService {
         this.workflowService = workflowService
     }
 
-    Task processTaskJsonTrace(TraceTaskRequest trace) {
-        trace.task.checkIsSubmitted() ? createFromJson(trace.task, trace.progress) : updateFromJson(trace.task, trace.progress)
-    }
-
-
-    @CompileDynamic
-    private Task createFromJson(Task task, Progress progress) {
-        Workflow existingWorkflow = Workflow.get(task.relatedWorkflowId)
-        if (!existingWorkflow) {
-            throw new NonExistingWorkflowException("Can't create task associated with non existing workflow")
+    List<Task> processTaskJsonTrace(TraceTaskRequest trace) {
+        trace.tasks.collect { Task task ->
+            processSingleJsonTask(task, trace.workflowId, trace.progress)
         }
+    }
 
-        existingWorkflow.progress = progress
-        task.workflow = existingWorkflow
-
-        existingWorkflow.save()
-        task.save()
-        task
+    private Task processSingleJsonTask(Task task, String workflowId, Progress progress) {
+        saveFromJson(task, workflowId, progress)
     }
 
     @CompileDynamic
-    private Task updateFromJson(Task task, Progress progress) {
-        Workflow existingWorkflow = Workflow.get(task.relatedWorkflowId)
+    private Task saveFromJson(Task task, String workflowId, Progress progress) {
+        Workflow existingWorkflow = Workflow.get(workflowId)
         if (!existingWorkflow) {
             throw new NonExistingWorkflowException("Can't find workflow associated with the task")
         }
 
         Task existingTask = Task.findByWorkflowAndTaskId(existingWorkflow, task.taskId)
-        if (!existingTask) {
-            throw new NonExistingTaskException("Can't update a non existing task")
+        if (existingTask) {
+            updateChangeableFields(task, existingTask)
+            task = existingTask
+        } else {
+            task.workflow = existingWorkflow
         }
 
         existingWorkflow.progress = progress
-        updateChangeableFields(task, existingTask)
-
         existingWorkflow.save()
-        existingTask.save()
-        existingTask
+        task.save()
+        return task
     }
 
     private void updateChangeableFields(Task originalTask, Task taskToUpdate) {

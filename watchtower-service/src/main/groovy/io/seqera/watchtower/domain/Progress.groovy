@@ -20,6 +20,7 @@ import groovy.transform.CompileDynamic
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
+@Deprecated
 @Entity
 @JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version'])
 @CompileDynamic

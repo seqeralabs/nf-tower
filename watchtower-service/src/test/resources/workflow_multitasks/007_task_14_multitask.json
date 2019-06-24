@@ -1,0 +1,58 @@
+{
+    "tasks": [
+        {
+            "taskId": 14,
+            "status": "COMPLETED",
+            "hash": "b4/39e09e",
+            "name": "io_write_100mega",
+            "exit": 0,
+            "submit": 1560851165940,
+            "start": 1560851166034,
+            "process": "io_write_100mega",
+            "tag": null,
+            "module": [
+                
+            ],
+            "container": "nextflow/stress",
+            "attempt": 1,
+            "script": "\n  write.pl file.txt 104857600\n  ",
+            "scratch": null,
+            "workdir": "/home/salenda/Programs/nextflow/work/b4/39e09ebb34bace636e0cb1809e1418",
+            "queue": null,
+            "cpus": 1,
+            "memory": null,
+            "disk": null,
+            "time": null,
+            "env": null,
+            "errorAction": null,
+            "complete": 1560851176898,
+            "duration": 10958,
+            "realtime": 8431,
+            "pcpu": 86.4,
+            "rchar": 65268,
+            "wchar": 104857801,
+            "syscr": 141,
+            "syscw": 12812,
+            "readBytes": 0,
+            "writeBytes": 104857600,
+            "pmem": 0.0,
+            "vmem": 35520512,
+            "rss": 6119424,
+            "peakVmem": 35520512,
+            "peakRss": 6119424,
+            "volCtxt": 55,
+            "invCtxt": 962,
+            "nativeId": 29708
+        }
+    ],
+    "workflowId": "12345",
+    "utcTime": "2019-06-18T09:46:16Z",
+    "progress": {
+        "pending": 4,
+        "submitted": 0,
+        "running": 7,
+        "succeeded": 1,
+        "failed": 3,
+        "cached": 0
+    }
+}

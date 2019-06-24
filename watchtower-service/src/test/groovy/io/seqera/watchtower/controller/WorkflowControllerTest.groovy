@@ -163,7 +163,6 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         expect: "the tasks data is properly obtained"
         response.status == HttpStatus.OK
         response.body().tasks.size() == 3
-        response.body().tasks.every { it.task.relatedWorkflowId == workflow.id.toString() }
     }
 
     void "try to get the list of tasks from a nonexistent workflow"() {

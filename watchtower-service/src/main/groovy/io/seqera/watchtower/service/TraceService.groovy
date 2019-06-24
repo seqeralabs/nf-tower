@@ -21,7 +21,7 @@ interface TraceService {
 
     Workflow processWorkflowTrace(TraceWorkflowRequest traceJson, User owner)
 
-    Task processTaskTrace(TraceTaskRequest traceJson)
+    List<Task> processTaskTrace(TraceTaskRequest traceJson)
 
 }
 

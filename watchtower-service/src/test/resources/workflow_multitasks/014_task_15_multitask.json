@@ -1,0 +1,58 @@
+{
+    "tasks": [
+        {
+            "taskId": 15,
+            "status": "COMPLETED",
+            "hash": "d6/264b01",
+            "name": "io_write_200mega",
+            "exit": 0,
+            "submit": 1560851177761,
+            "start": 1560851177855,
+            "process": "io_write_200mega",
+            "tag": null,
+            "module": [
+                
+            ],
+            "container": "nextflow/stress",
+            "attempt": 1,
+            "script": "\n  write.pl file1.txt 104857600 &\n  pid=$!\n  write.pl file2.txt 104857600\n  read.pl file2.txt\n  ",
+            "scratch": null,
+            "workdir": "/home/salenda/Programs/nextflow/work/d6/264b0149c5450b3ce97afa5240e4ab",
+            "queue": null,
+            "cpus": 2,
+            "memory": null,
+            "disk": null,
+            "time": null,
+            "env": null,
+            "errorAction": null,
+            "complete": 1560851187736,
+            "duration": 9975,
+            "realtime": 7869,
+            "pcpu": 191.0,
+            "rchar": 104970882,
+            "wchar": 209715413,
+            "syscr": 12989,
+            "syscw": 25613,
+            "readBytes": 0,
+            "writeBytes": 209715200,
+            "pmem": 0.0,
+            "vmem": 52948992,
+            "rss": 9547776,
+            "peakVmem": 52948992,
+            "peakRss": 9547776,
+            "volCtxt": 37,
+            "invCtxt": 1287,
+            "nativeId": 3934
+        }
+    ],
+    "workflowId": "12345",
+    "utcTime": "2019-06-18T09:46:28Z",
+    "progress": {
+        "pending": 0,
+        "submitted": 0,
+        "running": 3,
+        "succeeded": 9,
+        "failed": 3,
+        "cached": 0
+    }
+}

@@ -167,7 +167,7 @@ class TraceControllerTest extends AbstractContainerBaseTest {
             Workflow.count() == 1
         }
         Workflow.withNewTransaction {
-            Task.count() == 4
+            Task.count() == 15
         }
     }
 
@@ -201,9 +201,9 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         when: 'keep simulating with the next task request'
         nextflowSimulator.simulate(1)
 
-        then: 'the task has been created'
+        then: 'the tasks have been created'
         Task.withNewTransaction {
-            Task.count() == 1
+            Task.count() == 6
         }
 
         and: 'the task event has been sent'

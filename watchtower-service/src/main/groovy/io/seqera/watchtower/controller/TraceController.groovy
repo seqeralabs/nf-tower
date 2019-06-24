@@ -128,11 +128,11 @@ class TraceController {
         HttpResponse<TraceTaskResponse> response
         try {
             log.info("Receiving task trace: ${trace.inspect()}")
-            Task task = traceService.processTaskTrace(trace)
-            log.info("Processed task trace ${task.id} (${task.taskId} ${task.status.name()})")
+            List<Task> tasks = traceService.processTaskTrace(trace)
+            log.info("Processed task trace ${tasks.id} (${tasks.taskId} ${tasks.status*.name()})")
 
-            response = HttpResponse.created(TraceTaskResponse.ofSuccess(task.workflowId.toString()))
-            publishTaskEvent(task)
+            response = HttpResponse.created(TraceTaskResponse.ofSuccess(trace.workflowId.toString()))
+            publishTaskEvent(tasks.last())
         } catch (Exception e) {
             log.error("Failed to handle trace trace=$trace", e)
             response = HttpResponse.badRequest(TraceTaskResponse.ofError(e.message))

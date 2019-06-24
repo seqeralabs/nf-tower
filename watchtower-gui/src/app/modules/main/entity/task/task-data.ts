@@ -52,6 +52,4 @@ export interface TaskData {
   volCtxt: number;
   invCtxt: number;
   nativeId: number;
-  workflowId: string;
-
 }

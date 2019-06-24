@@ -28,7 +28,7 @@ enum WorkflowTraceSnapshotStatus {
 }
 
 enum TaskTraceSnapshotStatus {
-    SUBMITTED, STARTED, RUNNING, COMPLETED, SUCCEEDED, FAILED, MALFORMED
+    SUBMITTED, STARTED, RUNNING, COMPLETED, SUCCEEDED, FAILED, MULTITASK, MALFORMED
 }
 
 class TracesJsonBank {
@@ -51,15 +51,15 @@ class TracesJsonBank {
         workflowTrace
     }
 
-    static TraceTaskRequest extractTaskJsonTrace(String workflowLabel, Integer taskId, Long workflowId, TaskTraceSnapshotStatus taskStatus) {
+    static TraceTaskRequest extractTaskJsonTrace(String workflowLabel, Long taskId, Long workflowId, TaskTraceSnapshotStatus taskStatus) {
         File workflowDir = getWorkflowDir(workflowLabel)
 
         String fileNamePart = "task_${taskId}_${taskStatus.name().toLowerCase()}.json"
-        File jsonFile = workflowDir.listFiles().find { it.name.endsWith(fileNamePart) }
+        File jsonFile = workflowDir.listFiles().sort { it.name }.find { it.name.endsWith(fileNamePart) }
         println "JsonFile=$jsonFile"
 
         TraceTaskRequest taskTrace = new ObjectMapper().readValue(jsonFile, TraceTaskRequest.class)
-        taskTrace.task.relatedWorkflowId = workflowId
+        taskTrace.workflowId = workflowId
 
         taskTrace
     }
@@ -73,8 +73,8 @@ class TracesJsonBank {
             Matcher matcher = (filename =~ /(\d+)_task_(\d+)_(\w+).json/)
             if (matcher) {
                 [
-                    order: matcher.group(1).toInteger(),
-                    taskId: matcher.group(2).toInteger(),
+                    order: matcher.group(1).toLong(),
+                    taskId: matcher.group(2).toLong(),
                     status: matcher.group(3),
                 ]
             } else {
@@ -141,8 +141,8 @@ class NextflowSimulator {
     private List<TraceTaskRequest> computeTaskTraceSequence() {
         List<Map> tasksFeatures = TracesJsonBank.getTasksFeatures(workflowLabel).sort { it.order }
 
-        tasksFeatures.collect {
-            TracesJsonBank.extractTaskJsonTrace(workflowLabel, it.taskId, workflowId, TaskTraceSnapshotStatus."${it.status.toUpperCase()}")
+        tasksFeatures.collect { Map taskFeatures ->
+            TracesJsonBank.extractTaskJsonTrace(workflowLabel, taskFeatures.taskId, workflowId, TaskTraceSnapshotStatus."${taskFeatures.status.toUpperCase()}")
         }
     }
 

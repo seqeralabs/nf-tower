@@ -1,0 +1,58 @@
+{
+    "tasks": [
+        {
+            "taskId": 5,
+            "status": "COMPLETED",
+            "hash": "c7/dd79f9",
+            "name": "stress_2cpu (4)",
+            "exit": 0,
+            "submit": 1560851173849,
+            "start": 1560851173942,
+            "process": "stress_2cpu",
+            "tag": null,
+            "module": [
+                
+            ],
+            "container": "nextflow/stress",
+            "attempt": 1,
+            "script": "\n  stress -c 2 -t 10\n  ",
+            "scratch": null,
+            "workdir": "/home/salenda/Programs/nextflow/work/c7/dd79f91ec4beee7ce0f9d7af86680a",
+            "queue": null,
+            "cpus": 2,
+            "memory": null,
+            "disk": null,
+            "time": null,
+            "env": null,
+            "errorAction": null,
+            "complete": 1560851186279,
+            "duration": 12430,
+            "realtime": 10006,
+            "pcpu": 194.4,
+            "rchar": 43058,
+            "wchar": 316,
+            "syscr": 122,
+            "syscw": 13,
+            "readBytes": 0,
+            "writeBytes": 0,
+            "pmem": 0.0,
+            "vmem": 38195200,
+            "rss": 3354624,
+            "peakVmem": 38199296,
+            "peakRss": 3354624,
+            "volCtxt": 4,
+            "invCtxt": 2082,
+            "nativeId": 1620
+        }
+    ],
+    "workflowId": "12345",
+    "utcTime": "2019-06-18T09:46:26Z",
+    "progress": {
+        "pending": 1,
+        "submitted": 0,
+        "running": 3,
+        "succeeded": 8,
+        "failed": 3,
+        "cached": 0
+    }
+}

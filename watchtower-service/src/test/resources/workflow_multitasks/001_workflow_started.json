@@ -1,0 +1,62 @@
+{
+    "workflow": {
+        "start": "2019-06-18T09:46:05Z",
+        "projectDir": "/home/salenda/.nextflow/assets/pditommaso/nf-foo",
+        "manifest": {
+            "nextflowVersion": null,
+            "defaultBranch": "master",
+            "version": null,
+            "homePage": null,
+            "gitmodules": null,
+            "description": null,
+            "name": null,
+            "mainScript": "main.nf",
+            "author": null
+        },
+        "complete": null,
+        "profile": "standard",
+        "homeDir": "/home/salenda",
+        "workDir": "/home/salenda/Programs/nextflow/work",
+        "container": "nextflow/stress",
+        "commitId": "6a74cf958aec555fb5b6f5fc04f833a2d2085735",
+        "errorMessage": null,
+        "repository": "https://github.com/pditommaso/nf-foo.git",
+        "containerEngine": "docker",
+        "scriptFile": "/home/salenda/.nextflow/assets/pditommaso/nf-foo/main.nf",
+        "userName": "salenda",
+        "launchDir": "/home/salenda/Programs/nextflow",
+        "runName": "insane_stonebraker",
+        "configFiles": [
+            "/home/salenda/.nextflow/assets/pditommaso/nf-foo/nextflow.config"
+        ],
+        "sessionId": "cd94aa6f-ccc6-4da8-ab63-7d3e0098478a",
+        "errorReport": null,
+        "scriptId": "78d882e362ffbdba7d6a7453010efb79",
+        "revision": "master",
+        "exitStatus": null,
+        "commandLine": "./nextflow-19.05.5-TOWER-all run 'https://github.com/pditommaso/nf-foo' -with-tower 'http://localhost:8500'",
+        "nextflow": {
+            "version": "19.05.5-TOWER",
+            "build": 5099,
+            "timestamp": "2019-06-17T12:30:00Z"
+        },
+        "resume": false,
+        "success": false,
+        "projectName": "pditommaso/nf-foo",
+        "scriptName": "main.nf",
+        "duration": null,
+        "params": {
+            
+        },
+        "workflowId": null
+    },
+    "utcTime": "2019-06-18T09:46:05Z",
+    "progress": {
+        "pending": 0,
+        "submitted": 0,
+        "running": 0,
+        "succeeded": 0,
+        "failed": 0,
+        "cached": 0
+    }
+}

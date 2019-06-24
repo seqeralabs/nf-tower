@@ -1,31 +1,33 @@
 {
-  "task": {
-    "taskId": 2,
-    "status": "RUNNING",
-    "hash": "56/c2d5c7",
-    "name": "sayHello (3)",
-    "exit": 2147483647,
-    "submit": 1557137060579,
-    "start": 1557137060590,
-    "process": "sayHello",
-    "tag": null,
-    "module": [
+  "tasks": [
+    {
+      "taskId": 2,
+      "status": "RUNNING",
+      "hash": "56/c2d5c7",
+      "name": "sayHello (3)",
+      "exit": 2147483647,
+      "submit": 1557137060579,
+      "start": 1557137060590,
+      "process": "sayHello",
+      "tag": null,
+      "module": [
 
-    ],
-    "container": "nextflow/bash",
-    "attempt": 1,
-    "script": "\n    echo 'Hello world!'\n    ",
-    "scratch": null,
-    "workdir": "/home/user/Programs/nextflow/work/56/c2d5c770b21e0e9491e0b840dc4068",
-    "queue": null,
-    "cpus": 1,
-    "memory": null,
-    "disk": null,
-    "time": null,
-    "env": null,
-    "nativeId": 28438,
-    "workflowId": "12345"
-  },
+      ],
+      "container": "nextflow/bash",
+      "attempt": 1,
+      "script": "\n    echo 'Hello world!'\n    ",
+      "scratch": null,
+      "workdir": "/home/user/Programs/nextflow/work/56/c2d5c770b21e0e9491e0b840dc4068",
+      "queue": null,
+      "cpus": 1,
+      "memory": null,
+      "disk": null,
+      "time": null,
+      "env": null,
+      "nativeId": 28438
+    }
+  ],
+  "workflowId": "12345",
   "utcTime": "2019-05-06T10:04:20Z",
   "progress": {
     "running": 1,
