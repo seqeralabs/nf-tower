@@ -57,7 +57,7 @@ class WorkflowController {
         List<Workflow> workflows = workflowService.list(userService.getFromAuthData(authentication))
 
         List<WorkflowGet> result = workflows.collect { Workflow workflow ->
-            WorkflowGet.of(workflow)
+            new WorkflowGet(workflow)
         }
         HttpResponse.ok(WorkflowList.of(result))
     }

@@ -21,9 +21,11 @@ import groovy.transform.CompileDynamic
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
 @Entity
-@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version'])
+@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version', 'workflow'])
 @CompileDynamic
 class TasksProgress {
+
+    static belongsTo = [workflow: Workflow]
 
     Long running = 0
     Long submitted = 0

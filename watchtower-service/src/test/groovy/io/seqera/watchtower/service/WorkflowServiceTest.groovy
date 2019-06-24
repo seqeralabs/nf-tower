@@ -58,7 +58,7 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         }
 
         and: "there is no progress info"
-        !workflow.progress
+        !workflow.tasksProgress
     }
 
     void "start a workflow given a started trace, then complete the workflow given a succeeded trace"() {
@@ -110,12 +110,12 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         }
 
         and: "there progress info has been computed"
-        workflowSucceeded.progress.running == 0
-        workflowSucceeded.progress.submitted == 0
-        workflowSucceeded.progress.failed == 0
-        workflowSucceeded.progress.pending == 0
-        workflowSucceeded.progress.succeeded == 0
-        workflowSucceeded.progress.cached == 0
+        workflowSucceeded.tasksProgress.running == 0
+        workflowSucceeded.tasksProgress.submitted == 0
+        workflowSucceeded.tasksProgress.failed == 0
+        workflowSucceeded.tasksProgress.pending == 0
+        workflowSucceeded.tasksProgress.succeeded == 0
+        workflowSucceeded.tasksProgress.cached == 0
     }
 
     void "start a workflow given a started trace, then complete the workflow given a failed trace"() {
@@ -170,12 +170,12 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         }
 
         and: "the progress info has been computed"
-        workflowFailed.progress.running == 0
-        workflowFailed.progress.submitted == 0
-        workflowFailed.progress.failed == 0
-        workflowFailed.progress.pending == 0
-        workflowFailed.progress.succeeded == 0
-        workflowFailed.progress.cached == 0
+        workflowFailed.tasksProgress.running == 0
+        workflowFailed.tasksProgress.submitted == 0
+        workflowFailed.tasksProgress.failed == 0
+        workflowFailed.tasksProgress.pending == 0
+        workflowFailed.tasksProgress.succeeded == 0
+        workflowFailed.tasksProgress.cached == 0
     }
 
     void "start a workflow given a started trace, then try to start the same one"() {

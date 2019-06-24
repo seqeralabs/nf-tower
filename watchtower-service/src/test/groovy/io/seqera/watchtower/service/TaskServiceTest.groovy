@@ -63,12 +63,12 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         }
 
         and: "the workflow progress info was updated"
-        task.workflow.progress.running == 0
-        task.workflow.progress.submitted == 1
-        task.workflow.progress.failed == 0
-        task.workflow.progress.pending == 1
-        task.workflow.progress.succeeded == 0
-        task.workflow.progress.cached == 0
+        task.workflow.tasksProgress.running == 0
+        task.workflow.tasksProgress.submitted == 1
+        task.workflow.tasksProgress.failed == 0
+        task.workflow.tasksProgress.pending == 1
+        task.workflow.tasksProgress.succeeded == 0
+        task.workflow.tasksProgress.cached == 0
     }
 
     void "submit a task given a submit trace, then start the task given a start trace, last complete the task given a success trace"() {
@@ -137,12 +137,12 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         }
 
         and: "the workflow progress info was updated"
-        taskCompleted.workflow.progress.running == 0
-        taskCompleted.workflow.progress.submitted == 1
-        taskCompleted.workflow.progress.failed == 0
-        taskCompleted.workflow.progress.pending == 0
-        taskCompleted.workflow.progress.succeeded == 1
-        taskCompleted.workflow.progress.cached == 0
+        taskCompleted.workflow.tasksProgress.running == 0
+        taskCompleted.workflow.tasksProgress.submitted == 1
+        taskCompleted.workflow.tasksProgress.failed == 0
+        taskCompleted.workflow.tasksProgress.pending == 0
+        taskCompleted.workflow.tasksProgress.succeeded == 1
+        taskCompleted.workflow.tasksProgress.cached == 0
     }
 
     void "submit a task given a submit trace, then start the task given a start trace, last complete the task given a fail trace"() {
@@ -211,12 +211,12 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         }
 
         and: "the workflow progress info was updated"
-        taskCompleted.workflow.progress.running == 3
-        taskCompleted.workflow.progress.submitted == 0
-        taskCompleted.workflow.progress.failed == 0
-        taskCompleted.workflow.progress.pending == 0
-        taskCompleted.workflow.progress.succeeded == 1
-        taskCompleted.workflow.progress.cached == 0
+        taskCompleted.workflow.tasksProgress.running == 3
+        taskCompleted.workflow.tasksProgress.submitted == 0
+        taskCompleted.workflow.tasksProgress.failed == 0
+        taskCompleted.workflow.tasksProgress.pending == 0
+        taskCompleted.workflow.tasksProgress.succeeded == 1
+        taskCompleted.workflow.tasksProgress.cached == 0
     }
 
     void "submit a task given a running trace without previous submitted trace"() {
@@ -261,6 +261,9 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         then: "the tasks have been correctly saved"
         tasks.size() == 6
         tasks.every { it.status == TaskStatus.RUNNING }
+        Task.withNewTransaction {
+            Task.count() == 6
+        }
     }
 
     void "try to submit a task without taskId"() {

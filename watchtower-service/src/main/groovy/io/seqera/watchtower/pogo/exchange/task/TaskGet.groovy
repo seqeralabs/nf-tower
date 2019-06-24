@@ -20,6 +20,6 @@ class TaskGet {
     TasksProgress progress
 
     static TaskGet of(Task task) {
-        new TaskGet(task: task, progress: task.workflow.progress)
+        new TaskGet(task: task, progress: task.workflow.tasksProgress)
     }
 }

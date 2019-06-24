@@ -27,14 +27,14 @@ import java.time.Instant
  * @see https://www.nextflow.io/docs/latest/tracing.html#execution-report
  */
 @Entity
-@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'tasks', 'summaryEntries', 'progress', 'owner'])
+@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'tasks', 'summaryEntries', 'tasksProgress', 'processesProgress', 'owner'])
 @CompileDynamic
 class Workflow {
 
-    static hasMany = [tasks: Task, summaryEntries: SummaryEntry]
+    static hasMany = [tasks: Task, summaryEntries: SummaryEntry, processesProgress: ProcessProgress]
     static belongsTo = [owner: User]
 
-    TasksProgress progress
+    TasksProgress tasksProgress
 
 
     Instant submit
@@ -80,7 +80,7 @@ class Workflow {
     String workflowId
 
 
-    static embedded = ['manifest', 'nextflow', 'stats', 'progress']
+    static embedded = ['manifest', 'nextflow', 'stats']
 
     static transients = ['workflowId']
 
@@ -158,7 +158,8 @@ class Workflow {
         manifest(nullable: true)
         nextflow(nullable: true)
         stats(nullable: true)
-        progress(nullable: true)
+
+        tasksProgress(nullable: true)
     }
 
 
