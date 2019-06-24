@@ -16,7 +16,7 @@ import io.seqera.watchtower.domain.Workflow
 
 interface ProgressService {
 
-    Progress computeProgress(Workflow workflow)
+    Progress computeProgress(Long workflowId)
 
     void computeProcessStatus(Workflow workflow)
 

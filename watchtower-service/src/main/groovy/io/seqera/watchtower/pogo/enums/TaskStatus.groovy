@@ -13,6 +13,17 @@ package io.seqera.watchtower.pogo.enums
 
 enum TaskStatus {
 
-    NEW, SUBMITTED, RUNNING, COMPLETED, SUCCEEDED, FAILED
+    NEW, SUBMITTED, RUNNING, CACHED, COMPLETED, FAILED
+
+    String toProgressString() {
+        if (this == NEW) {
+            return 'pending'
+        }
+        if (this == COMPLETED) {
+            return 'succeeded'
+        }
+
+        return name().toLowerCase()
+    }
 
 }
