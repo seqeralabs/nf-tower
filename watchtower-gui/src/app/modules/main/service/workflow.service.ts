@@ -91,7 +91,7 @@ export class WorkflowService {
     console.log(`Requesting tasks of workflow ${workflow.data.workflowId}`);
     const url: string = `${endpointUrl}/${workflow.data.workflowId}/tasks`;
 
-    return this.http.get(url).pipe(
+    return this.http.post(url, {}).pipe(
       map((data: any) => data.tasks ? data.tasks.map((item) => new Task(item)) : []),
     );
   }

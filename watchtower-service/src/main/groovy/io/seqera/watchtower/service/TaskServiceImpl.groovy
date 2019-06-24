@@ -93,6 +93,7 @@ class TaskServiceImpl implements TaskService {
     }
 
     @CompileDynamic
+    //TODO Complete with search functionality
     PagedResultList<Task> findTasks(Long workflowId, Long max, Long offset, String sort = null, String order = null) {
         new DetachedCriteria<Task>(Task).build {
             workflow {

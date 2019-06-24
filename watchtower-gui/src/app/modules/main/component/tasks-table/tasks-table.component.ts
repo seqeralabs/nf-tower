@@ -8,7 +8,7 @@
  * This Source Code Form is "Incompatible With Secondary Licenses", as
  * defined by the Mozilla Public License, v. 2.0.
  */
-import {AfterContentChecked, AfterViewChecked, AfterViewInit, Component, Input, OnChanges, OnInit} from '@angular/core';
+import {Component, Input, OnChanges, OnInit} from '@angular/core';
 import {Task} from "../../entity/task/task";
 import {environment} from "../../../../../environments/environment";
 import {Workflow} from "../../entity/workflow/workflow";
@@ -46,15 +46,38 @@ export class TasksTableComponent implements OnInit, OnChanges {
   }
 
   private initializeDataTable(): void {
+    let jwtAccessToken = this.authService.currentUser.data.jwtAccessToken;
+
     this.dataTable = $('#tasks-table').DataTable({
       scrollX: true,
       serverSide: true,
       ajax: {
         url: `${endpointUrl}/workflow/${this.workflow.data.workflowId}/tasks`,
-        headers: {
-          'Authorization':'Bearer ' + `${this.authService.currentUser.data.jwtAccessToken}`
+        xhrFields: {
+          withCredentials: true
         },
-        dataType: 'json'
+        crossDomain: true,
+        method: 'POST',
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + `${jwtAccessToken}`,
+          "Access-Control-Allow-Origin": "*"
+        },
+        dataType: 'json',
+        data: function (d) {
+          return JSON.stringify(d);
+        },
+        dataFilter: function (data) {
+          let json = $.parseJSON(data);
+          json.recordsTotal = json.total;
+          json.recordsFiltered = json.total;
+          //TODO Complete all columns
+          json.data = json.tasks
+            .map((item) => new Task(item))
+            .map((task: Task) => [task.data.taskId, task.data.process]);
+
+          return JSON.stringify(json);
+        }
       }
     });
   }
