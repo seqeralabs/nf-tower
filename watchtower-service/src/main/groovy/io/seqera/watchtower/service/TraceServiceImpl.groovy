@@ -45,11 +45,13 @@ class TraceServiceImpl implements TraceService {
         workflow
     }
 
-    Task processTaskTrace(TraceTaskRequest trace) {
-        Task task = taskService.processTaskJsonTrace(trace)
-        checkTaskSaveErrors(task)
+    List<Task> processTaskTrace(TraceTaskRequest trace) {
+        List<Task> tasks = taskService.processTaskJsonTrace(trace)
+        tasks.each { Task task ->
+            checkTaskSaveErrors(task)
+        }
 
-        task
+        return tasks
     }
 
     private void checkWorkflowSaveErrors(Workflow workflow) {

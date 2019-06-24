@@ -45,12 +45,14 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         TraceTaskRequest taskTraceJson = TracesJsonBank.extractTaskJsonTrace('success', 1, workflow.id, TaskTraceSnapshotStatus.SUBMITTED)
 
         when: "unmarshall the JSON to a task"
-        Task task
+        List<Task> tasks
         Task.withNewTransaction {
-            task = taskService.processTaskJsonTrace(taskTraceJson)
+            tasks = taskService.processTaskJsonTrace(taskTraceJson)
         }
+        Task task = tasks[0]
 
         then: "the task has been correctly saved"
+        tasks.size() == 1
         task.id
         task.checkIsSubmitted()
         task.submit
@@ -83,12 +85,14 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         TraceTaskRequest taskSucceededTraceJson = TracesJsonBank.extractTaskJsonTrace('success', 1, workflow.id, TaskTraceSnapshotStatus.SUCCEEDED)
 
         when: "unmarshall the JSON to a task"
-        Task taskSubmitted
+        List<Task> tasks
         Task.withNewTransaction {
-            taskSubmitted = taskService.processTaskJsonTrace(taskSubmittedTraceJson)
+            tasks = taskService.processTaskJsonTrace(taskSubmittedTraceJson)
         }
+        Task taskSubmitted = tasks[0]
 
         then: "the workflow has been correctly saved"
+        tasks.size() == 1
         taskSubmitted.id
         taskSubmitted.checkIsSubmitted()
         taskSubmitted.submit
@@ -99,12 +103,13 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         }
 
         when: "unmarshall the started task trace"
-        Task taskStarted
         Task.withNewTransaction {
-            taskStarted = taskService.processTaskJsonTrace(taskStartedTrace)
+            tasks = taskService.processTaskJsonTrace(taskStartedTrace)
         }
+        Task taskStarted = tasks[0]
 
         then: "the task has been started"
+        tasks.size() == 1
         taskStarted.id == taskSubmitted.id
         taskStarted.checkIsRunning()
         taskStarted.submit
@@ -115,12 +120,13 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         }
 
         when: "unmarshall the succeeded task trace"
-        Task taskCompleted
         Task.withNewTransaction {
-            taskCompleted = taskService.processTaskJsonTrace(taskSucceededTraceJson)
+            tasks = taskService.processTaskJsonTrace(taskSucceededTraceJson)
         }
+        Task taskCompleted = tasks[0]
 
         then: "the task has been started"
+        tasks.size() == 1
         taskCompleted.id == taskSubmitted.id
         taskCompleted.checkIsSucceeded()
         taskCompleted.submit
@@ -153,12 +159,14 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         TraceTaskRequest taskFailedTraceJson = TracesJsonBank.extractTaskJsonTrace('failed', 1, workflow.id, TaskTraceSnapshotStatus.FAILED)
 
         when: "unmarshall the JSON to a task"
-        Task taskSubmitted
+        List<Task> tasks
         Task.withNewTransaction {
-            taskSubmitted = taskService.processTaskJsonTrace(taskSubmittedTraceJson)
+            tasks = taskService.processTaskJsonTrace(taskSubmittedTraceJson)
         }
+        Task taskSubmitted = tasks[0]
 
         then: "the workflow has been correctly saved"
+        tasks.size() == 1
         taskSubmitted.id
         taskSubmitted.checkIsSubmitted()
         taskSubmitted.submit
@@ -169,29 +177,29 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         }
 
         when: "unmarshall the started task trace"
-        Task taskStarted
         Task.withNewTransaction {
-            taskStarted = taskService.processTaskJsonTrace(taskStartedTrace)
+            tasks = taskService.processTaskJsonTrace(taskStartedTrace)
         }
+        Task taskStarted = tasks[0]
 
         then: "the task has been started"
         taskStarted.id == taskSubmitted.id
         Task.withNewTransaction {
             Task.count() == 1
         }
-
         taskStarted.checkIsRunning()
         taskStarted.submit
         taskStarted.start
         !taskStarted.complete
 
         when: "unmarshall the succeeded task trace"
-        Task taskCompleted
         Task.withNewTransaction {
-            taskCompleted = taskService.processTaskJsonTrace(taskFailedTraceJson)
+            tasks = taskService.processTaskJsonTrace(taskFailedTraceJson)
         }
+        Task taskCompleted = tasks[0]
 
         then: "the task has been started"
+        tasks.size() == 1
         taskCompleted.id == taskSubmitted.id
         taskCompleted.checkIsFailed()
         taskCompleted.submit
@@ -211,40 +219,68 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         taskCompleted.workflow.progress.cached == 0
     }
 
-    void "submit a task given a submit trace, then try to submit the same one"() {
+    void "submit a task given a running trace without previous submitted trace"() {
         given: 'create the workflow for the task'
         Workflow workflow = new DomainCreator().createWorkflow()
 
-        and: "a task submitted trace"
-        TraceTaskRequest taskSubmittedTraceJson = TracesJsonBank.extractTaskJsonTrace('success', 1, workflow.id, TaskTraceSnapshotStatus.SUBMITTED)
+        and: "a task JSON submitted trace"
+        TraceTaskRequest taskTraceJson = TracesJsonBank.extractTaskJsonTrace('success', 1, workflow.id, TaskTraceSnapshotStatus.RUNNING)
 
         when: "unmarshall the JSON to a task"
-        Task taskSubmitted1
+        List<Task> tasks
         Task.withNewTransaction {
-            taskSubmitted1 = taskService.processTaskJsonTrace(taskSubmittedTraceJson)
+            tasks = taskService.processTaskJsonTrace(taskTraceJson)
         }
+        Task task = tasks[0]
 
         then: "the task has been correctly saved"
-        taskSubmitted1.id
-        taskSubmitted1.checkIsSubmitted()
-        taskSubmitted1.submit
+        tasks.size() == 1
+        task.id
+        task.checkIsRunning()
+        task.submit
+        task.start
+        !task.complete
         Task.withNewTransaction {
             Task.count() == 1
         }
 
-        when: "unmarshall the submit JSON to a second task"
-        taskSubmittedTraceJson = TracesJsonBank.extractTaskJsonTrace('success', 1, workflow.id, TaskTraceSnapshotStatus.SUBMITTED)
-        Task taskSubmitted2
+        and: "the workflow progress info was updated"
+        task.workflow.progress.running == 1
+        task.workflow.progress.submitted == 0
+        task.workflow.progress.failed == 0
+        task.workflow.progress.pending == 1
+        task.workflow.progress.succeeded == 0
+        task.workflow.progress.cached == 0
+    }
+
+    void "submit several tasks at once with a multitask trace"() {
+        given: 'create the workflow for the task'
+        Workflow workflow = new DomainCreator().createWorkflow()
+
+        and: "a task JSON submitted trace"
+        TraceTaskRequest taskTraceJson = TracesJsonBank.extractTaskJsonTrace('multitasks', 67811121314, workflow.id, TaskTraceSnapshotStatus.MULTITASK)
+
+        when: "unmarshall the JSON to a task list"
+        List<Task> tasks
         Task.withNewTransaction {
-            taskSubmitted2 = taskService.processTaskJsonTrace(taskSubmittedTraceJson)
+            tasks = taskService.processTaskJsonTrace(taskTraceJson)
+        }
+        Task aTask = tasks[0]
+
+        then: "the tasks have been correctly saved"
+        tasks.size() == 7
+        tasks.every { it.status == TaskStatus.RUNNING }
+        Task.withNewTransaction {
+            Task.count() == 7
         }
 
-        then: "the task can't be saved because a task with the same taskId already exists for the same workflow"
-        taskSubmitted2.hasErrors()
-        taskSubmitted2.errors.getFieldError('taskId').code == 'unique'
-        Task.withNewTransaction {
-            Task.count() == 1
-        }
+        and: "the workflow progress info has been updated"
+        aTask.workflow.progress.running == 7
+        aTask.workflow.progress.submitted == 0
+        aTask.workflow.progress.failed == 0
+        aTask.workflow.progress.pending == 8
+        aTask.workflow.progress.succeeded == 0
+        aTask.workflow.progress.cached == 0
     }
 
     void "try to submit a task without taskId"() {
@@ -253,37 +289,19 @@ class TaskServiceTest extends AbstractContainerBaseTest {
 
         and: "a task submitted trace without taskId"
         TraceTaskRequest taskSubmittedTraceJson = TracesJsonBank.extractTaskJsonTrace('success', 1, workflow.id, TaskTraceSnapshotStatus.SUBMITTED)
-        taskSubmittedTraceJson.task.taskId = null
+        taskSubmittedTraceJson.tasks*.taskId = null
 
         when: "unmarshall the JSON to a task"
-        Task taskSubmitted
+        List<Task> tasks
         Task.withNewTransaction {
-            taskSubmitted = taskService.processTaskJsonTrace(taskSubmittedTraceJson)
+            tasks = taskService.processTaskJsonTrace(taskSubmittedTraceJson)
         }
+        Task taskSubmitted = tasks[0]
 
         then: "the task has a validation error"
+        tasks.size() == 1
         taskSubmitted.hasErrors()
         taskSubmitted.errors.getFieldError('taskId').code == 'nullable'
-        Task.withNewTransaction {
-            Task.count() == 0
-        }
-    }
-
-    void "try to start a task not previously submitted given start trace"() {
-        given: 'create the workflow for the task'
-        Workflow workflow = new DomainCreator().createWorkflow()
-
-        and: "a task started trace"
-        TraceTaskRequest taskStartedTraceJson = TracesJsonBank.extractTaskJsonTrace('success', 1, workflow.id, TaskTraceSnapshotStatus.RUNNING)
-
-        when: "unmarshall the JSON to a task"
-        Task taskSubmitted1
-        Task.withNewTransaction {
-            taskSubmitted1 = taskService.processTaskJsonTrace(taskStartedTraceJson)
-        }
-
-        then: "the task doesn't exist"
-        thrown(NonExistingTaskException)
         Task.withNewTransaction {
             Task.count() == 0
         }
@@ -294,9 +312,9 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         TraceTaskRequest taskSubmittedTraceJson = TracesJsonBank.extractTaskJsonTrace('success', 1, null, TaskTraceSnapshotStatus.SUBMITTED)
 
         when: "unmarshall the JSON to a task"
-        Task taskSubmitted
+        List<Task> tasks
         Task.withNewTransaction {
-            taskSubmitted = taskService.processTaskJsonTrace(taskSubmittedTraceJson)
+            tasks = taskService.processTaskJsonTrace(taskSubmittedTraceJson)
         }
 
         then: "the workflow doesn't exist"

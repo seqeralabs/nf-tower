@@ -206,7 +206,7 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
             Workflow.count() == 1
         }
 
-        when: "given a workflow started trace with the same relatedWorkflowId, unmarshall the started JSON to a second workflow"
+        when: "given a workflow started trace with the same workflowId, unmarshall the started JSON to a second workflow"
         TraceWorkflowRequest workflowStarted2TraceJson = TracesJsonBank.extractWorkflowJsonTrace('success', workflowStarted1.id, WorkflowTraceSnapshotStatus.STARTED)
         Workflow workflowStarted2
         Workflow.withNewTransaction {

@@ -31,7 +31,6 @@ import java.time.Instant
 class Task {
 
     static belongsTo = [workflow: Workflow]
-    String relatedWorkflowId
 
     /**
      * The order of the task in the workflow
@@ -125,10 +124,6 @@ class Task {
         module = moduleList ? new ObjectMapper().writeValueAsString(moduleList) : null
     }
 
-    @JsonSetter('workflowId')
-    void deserializeWorkflowId(String workflowId) {
-        relatedWorkflowId = workflowId
-    }
     @JsonSetter('exit')
     void deserializeExistStatus(Long exit) {
         exitStatus = exit
@@ -150,17 +145,10 @@ class Task {
         complete?.toEpochMilli()
     }
 
-    @JsonGetter('workflowId')
-    String serializeWorkflowId() {
-        workflowId?.toString() ?: relatedWorkflowId
-    }
-
     @JsonGetter('exit')
     String serializeExitStatus() {
         exitStatus
     }
-
-    static transients = ['relatedWorkflowId']
 
     static mapping = {
         version false

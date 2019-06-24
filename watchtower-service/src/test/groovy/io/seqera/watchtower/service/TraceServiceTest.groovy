@@ -113,10 +113,10 @@ class TraceServiceTest extends AbstractContainerBaseTest {
     void "process a successful task trace"() {
         given: "mock the task JSON processor to return a successful task"
         Task task = new DomainCreator().createTask()
-        taskService.processTaskJsonTrace(_) >> task
+        taskService.processTaskJsonTrace(_) >> [task]
 
         when: "process the task (we don't mind about the given JSON because the processor is mocked)"
-        Task processedTask = traceService.processTaskTrace(null)
+        Task processedTask = traceService.processTaskTrace(null).first()
 
         then: "the result indicates a successful processing"
         processedTask.workflowId
@@ -125,7 +125,7 @@ class TraceServiceTest extends AbstractContainerBaseTest {
     void "process a task trace to try to submit a task without submit time"() {
         given: "mock the task JSON processor to return a task without submit time"
         Task task = new DomainCreator(failOnError: false).createTask(submit: null)
-        taskService.processTaskJsonTrace(_) >> task
+        taskService.processTaskJsonTrace(_) >> [task]
 
         when: "process the task (we don't mind about the given JSON because the processor is mocked)"
         traceService.processTaskTrace(null)
@@ -139,7 +139,7 @@ class TraceServiceTest extends AbstractContainerBaseTest {
         given: "mock the task JSON processor to return a task without taskId"
         Workflow workflow = new DomainCreator().createWorkflow()
         Task task = new DomainCreator(failOnError: false).createTask(workflow: workflow, taskId: null)
-        taskService.processTaskJsonTrace(_) >> task
+        taskService.processTaskJsonTrace(_) >> [task]
 
         when: "process the task (we don't mind about the given JSON because the processor is mocked)"
         traceService.processTaskTrace(null)
@@ -154,7 +154,7 @@ class TraceServiceTest extends AbstractContainerBaseTest {
         Workflow workflow = new DomainCreator().createWorkflow()
         Task task1 = new DomainCreator().createTask(workflow: workflow)
         Task task2 = new DomainCreator(failOnError: false).createTask(workflow: workflow, taskId: task1.taskId)
-        taskService.processTaskJsonTrace(_) >> task2
+        taskService.processTaskJsonTrace(_) >> [task2]
 
         when: "process the task (we don't mind about the given JSON because the processor is mocked)"
         traceService.processTaskTrace(null)
