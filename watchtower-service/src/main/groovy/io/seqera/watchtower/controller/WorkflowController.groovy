@@ -90,7 +90,7 @@ class WorkflowController {
         String order = 'desc'
         String sort = 'taskId'
 
-        //TODO: Complete all columns or search if is possible to send the column name
+        //TODO: Complete all columns or search if it's possible to send the column name
         if (filterParams.order) {
             order = orderList.first().dir
             switch (orderList.first().column) {
