@@ -34,7 +34,7 @@ class Workflow {
     static hasMany = [tasks: Task, summaryEntries: SummaryEntry]
     static belongsTo = [owner: User]
 
-    Progress progress
+    TasksProgress progress
 
 
     Instant submit

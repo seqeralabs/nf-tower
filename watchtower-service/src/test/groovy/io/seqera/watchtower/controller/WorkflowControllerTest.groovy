@@ -46,7 +46,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
             stats: new Stats(computeTimeFmt: '(a few seconds)'),
             nextflow: new NextflowMeta(nextflowVersion: "19.05.0-TOWER"),
             summaryEntries: [domainCreator.createSummaryEntry(), domainCreator.createSummaryEntry()],
-            progress: new Progress(running: 0, submitted: 0, failed: 0, pending: 0, succeeded: 0, cached: 0)
+            progress: new TasksProgress(running: 0, submitted: 0, failed: 0, pending: 0, succeeded: 0, cached: 0)
         )
 
         and: "perform the request to obtain the workflow"
@@ -97,7 +97,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
                     owner: owner,
                     start: Instant.now().plusSeconds(i),
                     summaryEntries: [domainCreator.createSummaryEntry(), domainCreator.createSummaryEntry()],
-                    progress: new Progress(running: 0, submitted: 0, failed: 0, pending: 0, succeeded: 0, cached: 0)
+                    progress: new TasksProgress(running: 0, submitted: 0, failed: 0, pending: 0, succeeded: 0, cached: 0)
             )
         }
 
