@@ -46,7 +46,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
             stats: new Stats(computeTimeFmt: '(a few seconds)'),
             nextflow: new NextflowMeta(nextflowVersion: "19.05.0-TOWER"),
             summaryEntries: [domainCreator.createSummaryEntry(), domainCreator.createSummaryEntry()],
-            progress: new TasksProgress(running: 0, submitted: 0, failed: 0, pending: 0, succeeded: 0, cached: 0)
+            tasksProgress: new TasksProgress(running: 0, submitted: 0, failed: 0, pending: 0, succeeded: 0, cached: 0)
         )
 
         and: "perform the request to obtain the workflow"
@@ -97,7 +97,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
                     owner: owner,
                     start: Instant.now().plusSeconds(i),
                     summaryEntries: [domainCreator.createSummaryEntry(), domainCreator.createSummaryEntry()],
-                    progress: new TasksProgress(running: 0, submitted: 0, failed: 0, pending: 0, succeeded: 0, cached: 0)
+                    tasksProgress: new TasksProgress(running: 0, submitted: 0, failed: 0, pending: 0, succeeded: 0, cached: 0)
             )
         }
 
@@ -117,8 +117,6 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         expect: "the workflows data is properly obtained"
         response.status == HttpStatus.OK
         response.body().workflows.size() == workflows.size()
-        response.body().workflows.every { it.progress }
-        response.body().workflows.every { it.summary.size() == 2 }
 
         and: 'the workflows are ordered by start date in descending order'
         response.body().workflows.workflow.workflowId == workflows.reverse().id*.toString()

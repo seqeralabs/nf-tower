@@ -22,8 +22,14 @@ class WorkflowGet {
     TasksProgress progress
     List<SummaryEntry> summary
 
+    WorkflowGet() {}
+
+    WorkflowGet(Workflow workflow) {
+        this.workflow = workflow
+    }
+
     static WorkflowGet of(Workflow workflow) {
-        new WorkflowGet(workflow: workflow, summary: workflow.summaryEntries as List, progress: workflow.progress)
+        new WorkflowGet(workflow: workflow, summary: workflow.summaryEntries as List, progress: workflow.tasksProgress)
     }
 
 }

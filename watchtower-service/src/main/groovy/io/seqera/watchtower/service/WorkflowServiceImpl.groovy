@@ -36,7 +36,7 @@ class WorkflowServiceImpl implements WorkflowService {
 
     @CompileDynamic
     Workflow get(Serializable id) {
-        Workflow.get(id)
+        Workflow.findById(id, [fetch: [tasksProgress: 'join', processesProgress: 'join', summaryEntries: 'join']])
     }
 
     @CompileDynamic
@@ -92,7 +92,7 @@ class WorkflowServiceImpl implements WorkflowService {
 
     private void associateProgress(Workflow workflow) {
         if (!workflow.checkIsStarted()) {
-            workflow.progress = progressService.computeTasksProgress(workflow.id)
+            workflow.tasksProgress = progressService.computeTasksProgress(workflow.id)
         }
     }
 

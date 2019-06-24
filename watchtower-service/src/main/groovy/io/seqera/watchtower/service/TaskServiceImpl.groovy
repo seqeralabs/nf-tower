@@ -61,7 +61,7 @@ class TaskServiceImpl implements TaskService {
             task.workflow = existingWorkflow
         }
 
-        existingWorkflow.progress = progress
+        existingWorkflow.tasksProgress = progress
         existingWorkflow.save()
         task.save()
         return task

@@ -16,9 +16,11 @@ import grails.gorm.annotation.Entity
 import groovy.transform.CompileDynamic
 
 @Entity
-@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version'])
+@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version', 'workflow'])
 @CompileDynamic
 class ProcessProgress {
+
+    static belongsTo = [workflow: Workflow]
 
     String process
     Long completed = 0
