@@ -14,7 +14,7 @@ package io.seqera.watchtower.service
 import grails.gorm.transactions.Transactional
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.watchtower.Application
-import io.seqera.watchtower.domain.Progress
+import io.seqera.watchtower.domain.TasksProgress
 import io.seqera.watchtower.domain.Task
 import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.enums.TaskStatus
@@ -45,7 +45,7 @@ class ProgressServiceTest extends AbstractContainerBaseTest {
         }
 
         when: "compute the tasks progress of the workflow"
-        Progress progress = progressService.computeProgress(workflow.id)
+        TasksProgress progress = progressService.computeProgress(workflow.id)
 
         then: "the progress has been successfully computes"
         progress.pending == 1

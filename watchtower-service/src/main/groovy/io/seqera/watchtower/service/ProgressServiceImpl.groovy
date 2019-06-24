@@ -14,9 +14,8 @@ package io.seqera.watchtower.service
 import grails.gorm.DetachedCriteria
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
-import io.seqera.watchtower.domain.Progress
 import io.seqera.watchtower.domain.Task
-import io.seqera.watchtower.domain.Workflow
+import io.seqera.watchtower.domain.TasksProgress
 import io.seqera.watchtower.pogo.enums.TaskStatus
 
 import javax.inject.Singleton
@@ -26,7 +25,7 @@ import javax.inject.Singleton
 class ProgressServiceImpl implements ProgressService {
 
     @CompileDynamic
-    Progress computeProgress(Long workflowId) {
+    TasksProgress computeProgress(Long workflowId) {
         DetachedCriteria criteria = new DetachedCriteria(Task).build {
             workflow {
                 eq('id', workflowId)
@@ -40,10 +39,30 @@ class ProgressServiceImpl implements ProgressService {
         Map progressProperties = criteria.list()
                 .groupBy { Object[] tuple -> tuple[0] }
                 .collectEntries { TaskStatus status, List<Object[]> tuples -> [(status.toProgressString()): tuples.first()[1]] }
-        new Progress(progressProperties)
+        new TasksProgress(progressProperties)
     }
 
-    void computeProcessStatus(Workflow workflow) {
-        throw new UnsupportedOperationException()
+    void computeProcessesStatus(Long workflowId) {
+        queryProcessesTasksStatus(workflowId, TaskStatus.COMPLETED)
+    }
+
+    @CompileDynamic
+    private Map queryProcessesTasksStatus(Long workflowId, TaskStatus status = null) {
+        DetachedCriteria criteria = new DetachedCriteria(Task).build {
+            if (status) {
+                eq('status', status)
+            }
+
+            workflow {
+                eq('id', workflowId)
+            }
+
+            projections {
+                groupProperty('status')
+                countDistinct('id')
+            }
+        }
+
+        [:]
     }
 }

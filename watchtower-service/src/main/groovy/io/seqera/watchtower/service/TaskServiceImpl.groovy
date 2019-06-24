@@ -13,12 +13,13 @@ package io.seqera.watchtower.service
 
 import grails.gorm.DetachedCriteria
 import grails.gorm.PagedResultList
+
 import javax.inject.Inject
 import javax.inject.Singleton
 
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
-import io.seqera.watchtower.domain.Progress
+import io.seqera.watchtower.domain.TasksProgress
 import io.seqera.watchtower.domain.Task
 import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.exceptions.NonExistingWorkflowException
@@ -41,12 +42,12 @@ class TaskServiceImpl implements TaskService {
         }
     }
 
-    private Task processSingleJsonTask(Task task, String workflowId, Progress progress) {
+    private Task processSingleJsonTask(Task task, String workflowId, TasksProgress progress) {
         saveFromJson(task, workflowId, progress)
     }
 
     @CompileDynamic
-    private Task saveFromJson(Task task, String workflowId, Progress progress) {
+    private Task saveFromJson(Task task, String workflowId, TasksProgress progress) {
         Workflow existingWorkflow = Workflow.get(workflowId)
         if (!existingWorkflow) {
             throw new NonExistingWorkflowException("Can't find workflow associated with the task")

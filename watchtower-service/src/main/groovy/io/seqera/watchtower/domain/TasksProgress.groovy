@@ -23,14 +23,14 @@ import groovy.transform.CompileDynamic
 @Entity
 @JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version'])
 @CompileDynamic
-class Progress {
+class TasksProgress {
 
-    Integer running = 0
-    Integer submitted = 0
-    Integer failed = 0
-    Integer pending = 0
-    Integer succeeded = 0
-    Integer cached = 0
+    Long running = 0
+    Long submitted = 0
+    Long failed = 0
+    Long pending = 0
+    Long succeeded = 0
+    Long cached = 0
 
 
 }

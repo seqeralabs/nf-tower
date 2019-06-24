@@ -13,7 +13,6 @@ package io.seqera.watchtower.service
 
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
-import io.seqera.watchtower.domain.Progress
 import io.seqera.watchtower.domain.SummaryEntry
 import io.seqera.watchtower.domain.Task
 import io.seqera.watchtower.domain.User

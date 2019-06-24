@@ -11,13 +11,13 @@
 
 package io.seqera.watchtower.service
 
-import io.seqera.watchtower.domain.Progress
-import io.seqera.watchtower.domain.Workflow
+
+import io.seqera.watchtower.domain.TasksProgress
 
 interface ProgressService {
 
-    Progress computeProgress(Long workflowId)
+    TasksProgress computeProgress(Long workflowId)
 
-    void computeProcessStatus(Workflow workflow)
+    void computeProcessesStatus(Long workflowId)
 
 }
