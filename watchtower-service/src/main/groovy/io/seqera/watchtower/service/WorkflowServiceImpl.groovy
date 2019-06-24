@@ -96,4 +96,8 @@ class WorkflowServiceImpl implements WorkflowService {
         workflow.delete()
     }
 
+    Progress computeProgress(Workflow workflow) {
+
+    }
+
 }
