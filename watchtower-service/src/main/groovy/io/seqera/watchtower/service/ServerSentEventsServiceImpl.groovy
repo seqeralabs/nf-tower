@@ -13,7 +13,6 @@ package io.seqera.watchtower.service
 
 import groovy.util.logging.Slf4j
 import io.micronaut.context.annotation.Prototype
-import io.micronaut.context.annotation.Value
 import io.micronaut.http.sse.Event
 import io.reactivex.Flowable
 import io.reactivex.functions.Consumer
@@ -40,7 +39,7 @@ class ServerSentEventsServiceImpl implements ServerSentEventsService {
     }
 
     private void scheduleFlowableIdleTimeout(String key, Duration idleTimeout) {
-        Flowable flowable = getFlowableInternal(key)
+        Flowable flowable = getFlowable(key)
 
         Flowable timeoutFlowable = flowable.timeout(idleTimeout.toMillis(), TimeUnit.MILLISECONDS)
         timeoutFlowable.subscribe(
@@ -60,20 +59,20 @@ class ServerSentEventsServiceImpl implements ServerSentEventsService {
 
     void publishEvent(String key, Event event) throws NonExistingFlowableException {
         log.info("Publishing event for flowable: ${key}")
-        PublishProcessor hotFlowable = (PublishProcessor) getFlowableInternal(key)
+        PublishProcessor hotFlowable = (PublishProcessor) getFlowable(key)
 
         hotFlowable.onNext(event)
     }
 
     void completeFlowable(String key) {
         log.info("Completing flowable: ${key}")
-        PublishProcessor hotFlowable = (PublishProcessor) getFlowableInternal(key)
+        PublishProcessor hotFlowable = (PublishProcessor) getFlowable(key)
 
         hotFlowable.onComplete()
         flowableByKeyCache.remove(key)
     }
 
-    private Flowable getFlowableInternal(String key) throws NonExistingFlowableException {
+    private Flowable getFlowable(String key) throws NonExistingFlowableException {
         Flowable hotFlowable = flowableByKeyCache[key]
 
         if (!hotFlowable) {
@@ -83,10 +82,15 @@ class ServerSentEventsServiceImpl implements ServerSentEventsService {
         hotFlowable
     }
 
-    Flowable getFlowable(String key, Duration throttleTime) throws NonExistingFlowableException {
-        Flowable flowable = getFlowableInternal(key)
+    Flowable getThrottledFlowable(String key, Duration throttleTime) throws NonExistingFlowableException {
+        Flowable flowable = getFlowable(key)
 
         flowable.throttleLatest(throttleTime.toMillis(), TimeUnit.MILLISECONDS, true)
+    }
+
+    Flowable generateHeartbeatFlowable(Duration interval, Closure<Event> heartbeatEventGenerator) {
+        Flowable.interval(interval.toMillis(), TimeUnit.MILLISECONDS)
+                .map(heartbeatEventGenerator)
     }
 
 }
