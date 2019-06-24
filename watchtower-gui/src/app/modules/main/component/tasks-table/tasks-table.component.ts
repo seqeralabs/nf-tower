@@ -74,7 +74,9 @@ export class TasksTableComponent implements OnInit, OnChanges {
           //TODO Complete all columns
           json.data = json.tasks
             .map((item) => new Task(item))
-            .map((task: Task) => [task.data.taskId, task.data.process]);
+            .map((task: Task) => [task.data.taskId, task.data.process, task.data.tag, task.data.status,
+              task.data.hash, task.data.cpus, task.data.pcpu, task.data.memory, task.data.pmem, task.data.vmem,
+              task.data.rss, task.data.peakVmem, task.data.peakRss]);
 
           return JSON.stringify(json);
         }
