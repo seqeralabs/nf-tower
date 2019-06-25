@@ -46,7 +46,7 @@
 
     <div class="row">
       <div class="col-sm">
-        <wt-multicolored-progress-bar [progress]="workflow.progress"></wt-multicolored-progress-bar>
+        <wt-multicolored-progress-bar [tasksProgress]="workflow.progress.tasksProgress"></wt-multicolored-progress-bar>
       </div>
     </div>
 
@@ -61,9 +61,9 @@
       </div>
     </div>
 
-    <div *ngIf="workflow.tasks" class="row">
+    <div class="row">
       <div class="col-sm">
-        <wt-workflow-tabs [tasks]="workflow.tasks"></wt-workflow-tabs>
+        <wt-workflow-tabs [workflow]="workflow"></wt-workflow-tabs>
       </div>
     </div>
   </div>

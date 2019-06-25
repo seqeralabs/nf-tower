@@ -20,8 +20,6 @@ declare var $: any;
 })
 export class TasksTableComponent implements OnInit, OnChanges {
 
-  @Input()
-  tasks: Task[];
   dataTable: any;
 
   constructor() { }

@@ -14,9 +14,9 @@ import {Observable, Subscriber} from "rxjs";
 import {Task} from "../entity/task/task";
 import {Workflow} from "../entity/workflow/workflow";
 import {SseError} from "../entity/sse/sse-error";
-import {SseErrorType} from "../entity/sse/sse-error-type";
 import {User} from "../entity/user/user";
 import {SseHeartbeat} from "../entity/sse/sse-heartbeat";
+import {Progress} from "../entity/progress/progress";
 
 const endpointUrl: string = `${environment.apiUrl}/trace/live`;
 
@@ -27,20 +27,20 @@ export class ServerSentEventsWorkflowService {
 
   constructor() { }
 
-  connectToWorkflowDetailLive(workflow: Workflow): Observable<Workflow | Task | SseHeartbeat | SseError> {
+  connectToWorkflowDetailLive(workflow: Workflow): Observable<Workflow | Progress | SseHeartbeat | SseError> {
     const workflowDetailUrl: string = `${endpointUrl}/workflowDetail/${workflow.data.workflowId}`;
 
     return this.connect(workflowDetailUrl);
   }
 
-  connectToWorkflowListLive(user: User): Observable<Workflow | Task | SseHeartbeat | SseError> {
+  connectToWorkflowListLive(user: User): Observable<Workflow | Progress | SseHeartbeat | SseError> {
     const workflowListUrl: string = `${endpointUrl}/workflowList/${user.data.id}`;
 
     return this.connect(workflowListUrl);
   }
 
-  private connect(url: string): Observable<Workflow | Task | SseHeartbeat | SseError> {
-    return new Observable((subscriber: Subscriber<Workflow | Task>) => {
+  private connect(url: string): Observable<Workflow | Progress | SseHeartbeat | SseError> {
+    return new Observable((subscriber: Subscriber<Workflow | Progress>) => {
       console.log('Connecting to receive live events', url);
 
       const eventSource: EventSource = new EventSource(url);
@@ -64,12 +64,12 @@ export class ServerSentEventsWorkflowService {
     });
   }
 
-  private transformEventData(data: any): Workflow | Task | SseHeartbeat | SseError {
+  private transformEventData(data: any): Workflow | Progress | SseHeartbeat | SseError {
     if (data.workflow) {
       return new Workflow(data.workflow);
     }
-    if (data.task) {
-      return new Task(data.task);
+    if (data.progress) {
+      return new Progress(data.progress);
     }
     if (data.heartbeat) {
       return new SseHeartbeat(data.heartbeat);

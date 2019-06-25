@@ -16,6 +16,7 @@ import {Observable, Subject, of, ReplaySubject, BehaviorSubject} from "rxjs";
 import {map, tap} from "rxjs/operators";
 import {Task} from "../entity/task/task";
 import {findIndex, orderBy} from "lodash";
+import {Progress} from "../entity/progress/progress";
 
 
 const endpointUrl: string = `${environment.apiUrl}/workflow`;
@@ -92,30 +93,16 @@ export class WorkflowService {
 
     return this.http.get(url).pipe(
       map((data: any) => data.tasks ? data.tasks.map((item) => new Task(item)) : []),
-      tap((tasks: Task[]) => workflow.tasks = tasks)
     );
   }
 
   updateWorkflow(newWorkflow: Workflow): void {
-    const oldWorkflow: Workflow = this.workflowsByIdCache.get(newWorkflow.data.workflowId);
-    if (oldWorkflow) {
-      newWorkflow.tasks = oldWorkflow.tasks;
-    }
-
     this.workflowsByIdCache.set(newWorkflow.data.workflowId, newWorkflow);
     this.emitWorkflowsFromCache();
   }
 
-  updateTask(task: Task, workflow: Workflow): void {
-    const taskIndex: number = findIndex(workflow.tasks, (t: Task) => t.data.taskId == task.data.taskId);
-    if (taskIndex < 0) {
-      workflow.tasks.push(task);
-    } else {
-      workflow.tasks[taskIndex] = task;
-    }
-    workflow.progress = task.progress;
-
-    workflow.tasks = orderBy(Array.from(workflow.tasks), [(t: Task) => t.data.taskId]);
+  updateProgress(progress: Progress, workflow: Workflow): void {
+    workflow.progress = progress;
   }
 
   private emitWorkflowsFromCache(): void {

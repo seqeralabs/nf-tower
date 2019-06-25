@@ -15,6 +15,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import grails.gorm.annotation.Entity
 import groovy.transform.CompileDynamic
 
+import java.time.Duration
+
 @Entity
 @JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version', 'workflow'])
 @CompileDynamic
@@ -23,7 +25,10 @@ class ProcessProgress {
     static belongsTo = [workflow: Workflow]
 
     String process
-    Long completed = 0
-    Long total = 0
+    Long completedTasks
+    Long totalTasks
+
+//    String lastTaskHash
+//    Long totalDuration
 
 }

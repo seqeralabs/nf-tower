@@ -76,11 +76,11 @@ class ProgressServiceTest extends AbstractContainerBaseTest {
         then: "the processes progress has been successfully computed"
         progress.processesProgress.size() == 2
         ProcessProgress progress1 = progress.processesProgress.find { it.process == process1 }
-        progress1.total == 6
-        progress1.completed == 1
+        progress1.totalTasks == 6
+        progress1.completedTasks == 1
         ProcessProgress progress2 = progress.processesProgress.find { it.process == process2 }
-        progress2.total == 7
-        progress2.completed == 2
+        progress2.totalTasks == 7
+        progress2.completedTasks == 2
     }
 
 }

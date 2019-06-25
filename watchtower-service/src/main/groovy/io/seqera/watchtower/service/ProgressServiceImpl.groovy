@@ -67,7 +67,7 @@ class ProgressServiceImpl implements ProgressService {
         Map<String, Long> completedCountByProcess = queryProcessesTasksStatus(workflowId, TaskStatus.COMPLETED)
 
         totalCountByProcess.collect { String process, Long totalCount ->
-            new ProcessProgress(process: process, total: totalCount, completed: completedCountByProcess[process] ?: 0)
+            new ProcessProgress(process: process, totalTasks: totalCount, completedTasks: completedCountByProcess[process] ?: 0)
         }.sort { it.process }
     }
 

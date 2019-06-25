@@ -8,24 +8,15 @@
  * This Source Code Form is "Incompatible With Secondary Licenses", as
  * defined by the Mozilla Public License, v. 2.0.
  */
-import {TaskData} from "./task-data";
-import {TaskStatus} from "./task-status.enum";
+import {TasksProgress} from "./tasks-progress";
+import {ProcessProgress} from "./process-progress";
 
-export class Task {
-
-  data: TaskData;
+export class Progress {
+  tasksProgress: TasksProgress;
+  processesProgress: ProcessProgress[];
 
   constructor(json: any) {
-    json.task.status = TaskStatus[json.task.status];
-
-    this.data = <TaskData> json.task;
-  }
-
-  get statusTag(): string {
-    return TaskStatus[this.data.status];
-  }
-
-  get isCompleted(): boolean {
-    return (this.data.status == TaskStatus.COMPLETED);
+    this.tasksProgress = <TasksProgress> json.tasksProgress;
+    this.processesProgress = <ProcessProgress[]> json.processesProgress;
   }
 }

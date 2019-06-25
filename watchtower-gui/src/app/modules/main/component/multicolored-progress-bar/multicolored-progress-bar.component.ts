@@ -10,7 +10,7 @@
  */
 
 import {Component, Input, OnInit} from '@angular/core';
-import {Progress} from "../../entity/workflow/progress";
+import {TasksProgress} from "../../entity/progress/tasks-progress";
 
 @Component({
   selector: 'wt-multicolored-progress-bar',
@@ -20,7 +20,7 @@ import {Progress} from "../../entity/workflow/progress";
 export class MulticoloredProgressBarComponent implements OnInit {
 
   @Input()
-  progress: Progress;
+  tasksProgress: TasksProgress;
 
 
   private total: number;
@@ -32,7 +32,7 @@ export class MulticoloredProgressBarComponent implements OnInit {
   }
 
   private computeTotal(): void {
-    this.total = this.progress.running + this.progress.submitted + this.progress.cached + this.progress.failed + this.progress.pending + this.progress.succeeded;
+    this.total = this.tasksProgress.running + this.tasksProgress.submitted + this.tasksProgress.cached + this.tasksProgress.failed + this.tasksProgress.pending + this.tasksProgress.succeeded;
   }
 
   private getPercentage(value: number): number {
