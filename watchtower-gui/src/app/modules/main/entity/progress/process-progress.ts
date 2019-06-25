@@ -10,6 +10,11 @@
  */
 export interface ProcessProgress {
   process: string;
+
   totalTasks: number;
   completedTasks: number;
+
+  lastTaskHash: string;
+  totalDuration: number;
+
 }

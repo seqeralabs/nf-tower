@@ -25,10 +25,11 @@ class ProcessProgress {
     static belongsTo = [workflow: Workflow]
 
     String process
+
     Long completedTasks
     Long totalTasks
 
-//    String lastTaskHash
-//    Long totalDuration
+    String lastTaskHash
+    Long totalDuration
 
 }

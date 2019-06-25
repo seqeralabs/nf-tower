@@ -37,29 +37,29 @@ class ProgressServiceTest extends AbstractContainerBaseTest {
         given: 'create a pending task of a process and associated with a workflow'
         DomainCreator domainCreator = new DomainCreator()
         String process1 = 'process1'
-        Task task1 = domainCreator.createTask(status: TaskStatus.NEW, process: process1)
+        Task task1 = domainCreator.createTask(status: TaskStatus.NEW, process: process1, duration: 1)
         Workflow workflow = task1.workflow
 
         and: 'a task for the previous process in each status'
         [TaskStatus.SUBMITTED, TaskStatus.CACHED, TaskStatus.RUNNING, TaskStatus.FAILED].each { TaskStatus status ->
-            domainCreator.createTask(status: status, workflow: workflow, process: process1)
+            domainCreator.createTask(status: status, workflow: workflow, process: process1, duration: 1)
         }
 
         and: 'one more completed task of the same process'
-        domainCreator.createTask(status: TaskStatus.COMPLETED, workflow: workflow, process: process1)
+        domainCreator.createTask(status: TaskStatus.COMPLETED, workflow: workflow, process: process1, duration: 1, hash: "lastHash")
 
         and: 'a pending task of another process'
         String process2 = 'process2'
-        domainCreator.createTask(status: TaskStatus.NEW, workflow: workflow, process: process2)
+        domainCreator.createTask(status: TaskStatus.NEW, workflow: workflow, process: process2, duration: 1)
 
         and: 'a task for the previous process in each status'
         [TaskStatus.SUBMITTED, TaskStatus.CACHED, TaskStatus.RUNNING, TaskStatus.FAILED].each { TaskStatus status ->
-            domainCreator.createTask(status: status, workflow: workflow, process: process2)
+            domainCreator.createTask(status: status, workflow: workflow, process: process2, duration: 1)
         }
 
         and: 'two more completed tasks'
         2.times {
-            domainCreator.createTask(status: TaskStatus.COMPLETED, workflow: workflow, process: process2)
+            domainCreator.createTask(status: TaskStatus.COMPLETED, workflow: workflow, process: process2, duration: 1, hash: "lastHash${it}")
         }
 
         when: "compute the progress of the workflow"
@@ -78,9 +78,13 @@ class ProgressServiceTest extends AbstractContainerBaseTest {
         ProcessProgress progress1 = progress.processesProgress.find { it.process == process1 }
         progress1.totalTasks == 6
         progress1.completedTasks == 1
+        progress1.totalDuration == 6
+        progress1.lastTaskHash == 'lastHash'
         ProcessProgress progress2 = progress.processesProgress.find { it.process == process2 }
         progress2.totalTasks == 7
         progress2.completedTasks == 2
+        progress2.totalDuration == 7
+        progress2.lastTaskHash == 'lastHash1'
     }
 
 }
