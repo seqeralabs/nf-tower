@@ -17,7 +17,10 @@ import groovy.transform.CompileDynamic
 import io.seqera.watchtower.domain.ProcessProgress
 import io.seqera.watchtower.domain.Task
 import io.seqera.watchtower.domain.TasksProgress
+import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.enums.TaskStatus
+import io.seqera.watchtower.pogo.exchange.progress.ProgressGet
+import io.seqera.watchtower.pogo.exchange.workflow.WorkflowGet
 
 import javax.inject.Singleton
 
@@ -25,8 +28,23 @@ import javax.inject.Singleton
 @Singleton
 class ProgressServiceImpl implements ProgressService {
 
+    WorkflowGet buildWorkflowGet(Workflow workflow) {
+        ProgressGet progress
+        if (workflow.checkIsStarted()) {
+            progress = computeWorkflowProgress(workflow.id)
+        } else {
+            progress = new ProgressGet(tasksProgress: workflow.tasksProgress, processesProgress: workflow.processesProgress.sort { it.process })
+        }
+
+        new WorkflowGet(workflow: workflow, progress: progress, summary: workflow.summaryEntries.sort { it.process })
+    }
+
+    ProgressGet computeWorkflowProgress(Long workflowId) {
+        new ProgressGet(tasksProgress: computeTasksProgress(workflowId), processesProgress: computeProcessesProgress(workflowId))
+    }
+
     @CompileDynamic
-    TasksProgress computeTasksProgress(Long workflowId) {
+    private TasksProgress computeTasksProgress(Long workflowId) {
         List<Object[]> tuples = new DetachedCriteria(Task).build {
             workflow {
                 eq('id', workflowId)
@@ -44,13 +62,13 @@ class ProgressServiceImpl implements ProgressService {
         new TasksProgress(progressProperties)
     }
 
-    List<ProcessProgress> computeProcessesProgress(Long workflowId) {
+    private List<ProcessProgress> computeProcessesProgress(Long workflowId) {
         Map<String, Long> totalCountByProcess = queryProcessesTasksStatus(workflowId)
         Map<String, Long> completedCountByProcess = queryProcessesTasksStatus(workflowId, TaskStatus.COMPLETED)
 
         totalCountByProcess.collect { String process, Long totalCount ->
-            new ProcessProgress(process: process, total: totalCount, completed: completedCountByProcess[process])
-        }
+            new ProcessProgress(process: process, total: totalCount, completed: completedCountByProcess[process] ?: 0)
+        }.sort { it.process }
     }
 
     @CompileDynamic

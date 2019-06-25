@@ -13,12 +13,15 @@ package io.seqera.watchtower.service
 
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
+import io.seqera.watchtower.domain.ProcessProgress
 import io.seqera.watchtower.domain.SummaryEntry
 import io.seqera.watchtower.domain.Task
 import io.seqera.watchtower.domain.User
 import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.exceptions.NonExistingWorkflowException
+import io.seqera.watchtower.pogo.exchange.progress.ProgressGet
 import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowRequest
+import io.seqera.watchtower.pogo.exchange.workflow.WorkflowGet
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -36,7 +39,7 @@ class WorkflowServiceImpl implements WorkflowService {
 
     @CompileDynamic
     Workflow get(Serializable id) {
-        Workflow.findById(id, [fetch: [tasksProgress: 'join', processesProgress: 'join', summaryEntries: 'join']])
+        Workflow.get(id)
     }
 
     @CompileDynamic
@@ -92,7 +95,11 @@ class WorkflowServiceImpl implements WorkflowService {
 
     private void associateProgress(Workflow workflow) {
         if (!workflow.checkIsStarted()) {
-            workflow.tasksProgress = progressService.computeTasksProgress(workflow.id)
+            ProgressGet progress = progressService.computeWorkflowProgress(workflow.id)
+            workflow.tasksProgress = progress.tasksProgress
+            progress.processesProgress.each { ProcessProgress processProgress ->
+                workflow.addToProcessesProgress(processProgress)
+            }
         }
     }
 

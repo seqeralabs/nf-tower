@@ -209,9 +209,9 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         and: 'the task event has been sent'
         sleep(500) // <-- sleep a prudential time in order to make sure the event has been received
         detailSubscriber.assertValueCount(1)
-        detailSubscriber.events.first()[0].data.task
-        detailSubscriber.events.first()[0].data.task.task
-        detailSubscriber.events.first()[0].data.task.progress
+        detailSubscriber.events.first()[0].data.progress
+        detailSubscriber.events.first()[0].data.progress.tasksProgress
+        detailSubscriber.events.first()[0].data.progress.processesProgress
 
         when: 'keep the simulation going'
         nextflowSimulator.simulate()
