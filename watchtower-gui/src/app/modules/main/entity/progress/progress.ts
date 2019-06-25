@@ -12,6 +12,7 @@ import {TasksProgress} from "./tasks-progress";
 import {ProcessProgress} from "./process-progress";
 
 export class Progress {
+
   tasksProgress: TasksProgress;
   processesProgress: ProcessProgress[];
 
@@ -19,4 +20,5 @@ export class Progress {
     this.tasksProgress = <TasksProgress> json.tasksProgress;
     this.processesProgress = <ProcessProgress[]> json.processesProgress;
   }
+
 }

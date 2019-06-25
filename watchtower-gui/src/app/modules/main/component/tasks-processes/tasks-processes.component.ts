@@ -39,14 +39,11 @@ export class TasksProcessesComponent implements OnInit, OnChanges {
     return `${percentage}%`;
   }
 
-  // computeTotalDurationProcessCompletedTasks(process: string): string {
-    // let tasks: Task[] = this.tasksByProcess.get(process).filter((task: Task) => task.isCompleted);
-    // let totalDuration: number = sumBy(tasks, (task: Task) => task.data.duration);
-    //
-    // let language: HumanizeDurationLanguage  = new HumanizeDurationLanguage();
-    // language.addLanguage('short', <ILanguage> {y: () => 'y', mo: () => 'mo', w: () => 'w', d: () => 'd', h: () => 'h', m: () => 'm', s: () => 's'});
-    //
-    // return new HumanizeDuration(language).humanize(totalDuration, {language: 'short', delimiter: ' '});
-  // }
+  getHumanizedTotalDuration(processProgress: ProcessProgress): string {
+    let language: HumanizeDurationLanguage  = new HumanizeDurationLanguage();
+    language.addLanguage('short', <ILanguage> {y: () => 'y', mo: () => 'mo', w: () => 'w', d: () => 'd', h: () => 'h', m: () => 'm', s: () => 's'});
+
+    return new HumanizeDuration(language).humanize(processProgress.totalDuration, {language: 'short', delimiter: ' '});
+  }
 
 }

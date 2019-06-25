@@ -23,6 +23,7 @@ import io.seqera.watchtower.pogo.exchange.progress.ProgressGet
 import io.seqera.watchtower.pogo.exchange.workflow.WorkflowGet
 
 import javax.inject.Singleton
+import java.time.Instant
 
 @Transactional
 @Singleton
@@ -65,9 +66,14 @@ class ProgressServiceImpl implements ProgressService {
     private List<ProcessProgress> computeProcessesProgress(Long workflowId) {
         Map<String, Long> totalCountByProcess = queryProcessesTasksStatus(workflowId)
         Map<String, Long> completedCountByProcess = queryProcessesTasksStatus(workflowId, TaskStatus.COMPLETED)
+        Map<String, Long> totalDurationByProcess = queryProcessesTotalDuration(workflowId)
+        Map<String, String> lastSubmittedTaskHashByProcess = queryProcessesLastSubmittedTaskHash(workflowId)
 
         totalCountByProcess.collect { String process, Long totalCount ->
-            new ProcessProgress(process: process, totalTasks: totalCount, completedTasks: completedCountByProcess[process] ?: 0)
+            new ProcessProgress(
+                    process: process, totalTasks: totalCount, completedTasks: completedCountByProcess[process] ?: 0,
+                    totalDuration: totalDurationByProcess[process] ?: 0, lastTaskHash: lastSubmittedTaskHashByProcess[process]
+            )
         }.sort { it.process }
     }
 
@@ -92,5 +98,59 @@ class ProgressServiceImpl implements ProgressService {
             [(tuple[0]): tuple[1]]
         }
         statusCountByProcess
+    }
+
+    @CompileDynamic
+    private Map<String, Long> queryProcessesTotalDuration(Long workflowId) {
+        List<Object[]> tuples = new DetachedCriteria(Task).build {
+            workflow {
+                eq('id', workflowId)
+            }
+
+            projections {
+                groupProperty('process')
+                sum('duration')
+            }
+        }.list()
+
+        Map<String, Long> totalDurationByProcess = tuples.collectEntries { Object[] tuple ->
+            [(tuple[0]): tuple[1]]
+        }
+        totalDurationByProcess
+    }
+
+    @CompileDynamic
+    private Map<String, String> queryProcessesLastSubmittedTaskHash(Long workflowId) {
+        List<Object[]> tuples = new DetachedCriteria(Task).build {
+            workflow {
+                eq('id', workflowId)
+            }
+
+            projections {
+                groupProperty('process')
+                max('submit')
+            }
+        }.list()
+        Map<String, Instant> lastSubmitTimeTaskByProcess = tuples.collectEntries { Object[] tuple ->
+            [(tuple[0]): tuple[1]]
+        }
+
+        Map<String, String> lastSubmittedTaskHashByProcess = lastSubmitTimeTaskByProcess.collectEntries { String process, Instant submitTime ->
+            String hash = new DetachedCriteria(Task).build {
+                workflow {
+                    eq('id', workflowId)
+                }
+                eq('process', process)
+                eq('submit', submitTime)
+
+                projections {
+                    property('hash')
+                }
+            }.get()
+
+            [(process): hash]
+        }
+
+        lastSubmittedTaskHashByProcess
     }
 }

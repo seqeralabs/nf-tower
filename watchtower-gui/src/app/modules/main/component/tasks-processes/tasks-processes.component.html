@@ -6,10 +6,10 @@
         {{processProgress.process}}
       </div>
       <div class="col-sm offset-sm-1">
-<!--        [{{processProgress.lastHash}}]-->
+        [{{processProgress.lastTaskHash}}]
       </div>
       <div class="col-sm offset-sm-2 duration-label">
-<!--        {{processProgress.totalDuration}}-->
+        {{getHumanizedTotalDuration(processProgress)}}
       </div>
       <div class="col-sm progress-label">
         {{processProgress.completedTasks}} of {{processProgress.totalTasks}}
