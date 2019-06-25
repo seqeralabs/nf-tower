@@ -20,6 +20,7 @@ import {Task} from "../../entity/task/task";
 import {Subscription} from "rxjs";
 import {SseError} from "../../entity/sse/sse-error";
 import {SseErrorType} from "../../entity/sse/sse-error-type";
+import {Progress} from "../../entity/progress/progress";
 
 @Component({
   selector: 'wt-workflow-detail',
@@ -78,7 +79,7 @@ export class WorkflowDetailComponent implements OnInit, OnDestroy {
 
   private subscribeToWorkflowDetailLiveEvents(workflow: Workflow): void {
     this.liveEventsSubscription = this.serverSentEventsWorkflowService.connectToWorkflowDetailLive(workflow).subscribe(
-      (data: Workflow | Task) => {
+      (data: Workflow | Progress) => {
         console.log('Live workflow details event received', data);
         this.reactToEvent(data);
       },
@@ -96,12 +97,12 @@ export class WorkflowDetailComponent implements OnInit, OnDestroy {
     }
   }
 
-  private reactToEvent(data: Workflow | Task): void {
+  private reactToEvent(data: Workflow | Progress): void {
     if (data instanceof Workflow) {
       this.reactToWorkflowEvent(data);
       this.unsubscribeFromWorkflowLiveEvents();
-    } else if (data instanceof Task) {
-      this.reactToTaskEvent(data);
+    } else if (data instanceof Progress) {
+      this.reactToProgressEvent(data);
     }
   }
 
@@ -110,8 +111,8 @@ export class WorkflowDetailComponent implements OnInit, OnDestroy {
     this.workflow = workflow;
   }
 
-  private reactToTaskEvent(task: Task): void {
-    this.workflowService.updateTask(task, this.workflow);
+  private reactToProgressEvent(progress: Progress): void {
+    this.workflowService.updateProgress(progress, this.workflow);
   }
 
   private reactToErrorEvent(error: SseError): void {

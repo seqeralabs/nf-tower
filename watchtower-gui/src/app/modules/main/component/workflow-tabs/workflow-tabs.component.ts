@@ -11,6 +11,7 @@
 import {Component, Input, OnInit, ViewChild} from '@angular/core';
 import {Task} from "../../entity/task/task";
 import {TasksTableComponent} from "../tasks-table/tasks-table.component";
+import {Workflow} from "../../entity/workflow/workflow";
 
 declare var $: any;
 
@@ -22,7 +23,7 @@ declare var $: any;
 export class WorkflowTabsComponent implements OnInit {
 
   @Input()
-  tasks: Task[];
+  workflow: Workflow;
 
   @ViewChild(TasksTableComponent)
   private tasksTableComponent: TasksTableComponent;

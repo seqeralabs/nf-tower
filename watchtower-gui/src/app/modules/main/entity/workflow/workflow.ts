@@ -9,17 +9,15 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 import {WorkflowData} from "./workflow-data";
-import {Progress} from "./progress";
-import {Task} from "../task/task";
 import {WorkflowStatus} from "./workflow-status.enum";
 import {HumanizeDuration, HumanizeDurationLanguage, ILanguage} from "humanize-duration-ts";
 import * as dateFormat from "date-fns/format";
+import {Progress} from "../progress/progress";
 
 export class Workflow {
 
   data: WorkflowData;
   progress: Progress;
-  tasks: Task[];
 
   constructor(json: any) {
     this.data = <WorkflowData> json.workflow;

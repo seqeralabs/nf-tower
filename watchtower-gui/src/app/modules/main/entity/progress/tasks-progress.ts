@@ -8,7 +8,7 @@
  * This Source Code Form is "Incompatible With Secondary Licenses", as
  * defined by the Mozilla Public License, v. 2.0.
  */
-export interface Progress {
+export interface TasksProgress {
   running: number;
   submitted: number;
   failed: number;

@@ -39,7 +39,7 @@ class WorkflowServiceImpl implements WorkflowService {
 
     @CompileDynamic
     Workflow get(Serializable id) {
-        Workflow.get(id)
+        Workflow.findById(id, [fetch: [tasksProgress: 'join', processesProgress: 'join', summaryEntries: 'join']])
     }
 
     @CompileDynamic
