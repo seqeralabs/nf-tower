@@ -109,7 +109,7 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
             SummaryEntry.count() == 1
         }
 
-        and: "there progress info has been computed"
+        and: "the tasks progress info has been computed"
         workflowSucceeded.tasksProgress.running == 0
         workflowSucceeded.tasksProgress.submitted == 0
         workflowSucceeded.tasksProgress.failed == 0

@@ -64,7 +64,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         response.body().workflow.nextflow
         response.body().workflow.manifest
         response.body().summary.size() == 2
-        response.body().progress
+        response.body().progress.tasksProgress
     }
 
     void "get a workflow as non-authenticated user"() {
@@ -96,8 +96,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
             domainCreator.createWorkflow(
                     owner: owner,
                     start: Instant.now().plusSeconds(i),
-                    summaryEntries: [domainCreator.createSummaryEntry(), domainCreator.createSummaryEntry()],
-                    tasksProgress: new TasksProgress(running: 0, submitted: 0, failed: 0, pending: 0, succeeded: 0, cached: 0)
+                    summaryEntries: [domainCreator.createSummaryEntry(), domainCreator.createSummaryEntry()]
             )
         }
 

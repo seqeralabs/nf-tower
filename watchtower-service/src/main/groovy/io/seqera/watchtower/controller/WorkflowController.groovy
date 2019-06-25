@@ -25,6 +25,7 @@ import io.seqera.watchtower.pogo.exchange.task.TaskGet
 import io.seqera.watchtower.pogo.exchange.task.TaskList
 import io.seqera.watchtower.pogo.exchange.workflow.WorkflowGet
 import io.seqera.watchtower.pogo.exchange.workflow.WorkflowList
+import io.seqera.watchtower.service.ProgressService
 import io.seqera.watchtower.service.TaskService
 import io.seqera.watchtower.service.UserService
 import io.seqera.watchtower.service.WorkflowService
@@ -40,12 +41,14 @@ class WorkflowController {
 
     WorkflowService workflowService
     TaskService taskService
+    ProgressService progressService
     UserService userService
 
     @Inject
-    WorkflowController(WorkflowService workflowService, TaskService taskService, UserService userService) {
+    WorkflowController(WorkflowService workflowService, TaskService taskService, ProgressService progressService, UserService userService) {
         this.workflowService = workflowService
         this.taskService = taskService
+        this.progressService = progressService
         this.userService = userService
     }
 
@@ -57,7 +60,7 @@ class WorkflowController {
         List<Workflow> workflows = workflowService.list(userService.getFromAuthData(authentication))
 
         List<WorkflowGet> result = workflows.collect { Workflow workflow ->
-            new WorkflowGet(workflow)
+            WorkflowGet.of(workflow)
         }
         HttpResponse.ok(WorkflowList.of(result))
     }
@@ -71,7 +74,7 @@ class WorkflowController {
         if (!workflow) {
             return HttpResponse.notFound()
         }
-        HttpResponse.ok(WorkflowGet.of(workflow))
+        HttpResponse.ok(progressService.buildWorkflowGet(workflow))
     }
 
     @Get("/{workflowId}/tasks")

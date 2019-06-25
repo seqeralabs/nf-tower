@@ -11,13 +11,14 @@
 
 package io.seqera.watchtower.service
 
-import io.seqera.watchtower.domain.ProcessProgress
-import io.seqera.watchtower.domain.TasksProgress
+import io.seqera.watchtower.domain.Workflow
+import io.seqera.watchtower.pogo.exchange.progress.ProgressGet
+import io.seqera.watchtower.pogo.exchange.workflow.WorkflowGet
 
 interface ProgressService {
 
-    TasksProgress computeTasksProgress(Long workflowId)
+    WorkflowGet buildWorkflowGet(Workflow workflow)
 
-    List<ProcessProgress> computeProcessesProgress(Long workflowId)
+    ProgressGet computeWorkflowProgress(Long workflowId)
 
 }

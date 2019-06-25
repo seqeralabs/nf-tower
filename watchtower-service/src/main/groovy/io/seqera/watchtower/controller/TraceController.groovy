@@ -29,11 +29,14 @@ import io.seqera.watchtower.domain.User
 import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.enums.SseErrorType
 import io.seqera.watchtower.pogo.exceptions.NonExistingFlowableException
+import io.seqera.watchtower.pogo.exchange.progress.ProgressGet
 import io.seqera.watchtower.pogo.exchange.trace.TraceTaskRequest
 import io.seqera.watchtower.pogo.exchange.trace.TraceTaskResponse
 import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowRequest
 import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowResponse
 import io.seqera.watchtower.pogo.exchange.trace.sse.TraceSseResponse
+import io.seqera.watchtower.pogo.exchange.workflow.WorkflowGet
+import io.seqera.watchtower.service.ProgressService
 import io.seqera.watchtower.service.ServerSentEventsService
 import io.seqera.watchtower.service.TraceService
 import io.seqera.watchtower.service.UserService
@@ -66,12 +69,14 @@ class TraceController {
 
 
     TraceService traceService
+    ProgressService progressService
     UserService userService
     ServerSentEventsService serverSentEventsService
 
     @Inject
-    TraceController(TraceService traceService, UserService userService, ServerSentEventsService serverSentEventsService) {
+    TraceController(TraceService traceService, ProgressService progressService, UserService userService, ServerSentEventsService serverSentEventsService) {
         this.traceService = traceService
+        this.progressService = progressService
         this.userService = userService
         this.serverSentEventsService = serverSentEventsService
     }
@@ -105,15 +110,19 @@ class TraceController {
 
         if (workflow.checkIsStarted()) {
             serverSentEventsService.createFlowable(workflowDetailFlowableKey, idleWorkflowDetailFlowableTimeout)
+        } else {
+
+            WorkflowGet workflowGet = progressService.buildWorkflowGet(workflow)
+            try {
+                serverSentEventsService.publishEvent(workflowDetailFlowableKey, Event.of(TraceSseResponse.ofWorkflow(workflowGet)))
+            } catch (NonExistingFlowableException e) {
+                log.error("No flowable found while trying to publish workflow data: ${workflowDetailFlowableKey}")
+            }
+
         }
 
         try {
-            serverSentEventsService.publishEvent(workflowDetailFlowableKey, Event.of(TraceSseResponse.ofWorkflow(workflow)))
-        } catch (NonExistingFlowableException e) {
-            log.error("No flowable found while trying to publish workflow data: ${workflowDetailFlowableKey}")
-        }
-        try {
-            serverSentEventsService.publishEvent(workflowListFlowableKey, Event.of(TraceSseResponse.ofWorkflow(workflow)))
+            serverSentEventsService.publishEvent(workflowListFlowableKey, Event.of(TraceSseResponse.ofWorkflow(WorkflowGet.of(workflow))))
         } catch (NonExistingFlowableException e) {
             log.error("No flowable found while trying to publish workflow data: ${workflowListFlowableKey}")
         }
@@ -134,7 +143,7 @@ class TraceController {
             log.info("Processed task trace ${tasks.id} (${tasks.taskId} ${tasks.status*.name()})")
 
             response = HttpResponse.created(TraceTaskResponse.ofSuccess(trace.workflowId.toString()))
-            publishTaskEvent(tasks.last())
+            publishUpdatedProgressEvent((Long) tasks.first().workflowId)
         } catch (Exception e) {
             log.error("Failed to handle trace trace=$trace", e)
             response = HttpResponse.badRequest(TraceTaskResponse.ofError(e.message))
@@ -143,11 +152,12 @@ class TraceController {
         response
     }
 
-    private void publishTaskEvent(Task task) {
-        String workflowDetailFlowableKey = getWorkflowDetailFlowableKey(task.workflowId)
+    private void publishUpdatedProgressEvent(Long workflowId) {
+        String workflowDetailFlowableKey = getWorkflowDetailFlowableKey(workflowId)
 
         try {
-            serverSentEventsService.publishEvent(workflowDetailFlowableKey, Event.of(TraceSseResponse.ofTask(task)))
+            ProgressGet progress = progressService.computeWorkflowProgress(workflowId)
+            serverSentEventsService.publishEvent(workflowDetailFlowableKey, Event.of(TraceSseResponse.ofProgress(progress)))
         } catch (NonExistingFlowableException e) {
             log.error("No flowable found while trying to publish task data: ${workflowDetailFlowableKey}")
         }
