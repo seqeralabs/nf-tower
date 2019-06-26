@@ -26,4 +26,12 @@ enum TaskStatus {
         return name().toLowerCase()
     }
 
+    static Collection<TaskStatus> findStatusesByRegex(String sqlRegex) {
+        String regex = sqlRegex.toLowerCase().replaceAll('%', /.*/)
+
+        values().findAll {
+            it.name().toLowerCase() ==~ regex
+        } ?: []
+    }
+
 }

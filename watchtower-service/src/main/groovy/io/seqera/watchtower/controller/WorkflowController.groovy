@@ -90,7 +90,10 @@ class WorkflowController {
         String orderProperty = filterParams.getFirst('order[0][column]', String.class, 'taskId')
         String orderDir = filterParams.getFirst('order[0][dir]', String.class, 'asc')
 
-        PagedResultList<Task> taskPagedResultList = taskService.findTasks(workflowId, max, offset, orderProperty, orderDir)
+        String search = filterParams.getFirst('search', String.class, '')
+        String searchRegex = search.contains('*') ? search.replaceAll(/\*/, '%') : "${search}%"
+
+        PagedResultList<Task> taskPagedResultList = taskService.findTasks(workflowId, max, offset, orderProperty, orderDir, searchRegex)
 
         List<TaskGet> result = taskPagedResultList.collect {
             TaskGet.of(it)
