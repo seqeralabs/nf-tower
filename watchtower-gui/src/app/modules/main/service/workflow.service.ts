@@ -78,24 +78,6 @@ export class WorkflowService {
     );
   }
 
-  fetchTasks(workflow: Workflow): Observable<Task[]> {
-    let tasks$: ReplaySubject<Task[]> = new ReplaySubject(1);
-    this.requestTasks(workflow).subscribe((tasks: Task[]) => {
-      tasks$.next(tasks)
-    });
-
-    return tasks$.asObservable();
-  }
-
-  private requestTasks(workflow: Workflow): Observable<Task[]> {
-    console.log(`Requesting tasks of workflow ${workflow.data.workflowId}`);
-    const url: string = `${endpointUrl}/${workflow.data.workflowId}/tasks`;
-
-    return this.http.post(url, {}).pipe(
-      map((data: any) => data.tasks ? data.tasks.map((item) => new Task(item)) : []),
-    );
-  }
-
   updateWorkflow(newWorkflow: Workflow): void {
     this.workflowsByIdCache.set(newWorkflow.data.workflowId, newWorkflow);
     this.emitWorkflowsFromCache();

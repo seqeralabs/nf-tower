@@ -18,14 +18,12 @@ import io.seqera.watchtower.Application
 import io.seqera.watchtower.domain.Task
 import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.enums.TaskStatus
-import io.seqera.watchtower.pogo.exceptions.NonExistingTaskException
 import io.seqera.watchtower.pogo.exceptions.NonExistingWorkflowException
 import io.seqera.watchtower.pogo.exchange.trace.TraceTaskRequest
 import io.seqera.watchtower.util.AbstractContainerBaseTest
 import io.seqera.watchtower.util.DomainCreator
 import io.seqera.watchtower.util.TaskTraceSnapshotStatus
 import io.seqera.watchtower.util.TracesJsonBank
-import spock.lang.IgnoreRest
 import spock.lang.Unroll
 
 import javax.inject.Inject
@@ -323,33 +321,27 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         }
 
         when: 'search for the tasks associated with the workflow'
-        PagedResultList<Task> obtainedTasks = taskService.findTasks(workflow.id, max, offset, sort, order)
+        PagedResultList<Task> obtainedTasks = taskService.findTasks(workflow.id, max, offset, orderProperty, orderDirection)
 
         then: 'the obtained tasks are as expected'
         obtainedTasks.totalCount == nTasks
         obtainedTasks.size() == max
-        if (order == 'asc') assert obtainedTasks.id == tasks[offset..<(offset + max)].sort {
-            it."${sort ?: 'taskId'}"
-        }.id
-        else if (order == 'desc') assert obtainedTasks.id == tasks.reverse()[offset..<(offset + max)].sort {
-            it."${sort ?: 'taskId'}"
-        }.reverse().id
+        obtainedTasks.id == tasks.sort { t1, t2 ->
+            (orderDirection == 'asc') ? t1[orderProperty] <=> t2[orderProperty] : t2[orderProperty] <=> t1[orderProperty]
+        }[offset..<(offset + max)].id
 
         where: 'the pagination params are'
-        nTasks | max | offset | sort | order
-        20     | 10  | 0      | null | null
-        20     | 10  | 10     | null | null
-        20     | 10  | 0      | null | 'asc'
-        20     | 10  | 10     | null | 'desc'
-        20     | 10  | 0      | 'hash' | null
-        20     | 10  | 0      | 'hash' | 'asc'
-        20     | 10  | 0      | 'hash' | 'desc'
+        nTasks | max | offset | orderProperty | orderDirection
+        20     | 10  | 0      | 'hash'        | 'asc'
+        20     | 10  | 10     | 'hash'        | 'asc'
+        20     | 10  | 0      | 'hash'        | 'desc'
+        20     | 10  | 10     | 'hash'        | 'desc'
     }
 
     @Unroll
     void "try to find some tasks for a nonexistent workflow"() {
         when: 'search for the tasks associated with a nonexistent workflow'
-        PagedResultList<Task> obtainedTasks = taskService.findTasks(100, 10, 0)
+        PagedResultList<Task> obtainedTasks = taskService.findTasks(100l, 10l, 0l, 'taskId', 'asc')
 
         then: 'there are no tasks'
         obtainedTasks.totalCount == 0

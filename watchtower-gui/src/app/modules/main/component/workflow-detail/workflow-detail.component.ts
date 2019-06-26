@@ -68,13 +68,9 @@ export class WorkflowDetailComponent implements OnInit, OnDestroy {
 
   private reactToWorkflowReceived(workflow: Workflow): void {
     this.workflow = workflow;
-    this.workflowService.fetchTasks(workflow).subscribe(
-      () => {
-        if (workflow.isStarted) {
-          this.subscribeToWorkflowDetailLiveEvents(workflow);
-        }
-      }
-    );
+    if (this.workflow.isStarted) {
+      this.subscribeToWorkflowDetailLiveEvents(workflow);
+    }
   }
 
   private subscribeToWorkflowDetailLiveEvents(workflow: Workflow): void {
