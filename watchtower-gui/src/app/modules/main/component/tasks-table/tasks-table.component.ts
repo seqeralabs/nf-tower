@@ -8,15 +8,15 @@
  * This Source Code Form is "Incompatible With Secondary Licenses", as
  * defined by the Mozilla Public License, v. 2.0.
  */
-import {AfterViewInit, Component, Input, OnChanges, OnInit} from '@angular/core';
+import {AfterViewInit, Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {Task} from "../../entity/task/task";
 import {environment} from "../../../../../environments/environment";
 import {Workflow} from "../../entity/workflow/workflow";
 import {AuthService} from "../../service/auth.service";
+import {Progress} from "../../entity/progress/progress";
+import {WorkflowService} from "../../service/workflow.service";
 
 declare var $: any;
-
-const endpointUrl: string = `${environment.apiUrl}`;
 
 @Component({
   selector: 'wt-tasks-table',
@@ -26,21 +26,25 @@ const endpointUrl: string = `${environment.apiUrl}`;
 export class TasksTableComponent implements OnInit, OnChanges {
 
   @Input()
-  workflow: Workflow;
+  workflowId: number | string;
+  @Input()
+  progress: Progress;
 
   dataTable: any;
 
-  constructor() {}
+  constructor(private workflowService: WorkflowService) {}
 
   ngOnInit() {
   }
 
-  ngOnChanges(): void {
-    console.log('Changes detected');
-    if (this.dataTable) {
-      this.reloadTable();
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.workflowId) {
+      setTimeout(() => {
+        this.destroyDataTable();
+        this.initializeDataTable();
+      });
     } else {
-      this.initializeDataTable();
+      this.reloadTable();
     }
   }
 
@@ -61,7 +65,7 @@ export class TasksTableComponent implements OnInit, OnChanges {
         {"name":"start"},{"name":"complete"},{"name":"rchar"},{"name":"wchar"},{"name":"syscr"},{"name":"syscw"},{"name":"readBytes"},{"name":"writeBytes"},{"name":"nativeId"},
         {"name":"name"},{"name":"module"},{"name":"container"},{"name":"disk"},{"name":"attempt"},{"name":"scratch"},{"name":"workdir"}],
       ajax: {
-        url: `${endpointUrl}/workflow/${this.workflow.data.workflowId}/tasks`,
+        url: this.workflowService.buildTasksGetUrl(this.workflowId),
         data: (data) => {
           let filterParams: any = {
             start: data.start,
@@ -104,7 +108,7 @@ export class TasksTableComponent implements OnInit, OnChanges {
   }
 
   reloadTable(): void {
-    this.dataTable.ajax.reload();
+    this.dataTable.ajax.reload(null, false);
   }
 
 }
