@@ -78,6 +78,10 @@ export class WorkflowService {
     );
   }
 
+  buildTasksGetUrl(workflowId: number | string): string {
+    return `${endpointUrl}/${workflowId}/tasks`;
+  }
+
   updateWorkflow(newWorkflow: Workflow): void {
     this.workflowsByIdCache.set(newWorkflow.data.workflowId, newWorkflow);
     this.emitWorkflowsFromCache();

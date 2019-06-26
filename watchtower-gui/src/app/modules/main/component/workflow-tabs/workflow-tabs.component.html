@@ -15,7 +15,7 @@
     <wt-tasks-processes [processesProgress]="workflow.progress.processesProgress"></wt-tasks-processes>
   </div>
   <div class="tab-pane fade" id="tasks" role="tabpanel" aria-labelledby="tasks-tab">
-    <wt-tasks-table [workflow]="workflow"></wt-tasks-table>
+    <wt-tasks-table [workflowId]="workflow.data.workflowId" [progress]="workflow.progress"></wt-tasks-table>
   </div>
   <div class="tab-pane fade" id="resources" role="tabpanel" aria-labelledby="resources-tab">...</div>
 </div>

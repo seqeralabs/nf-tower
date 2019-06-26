@@ -321,7 +321,7 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         }
 
         when: 'search for the tasks associated with the workflow'
-        PagedResultList<Task> obtainedTasks = taskService.findTasks(workflow.id, max, offset, orderProperty, orderDirection)
+        PagedResultList<Task> obtainedTasks = taskService.findTasks(workflow.id, max, offset, orderProperty, orderDirection, null)
 
         then: 'the obtained tasks are as expected'
         obtainedTasks.totalCount == nTasks
@@ -339,9 +339,51 @@ class TaskServiceTest extends AbstractContainerBaseTest {
     }
 
     @Unroll
+    void "search tasks belonging to a workflow by text"() {
+        given: 'a first task'
+        Task firstTask = new DomainCreator().createTask(taskId: 1, status: TaskStatus.SUBMITTED, hash: "Hash1", tag: "Tag1", process: "Process1")
+
+        and: 'extract its workflow'
+        Workflow workflow = firstTask.workflow
+
+        and: 'generate more tasks associated with the workflow'
+        [TaskStatus.RUNNING, TaskStatus.FAILED, TaskStatus.COMPLETED].eachWithIndex { status, i ->
+            Integer taskId = 2 + i
+            new DomainCreator().createTask(workflow: workflow, status: status, taskId: taskId, hash: "Hash${taskId}", tag: "Tag${taskId}", process: "Process${taskId}")
+        }
+
+        when: 'search for the tasks associated with the workflow'
+        PagedResultList<Task> obtainedTasks = taskService.findTasks(workflow.id, 10, 0, 'taskId', 'asc', search)
+
+        then: 'the obtained tasks are as expected'
+        obtainedTasks.taskId == expectedTaskIds
+
+        where: 'the pagination params are'
+        search      | expectedTaskIds
+        'hash%'     | [1l, 2l, 3l, 4l]
+        'tag%'      | [1l, 2l, 3l, 4l]
+        'process%'  | [1l, 2l, 3l, 4l]
+        '%a%'       | [1l, 2l, 3l, 4l]
+
+        'hash1'     | [1l]
+        'HASH1'     | [1l]
+        'process2'  | [2l]
+        'PROCESS2'  | [2l]
+        'tag3'      | [3l]
+        'TAG3'      | [3l]
+
+        'submit%'   | [1l]
+        'SUBMITTED' | [1l]
+        'submitted' | [1l]
+        'run%'      | [2l]
+        'fail%'     | [3l]
+        'comp%'     | [4l]
+    }
+
+    @Unroll
     void "try to find some tasks for a nonexistent workflow"() {
         when: 'search for the tasks associated with a nonexistent workflow'
-        PagedResultList<Task> obtainedTasks = taskService.findTasks(100l, 10l, 0l, 'taskId', 'asc')
+        PagedResultList<Task> obtainedTasks = taskService.findTasks(100l, 10l, 0l, 'taskId', 'asc', null)
 
         then: 'there are no tasks'
         obtainedTasks.totalCount == 0
