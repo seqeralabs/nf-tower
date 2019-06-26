@@ -13,6 +13,7 @@ package io.seqera.watchtower.service
 
 import grails.gorm.DetachedCriteria
 import grails.gorm.PagedResultList
+import io.seqera.watchtower.pogo.enums.TaskStatus
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -93,11 +94,24 @@ class TaskServiceImpl implements TaskService {
     }
 
     @CompileDynamic
-    //TODO Complete with search functionality
-    PagedResultList<Task> findTasks(Long workflowId, Long max, Long offset, String orderProperty, String orderDirection) {
+    PagedResultList<Task> findTasks(Long workflowId, Long max, Long offset, String orderProperty, String orderDirection, String sqlRegex) {
+        Collection<TaskStatus> statusesToSearch = sqlRegex ? TaskStatus.findStatusesByRegex(sqlRegex) : null
+
         new DetachedCriteria<Task>(Task).build {
             workflow {
                 eq('id', workflowId)
+            }
+
+            if (sqlRegex) {
+                or {
+                    ilike('process', sqlRegex)
+                    ilike('tag', sqlRegex)
+                    ilike('hash', sqlRegex)
+
+                    if (statusesToSearch) {
+                        'in'('status', statusesToSearch)
+                    }
+                }
             }
 
             order(orderProperty, orderDirection)

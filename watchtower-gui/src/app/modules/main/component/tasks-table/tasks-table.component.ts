@@ -63,7 +63,6 @@ export class TasksTableComponent implements OnInit, OnChanges {
       ajax: {
         url: `${endpointUrl}/workflow/${this.workflow.data.workflowId}/tasks`,
         data: (data) => {
-          console.log('The data', data);
           let filterParams: any = {
             start: data.start,
             length: data.length,
@@ -80,15 +79,17 @@ export class TasksTableComponent implements OnInit, OnChanges {
           let json: any = JSON.parse(data);
           json.recordsTotal = json.total;
           json.recordsFiltered = json.total;
-          json.data = json.tasks
+          json.data = json.tasks ? json.tasks
             .map((item) => new Task(item))
-            .map((task: Task) => [task.data.taskId, task.data.process, task.data.tag, task.data.status,
+            .map((task: Task) => [
+              task.data.taskId, task.data.process, task.data.tag, task.statusTag,
               task.data.hash, task.data.cpus, task.data.pcpu, task.data.memory, task.data.pmem, task.data.vmem,
               task.data.rss, task.data.peakVmem, task.data.peakRss, task.data.time, task.data.duration,
               task.data.realtime, task.data.script, task.data.exit, task.data.submit, task.data.start,
               task.data.complete, task.data.rchar, task.data.wchar, task.data.syscr, task.data.syscw,
               task.data.readBytes, task.data.writeBytes, task.data.nativeId, task.data.name, task.data.module,
-              task.data.container, task.data.disk, task.data.attempt, task.data.scratch, task.data.workdir]);
+              task.data.container, task.data.disk, task.data.attempt, task.data.scratch, task.data.workdir
+            ]) : [];
 
           return JSON.stringify(json);
         }
