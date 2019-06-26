@@ -14,6 +14,7 @@ package io.seqera.watchtower.controller
 import grails.gorm.PagedResultList
 import grails.gorm.transactions.Transactional
 import groovy.util.logging.Slf4j
+import io.micronaut.http.HttpParameters
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
@@ -80,30 +81,16 @@ class WorkflowController {
         HttpResponse.ok(progressService.buildWorkflowGet(workflow))
     }
 
-    @Post("/{workflowId}/tasks")
+    @Get("/{workflowId}/tasks")
     @Transactional
     @Secured(SecurityRule.IS_ANONYMOUS)
-    HttpResponse<TaskList> tasks(Long workflowId, @Body Map filterParams) {
-        Long max = filterParams.length ? filterParams.length as Long : 10000l
-        Long offset = filterParams.start ? filterParams.start as Long : 0l
-        List<Map> orderList = filterParams.order as List<Map>
-        String order = 'desc'
-        String sort = 'taskId'
+    HttpResponse<TaskList> tasks(Long workflowId, HttpParameters filterParams) {
+        Long max = filterParams.getFirst('length', Long.class, 10l)
+        Long offset = filterParams.getFirst('start', Long.class, 0l)
+        String orderProperty = filterParams.getFirst('order[0][column]', String.class, 'taskId')
+        String orderDir = filterParams.getFirst('order[0][dir]', String.class, 'asc')
 
-        //TODO: Complete all columns or search if it's possible to send the column name
-        if (filterParams.order) {
-            order = orderList.first().dir
-            switch (orderList.first().column) {
-                case '0':
-                    sort = 'taskId'
-                    break
-                case '1':
-                    sort = 'process'
-                    break
-            }
-        }
-
-        PagedResultList<Task> taskPagedResultList = taskService.findTasks(workflowId, max, offset, sort, order)
+        PagedResultList<Task> taskPagedResultList = taskService.findTasks(workflowId, max, offset, orderProperty, orderDir)
 
         List<TaskGet> result = taskPagedResultList.collect {
             TaskGet.of(it)

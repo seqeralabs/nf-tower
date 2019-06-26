@@ -8,7 +8,7 @@
  * This Source Code Form is "Incompatible With Secondary Licenses", as
  * defined by the Mozilla Public License, v. 2.0.
  */
-import {Component, Input, OnChanges, OnInit} from '@angular/core';
+import {AfterViewInit, Component, Input, OnChanges, OnInit} from '@angular/core';
 import {Task} from "../../entity/task/task";
 import {environment} from "../../../../../environments/environment";
 import {Workflow} from "../../entity/workflow/workflow";
@@ -27,16 +27,21 @@ export class TasksTableComponent implements OnInit, OnChanges {
 
   @Input()
   workflow: Workflow;
+
   dataTable: any;
 
-  constructor(private authService: AuthService) { }
+  constructor() {}
 
   ngOnInit() {
   }
 
   ngOnChanges(): void {
-    this.destroyDataTable();
-    setTimeout(() => this.initializeDataTable());
+    console.log('Changes detected');
+    if (this.dataTable) {
+      this.reloadTable();
+    } else {
+      this.initializeDataTable();
+    }
   }
 
   private destroyDataTable(): void {
@@ -46,29 +51,33 @@ export class TasksTableComponent implements OnInit, OnChanges {
   }
 
   private initializeDataTable(): void {
-    let jwtAccessToken = this.authService.currentUser.data.jwtAccessToken;
-
     this.dataTable = $('#tasks-table').DataTable({
       scrollX: true,
       serverSide: true,
+      orderMulti: false,
+      columns: [
+        {"name":"taskId"},{"name":"process"},{"name":"tag"},{"name":"status"},{"name":"hash"},{"name":"cpus"},{"name":"pcpu"},{"name":"memory"},{"name":"pmem"},{"name":"vmem"},
+        {"name":"rss"},{"name":"peakVmem"},{"name":"peakRss"},{"name":"time"},{"name":"duration"},{"name":"realtime"},{"name":"script"},{"name":"exit"},{"name":"submit"},
+        {"name":"start"},{"name":"complete"},{"name":"rchar"},{"name":"wchar"},{"name":"syscr"},{"name":"syscw"},{"name":"readBytes"},{"name":"writeBytes"},{"name":"nativeId"},
+        {"name":"name"},{"name":"module"},{"name":"container"},{"name":"disk"},{"name":"attempt"},{"name":"scratch"},{"name":"workdir"}],
       ajax: {
         url: `${endpointUrl}/workflow/${this.workflow.data.workflowId}/tasks`,
-        xhrFields: {
-          withCredentials: true
+        data: (data) => {
+          console.log('The data', data);
+          let filterParams: any = {
+            start: data.start,
+            length: data.length,
+            search: data.search.value,
+            order: data.order.map((orderInfo: any) => {
+              return {column: data.columns[orderInfo.column].name, dir: orderInfo.dir}
+
+            })
+          };
+
+          return filterParams;
         },
-        crossDomain: true,
-        method: 'POST',
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer " + `${jwtAccessToken}`,
-          "Access-Control-Allow-Origin": "*"
-        },
-        dataType: 'json',
-        data: function (d) {
-          return JSON.stringify(d);
-        },
-        dataFilter: function (data) {
-          let json = $.parseJSON(data);
+        dataFilter: (data) => {
+          let json: any = JSON.parse(data);
           json.recordsTotal = json.total;
           json.recordsFiltered = json.total;
           json.data = json.tasks
@@ -91,6 +100,10 @@ export class TasksTableComponent implements OnInit, OnChanges {
     if (this.dataTable) {
       this.dataTable.columns.adjust().draw();
     }
+  }
+
+  reloadTable(): void {
+    this.dataTable.ajax.reload();
   }
 
 }

@@ -19,6 +19,6 @@ interface TaskService {
 
     List<Task> processTaskJsonTrace(TraceTaskRequest taskJson)
 
-    PagedResultList<Task> findTasks(Long workflowId, Long max, Long offset, String sort, String order)
+    PagedResultList<Task> findTasks(Long workflowId, Long max, Long offset, String orderProperty, String orderDirection)
 
 }
