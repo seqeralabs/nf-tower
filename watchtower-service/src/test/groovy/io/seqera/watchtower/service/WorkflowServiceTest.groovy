@@ -44,7 +44,7 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         when: "unmarshall the JSON to a workflow"
         Workflow workflow
         Workflow.withNewTransaction {
-            workflow = workflowService.processWorkflowJsonTrace(workflowStartedTraceJson, owner)
+            workflow = workflowService.processTraceWorkflowRequest(workflowStartedTraceJson, owner)
         }
 
         then: "the workflow has been correctly saved"
@@ -71,7 +71,7 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         when: "unmarshall the JSON to a workflow"
         Workflow workflowStarted
         Workflow.withNewTransaction {
-            workflowStarted = workflowService.processWorkflowJsonTrace(workflowStartedTraceJson, owner)
+            workflowStarted = workflowService.processTraceWorkflowRequest(workflowStartedTraceJson, owner)
         }
 
         then: "the workflow has been correctly saved"
@@ -85,7 +85,7 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         TraceWorkflowRequest workflowSucceededTraceJson = TracesJsonBank.extractWorkflowJsonTrace('success', workflowStarted.id, WorkflowTraceSnapshotStatus.SUCCEEDED)
         Workflow workflowSucceeded
         Workflow.withNewTransaction {
-            workflowSucceeded = workflowService.processWorkflowJsonTrace(workflowSucceededTraceJson, owner)
+            workflowSucceeded = workflowService.processTraceWorkflowRequest(workflowSucceededTraceJson, owner)
         }
 
         then: "the workflow has been completed"
@@ -128,7 +128,7 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         when: "unmarshall the JSON to a workflow"
         Workflow workflowStarted
         Workflow.withNewTransaction {
-            workflowStarted = workflowService.processWorkflowJsonTrace(workflowStartedTraceJson, owner)
+            workflowStarted = workflowService.processTraceWorkflowRequest(workflowStartedTraceJson, owner)
         }
 
         then: "the workflow has been correctly saved"
@@ -145,7 +145,7 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         TraceWorkflowRequest workflowFailedTraceJson = TracesJsonBank.extractWorkflowJsonTrace('failed', workflowStarted.id, WorkflowTraceSnapshotStatus.FAILED)
         Workflow workflowFailed
         Workflow.withNewTransaction {
-            workflowFailed = workflowService.processWorkflowJsonTrace(workflowFailedTraceJson, owner)
+            workflowFailed = workflowService.processTraceWorkflowRequest(workflowFailedTraceJson, owner)
         }
 
         then: "the workflow has been completed"
@@ -188,7 +188,7 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         when: "unmarshall the JSON to a workflow"
         Workflow workflowStarted1
         Workflow.withNewTransaction {
-            workflowStarted1 = workflowService.processWorkflowJsonTrace(workflowStarted1TraceJson, owner)
+            workflowStarted1 = workflowService.processTraceWorkflowRequest(workflowStarted1TraceJson, owner)
         }
 
         then: "the workflow has been correctly saved"
@@ -205,7 +205,7 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         TraceWorkflowRequest workflowStarted2TraceJson = TracesJsonBank.extractWorkflowJsonTrace('success', workflowStarted1.id, WorkflowTraceSnapshotStatus.STARTED)
         Workflow workflowStarted2
         Workflow.withNewTransaction {
-            workflowStarted2 = workflowService.processWorkflowJsonTrace(workflowStarted2TraceJson, owner)
+            workflowStarted2 = workflowService.processTraceWorkflowRequest(workflowStarted2TraceJson, owner)
         }
 
         then: "the second workflow is treated as a new one, and sessionId/runName combination cannot be repeated"
@@ -226,7 +226,7 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         when: "unmarshall the JSON to a workflow"
         Workflow workflowStarted
         Workflow.withNewTransaction {
-            workflowStarted = workflowService.processWorkflowJsonTrace(workflowStartedTraceJson, owner)
+            workflowStarted = workflowService.processTraceWorkflowRequest(workflowStartedTraceJson, owner)
         }
 
         then: "the workflow has validation errors"
@@ -247,7 +247,7 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         when: "unmarshall the JSON to a workflow"
         Workflow workflowSucceeded
         Workflow.withNewTransaction {
-            workflowSucceeded = workflowService.processWorkflowJsonTrace(workflowSucceededTraceJson, owner)
+            workflowSucceeded = workflowService.processTraceWorkflowRequest(workflowSucceededTraceJson, owner)
         }
 
         then: "the workflow has been correctly saved"

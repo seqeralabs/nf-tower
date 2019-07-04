@@ -19,9 +19,9 @@ import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowRequest
 
 interface TraceService {
 
-    Workflow processWorkflowTrace(TraceWorkflowRequest traceJson, User owner)
+    Workflow processWorkflowTrace(TraceWorkflowRequest request, User owner)
 
-    List<Task> processTaskTrace(TraceTaskRequest traceJson)
+    List<Task> processTaskTrace(TraceTaskRequest request)
 
 }
 

@@ -11,6 +11,9 @@
 
 package io.seqera.watchtower.service
 
+import javax.inject.Inject
+import javax.inject.Singleton
+
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
 import io.seqera.watchtower.domain.ProcessProgress
@@ -21,10 +24,6 @@ import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.exceptions.NonExistingWorkflowException
 import io.seqera.watchtower.pogo.exchange.progress.ProgressGet
 import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowRequest
-import io.seqera.watchtower.pogo.exchange.workflow.WorkflowGet
-
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Transactional
 @Singleton
@@ -47,11 +46,11 @@ class WorkflowServiceImpl implements WorkflowService {
         Workflow.findAllByOwner(owner, [sort: 'start', order: 'desc'])
     }
 
-    Workflow processWorkflowJsonTrace(TraceWorkflowRequest traceWorkflowRequest, User owner) {
-        traceWorkflowRequest.workflow.checkIsStarted() ? createFromJson(traceWorkflowRequest.workflow, owner) : updateFromJson(traceWorkflowRequest.workflow, traceWorkflowRequest.summary)
+    Workflow processTraceWorkflowRequest(TraceWorkflowRequest request, User owner) {
+        request.workflow.checkIsStarted() ? saveWorkflow(request.workflow, owner) : updateWorkflow(request.workflow, request.summary)
     }
 
-    private Workflow createFromJson(Workflow workflow, User owner) {
+    private Workflow saveWorkflow(Workflow workflow, User owner) {
         workflow.submit = workflow.start
 
         workflow.owner = owner
@@ -60,7 +59,7 @@ class WorkflowServiceImpl implements WorkflowService {
     }
 
     @CompileDynamic
-    private Workflow updateFromJson(Workflow workflow, List<SummaryEntry> summary) {
+    private Workflow updateWorkflow(Workflow workflow, List<SummaryEntry> summary) {
         Workflow existingWorkflow = Workflow.get(workflow.workflowId)
         if (!existingWorkflow) {
             throw new NonExistingWorkflowException("Can't update a non-existing workflow")

@@ -85,19 +85,19 @@ class TraceController {
     @Post("/workflow")
     @Transactional
     @Secured(['ROLE_USER'])
-    HttpResponse<TraceWorkflowResponse> workflow(@Body TraceWorkflowRequest trace, Authentication authentication) {
+    HttpResponse<TraceWorkflowResponse> workflow(@Body TraceWorkflowRequest request, Authentication authentication) {
         HttpResponse<TraceWorkflowResponse> response
         try {
             User user = userService.getFromAuthData(authentication)
-            log.info("Receiving workflow trace: ${trace.inspect()}")
-            Workflow workflow = traceService.processWorkflowTrace(trace, user)
+            log.info("Receiving workflow trace: ${request.inspect()}")
+            Workflow workflow = traceService.processWorkflowTrace(request, user)
             log.info("Processed workflow trace ${workflow.id}")
 
             response = HttpResponse.created(TraceWorkflowResponse.ofSuccess(workflow.id.toString()))
 
             publishWorkflowEvent(workflow, user)
         } catch (Exception e) {
-            log.error("Failed to handle workflow trace=$trace", e)
+            log.error("Failed to handle workflow trace=$request", e)
             response = HttpResponse.badRequest(TraceWorkflowResponse.ofError(e.message))
         }
 
@@ -135,17 +135,17 @@ class TraceController {
     @Post("/task")
     @Transactional
     @Secured(['ROLE_USER'])
-    HttpResponse<TraceTaskResponse> task(@Body TraceTaskRequest trace) {
+    HttpResponse<TraceTaskResponse> task(@Body TraceTaskRequest request) {
         HttpResponse<TraceTaskResponse> response
         try {
-            log.info("Receiving task trace: ${trace.inspect()}")
-            List<Task> tasks = traceService.processTaskTrace(trace)
+            log.info("Receiving task trace: ${request.inspect()}")
+            List<Task> tasks = traceService.processTaskTrace(request)
             log.info("Processed task trace ${tasks.id} (${tasks.taskId} ${tasks.status*.name()})")
 
-            response = HttpResponse.created(TraceTaskResponse.ofSuccess(trace.workflowId.toString()))
+            response = HttpResponse.created(TraceTaskResponse.ofSuccess(request.workflowId.toString()))
             publishUpdatedProgressEvent((Long) tasks.first().workflowId)
         } catch (Exception e) {
-            log.error("Failed to handle trace trace=$trace", e)
+            log.error("Failed to handle trace trace=$request", e)
             response = HttpResponse.badRequest(TraceTaskResponse.ofError(e.message))
         }
 

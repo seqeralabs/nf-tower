@@ -17,7 +17,7 @@ import io.seqera.watchtower.pogo.exchange.trace.TraceTaskRequest
 
 interface TaskService {
 
-    List<Task> processTaskJsonTrace(TraceTaskRequest taskJson)
+    List<Task> processTaskTraceRequest(TraceTaskRequest request)
 
     PagedResultList<Task> findTasks(Long workflowId, Long max, Long offset, String orderProperty, String orderDirection, String sqlRegex)
 
