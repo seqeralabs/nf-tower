@@ -9,9 +9,9 @@ services:
       - 3306:3306
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
-      MYSQL_USER: watchtower
-      MYSQL_PASSWORD: watchtower
-      MYSQL_DATABASE: watchtower
+      MYSQL_USER: tower
+      MYSQL_PASSWORD: tower
+      MYSQL_DATABASE: tower
 
   backend:
     build: ./watchtower-service
