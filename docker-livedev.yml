@@ -2,7 +2,7 @@ version: "3"
 services:
 
   db:
-    image: mysql:8
+    image: mysql:5.7
     networks:
       - backend
     ports:
@@ -12,6 +12,15 @@ services:
       MYSQL_USER: watchtower
       MYSQL_PASSWORD: watchtower
       MYSQL_DATABASE: watchtower
+    volumes:
+      - $PWD/mysql-data:/var/lib/mysql
+
+  adminer:
+    image: adminer
+    networks:
+      - backend
+    ports:
+      - 9000:8080
 
   backend:
     build:
