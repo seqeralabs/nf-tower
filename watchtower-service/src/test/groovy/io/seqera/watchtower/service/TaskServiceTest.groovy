@@ -46,7 +46,7 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         when: "unmarshall the JSON to a task"
         List<Task> tasks
         Task.withNewTransaction {
-            tasks = taskService.processTaskJsonTrace(taskTraceJson)
+            tasks = taskService.processTaskTraceRequest(taskTraceJson)
         }
         Task task = tasks[0]
 
@@ -86,7 +86,7 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         when: "unmarshall the JSON to a task"
         List<Task> tasks
         Task.withNewTransaction {
-            tasks = taskService.processTaskJsonTrace(taskSubmittedTraceJson)
+            tasks = taskService.processTaskTraceRequest(taskSubmittedTraceJson)
         }
         Task taskSubmitted = tasks[0]
 
@@ -103,7 +103,7 @@ class TaskServiceTest extends AbstractContainerBaseTest {
 
         when: "unmarshall the started task trace"
         Task.withNewTransaction {
-            tasks = taskService.processTaskJsonTrace(taskStartedTrace)
+            tasks = taskService.processTaskTraceRequest(taskStartedTrace)
         }
         Task taskStarted = tasks[0]
 
@@ -120,7 +120,7 @@ class TaskServiceTest extends AbstractContainerBaseTest {
 
         when: "unmarshall the succeeded task trace"
         Task.withNewTransaction {
-            tasks = taskService.processTaskJsonTrace(taskSucceededTraceJson)
+            tasks = taskService.processTaskTraceRequest(taskSucceededTraceJson)
         }
         Task taskCompleted = tasks[0]
 
@@ -160,7 +160,7 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         when: "unmarshall the JSON to a task"
         List<Task> tasks
         Task.withNewTransaction {
-            tasks = taskService.processTaskJsonTrace(taskSubmittedTraceJson)
+            tasks = taskService.processTaskTraceRequest(taskSubmittedTraceJson)
         }
         Task taskSubmitted = tasks[0]
 
@@ -177,7 +177,7 @@ class TaskServiceTest extends AbstractContainerBaseTest {
 
         when: "unmarshall the started task trace"
         Task.withNewTransaction {
-            tasks = taskService.processTaskJsonTrace(taskStartedTrace)
+            tasks = taskService.processTaskTraceRequest(taskStartedTrace)
         }
         Task taskStarted = tasks[0]
 
@@ -193,7 +193,7 @@ class TaskServiceTest extends AbstractContainerBaseTest {
 
         when: "unmarshall the succeeded task trace"
         Task.withNewTransaction {
-            tasks = taskService.processTaskJsonTrace(taskFailedTraceJson)
+            tasks = taskService.processTaskTraceRequest(taskFailedTraceJson)
         }
         Task taskCompleted = tasks[0]
 
@@ -228,7 +228,7 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         when: "unmarshall the JSON to a task"
         List<Task> tasks
         Task.withNewTransaction {
-            tasks = taskService.processTaskJsonTrace(taskTraceJson)
+            tasks = taskService.processTaskTraceRequest(taskTraceJson)
         }
         Task task = tasks[0]
 
@@ -254,7 +254,7 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         when: "unmarshall the JSON to a task list"
         List<Task> tasks
         Task.withNewTransaction {
-            tasks = taskService.processTaskJsonTrace(taskTraceJson)
+            tasks = taskService.processTaskTraceRequest(taskTraceJson)
         }
 
         then: "the tasks have been correctly saved"
@@ -276,7 +276,7 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         when: "unmarshall the JSON to a task"
         List<Task> tasks
         Task.withNewTransaction {
-            tasks = taskService.processTaskJsonTrace(taskSubmittedTraceJson)
+            tasks = taskService.processTaskTraceRequest(taskSubmittedTraceJson)
         }
         Task taskSubmitted = tasks[0]
 
@@ -296,7 +296,7 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         when: "unmarshall the JSON to a task"
         List<Task> tasks
         Task.withNewTransaction {
-            tasks = taskService.processTaskJsonTrace(taskSubmittedTraceJson)
+            tasks = taskService.processTaskTraceRequest(taskSubmittedTraceJson)
         }
 
         then: "the workflow doesn't exist"

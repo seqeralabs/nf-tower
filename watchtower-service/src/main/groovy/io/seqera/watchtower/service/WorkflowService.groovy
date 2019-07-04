@@ -14,7 +14,6 @@ package io.seqera.watchtower.service
 import io.seqera.watchtower.domain.User
 import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowRequest
-import io.seqera.watchtower.pogo.exchange.workflow.WorkflowGet
 
 interface WorkflowService {
 
@@ -24,6 +23,6 @@ interface WorkflowService {
 
     void delete(Workflow workflow)
 
-    Workflow processWorkflowJsonTrace(TraceWorkflowRequest traceWorkflowRequest, User owner)
+    Workflow processTraceWorkflowRequest(TraceWorkflowRequest request, User owner)
 
 }

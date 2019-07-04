@@ -38,15 +38,15 @@ class TraceServiceImpl implements TraceService {
     }
 
 
-    Workflow processWorkflowTrace(TraceWorkflowRequest traceJson, User owner) {
-        Workflow workflow = workflowService.processWorkflowJsonTrace(traceJson, owner)
+    Workflow processWorkflowTrace(TraceWorkflowRequest request, User owner) {
+        Workflow workflow = workflowService.processTraceWorkflowRequest(request, owner)
         checkWorkflowSaveErrors(workflow)
 
         workflow
     }
 
-    List<Task> processTaskTrace(TraceTaskRequest trace) {
-        List<Task> tasks = taskService.processTaskJsonTrace(trace)
+    List<Task> processTaskTrace(TraceTaskRequest request) {
+        List<Task> tasks = taskService.processTaskTraceRequest(request)
         tasks.each { Task task ->
             checkTaskSaveErrors(task)
         }

@@ -37,18 +37,14 @@ class TaskServiceImpl implements TaskService {
         this.workflowService = workflowService
     }
 
-    List<Task> processTaskJsonTrace(TraceTaskRequest trace) {
-        trace.tasks.collect { Task task ->
-            processSingleJsonTask(task, trace.workflowId, trace.progress)
+    List<Task> processTaskTraceRequest(TraceTaskRequest request) {
+        request.tasks.collect { Task task ->
+            saveTask(task, request.workflowId, request.progress)
         }
     }
 
-    private Task processSingleJsonTask(Task task, String workflowId, TasksProgress progress) {
-        saveFromJson(task, workflowId, progress)
-    }
-
     @CompileDynamic
-    private Task saveFromJson(Task task, String workflowId, TasksProgress progress) {
+    private Task saveTask(Task task, String workflowId, TasksProgress progress) {
         Workflow existingWorkflow = Workflow.get(workflowId)
         if (!existingWorkflow) {
             throw new NonExistingWorkflowException("Can't find workflow associated with the task")
