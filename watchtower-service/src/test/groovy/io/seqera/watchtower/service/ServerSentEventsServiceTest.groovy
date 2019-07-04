@@ -146,14 +146,14 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
         TestSubscriber subscriber = heartbeatFlowable.test()
 
         and: 'sleep a prudential time to generate a heartbeat'
-        sleep(interval.toMillis() + 1)
+        sleep(interval.toMillis() + 50)
 
         then: 'the data has been generated'
         subscriber.assertValueCount(1)
         subscriber.events.first()[0].data.text == 'Heartbeat 0'
 
         and: 'sleep a prudential time to generate another heartbeat'
-        sleep(interval.toMillis() + 1)
+        sleep(interval.toMillis() + 50)
 
         then: 'the data has been generated'
         subscriber.assertValueCount(2)
