@@ -22,11 +22,11 @@ mail:
       required: false
 ---
 mongodb:
-  uri: "mongodb://${MONGO_HOST:localhost}:${MONGO_PORT:27017}/watchtower"
+  uri: "mongodb://${MONGO_HOST:localhost}:${MONGO_PORT:27017}/tower"
 
 grails:
   mongodb:
-    databaseName: watchtower
+    databaseName: tower
 ---
 mail:
   from: info@seqera.io

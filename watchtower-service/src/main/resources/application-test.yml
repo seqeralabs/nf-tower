@@ -2,10 +2,10 @@
 dataSource:
   pooled: true
   dbCreate: create-drop
-  url: jdbc:mysql://localhost:3307/watchtower
+  url: jdbc:mysql://localhost:3307/tower
   driverClassName: com.mysql.cj.jdbc.Driver
-  username: watchtower
-  password: watchtower
+  username: tower
+  password: tower
 hibernate:
   show_sql: true
   cache:
