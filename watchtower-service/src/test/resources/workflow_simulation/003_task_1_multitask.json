@@ -29,13 +29,5 @@
         }
     ],
     "workflowId": "12345",
-    "utcTime": "2019-06-24T05:18:58Z",
-    "progress": {
-        "pending": 8,
-        "submitted": 1,
-        "running": 6,
-        "succeeded": 0,
-        "failed": 0,
-        "cached": 0
-    }
+    "utcTime": "2019-06-24T05:18:58Z"
 }
