@@ -11,6 +11,8 @@
 
 package io.seqera.watchtower.controller
 
+import javax.inject.Inject
+
 import grails.gorm.transactions.Transactional
 import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpResponse
@@ -33,12 +35,12 @@ import io.seqera.watchtower.pogo.exchange.trace.TraceTaskResponse
 import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowRequest
 import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowResponse
 import io.seqera.watchtower.pogo.exchange.trace.sse.TraceSseResponse
-import io.seqera.watchtower.service.UserService
-import io.seqera.watchtower.util.*
-import spock.lang.Ignore
-import spock.lang.IgnoreRest
-
-import javax.inject.Inject
+import io.seqera.watchtower.util.AbstractContainerBaseTest
+import io.seqera.watchtower.util.DomainCreator
+import io.seqera.watchtower.util.NextflowSimulator
+import io.seqera.watchtower.util.TaskTraceSnapshotStatus
+import io.seqera.watchtower.util.TracesJsonBank
+import io.seqera.watchtower.util.WorkflowTraceSnapshotStatus
 
 @MicronautTest(application = Application.class)
 @Transactional
@@ -209,9 +211,6 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         and: 'the task event has been sent'
         sleep(500) // <-- sleep a prudential time in order to make sure the event has been received
         detailSubscriber.assertValueCount(1)
-        detailSubscriber.events.first()[0].data.progress
-        detailSubscriber.events.first()[0].data.progress.tasksProgress
-        detailSubscriber.events.first()[0].data.progress.processesProgress
 
         when: 'keep the simulation going'
         nextflowSimulator.simulate()

@@ -60,14 +60,7 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         Task.withNewTransaction {
             Task.count() == 1
         }
-
-        and: "the workflow progress info was updated"
-        task.workflow.tasksProgress.running == 0
-        task.workflow.tasksProgress.submitted == 1
-        task.workflow.tasksProgress.failed == 0
-        task.workflow.tasksProgress.pending == 1
-        task.workflow.tasksProgress.succeeded == 0
-        task.workflow.tasksProgress.cached == 0
+        
     }
 
     void "submit a task given a submit trace, then start the task given a start trace, last complete the task given a success trace"() {
@@ -134,14 +127,7 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         Task.withNewTransaction {
             Task.count() == 1
         }
-
-        and: "the workflow progress info was updated"
-        taskCompleted.workflow.tasksProgress.running == 0
-        taskCompleted.workflow.tasksProgress.submitted == 1
-        taskCompleted.workflow.tasksProgress.failed == 0
-        taskCompleted.workflow.tasksProgress.pending == 0
-        taskCompleted.workflow.tasksProgress.succeeded == 1
-        taskCompleted.workflow.tasksProgress.cached == 0
+        
     }
 
     void "submit a task given a submit trace, then start the task given a start trace, last complete the task given a fail trace"() {
@@ -209,13 +195,6 @@ class TaskServiceTest extends AbstractContainerBaseTest {
             Task.count() == 1
         }
 
-        and: "the workflow progress info was updated"
-        taskCompleted.workflow.tasksProgress.running == 3
-        taskCompleted.workflow.tasksProgress.submitted == 0
-        taskCompleted.workflow.tasksProgress.failed == 0
-        taskCompleted.workflow.tasksProgress.pending == 0
-        taskCompleted.workflow.tasksProgress.succeeded == 1
-        taskCompleted.workflow.tasksProgress.cached == 0
     }
 
     void "submit a task given a running trace without previous submitted trace"() {

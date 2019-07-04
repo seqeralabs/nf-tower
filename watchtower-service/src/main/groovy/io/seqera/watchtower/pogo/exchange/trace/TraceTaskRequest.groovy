@@ -15,7 +15,6 @@ import java.time.Instant
 
 import com.fasterxml.jackson.annotation.JsonSetter
 import groovy.transform.ToString
-import io.seqera.watchtower.domain.TasksProgress
 import io.seqera.watchtower.domain.Task
 /**
  * Model a Trace workflow request
@@ -28,7 +27,6 @@ class TraceTaskRequest {
     List<Task> tasks
     Instant utcTime
     String workflowId
-    @Deprecated TasksProgress progress
 
     @JsonSetter('utcTime')
     void deserializeCompleteInstant(String utcTimestamp) {

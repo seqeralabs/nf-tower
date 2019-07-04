@@ -69,14 +69,6 @@
     "workflowId": "12345"
   },
   "utcTime": "2019-05-06T10:04:20Z",
-  "progress": {
-    "running": 0,
-    "submitted": 0,
-    "failed": 0,
-    "pending": 0,
-    "succeeded": 2,
-    "cached": 0
-  },
   "summary": [
     {
       "process": "sayHello",

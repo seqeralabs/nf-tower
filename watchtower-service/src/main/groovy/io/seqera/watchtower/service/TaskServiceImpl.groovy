@@ -11,18 +11,16 @@
 
 package io.seqera.watchtower.service
 
-import grails.gorm.DetachedCriteria
-import grails.gorm.PagedResultList
-import io.seqera.watchtower.pogo.enums.TaskStatus
-
 import javax.inject.Inject
 import javax.inject.Singleton
 
+import grails.gorm.DetachedCriteria
+import grails.gorm.PagedResultList
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
-import io.seqera.watchtower.domain.TasksProgress
 import io.seqera.watchtower.domain.Task
 import io.seqera.watchtower.domain.Workflow
+import io.seqera.watchtower.pogo.enums.TaskStatus
 import io.seqera.watchtower.pogo.exceptions.NonExistingWorkflowException
 import io.seqera.watchtower.pogo.exchange.trace.TraceTaskRequest
 
@@ -39,12 +37,12 @@ class TaskServiceImpl implements TaskService {
 
     List<Task> processTaskTraceRequest(TraceTaskRequest request) {
         request.tasks.collect { Task task ->
-            saveTask(task, request.workflowId, request.progress)
+            saveTask(task, request.workflowId)
         }
     }
 
     @CompileDynamic
-    private Task saveTask(Task task, String workflowId, TasksProgress progress) {
+    private Task saveTask(Task task, String workflowId) {
         Workflow existingWorkflow = Workflow.get(workflowId)
         if (!existingWorkflow) {
             throw new NonExistingWorkflowException("Can't find workflow associated with the task")
@@ -58,8 +56,6 @@ class TaskServiceImpl implements TaskService {
             task.workflow = existingWorkflow
         }
 
-        existingWorkflow.tasksProgress = progress
-        existingWorkflow.save()
         task.save()
         return task
     }

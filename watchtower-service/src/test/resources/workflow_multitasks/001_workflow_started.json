@@ -50,13 +50,5 @@
         },
         "workflowId": null
     },
-    "utcTime": "2019-06-24T05:18:54Z",
-    "progress": {
-        "pending": 0,
-        "submitted": 0,
-        "running": 0,
-        "succeeded": 0,
-        "failed": 0,
-        "cached": 0
-    }
+    "utcTime": "2019-06-24T05:18:54Z"
 }
