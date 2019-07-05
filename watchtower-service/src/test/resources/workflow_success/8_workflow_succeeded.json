@@ -68,7 +68,6 @@
     },
     "workflowId": "12345"
   },
-  "utcTime": "2019-05-06T10:04:20Z",
   "summary": [
     {
       "process": "sayHello",
