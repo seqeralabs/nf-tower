@@ -11,6 +11,9 @@
 
 package io.seqera.watchtower.controller
 
+import javax.inject.Inject
+import java.time.OffsetDateTime
+
 import grails.gorm.transactions.Transactional
 import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpResponse
@@ -20,15 +23,18 @@ import io.micronaut.http.client.annotation.Client
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.watchtower.Application
-import io.seqera.watchtower.domain.*
+import io.seqera.watchtower.domain.Manifest
+import io.seqera.watchtower.domain.NextflowMeta
+import io.seqera.watchtower.domain.Stats
+import io.seqera.watchtower.domain.Task
+import io.seqera.watchtower.domain.TasksProgress
+import io.seqera.watchtower.domain.User
+import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.exchange.task.TaskList
 import io.seqera.watchtower.pogo.exchange.workflow.WorkflowGet
 import io.seqera.watchtower.pogo.exchange.workflow.WorkflowList
 import io.seqera.watchtower.util.AbstractContainerBaseTest
 import io.seqera.watchtower.util.DomainCreator
-
-import javax.inject.Inject
-import java.time.Instant
 
 @MicronautTest(application = Application.class)
 @Transactional
@@ -95,7 +101,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         List<Workflow> workflows = (1..4).collect { Integer i ->
             domainCreator.createWorkflow(
                     owner: owner,
-                    start: Instant.now().plusSeconds(i),
+                    start: OffsetDateTime.now().plusSeconds(i),
                     summaryEntries: [domainCreator.createSummaryEntry(), domainCreator.createSummaryEntry()]
             )
         }

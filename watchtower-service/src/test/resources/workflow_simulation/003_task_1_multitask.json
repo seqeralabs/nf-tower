@@ -6,8 +6,8 @@
             "hash": "2a/cf6779",
             "name": "stress_1cpu",
             "exit": 2147483647,
-            "submit": 1561353538068,
-            "start": 0,
+            "submit": "2019-06-24T07:18:58.068+02:00",
+            "start": null,
             "process": "stress_1cpu",
             "tag": null,
             "module": [
@@ -28,6 +28,5 @@
             "workflowId": "12345"
         }
     ],
-    "workflowId": "12345",
-    "utcTime": "2019-06-24T05:18:58Z"
+    "workflowId": "12345"
 }

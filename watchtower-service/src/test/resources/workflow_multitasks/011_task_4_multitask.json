@@ -6,8 +6,8 @@
             "hash": "b2/243edc",
             "name": "stress_2cpu (3)",
             "exit": 2147483647,
-            "submit": 1561353554852,
-            "start": 1561353554950,
+            "submit": "2019-06-24T07:19:14.852+02:00",
+            "start": "2019-06-24T07:19:14.950+02:00",
             "process": "stress_2cpu",
             "tag": null,
             "module": [
@@ -28,6 +28,5 @@
             "workflowId": "12345"
         }
     ],
-    "workflowId": "12345",
-    "utcTime": "2019-06-24T05:19:15Z"
+    "workflowId": "12345"
 }

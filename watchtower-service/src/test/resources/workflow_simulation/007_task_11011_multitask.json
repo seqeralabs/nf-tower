@@ -6,8 +6,8 @@
             "hash": "2a/cf6779",
             "name": "stress_1cpu",
             "exit": 0,
-            "submit": 1561353538068,
-            "start": 1561353538147,
+            "submit": "2019-06-24T07:18:58.068+02:00",
+            "start": "2019-06-24T07:18:58.147+02:00",
             "process": "stress_1cpu",
             "tag": null,
             "module": [
@@ -25,7 +25,7 @@
             "time": null,
             "env": null,
             "errorAction": null,
-            "complete": 1561353545416,
+            "complete": "2019-06-24T07:19:05.416+02:00",
             "duration": 7348,
             "realtime": 5016,
             "pcpu": 95.6,
@@ -51,8 +51,8 @@
             "hash": "c9/4527f2",
             "name": "stress_100mega (2)",
             "exit": 2147483647,
-            "submit": 1561353545422,
-            "start": 1561353545517,
+            "submit": "2019-06-24T07:19:05.422+02:00",
+            "start": "2019-06-24T07:19:05.517+02:00",
             "process": "stress_100mega",
             "tag": null,
             "module": [
@@ -78,8 +78,8 @@
             "hash": "62/5c6c43",
             "name": "stress_100mega (3)",
             "exit": 2147483647,
-            "submit": 1561353544864,
-            "start": 1561353544955,
+            "submit": "2019-06-24T07:19:04.864+02:00",
+            "start": "2019-06-24T07:19:04.955+02:00",
             "process": "stress_100mega",
             "tag": null,
             "module": [
@@ -100,6 +100,5 @@
             "workflowId": "12345"
         }
     ],
-    "workflowId": "12345",
-    "utcTime": "2019-06-24T05:19:05Z"
+    "workflowId": "12345"
 }

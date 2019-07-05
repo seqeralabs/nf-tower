@@ -11,9 +11,7 @@
 
 package io.seqera.watchtower.pogo.exchange.trace
 
-import java.time.Instant
 
-import com.fasterxml.jackson.annotation.JsonSetter
 import groovy.transform.ToString
 import io.seqera.watchtower.domain.SummaryEntry
 import io.seqera.watchtower.domain.Workflow
@@ -27,13 +25,5 @@ class TraceWorkflowRequest {
 
     Workflow workflow
     List<SummaryEntry> summary
-
-    Instant utcTime
-
-
-    @JsonSetter('utcTime')
-    void deserializeCompleteInstant(String utcTimestamp) {
-        utcTime = utcTimestamp ? Instant.parse(utcTimestamp) : null
-    }
 
 }

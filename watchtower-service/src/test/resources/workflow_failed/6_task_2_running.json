@@ -6,8 +6,8 @@
       "hash": "56/c2d5c7",
       "name": "sayHello (3)",
       "exit": 2147483647,
-      "submit": 1557137060579,
-      "start": 1557137060590,
+      "submit": "2019-05-06T12:04:20.579+02:00",
+      "start": "2019-05-06T12:04:20.590+02:00",
       "process": "sayHello",
       "tag": null,
       "module": [
@@ -27,6 +27,5 @@
       "nativeId": 28438
     }
   ],
-  "workflowId": "12345",
-  "utcTime": "2019-05-06T10:04:20Z"
+  "workflowId": "12345"
 }

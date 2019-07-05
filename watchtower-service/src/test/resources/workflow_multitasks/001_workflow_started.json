@@ -1,6 +1,6 @@
 {
     "workflow": {
-        "start": "2019-06-24T05:18:54Z",
+        "start": "2019-06-24T07:18:54+02:00",
         "projectDir": "/home/salenda/.nextflow/assets/pditommaso/nf-foo",
         "manifest": {
             "nextflowVersion": null,
@@ -49,6 +49,5 @@
             
         },
         "workflowId": null
-    },
-    "utcTime": "2019-06-24T05:18:54Z"
+    }
 }

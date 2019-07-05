@@ -6,8 +6,8 @@
             "hash": "a4/e4c613",
             "name": "stress_300mega",
             "exit": 0,
-            "submit": 1561353547518,
-            "start": 1561353547614,
+            "submit": "2019-06-24T07:19:07.518+02:00",
+            "start": "2019-06-24T07:19:07.614+02:00",
             "process": "stress_300mega",
             "tag": null,
             "module": [
@@ -25,7 +25,7 @@
             "time": null,
             "env": null,
             "errorAction": null,
-            "complete": 1561353554849,
+            "complete": "2019-06-24T07:19:14.849+02:00",
             "duration": 7331,
             "realtime": 5012,
             "pcpu": 195.8,
@@ -46,6 +46,5 @@
             "workflowId": "12345"
         }
     ],
-    "workflowId": "12345",
-    "utcTime": "2019-06-24T05:19:14Z"
+    "workflowId": "12345"
 }

@@ -11,17 +11,18 @@
 
 package io.seqera.watchtower.util
 
+import java.time.Instant
+import java.time.OffsetDateTime
+
 import io.seqera.watchtower.domain.AccessToken
+import io.seqera.watchtower.domain.Role
 import io.seqera.watchtower.domain.SummaryData
 import io.seqera.watchtower.domain.SummaryEntry
 import io.seqera.watchtower.domain.Task
-import io.seqera.watchtower.domain.Workflow
-import io.seqera.watchtower.domain.Role
 import io.seqera.watchtower.domain.User
 import io.seqera.watchtower.domain.UserRole
+import io.seqera.watchtower.domain.Workflow
 import io.seqera.watchtower.pogo.enums.TaskStatus
-
-import java.time.Instant
 
 class DomainCreator {
 
@@ -49,7 +50,7 @@ class DomainCreator {
 
         fields.sessionId = fields.containsKey('sessionId') ? fields.sessionId : "35cce421-4712-4da5-856b-6557635e54${generateUniqueNamePart()}d".toString()
         fields.runName = fields.containsKey('runName') ? fields.runName : "astonishing_majorana${generateUniqueNamePart()}".toString()
-        fields.submit = fields.containsKey('submit') ? fields.submit : Instant.now()
+        fields.submit = fields.containsKey('submit') ? fields.submit : OffsetDateTime.now()
         fields.start = fields.containsKey('start') ? fields.start : fields.submit
 
         fields.projectDir = fields.containsKey('projectDir') ? fields.projectDir : "/home/user/.nextflow/assets/nextflow-io/hello"
@@ -79,7 +80,7 @@ class DomainCreator {
         fields.name = fields.containsKey('name') ? fields.name : "taskName_${generateUniqueNamePart()}"
         fields.hash = fields.containsKey('hash') ? fields.hash : "taskHash_${generateUniqueNamePart()}"
         fields.status = fields.containsKey('status') ? fields.status : TaskStatus.SUBMITTED
-        fields.submit = fields.containsKey('submit') ? fields.submit : Instant.now()
+        fields.submit = fields.containsKey('submit') ? fields.submit : OffsetDateTime.now()
 
         createInstance(task, fields)
     }
@@ -187,7 +188,12 @@ class DomainCreator {
 
         regularParams.each { String k, def v ->
             if (instance.hasProperty(k)) {
-                instance[k] = v
+                try {
+                    instance[k] = v
+                }
+                catch( Exception e ) {
+                    throw new IllegalStateException("Cannot set field=$k with value=$v", e)
+                }
             }
         }
         listParams.each { String k, List v ->

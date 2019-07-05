@@ -1,6 +1,6 @@
 {
     "workflow": {
-        "start": "2019-06-24T05:18:54Z",
+        "start": "2019-06-24T07:18:54+02:00",
         "projectDir": "/home/salenda/.nextflow/assets/pditommaso/nf-foo",
         "manifest": {
             "nextflowVersion": null,
@@ -13,7 +13,7 @@
             "mainScript": "main.nf",
             "author": null
         },
-        "complete": "2019-06-24T05:19:26Z",
+        "complete": "2019-06-24T07:19:26+02:00",
         "profile": "standard",
         "homeDir": "/home/salenda",
         "workDir": "/home/salenda/Programs/nextflow/work",
@@ -68,7 +68,6 @@
         },
         "workflowId": "12345"
     },
-    "utcTime": "2019-06-24T05:19:26Z",
     "summary": [
         {
             "cpu": {

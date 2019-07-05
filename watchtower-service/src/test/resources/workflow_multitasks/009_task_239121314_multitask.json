@@ -6,8 +6,8 @@
             "hash": "df/645864",
             "name": "stress_2cpu (1)",
             "exit": 2147483647,
-            "submit": 1561353547646,
-            "start": 1561353547740,
+            "submit": "2019-06-24T07:19:07.646+02:00",
+            "start": "2019-06-24T07:19:07.740+02:00",
             "process": "stress_2cpu",
             "tag": null,
             "module": [
@@ -33,8 +33,8 @@
             "hash": "b6/162687",
             "name": "stress_2cpu (2)",
             "exit": 0,
-            "submit": 1561353534866,
-            "start": 1561353534875,
+            "submit": "2019-06-24T07:18:54.866+02:00",
+            "start": "2019-06-24T07:18:54.875+02:00",
             "process": "stress_2cpu",
             "tag": null,
             "module": [
@@ -52,7 +52,7 @@
             "time": null,
             "env": null,
             "errorAction": null,
-            "complete": 1561353547641,
+            "complete": "2019-06-24T07:19:07.641+02:00",
             "duration": 12775,
             "realtime": 10006,
             "pcpu": 181.9,
@@ -78,8 +78,8 @@
             "hash": "49/282e3e",
             "name": "stress_100mega (1)",
             "exit": 0,
-            "submit": 1561353534879,
-            "start": 1561353534973,
+            "submit": "2019-06-24T07:18:54.879+02:00",
+            "start": "2019-06-24T07:18:54.973+02:00",
             "process": "stress_100mega",
             "tag": null,
             "module": [
@@ -97,7 +97,7 @@
             "time": null,
             "env": null,
             "errorAction": null,
-            "complete": 1561353547763,
+            "complete": "2019-06-24T07:19:07.763+02:00",
             "duration": 12884,
             "realtime": 10005,
             "pcpu": 95.5,
@@ -123,8 +123,8 @@
             "hash": "31/ab7c06",
             "name": "stress_200mega",
             "exit": 0,
-            "submit": 1561353534886,
-            "start": 1561353534975,
+            "submit": "2019-06-24T07:18:54.886+02:00",
+            "start": "2019-06-24T07:18:54.975+02:00",
             "process": "stress_200mega",
             "tag": null,
             "module": [
@@ -142,7 +142,7 @@
             "time": null,
             "env": null,
             "errorAction": null,
-            "complete": 1561353547883,
+            "complete": "2019-06-24T07:19:07.883+02:00",
             "duration": 12997,
             "realtime": 10016,
             "pcpu": 94.5,
@@ -168,8 +168,8 @@
             "hash": "a4/e4c613",
             "name": "stress_300mega",
             "exit": 2147483647,
-            "submit": 1561353547518,
-            "start": 1561353547614,
+            "submit": "2019-06-24T07:19:07.518+02:00",
+            "start": "2019-06-24T07:19:07.614+02:00",
             "process": "stress_300mega",
             "tag": null,
             "module": [
@@ -195,8 +195,8 @@
             "hash": "fe/d4087a",
             "name": "io_write_100mega",
             "exit": 2147483647,
-            "submit": 1561353547775,
-            "start": 1561353547863,
+            "submit": "2019-06-24T07:19:07.775+02:00",
+            "start": "2019-06-24T07:19:07.863+02:00",
             "process": "io_write_100mega",
             "tag": null,
             "module": [
@@ -217,6 +217,5 @@
             "workflowId": "12345"
         }
     ],
-    "workflowId": "12345",
-    "utcTime": "2019-06-24T05:19:08Z"
+    "workflowId": "12345"
 }
