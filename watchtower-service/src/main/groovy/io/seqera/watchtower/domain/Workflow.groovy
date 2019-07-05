@@ -11,6 +11,8 @@
 
 package io.seqera.watchtower.domain
 
+import java.time.OffsetDateTime
+
 import com.fasterxml.jackson.annotation.JsonGetter
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonSetter
@@ -18,18 +20,16 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import grails.gorm.annotation.Entity
 import groovy.transform.CompileDynamic
 import io.seqera.watchtower.pogo.enums.WorkflowStatus
-
-import java.time.Instant
-
-
 /**
  * Workflow info.
- * @see https://www.nextflow.io/docs/latest/tracing.html#execution-report
+ *  see https://www.nextflow.io/docs/latest/tracing.html#execution-report
  */
 @Entity
 @JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'tasks', 'summaryEntries', 'tasksProgress', 'processesProgress', 'owner'])
 @CompileDynamic
 class Workflow {
+
+    static final private ObjectMapper mapper = new ObjectMapper().findAndRegisterModules()
 
     static hasMany = [tasks: Task, summaryEntries: SummaryEntry, processesProgress: ProcessProgress]
     static belongsTo = [owner: User]
@@ -37,9 +37,9 @@ class Workflow {
     TasksProgress tasksProgress
 
 
-    Instant submit
-    Instant start //TODO For now, submitTime and startTime are the same, when using Launchpad they would differ.
-    Instant complete
+    OffsetDateTime submit
+    OffsetDateTime start //TODO For now, submitTime and startTime are the same, when using Launchpad they would differ.
+    OffsetDateTime complete
 
     Boolean resume
     Boolean success
@@ -69,7 +69,7 @@ class Workflow {
 
     Long duration
 
-    //Multivalue properties encoded as JSON
+    //Multi-value properties encoded as JSON
     String configFiles
     String params
 
@@ -103,24 +103,14 @@ class Workflow {
 
     }
 
-    @JsonSetter('start')
-    void deserializeStartInstant(String startTimestamp) {
-        start = startTimestamp ? Instant.parse(startTimestamp) : null
-    }
-
-    @JsonSetter('complete')
-    void deserializeCompleteInstant(String completeTimestamp) {
-        complete = completeTimestamp ? Instant.parse(completeTimestamp) : null
-    }
-
     @JsonSetter('configFiles')
     void deserializeConfigFilesJson(List<String> configFilesList) {
-        configFiles = configFilesList ? new ObjectMapper().writeValueAsString(configFilesList) : null
+        configFiles = configFilesList ? mapper.writeValueAsString(configFilesList) : null
     }
 
     @JsonSetter('params')
     void deserializeParamsJson(Map paramsMap) {
-        params = paramsMap ? new ObjectMapper().writeValueAsString(paramsMap) : null
+        params = paramsMap ? mapper.writeValueAsString(paramsMap) : null
     }
 
 
@@ -131,12 +121,12 @@ class Workflow {
 
     @JsonGetter('configFiles')
     def serializeConfigFiles() {
-        configFiles ? new ObjectMapper().readValue(configFiles, Object.class) : null
+        configFiles ? mapper.readValue(configFiles, Object.class) : null
     }
 
     @JsonGetter('params')
     def serializeParams() {
-        params ? new ObjectMapper().readValue(params, Object.class) : null
+        params ? mapper.readValue(params, Object.class) : null
     }
 
 

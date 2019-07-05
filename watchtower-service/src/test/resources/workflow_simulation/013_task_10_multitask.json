@@ -6,8 +6,8 @@
             "hash": "c9/4527f2",
             "name": "stress_100mega (2)",
             "exit": 0,
-            "submit": 1561353545422,
-            "start": 1561353545517,
+            "submit": "2019-06-24T07:19:05.422+02:00",
+            "start": "2019-06-24T07:19:05.517+02:00",
             "process": "stress_100mega",
             "tag": null,
             "module": [
@@ -25,7 +25,7 @@
             "time": null,
             "env": null,
             "errorAction": null,
-            "complete": 1561353557196,
+            "complete": "2019-06-24T07:19:17.196+02:00",
             "duration": 11774,
             "realtime": 10015,
             "pcpu": 100.8,
@@ -46,6 +46,5 @@
             "workflowId": "12345"
         }
     ],
-    "workflowId": "12345",
-    "utcTime": "2019-06-24T05:19:18Z"
+    "workflowId": "12345"
 }

@@ -40,6 +40,7 @@ dependencies {
     compile "org.jsoup:jsoup:1.11.2"
     compile "org.apache.commons:commons-text:1.6"
     compile "org.codehaus.groovy:groovy-templates:2.5.3"
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.8"
     
     compileOnly "io.micronaut:micronaut-inject-groovy"
     compileOnly "io.micronaut.configuration:micronaut-openapi"

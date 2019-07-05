@@ -6,8 +6,8 @@
             "hash": "df/645864",
             "name": "stress_2cpu (1)",
             "exit": 0,
-            "submit": 1561353547646,
-            "start": 1561353547740,
+            "submit": "2019-06-24T07:19:07.646+02:00",
+            "start": "2019-06-24T07:19:07.740+02:00",
             "process": "stress_2cpu",
             "tag": null,
             "module": [
@@ -25,7 +25,7 @@
             "time": null,
             "env": null,
             "errorAction": null,
-            "complete": 1561353559469,
+            "complete": "2019-06-24T07:19:19.469+02:00",
             "duration": 11823,
             "realtime": 10004,
             "pcpu": 100.5,
@@ -46,6 +46,5 @@
             "workflowId": "12345"
         }
     ],
-    "workflowId": "12345",
-    "utcTime": "2019-06-24T05:19:19Z"
+    "workflowId": "12345"
 }

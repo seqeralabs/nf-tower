@@ -6,8 +6,8 @@
             "hash": "36/67cad6",
             "name": "io_write_200mega",
             "exit": 0,
-            "submit": 1561353556701,
-            "start": 1561353556791,
+            "submit": "2019-06-24T07:19:16.701+02:00",
+            "start": "2019-06-24T07:19:16.791+02:00",
             "process": "io_write_200mega",
             "tag": null,
             "module": [
@@ -25,7 +25,7 @@
             "time": null,
             "env": null,
             "errorAction": null,
-            "complete": 1561353563710,
+            "complete": "2019-06-24T07:19:23.710+02:00",
             "duration": 7009,
             "realtime": 5281,
             "pcpu": 196.8,
@@ -46,6 +46,5 @@
             "workflowId": "12345"
         }
     ],
-    "workflowId": "12345",
-    "utcTime": "2019-06-24T05:19:23Z"
+    "workflowId": "12345"
 }

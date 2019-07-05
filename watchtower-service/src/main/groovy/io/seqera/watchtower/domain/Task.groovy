@@ -11,6 +11,9 @@
 
 package io.seqera.watchtower.domain
 
+
+import java.time.OffsetDateTime
+
 import com.fasterxml.jackson.annotation.JsonGetter
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonSetter
@@ -18,17 +21,16 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import grails.gorm.annotation.Entity
 import groovy.transform.CompileDynamic
 import io.seqera.watchtower.pogo.enums.TaskStatus
-
-import java.time.Instant
-
 /**
- * Workflow task info.
- * @see https://www.nextflow.io/docs/latest/tracing.html#execution-report
+ * Workflow task info
+ * see https://www.nextflow.io/docs/latest/tracing.html#execution-report
  */
 @Entity
 @JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'workflow', 'workflowId'])
 @CompileDynamic
 class Task {
+
+    static final private ObjectMapper mapper = new ObjectMapper().findAndRegisterModules()
 
     static belongsTo = [workflow: Workflow]
 
@@ -43,9 +45,9 @@ class Task {
 
     TaskStatus status
 
-    Instant submit
-    Instant start
-    Instant complete
+    OffsetDateTime submit
+    OffsetDateTime start
+    OffsetDateTime complete
 
     /**
      * Multi-value field encoded as JSON
@@ -104,45 +106,14 @@ class Task {
         status == TaskStatus.FAILED
     }
 
-    @JsonSetter('submit')
-    void deserializeSubmitInstant(Long submitEpoch) {
-        submit = submitEpoch ? Instant.ofEpochMilli(submitEpoch) : null
-    }
-
-    @JsonSetter('start')
-    void deserializeStartInstant(Long startEpoch) {
-        start = startEpoch ? Instant.ofEpochMilli(startEpoch) : null
-    }
-
-    @JsonSetter('complete')
-    void deserializeCompleteInstant(Long completeEpoch) {
-        complete = completeEpoch ? Instant.ofEpochMilli(completeEpoch) : null
-    }
-
     @JsonSetter('module')
     void deserializeModuleJson(List<String> moduleList) {
-        module = moduleList ? new ObjectMapper().writeValueAsString(moduleList) : null
+        module = moduleList ? mapper.writeValueAsString(moduleList) : null
     }
 
     @JsonSetter('exit')
     void deserializeExistStatus(Long exit) {
         exitStatus = exit
-    }
-
-
-    @JsonGetter('submit')
-    Long serializeSubmitInstant() {
-        submit?.toEpochMilli()
-    }
-
-    @JsonGetter('start')
-    Long serializeStartInstant() {
-        start?.toEpochMilli()
-    }
-
-    @JsonGetter('complete')
-    Long serializeCompleteInstant() {
-        complete?.toEpochMilli()
     }
 
     @JsonGetter('exit')
@@ -160,6 +131,7 @@ class Task {
         process(nullable: true)
         tag(nullable: true)
         exitStatus(nullable: true)
+        submit(nullable: true)
         start(nullable: true)
         complete(nullable: true)
         module(nullable: true)

@@ -12,6 +12,7 @@
 package io.seqera.watchtower.util
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import groovy.util.logging.Slf4j
 import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.client.BlockingHttpClient
@@ -31,7 +32,10 @@ enum TaskTraceSnapshotStatus {
     SUBMITTED, STARTED, RUNNING, COMPLETED, SUCCEEDED, FAILED, MULTITASK, MALFORMED
 }
 
+@Slf4j
 class TracesJsonBank {
+
+    private static final ObjectMapper mapper = new ObjectMapper().findAndRegisterModules()
 
     private final static RESOURCES_DIR_PATH = 'src/test/resources'
 
@@ -44,8 +48,8 @@ class TracesJsonBank {
 
         String fileNamePart = "workflow_${workflowStatus.name().toLowerCase()}.json"
         File jsonFile = workflowDir.listFiles().find { it.name.endsWith(fileNamePart) }
-
-        TraceWorkflowRequest workflowTrace = new ObjectMapper().readValue(jsonFile, TraceWorkflowRequest.class)
+        log.debug "Test json file: $fileNamePart"
+        TraceWorkflowRequest workflowTrace = mapper.readValue(jsonFile, TraceWorkflowRequest.class)
         workflowTrace.workflow.workflowId = workflowId
 
         workflowTrace
@@ -58,7 +62,7 @@ class TracesJsonBank {
         File jsonFile = workflowDir.listFiles().sort { it.name }.find { it.name.endsWith(fileNamePart) }
         println "JsonFile=$jsonFile"
 
-        TraceTaskRequest taskTrace = new ObjectMapper().readValue(jsonFile, TraceTaskRequest.class)
+        TraceTaskRequest taskTrace = mapper.readValue(jsonFile, TraceTaskRequest.class)
         taskTrace.workflowId = workflowId
 
         taskTrace

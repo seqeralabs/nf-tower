@@ -6,8 +6,8 @@
             "hash": "e0/dffe52",
             "name": "stress_and_fail (2)",
             "exit": 2,
-            "submit": 1561353534872,
-            "start": 1561353534877,
+            "submit": "2019-06-24T07:18:54.872+02:00",
+            "start": "2019-06-24T07:18:54.877+02:00",
             "process": "stress_and_fail",
             "tag": null,
             "module": [
@@ -25,7 +25,7 @@
             "time": null,
             "env": null,
             "errorAction": "IGNORE",
-            "complete": 1561353539569,
+            "complete": "2019-06-24T07:18:59.569+02:00",
             "duration": 4697,
             "realtime": 4692,
             "nativeId": 9445,
@@ -37,8 +37,8 @@
             "hash": "1f/e10917",
             "name": "stress_and_fail (3)",
             "exit": 2147483647,
-            "submit": 1561353539596,
-            "start": 1561353539669,
+            "submit": "2019-06-24T07:18:59.596+02:00",
+            "start": "2019-06-24T07:18:59.669+02:00",
             "process": "stress_and_fail",
             "tag": null,
             "module": [
@@ -59,6 +59,5 @@
             "workflowId": "12345"
         }
     ],
-    "workflowId": "12345",
-    "utcTime": "2019-06-24T05:19:00Z"
+    "workflowId": "12345"
 }

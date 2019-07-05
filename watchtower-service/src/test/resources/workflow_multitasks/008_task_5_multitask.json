@@ -6,8 +6,8 @@
             "hash": "a7/30d097",
             "name": "stress_2cpu (4)",
             "exit": 0,
-            "submit": 1561353534892,
-            "start": 1561353534976,
+            "submit": "2019-06-24T07:18:54.892+02:00",
+            "start": "2019-06-24T07:18:54.976+02:00",
             "process": "stress_2cpu",
             "tag": null,
             "module": [
@@ -25,7 +25,7 @@
             "time": null,
             "env": null,
             "errorAction": null,
-            "complete": 1561353547514,
+            "complete": "2019-06-24T07:19:07.514+02:00",
             "duration": 12622,
             "realtime": 10007,
             "pcpu": 182.0,
@@ -46,6 +46,5 @@
             "workflowId": "12345"
         }
     ],
-    "workflowId": "12345",
-    "utcTime": "2019-06-24T05:19:07Z"
+    "workflowId": "12345"
 }

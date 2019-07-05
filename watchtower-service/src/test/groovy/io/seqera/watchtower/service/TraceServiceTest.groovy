@@ -23,6 +23,8 @@ import io.seqera.watchtower.util.DomainCreator
 import javax.inject.Inject
 import javax.validation.ValidationException
 
+import spock.lang.Ignore
+
 @MicronautTest(application = Application.class)
 class TraceServiceTest extends AbstractContainerBaseTest {
 
@@ -122,6 +124,7 @@ class TraceServiceTest extends AbstractContainerBaseTest {
         processedTask.workflowId
     }
 
+    @Ignore
     void "process a task trace to try to submit a task without submit time"() {
         given: "mock the task JSON processor to return a task without submit time"
         Task task = new DomainCreator(failOnError: false).createTask(submit: null)

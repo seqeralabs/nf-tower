@@ -11,6 +11,8 @@
 
 package io.seqera.watchtower.service
 
+import java.time.OffsetDateTime
+
 import grails.gorm.DetachedCriteria
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
@@ -135,7 +137,7 @@ class ProgressServiceImpl implements ProgressService {
             [(tuple[0]): tuple[1]]
         }
 
-        Map<String, String> lastSubmittedTaskHashByProcess = lastSubmitTimeTaskByProcess.collectEntries { String process, Instant submitTime ->
+        Map<String, String> lastSubmittedTaskHashByProcess = lastSubmitTimeTaskByProcess.collectEntries { String process, OffsetDateTime submitTime ->
             String hash = new DetachedCriteria(Task).build {
                 workflow {
                     eq('id', workflowId)
