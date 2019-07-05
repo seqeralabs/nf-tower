@@ -36,9 +36,9 @@ abstract class AbstractContainerBaseTest extends Specification {
     }
 
     private static createMySqlDatabase() {
-        DATABASE_CONTAINER = new FixedHostPortGenericContainer("mysql:8.0")
+        DATABASE_CONTAINER = new FixedHostPortGenericContainer("mysql:5.7")
                 .withFixedExposedPort(3307, 3306)
-                .withEnv([MYSQL_ROOT_PASSWORD: 'root', MYSQL_USER: 'watchtower', MYSQL_PASSWORD: 'watchtower', MYSQL_DATABASE: 'watchtower'])
+                .withEnv([MYSQL_ROOT_PASSWORD: 'root', MYSQL_USER: 'tower', MYSQL_PASSWORD: 'tower', MYSQL_DATABASE: 'tower'])
                 .waitingFor(Wait.forListeningPort())
                 .waitingFor(Wait.forLogMessage(/MySQL init process done.*/, 1))
     }
