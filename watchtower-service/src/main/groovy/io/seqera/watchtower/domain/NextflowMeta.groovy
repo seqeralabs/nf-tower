@@ -29,28 +29,23 @@ import java.time.Instant
 @CompileDynamic
 class NextflowMeta {
 
-    String nextflowVersion
+    String versionNum
     String build
     Instant timestamp
 
-    @JsonSetter('timestamp')
-    void deserializeTimestampInstant(String timestampText) {
-        timestamp = timestampText ? Instant.parse(timestampText) : null
-    }
-
     @JsonSetter('version')
-    void deserializeNextflowVersion(String version) {
-        nextflowVersion = version
+    void deserializeVersion(String version) {
+        versionNum = version
     }
 
     @JsonGetter('version')
-    String serializeNextflowVersion() {
-        nextflowVersion
+    String serializeVersion() {
+        return versionNum
     }
 
 
     static constraints = {
-        nextflowVersion(nullable: true)
+        versionNum(nullable: true)
         build(nullable: true)
         timestamp(nullable: true)
     }
