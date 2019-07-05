@@ -11,7 +11,9 @@
 
 package io.seqera.watchtower.domain
 
+import com.fasterxml.jackson.annotation.JsonGetter
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonSetter
 import grails.gorm.annotation.Entity
 import groovy.transform.CompileDynamic
 
@@ -27,7 +29,7 @@ class Manifest {
 
     String nextflowVersion
     String defaultBranch
-    String version
+    String versionNum
     String homePage
     String gitmodules
     String description
@@ -35,10 +37,20 @@ class Manifest {
     String mainScript
     String author
 
+    @JsonSetter('version')
+    void deserializeVersion(String version) {
+        versionNum = version
+    }
+
+    @JsonGetter('version')
+    String serializeVersion() {
+        return versionNum
+    }
+
     static constraints = {
         nextflowVersion(nullable: true)
         defaultBranch(nullable: true)
-        version(nullable: true)
+        versionNum(nullable: true)
         homePage(nullable: true)
         gitmodules(nullable: true)
         description(nullable: true)
