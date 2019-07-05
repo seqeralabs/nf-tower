@@ -28,8 +28,8 @@ Config:
 
 ## MySQL
 
-    MYSQL_HOST: db
-    MYSQL_PORT: 3306
+    DB_HOST: db
+    DB_PORT: 3306
  
 
 ## Email authentication

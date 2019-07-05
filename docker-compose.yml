@@ -2,7 +2,7 @@ version: "3"
 services:
 
   db:
-    image: mysql:8
+    image: mysql:5.7
     networks:
       - backend
     ports:
@@ -22,8 +22,8 @@ services:
     ports:
       - 8080:8080
     environment:
-      MYSQL_HOST: db
-      MYSQL_PORT: 3306
+      DB_HOST: db
+      DB_PORT: 3306
     volumes:
       - $PWD:/work
     working_dir: /work

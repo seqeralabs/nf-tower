@@ -2,6 +2,7 @@ Thumbs.db
 .DS_Store
 .gradle
 .nextflow*
+.db/
 work/
 build/
 target/

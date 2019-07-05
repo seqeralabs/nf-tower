@@ -13,7 +13,7 @@ services:
       MYSQL_PASSWORD: tower
       MYSQL_DATABASE: tower
     volumes:
-      - $PWD/mysql-data:/var/lib/mysql
+      - $PWD/.db/mysql:/var/lib/mysql
 
   adminer:
     image: adminer
@@ -34,8 +34,8 @@ services:
     ports:
       - 8080:8080
     environment:
-      MYSQL_HOST: db
-      MYSQL_PORT: 3306
+      DB_HOST: db
+      DB_PORT: 3306
       MICRONAUT_ENVIRONMENTS: livedev
       MICRONAUT_CONFIG_FILES: $PWD/tower.yml
       TOWER_LOG_DIR: $PWD

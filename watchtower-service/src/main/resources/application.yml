@@ -4,8 +4,6 @@ micronaut:
     name: watchtower-service
   server:
     netty:
-#      child-options:
-#        SO_TIMEOUT: 420000
   security:
     enabled: true
     endpoints:
@@ -30,7 +28,7 @@ jackson:
 dataSource:
   pooled: true
   dbCreate: update
-  url: "jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/tower"
+  url: "jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/tower"
   driverClassName: com.mysql.cj.jdbc.Driver
   username: tower
   password: tower
@@ -39,7 +37,7 @@ hibernate:
     queries: false
     use_second_level_cache: false
     use_query_cache: false
-  dialect: org.hibernate.dialect.MySQL8Dialect
+  dialect: org.hibernate.dialect.MySQL57Dialect
 grails:
   gorm:
     failOnError: false
