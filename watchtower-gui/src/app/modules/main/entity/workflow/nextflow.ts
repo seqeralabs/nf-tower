@@ -9,7 +9,7 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 export interface Nextflow {
-  version: string;
+  versionNum: string;
   build: number;
   timestamp: Date;
 }

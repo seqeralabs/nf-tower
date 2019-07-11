@@ -11,7 +11,7 @@
 export interface Manifest {
   nextflowVersion?: any;
   defaultBranch: string;
-  version?: any;
+  versionNum?: any;
   homePage?: any;
   gitmodules?: any;
   description?: any;
