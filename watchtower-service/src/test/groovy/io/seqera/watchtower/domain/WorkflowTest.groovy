@@ -16,7 +16,7 @@ import java.time.OffsetDateTime
 import java.time.ZoneId
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowRequest
+import io.seqera.watchtower.exchange.trace.TraceWorkflowRequest
 import spock.lang.Specification
 
 /**

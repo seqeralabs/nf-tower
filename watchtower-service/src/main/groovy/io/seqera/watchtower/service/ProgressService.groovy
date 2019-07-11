@@ -12,8 +12,8 @@
 package io.seqera.watchtower.service
 
 import io.seqera.watchtower.domain.Workflow
-import io.seqera.watchtower.pogo.exchange.progress.ProgressGet
-import io.seqera.watchtower.pogo.exchange.workflow.WorkflowGet
+import io.seqera.watchtower.exchange.progress.ProgressGet
+import io.seqera.watchtower.exchange.workflow.WorkflowGet
 
 interface ProgressService {
 

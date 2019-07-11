@@ -17,7 +17,7 @@ import io.micronaut.http.sse.Event
 import io.reactivex.Flowable
 import io.reactivex.functions.Consumer
 import io.reactivex.processors.PublishProcessor
-import io.seqera.watchtower.pogo.exceptions.NonExistingFlowableException
+import io.seqera.watchtower.exceptions.NonExistingFlowableException
 
 import java.time.Duration
 import java.util.concurrent.ConcurrentHashMap

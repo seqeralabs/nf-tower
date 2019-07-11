@@ -20,9 +20,9 @@ import io.seqera.watchtower.domain.ProcessProgress
 import io.seqera.watchtower.domain.Task
 import io.seqera.watchtower.domain.TasksProgress
 import io.seqera.watchtower.domain.Workflow
-import io.seqera.watchtower.pogo.enums.TaskStatus
-import io.seqera.watchtower.pogo.exchange.progress.ProgressGet
-import io.seqera.watchtower.pogo.exchange.workflow.WorkflowGet
+import io.seqera.watchtower.enums.TaskStatus
+import io.seqera.watchtower.exchange.progress.ProgressGet
+import io.seqera.watchtower.exchange.workflow.WorkflowGet
 
 import javax.inject.Singleton
 import java.time.Instant

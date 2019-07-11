@@ -16,7 +16,7 @@ import io.micronaut.test.annotation.MockBean
 import io.seqera.watchtower.Application
 import io.seqera.watchtower.domain.Task
 import io.seqera.watchtower.domain.Workflow
-import io.seqera.watchtower.pogo.exceptions.NonExistingWorkflowException
+import io.seqera.watchtower.exceptions.NonExistingWorkflowException
 import io.seqera.watchtower.util.AbstractContainerBaseTest
 import io.seqera.watchtower.util.DomainCreator
 

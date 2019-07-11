@@ -31,7 +31,7 @@ import io.seqera.watchtower.domain.AccessToken
 import io.seqera.watchtower.domain.Role
 import io.seqera.watchtower.domain.User
 import io.seqera.watchtower.domain.UserRole
-import io.seqera.watchtower.pogo.exceptions.NonExistingUserException
+import io.seqera.watchtower.exceptions.NonExistingUserException
 import org.springframework.validation.FieldError
 
 @Singleton

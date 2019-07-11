@@ -18,10 +18,10 @@ import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.client.BlockingHttpClient
 import io.seqera.watchtower.domain.User
-import io.seqera.watchtower.pogo.exchange.trace.TraceTaskRequest
-import io.seqera.watchtower.pogo.exchange.trace.TraceTaskResponse
-import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowRequest
-import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowResponse
+import io.seqera.watchtower.exchange.trace.TraceTaskRequest
+import io.seqera.watchtower.exchange.trace.TraceTaskResponse
+import io.seqera.watchtower.exchange.trace.TraceWorkflowRequest
+import io.seqera.watchtower.exchange.trace.TraceWorkflowResponse
 import io.seqera.watchtower.service.auth.AuthenticationProviderByAccessToken
 
 enum WorkflowTraceSnapshotStatus {

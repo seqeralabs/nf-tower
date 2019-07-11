@@ -22,7 +22,7 @@ import io.seqera.watchtower.domain.Task
 import io.seqera.watchtower.domain.User
 import io.seqera.watchtower.domain.UserRole
 import io.seqera.watchtower.domain.Workflow
-import io.seqera.watchtower.pogo.enums.TaskStatus
+import io.seqera.watchtower.enums.TaskStatus
 
 class DomainCreator {
 
