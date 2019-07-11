@@ -27,10 +27,13 @@ interface UserService {
 
     User findByEmailAndAuthToken(String email, String token)
 
+    @Deprecated
     User findByUserNameAndAccessToken(String userName, String token)
 
     List<String> findAuthoritiesByEmail(String email)
 
     List<String> findAuthoritiesOfUser(User user)
+
+    User getByAccessToken(String token)
 
 }

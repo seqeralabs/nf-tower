@@ -16,7 +16,6 @@ import io.micronaut.http.HttpMethod
 import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.MediaType
-import io.micronaut.http.MutableHttpRequest
 import io.micronaut.http.client.HttpClient
 import io.micronaut.security.authentication.UsernamePasswordCredentials
 import io.micronaut.security.token.jwt.render.AccessRefreshToken
@@ -55,10 +54,6 @@ abstract class AbstractContainerBaseTest extends Specification {
         HttpResponse<AccessRefreshToken> response = client.toBlocking().exchange(request, AccessRefreshToken)
 
         response.body.get().accessToken
-    }
-
-    protected HttpRequest appendBasicAuth(User user, MutableHttpRequest request) {
-        request.basicAuth(user.userName, user.accessTokens.first().token)
     }
 
     void cleanup() {

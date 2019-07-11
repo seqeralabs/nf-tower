@@ -22,6 +22,7 @@ import io.seqera.watchtower.pogo.exchange.trace.TraceTaskRequest
 import io.seqera.watchtower.pogo.exchange.trace.TraceTaskResponse
 import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowRequest
 import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowResponse
+import io.seqera.watchtower.service.auth.AuthenticationProviderByAccessToken
 
 enum WorkflowTraceSnapshotStatus {
     STARTED, SUCCEEDED, FAILED, MALFORMED
@@ -131,7 +132,7 @@ class NextflowSimulator {
     }
 
     private buildRequest(String endpoint, def body) {
-        HttpRequest.POST(endpoint, body).basicAuth(user.userName, user.accessTokens.first().token)
+        HttpRequest.POST(endpoint, body).basicAuth(AuthenticationProviderByAccessToken.ID, user.accessTokens.first().token)
     }
 
     private void sleepIfSet() {

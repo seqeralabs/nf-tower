@@ -118,10 +118,11 @@ class TokenControllerTest extends AbstractContainerBaseTest {
 
 
         when:
+        String auth = doJwtLogin(user, client)
         def url = "/token/delete/${token.id}"
         def resp = client
                 .toBlocking()
-                .exchange( appendBasicAuth(user, HttpRequest.DELETE(url)) )
+                .exchange( HttpRequest.DELETE(url).bearerAuth(auth) )
 
         then:
         resp.status == HttpStatus.NO_CONTENT
@@ -148,9 +149,10 @@ class TokenControllerTest extends AbstractContainerBaseTest {
         tx.withNewTransaction {tokenService.countByUser(user2)} == 3
 
         when:
+        String auth = doJwtLogin(user2, client)
         def resp = client
                 .toBlocking()
-                .exchange( appendBasicAuth(user2, HttpRequest.DELETE('/token/delete-all')) )
+                .exchange( HttpRequest.DELETE('/token/delete-all').bearerAuth(auth) )
 
         then:
         resp.status == HttpStatus.NO_CONTENT
@@ -167,12 +169,11 @@ class TokenControllerTest extends AbstractContainerBaseTest {
         User user = tx.withNewTransaction { new DomainCreator().generateAllowedUser() }
 
         when:
+        String auth = doJwtLogin(user, client)
         def req = HttpRequest.POST('/token/create', new CreateAccessTokenRequest(name: 'foo'))
         HttpResponse<CreateAccessTokenResponse> resp = client
                 .toBlocking()
-                .exchange(
-                        appendBasicAuth(user, req),
-                        CreateAccessTokenResponse )
+                .exchange( req.bearerAuth(auth), CreateAccessTokenResponse )
 
         then:
         resp.status == HttpStatus.OK
@@ -188,10 +189,11 @@ class TokenControllerTest extends AbstractContainerBaseTest {
 
         when:
         // tries to create with a name already used `default`
+        String auth = doJwtLogin(user, client)
         def req = HttpRequest.POST('/token/create', new CreateAccessTokenRequest(name: 'default'))
         client
                 .toBlocking()
-                .exchange( appendBasicAuth(user, req), CreateAccessTokenResponse  )
+                .exchange( req.bearerAuth(auth), CreateAccessTokenResponse  )
 
         then:
         def e = thrown(HttpClientResponseException)

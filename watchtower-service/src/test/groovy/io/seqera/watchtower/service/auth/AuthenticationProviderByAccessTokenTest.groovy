@@ -40,11 +40,11 @@ class AuthenticationProviderByAccessTokenTest extends Specification {
         User user = userService.register('user@seqera.io')
 
         when:
-        def result = authProvider.authenticate0(user.userName, user.accessTokens.first().token)
+        def result = authProvider.authToken0(user.accessTokens.first().token)
 
         then:
         result instanceof UserDetails
-        result.username == 'user@seqera.io'
+        result.username == 'foo'
     }
 
     def 'should auth with user name' () {
@@ -57,9 +57,9 @@ class AuthenticationProviderByAccessTokenTest extends Specification {
         AuthenticationProviderByAccessToken provider = Spy(AuthenticationProviderByAccessToken, constructorArgs: [userService])
 
         when:
-        def result = provider.authenticate0(NAME, TOKEN)
+        def result = provider.authToken0(TOKEN)
         then:
-        1 * userService.findByUserNameAndAccessToken (NAME,TOKEN) >> USER
+        1 * userService.getByAccessToken(TOKEN) >> USER
         1 * userService.findAuthoritiesOfUser(USER) >> ['role_a', 'role_b']
         then:
         result instanceof UserDetails
@@ -79,7 +79,7 @@ class AuthenticationProviderByAccessTokenTest extends Specification {
         final tkn = TokenHelper.createHexToken()
         GroovyMock(UserServiceImpl) {
             register(_ as String) >> { String email -> new User(email:email, userName: email, authToken: tkn, authTime: now, accessTokens: [new AccessToken(token: 'token')]) }
-            findByUserNameAndAccessToken(_ as String, _ as String) >> { args -> new User(email:args[0], userName:args[0], authToken: args[1], authTime: now) }
+            getByAccessToken(_ as String) >> { args -> new User(email:'foo', userName:'foo', authToken: args[0], authTime: now) }
             findAuthoritiesOfUser(_ as User) >> ['role_a', 'role_b']
         }
     }
