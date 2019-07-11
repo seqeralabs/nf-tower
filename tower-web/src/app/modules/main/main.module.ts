@@ -11,21 +11,19 @@
  
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-
-import { MainRoutingModule } from './main-routing.module';
+import { Routes, RouterModule } from '@angular/router';
 import { MainComponent } from './main.component';
 import { SidebarComponent } from './component/sidebar/sidebar.component';
 import { NavbarComponent } from './component/navbar/navbar.component';
-import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
+import { HTTP_INTERCEPTORS, HttpClientModule } from "@angular/common/http";
 import { WorkflowCardComponent } from './component/workflow-card/workflow-card.component';
 import { WorkflowDetailComponent } from './component/workflow-detail/workflow-detail.component';
 import { MulticoloredProgressBarComponent } from './component/multicolored-progress-bar/multicolored-progress-bar.component';
 import { WelcomeComponent } from './component/welcome/welcome.component';
 import { LoginComponent } from './component/login/login.component';
-import {FormsModule} from "@angular/forms";
-import { AuthComponent } from './component/auth/auth.component';
-import {JwtInterceptor} from "./interceptor/jwt.interceptor";
-import {ErrorInterceptor} from "./interceptor/error.interceptor";
+import { FormsModule} from "@angular/forms";
+import { JwtInterceptor } from "./interceptor/jwt.interceptor";
+import { ErrorInterceptor } from "./interceptor/error.interceptor";
 import { LogoutComponent } from './component/logout/logout.component';
 import { UserProfileComponent } from './component/user-profile/user-profile.component';
 import { AccessTokenComponent } from "./component/access-token/access-token.component";
@@ -35,7 +33,36 @@ import { TasksProcessesComponent } from './component/tasks-processes/tasks-proce
 import { HomeComponent } from './component/home/home.component';
 import { NotificationComponent } from './component/notification/notification.component';
 import { LandingComponent } from './component/landing/landing.component';
+import { AuthGuard } from "./guard/auth.guard";
+import { AuthComponent } from "./component/auth/auth.component";
 
+/*
+ * Main application routing strategy
+ */
+const routes: Routes = [
+  {path: '',                component: HomeComponent,
+   children: [
+     {path: 'workflow/:id', component: WorkflowDetailComponent},
+     {path: 'profile',      component: UserProfileComponent, canActivate: [AuthGuard]},
+     {path: 'tokens',       component: AccessTokenComponent, canActivate: [AuthGuard]},
+     {path: 'login',        component: LoginComponent},
+   ]
+  },
+  {path: 'auth',         component: AuthComponent},
+  {path: 'logout',       component: LogoutComponent},
+
+  {path: '**', redirectTo: ''}
+];
+
+@NgModule({
+  imports: [RouterModule.forRoot(routes)],
+  exports: [RouterModule]
+})
+export class MainRoutingModule { }
+
+/*
+ * Define the main application module
+ */
 @NgModule({
   declarations: [
     MainComponent,
@@ -70,3 +97,4 @@ import { LandingComponent } from './component/landing/landing.component';
   bootstrap: [MainComponent]
 })
 export class MainModule { }
+
