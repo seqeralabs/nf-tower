@@ -27,9 +27,9 @@ import io.micronaut.test.annotation.MicronautTest
 import io.seqera.watchtower.Application
 import io.seqera.watchtower.domain.AccessToken
 import io.seqera.watchtower.domain.User
-import io.seqera.watchtower.pogo.exchange.token.CreateAccessTokenRequest
-import io.seqera.watchtower.pogo.exchange.token.CreateAccessTokenResponse
-import io.seqera.watchtower.pogo.exchange.token.ListAccessTokensResponse
+import io.seqera.watchtower.exchange.token.CreateAccessTokenRequest
+import io.seqera.watchtower.exchange.token.CreateAccessTokenResponse
+import io.seqera.watchtower.exchange.token.ListAccessTokensResponse
 import io.seqera.watchtower.service.AccessTokenService
 import io.seqera.watchtower.util.AbstractContainerBaseTest
 import io.seqera.watchtower.util.DomainCreator

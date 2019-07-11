@@ -30,9 +30,9 @@ import io.seqera.watchtower.domain.Task
 import io.seqera.watchtower.domain.TasksProgress
 import io.seqera.watchtower.domain.User
 import io.seqera.watchtower.domain.Workflow
-import io.seqera.watchtower.pogo.exchange.task.TaskList
-import io.seqera.watchtower.pogo.exchange.workflow.WorkflowGet
-import io.seqera.watchtower.pogo.exchange.workflow.WorkflowList
+import io.seqera.watchtower.exchange.task.TaskList
+import io.seqera.watchtower.exchange.workflow.WorkflowGet
+import io.seqera.watchtower.exchange.workflow.WorkflowList
 import io.seqera.watchtower.util.AbstractContainerBaseTest
 import io.seqera.watchtower.util.DomainCreator
 

@@ -18,7 +18,7 @@ import grails.gorm.transactions.Transactional
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.watchtower.Application
 import io.seqera.watchtower.domain.User
-import io.seqera.watchtower.pogo.exceptions.EntityException
+import io.seqera.watchtower.exceptions.EntityException
 import io.seqera.watchtower.util.AbstractContainerBaseTest
 import io.seqera.watchtower.util.DomainCreator
 /**

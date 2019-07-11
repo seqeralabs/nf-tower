@@ -13,7 +13,7 @@ package io.seqera.watchtower.service
 
 import grails.gorm.PagedResultList
 import io.seqera.watchtower.domain.Task
-import io.seqera.watchtower.pogo.exchange.trace.TraceTaskRequest
+import io.seqera.watchtower.exchange.trace.TraceTaskRequest
 
 interface TaskService {
 

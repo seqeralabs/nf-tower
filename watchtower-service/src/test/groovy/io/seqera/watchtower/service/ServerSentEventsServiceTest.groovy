@@ -17,7 +17,7 @@ import io.micronaut.test.annotation.MicronautTest
 import io.reactivex.Flowable
 import io.reactivex.subscribers.TestSubscriber
 import io.seqera.watchtower.Application
-import io.seqera.watchtower.pogo.exceptions.NonExistingFlowableException
+import io.seqera.watchtower.exceptions.NonExistingFlowableException
 import io.seqera.watchtower.util.AbstractContainerBaseTest
 
 import javax.inject.Inject

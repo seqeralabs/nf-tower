@@ -26,7 +26,7 @@ import io.seqera.watchtower.Application
 import io.seqera.watchtower.domain.AccessToken
 import io.seqera.watchtower.domain.User
 import io.seqera.watchtower.domain.UserRole
-import io.seqera.watchtower.pogo.exceptions.NonExistingUserException
+import io.seqera.watchtower.exceptions.NonExistingUserException
 import io.seqera.watchtower.util.AbstractContainerBaseTest
 import io.seqera.watchtower.util.DomainCreator
 import org.subethamail.wiser.Wiser

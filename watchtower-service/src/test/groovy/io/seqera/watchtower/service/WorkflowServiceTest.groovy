@@ -17,8 +17,8 @@ import io.seqera.watchtower.Application
 import io.seqera.watchtower.domain.SummaryEntry
 import io.seqera.watchtower.domain.User
 import io.seqera.watchtower.domain.Workflow
-import io.seqera.watchtower.pogo.exceptions.NonExistingWorkflowException
-import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowRequest
+import io.seqera.watchtower.exceptions.NonExistingWorkflowException
+import io.seqera.watchtower.exchange.trace.TraceWorkflowRequest
 import io.seqera.watchtower.util.AbstractContainerBaseTest
 import io.seqera.watchtower.util.DomainCreator
 import io.seqera.watchtower.util.TracesJsonBank

@@ -13,7 +13,7 @@ package io.seqera.watchtower.service
 
 import io.seqera.watchtower.domain.User
 import io.seqera.watchtower.domain.Workflow
-import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowRequest
+import io.seqera.watchtower.exchange.trace.TraceWorkflowRequest
 
 interface WorkflowService {
 

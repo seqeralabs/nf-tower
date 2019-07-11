@@ -18,7 +18,7 @@ import grails.gorm.services.Service
 import io.seqera.util.TokenHelper
 import io.seqera.watchtower.domain.AccessToken
 import io.seqera.watchtower.domain.User
-import io.seqera.watchtower.pogo.exceptions.EntityException
+import io.seqera.watchtower.exceptions.EntityException
 import io.seqera.watchtower.validation.ValidationHelper
 import org.grails.datastore.mapping.validation.ValidationException
 /**

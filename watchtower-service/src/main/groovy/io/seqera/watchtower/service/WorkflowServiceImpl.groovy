@@ -21,9 +21,9 @@ import io.seqera.watchtower.domain.SummaryEntry
 import io.seqera.watchtower.domain.Task
 import io.seqera.watchtower.domain.User
 import io.seqera.watchtower.domain.Workflow
-import io.seqera.watchtower.pogo.exceptions.NonExistingWorkflowException
-import io.seqera.watchtower.pogo.exchange.progress.ProgressGet
-import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowRequest
+import io.seqera.watchtower.exceptions.NonExistingWorkflowException
+import io.seqera.watchtower.exchange.progress.ProgressGet
+import io.seqera.watchtower.exchange.trace.TraceWorkflowRequest
 
 @Transactional
 @Singleton

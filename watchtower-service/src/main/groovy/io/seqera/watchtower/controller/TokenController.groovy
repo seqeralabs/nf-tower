@@ -24,10 +24,10 @@ import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Post
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
-import io.seqera.watchtower.pogo.exceptions.TowerException
-import io.seqera.watchtower.pogo.exchange.MessageResponse
-import io.seqera.watchtower.pogo.exchange.token.CreateAccessTokenResponse
-import io.seqera.watchtower.pogo.exchange.token.ListAccessTokensResponse
+import io.seqera.watchtower.exceptions.TowerException
+import io.seqera.watchtower.exchange.MessageResponse
+import io.seqera.watchtower.exchange.token.CreateAccessTokenResponse
+import io.seqera.watchtower.exchange.token.ListAccessTokensResponse
 import io.seqera.watchtower.service.AccessTokenService
 import io.seqera.watchtower.service.UserService
 /**

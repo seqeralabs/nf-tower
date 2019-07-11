@@ -19,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonSetter
 import com.fasterxml.jackson.databind.ObjectMapper
 import grails.gorm.annotation.Entity
 import groovy.transform.CompileDynamic
-import io.seqera.watchtower.pogo.enums.WorkflowStatus
+import io.seqera.watchtower.enums.WorkflowStatus
 /**
  * Workflow info.
  *  see https://www.nextflow.io/docs/latest/tracing.html#execution-report
