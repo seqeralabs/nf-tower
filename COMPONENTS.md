@@ -23,8 +23,8 @@ Config:
   http://localhost:8080/*  
   
 Config:
-  - watchtower-service/src/main/resources/application.yml
-  - watchtower-service/src/main/resources/application-livedev.yml
+  - tower-backend/src/main/resources/application.yml
+  - tower-backend/src/main/resources/application-livedev.yml
 
 ## MySQL
 
