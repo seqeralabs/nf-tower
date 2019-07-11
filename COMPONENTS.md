@@ -6,17 +6,17 @@
 
 Config:
 
-  - watchtower-gui/src/environments/environment.prod.ts     [prod]
-  - watchtower-gui/src/environments/environment.livedev.ts  [dev]
-  - watchtower-gui/angular.json
+  - tower-web/src/environments/environment.prod.ts     [prod]
+  - tower-web/src/environments/environment.livedev.ts  [dev]
+  - tower-web/angular.json
 
 ## Proxy 
 
   http://localhost:8000:/api/* -> http://backend:8080/*  
 
 Config: 
-  - watchtower-gui/nginx.conf       [prod]
-  - watchtower-gui/proxy.conf.json  [dev]
+  - tower-web/nginx.conf       [prod]
+  - tower-web/proxy.conf.json  [dev]
 
 ## Backend
 
@@ -46,7 +46,7 @@ EMAIL -- (HOST/auth?email=XX&authToken=YY) --> FRONTEND -- (POST: HOST/login?use
 
 It's static html page contained at the path: 
   
-  watchtower-gui/src/assets/landing/
+  tower-web/src/assets/landing/
 
 The landing page is served via a iframe. The only change in the static page is the need for `target="_parent"` 
 in the login links.

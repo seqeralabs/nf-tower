@@ -11,5 +11,5 @@
 
 rootProject.name = 'nf-tower'
 
-include 'watchtower-gui'
+include 'tower-web'
 include 'tower-backend'

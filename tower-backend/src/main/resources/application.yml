@@ -1,7 +1,7 @@
 ---
 micronaut:
   application:
-    name: watchtower-service
+    name: tower-backend
   server:
     netty:
   security:
