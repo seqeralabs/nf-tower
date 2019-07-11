@@ -92,4 +92,4 @@ shadowJar {
 
 run.classpath += configurations.developmentOnly
 run.jvmArgs('-noverify', '-XX:TieredStopAtLevel=1', '-Dcom.sun.management.jmxremote')
-jib.to.image = 'gcr.io/watchtower-service/jib-image'
+jib.to.image = 'gcr.io/tower-backend/jib-image'

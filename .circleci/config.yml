@@ -8,7 +8,7 @@ jobs:
       - checkout
       - run: ./gradlew check assemble
       - run: docker build -t tower-backend:latest tower-backend/
-      - run: docker build -t watchtower-gui:latest watchtower-gui/
+      - run: docker build -t tower-web:latest tower-web/
 
 workflows:
   version: 2

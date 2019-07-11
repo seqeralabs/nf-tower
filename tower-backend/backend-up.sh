@@ -6,4 +6,4 @@ java \
   -noverify \
   -Dmicronaut.config.files=tower.yml \
   ${JAVA_OPTS} \
-  -jar /tower/watchtower-service.jar
+  -jar /tower/tower-backend.jar

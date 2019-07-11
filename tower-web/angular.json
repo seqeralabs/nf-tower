@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "watchtower-gui": {
+    "tower-web": {
       "root": "",
       "sourceRoot": "src",
       "projectType": "application",
@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/watchtower-gui",
+            "outputPath": "dist/tower-web",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -84,21 +84,21 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "watchtower-gui:build"
+            "browserTarget": "tower-web:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "watchtower-gui:build:production"
+              "browserTarget": "tower-web:build:production"
             },
             "livedev": {
-              "browserTarget": "watchtower-gui:build:livedev"
+              "browserTarget": "tower-web:build:livedev"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "watchtower-gui:build"
+            "browserTarget": "tower-web:build"
           }
         },
         "test": {
@@ -132,7 +132,7 @@
         }
       }
     },
-    "watchtower-gui-e2e": {
+    "tower-web-e2e": {
       "root": "e2e/",
       "projectType": "application",
       "prefix": "",
@@ -141,11 +141,11 @@
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
             "protractorConfig": "e2e/protractor.conf.js",
-            "devServerTarget": "watchtower-gui:serve"
+            "devServerTarget": "tower-web:serve"
           },
           "configurations": {
             "production": {
-              "devServerTarget": "watchtower-gui:serve:production"
+              "devServerTarget": "tower-web:serve:production"
             }
           }
         },
@@ -161,5 +161,5 @@
       }
     }
   },
-  "defaultProject": "watchtower-gui"
+  "defaultProject": "tower-web"
 }

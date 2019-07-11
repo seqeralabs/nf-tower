@@ -31,7 +31,7 @@ services:
       - db
 
   frontend:
-    build: ./watchtower-gui
+    build: ./tower-web
     networks:
       - frontend
     ports:

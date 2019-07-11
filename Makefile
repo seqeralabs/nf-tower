@@ -14,7 +14,7 @@ endif
 build:
 	./gradlew assemble
 	docker build -t tower-backend:latest tower-backend/
-	docker build -t watchtower-gui:latest watchtower-gui/
+	docker build -t tower-web:latest tower-web/
 
 run:
 	docker-compose up --build

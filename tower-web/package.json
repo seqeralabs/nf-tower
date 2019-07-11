@@ -1,5 +1,5 @@
 {
-  "name": "watchtower-gui",
+  "name": "tower-web",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
