@@ -9,12 +9,14 @@ import {LogoutComponent} from "./component/logout/logout.component";
 import {UserProfileComponent} from "./component/user-profile/user-profile.component";
 import {MainComponent} from "./main.component";
 import {HomeComponent} from "./component/home/home.component";
+import {AccessTokenComponent} from "./component/access-token/access-token.component";
 
 const routes: Routes = [
   {path: '',                component: HomeComponent,
    children: [
      {path: 'workflow/:id', component: WorkflowDetailComponent},
      {path: 'profile',      component: UserProfileComponent, canActivate: [AuthGuard]},
+     {path: 'tokens',       component: AccessTokenComponent, canActivate: [AuthGuard]}, 
      {path: 'login',        component: LoginComponent},
    ]
   },

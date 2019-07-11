@@ -16,7 +16,7 @@ repositories {
 
 dependencyManagement {
     imports {
-        mavenBom 'io.micronaut:micronaut-bom:1.1.0'
+        mavenBom 'io.micronaut:micronaut-bom:1.1.4'
     }
 }
 
@@ -33,7 +33,7 @@ dependencies {
     compile "io.micronaut:micronaut-http-server-netty"
     
     compile "io.micronaut.configuration:micronaut-hibernate-gorm"
-    compile 'mysql:mysql-connector-java:8.0.16'
+    runtime 'mysql:mysql-connector-java:8.0.16'
     
     compile "javax.activation:activation:1.1.1"
     compile "javax.mail:mail:1.4.7"
@@ -43,14 +43,13 @@ dependencies {
     compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.8"
     
     compileOnly "io.micronaut:micronaut-inject-groovy"
-    compileOnly "io.micronaut.configuration:micronaut-openapi"
 
     compile "io.micronaut:micronaut-management"
     
     annotationProcessor "io.micronaut:micronaut-security"
     compile "io.micronaut:micronaut-security-jwt"
     
-    runtime "ch.qos.logback:logback-classic:1.2.3"
+    compile "ch.qos.logback:logback-classic:1.2.3"
 
     testCompile "io.micronaut:micronaut-inject-groovy"
     testCompile("org.spockframework:spock-core") {
@@ -63,6 +62,7 @@ dependencies {
     testCompile "org.subethamail:subethasmtp:3.1.7"
     testCompile 'net.bytebuddy:byte-buddy:1.9.12'
     testCompile "org.objenesis:objenesis:2.1"
+    testRuntime "com.h2database:h2:1.4.199"
 }
 
 test.classpath += configurations.developmentOnly

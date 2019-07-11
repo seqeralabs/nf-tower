@@ -6,6 +6,7 @@
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
+        <filter class="io.seqera.util.H8WarnFilter" />
     </appender>
 
     <appender name="ROLLING_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
@@ -21,6 +22,8 @@
         <encoder>
             <pattern>%d{MMM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
+
+        <filter class="io.seqera.util.H8WarnFilter" />
     </appender>
 
     <root level="info">
