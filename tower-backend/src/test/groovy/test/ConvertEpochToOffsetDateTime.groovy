@@ -37,7 +37,6 @@ def replaceLine(String line) {
 
 
 assert args
-//def name = '/Users/pditommaso/Projects/nf-tower/watchtower-service/src/test/resources/workflow_success/2_task_1_submitted.json'
 name = args[0]
 def file = new File(name)
 def count=0

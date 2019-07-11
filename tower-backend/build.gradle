@@ -7,7 +7,7 @@ plugins {
 }
 
 version "0.1"
-group "io.sequera.watchtower"
+group "io.sequera.tower"
 
 repositories {
     mavenCentral()
@@ -67,7 +67,7 @@ dependencies {
 
 test.classpath += configurations.developmentOnly
 
-mainClassName = "io.seqera.watchtower.Application"
+mainClassName = "io.seqera.tower.Application"
 tasks.withType(GroovyCompile) {
     groovyOptions.forkOptions.jvmArgs.add('-Dgroovy.parameters=true')
 }
