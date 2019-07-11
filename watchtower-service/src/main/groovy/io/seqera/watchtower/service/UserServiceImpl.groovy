@@ -266,4 +266,13 @@ class UserServiceImpl implements UserService {
 
         existingUser.delete()
     }
+
+    @CompileDynamic
+    User getByAccessToken(String token) {
+        new DetachedCriteria<User>(User).build {
+            accessTokens {
+                eq('token', token)
+            }
+        }.get()
+    }
 }

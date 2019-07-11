@@ -35,6 +35,7 @@ import io.seqera.watchtower.pogo.exchange.trace.TraceTaskResponse
 import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowRequest
 import io.seqera.watchtower.pogo.exchange.trace.TraceWorkflowResponse
 import io.seqera.watchtower.pogo.exchange.trace.sse.TraceSseResponse
+import io.seqera.watchtower.service.auth.AuthenticationProviderByAccessToken
 import io.seqera.watchtower.util.AbstractContainerBaseTest
 import io.seqera.watchtower.util.DomainCreator
 import io.seqera.watchtower.util.NextflowSimulator
@@ -53,6 +54,10 @@ class TraceControllerTest extends AbstractContainerBaseTest {
     @Inject
     @Client('/')
     DefaultHttpClient sseClient
+
+    protected HttpRequest appendBasicAuth(User user, MutableHttpRequest request) {
+        request.basicAuth(AuthenticationProviderByAccessToken.ID, user.accessTokens.first().token)
+    }
 
 
     void "save a new workflow given a start trace"() {

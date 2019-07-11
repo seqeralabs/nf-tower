@@ -28,6 +28,8 @@ import org.reactivestreams.Publisher
 @Singleton
 class AuthenticationProviderByAccessToken implements AuthenticationProvider {
 
+    public static final ID = '@token'
+
     private UserService userService
 
     @Inject
@@ -36,24 +38,26 @@ class AuthenticationProviderByAccessToken implements AuthenticationProvider {
     }
 
     @Override
-    Publisher<AuthenticationResponse> authenticate(AuthenticationRequest authenticationRequest) {
-        final result = authenticate0((String)authenticationRequest.identity, (String) authenticationRequest.secret)
+    Publisher<AuthenticationResponse> authenticate(AuthenticationRequest req) {
+        if( req.identity != ID ) {
+            log.debug "Not a valid access token identity=$req.identity"
+            // a more explanatory message should be returned
+            def result = new AuthFailure('Not a valid access token identify')
+            return Flowable.just(result) as Publisher<AuthenticationResponse>
+        }
+
+        final result = authToken0((String)req.secret)
         return Flowable.just(result) as Publisher<AuthenticationResponse>
     }
 
-    protected AuthenticationResponse authenticate0(String identity, String token) {
-        if( !identity ) {
-            log.debug "Missing user identity -- token=$token"
-            // a more explanatory message should be returned
-            return new AuthFailure('Missing user identity')
-        }
+    protected AuthenticationResponse authToken0(String token) {
 
-        User user = userService.findByUserNameAndAccessToken(identity, token)
+        User user = userService.getByAccessToken(token)
 
         if( !user ) {
-            log.debug "Missing user for identity=$identity -- token=$token"
+            log.info "Missing user token=$token"
             // a more explanatory message should be returned
-            return new AuthFailure("Unknow user with identity: $identity")
+            return new AuthFailure("Unknow user with token: $token")
         }
 
         List<String> authorities = userService.findAuthoritiesOfUser(user)

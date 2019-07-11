@@ -18,8 +18,8 @@ import javax.mail.internet.MimeMultipart
 import javax.validation.ValidationException
 import java.time.Instant
 
+import grails.gorm.transactions.TransactionService
 import grails.gorm.transactions.Transactional
-import io.micronaut.security.authentication.DefaultAuthentication
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.mail.MailerConfig
 import io.seqera.watchtower.Application
@@ -40,6 +40,12 @@ class UserServiceTest extends AbstractContainerBaseTest {
 
     @Inject
     MailerConfig mailerConfig
+
+    @Inject
+    AccessTokenService accessTokenService
+
+    @Inject
+    TransactionService tx
 
     Wiser smtpServer
 
@@ -275,6 +281,21 @@ class UserServiceTest extends AbstractContainerBaseTest {
         then: "a non-existing exception is thrown"
         NonExistingUserException e = thrown(NonExistingUserException)
         e.message == "The user to delete doesn't exist"
+    }
+
+
+    def 'should find a user by the access token' () {
+        given:
+        User user = tx.withNewTransaction { new DomainCreator().createUser() }
+        def tokens = accessTokenService.findByUser(user)
+
+        expect:
+        tokens.size()==1
+
+        when:
+        def expected = userService.getByAccessToken(tokens.get(0).token)
+        then:
+        user.id == expected.id
     }
 
 }
