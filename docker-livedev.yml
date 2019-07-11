@@ -24,10 +24,10 @@ services:
 
   backend:
     build:
-      context: ./watchtower-service
+      context: ./tower-backend
       dockerfile: Dockerfile-livedev
     image: tower-backend:livedev
-    command: bash -c 'wait-for-it.sh db:3306 -t 60; ./gradlew watchtower-service:run --continuous'
+    command: bash -c 'wait-for-it.sh db:3306 -t 60; ./gradlew tower-backend:run --continuous'
     networks:
       - frontend
       - backend

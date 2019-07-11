@@ -13,14 +13,14 @@ endif
 
 build:
 	./gradlew assemble
-	docker build -t watchtower-service:latest watchtower-service/
+	docker build -t tower-backend:latest tower-backend/
 	docker build -t watchtower-gui:latest watchtower-gui/
 
 run:
 	docker-compose up --build
 
 deps:
-	./gradlew -q watchtower-service:dependencies --configuration ${config}
+	./gradlew -q tower-backend:dependencies --configuration ${config}
 
 dev-up:
 	docker-compose -f docker-livedev.yml up --build

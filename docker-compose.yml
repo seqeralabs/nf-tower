@@ -14,7 +14,7 @@ services:
       MYSQL_DATABASE: tower
 
   backend:
-    build: ./watchtower-service
+    build: ./tower-backend
     command: bash -c 'wait-for-it.sh db:3306 -t 60; backend-up.sh'
     networks:
       - frontend
