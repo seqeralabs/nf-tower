@@ -11,6 +11,7 @@
 
 package io.seqera.watchtower.util
 
+import groovy.util.logging.Slf4j
 import io.micronaut.http.HttpMethod
 import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpResponse
@@ -25,18 +26,22 @@ import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.wait.strategy.Wait
 import spock.lang.Specification
 
+@Slf4j
 abstract class AbstractContainerBaseTest extends Specification {
 
     static GenericContainer DATABASE_CONTAINER
+    static boolean isMySql = System.getenv('MICRONAUT_ENVIRONMENTS')=='mysql'
 
     static {
-        createMySqlDatabase()
-
-        DATABASE_CONTAINER.start()
+        if( isMySql ) {
+            log.info "++++ Testing with MYSQL ++++"
+            DATABASE_CONTAINER = createMySqlDatabase()
+            DATABASE_CONTAINER.start()
+        }
     }
 
-    private static createMySqlDatabase() {
-        DATABASE_CONTAINER = new FixedHostPortGenericContainer("mysql:5.7")
+    private static GenericContainer createMySqlDatabase() {
+        new FixedHostPortGenericContainer("mysql:5.7")
                 .withFixedExposedPort(3307, 3306)
                 .withEnv([MYSQL_ROOT_PASSWORD: 'root', MYSQL_USER: 'tower', MYSQL_PASSWORD: 'tower', MYSQL_DATABASE: 'tower'])
                 .waitingFor(Wait.forListeningPort())

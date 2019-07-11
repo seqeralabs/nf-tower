@@ -24,7 +24,11 @@ micronaut:
 jackson:
   serialization:
     writeDatesAsTimestamps: false
----
+  serialization-inclusion: ALWAYS
+# ^^^^^^
+# Use this to avoid empty lists are stripped
+# See com.fasterxml.jackson.annotation.JsonInclude.Include.*
+#
 dataSource:
   pooled: true
   dbCreate: update

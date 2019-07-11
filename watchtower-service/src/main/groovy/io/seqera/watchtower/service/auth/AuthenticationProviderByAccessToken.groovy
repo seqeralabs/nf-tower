@@ -11,7 +11,10 @@
 
 package io.seqera.watchtower.service.auth
 
-import io.micronaut.context.annotation.Value
+import javax.inject.Inject
+import javax.inject.Singleton
+
+import groovy.util.logging.Slf4j
 import io.micronaut.security.authentication.AuthenticationProvider
 import io.micronaut.security.authentication.AuthenticationRequest
 import io.micronaut.security.authentication.AuthenticationResponse
@@ -21,9 +24,7 @@ import io.seqera.watchtower.domain.User
 import io.seqera.watchtower.service.UserService
 import org.reactivestreams.Publisher
 
-import javax.inject.Inject
-import javax.inject.Singleton
-
+@Slf4j
 @Singleton
 class AuthenticationProviderByAccessToken implements AuthenticationProvider {
 
@@ -42,6 +43,7 @@ class AuthenticationProviderByAccessToken implements AuthenticationProvider {
 
     protected AuthenticationResponse authenticate0(String identity, String token) {
         if( !identity ) {
+            log.debug "Missing user identity -- token=$token"
             // a more explanatory message should be returned
             return new AuthFailure('Missing user identity')
         }
@@ -49,6 +51,7 @@ class AuthenticationProviderByAccessToken implements AuthenticationProvider {
         User user = userService.findByUserNameAndAccessToken(identity, token)
 
         if( !user ) {
+            log.debug "Missing user for identity=$identity -- token=$token"
             // a more explanatory message should be returned
             return new AuthFailure("Unknow user with identity: $identity")
         }

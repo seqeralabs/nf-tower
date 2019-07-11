@@ -28,7 +28,8 @@ import {JwtInterceptor} from "./interceptor/jwt.interceptor";
 import {ErrorInterceptor} from "./interceptor/error.interceptor";
 import { LogoutComponent } from './component/logout/logout.component';
 import { UserProfileComponent } from './component/user-profile/user-profile.component';
-import {WorkflowTabsComponent} from "./component/workflow-tabs/workflow-tabs.component";
+import { AccessTokenComponent } from "./component/access-token/access-token.component";
+import { WorkflowTabsComponent } from "./component/workflow-tabs/workflow-tabs.component";
 import { TasksTableComponent } from './component/tasks-table/tasks-table.component';
 import { TasksProcessesComponent } from './component/tasks-processes/tasks-processes.component';
 import { HomeComponent } from './component/home/home.component';
@@ -48,6 +49,7 @@ import { LandingComponent } from './component/landing/landing.component';
     AuthComponent,
     LogoutComponent,
     UserProfileComponent,
+    AccessTokenComponent,
     WorkflowTabsComponent,
     TasksTableComponent,
     TasksProcessesComponent,

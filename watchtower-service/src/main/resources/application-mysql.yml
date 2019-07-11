@@ -1,18 +1,18 @@
 ---
 dataSource:
-  pooled: false
+  pooled: true
   dbCreate: create-drop
-  url: jdbc:h2:mem:default;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-  driverClassName: org.h2.Driver
-  username: sa
-  password: ""
+  url: jdbc:mysql://localhost:3307/tower
+  driverClassName: com.mysql.cj.jdbc.Driver
+  username: tower
+  password: tower
 hibernate:
   show_sql: true
   cache:
     queries: false
     use_second_level_cache: false
     use_query_cache: false
-  dialect: org.hibernate.dialect.H2Dialect
+  dialect: org.hibernate.dialect.MySQL57Dialect
 grails:
   gorm:
     failOnError: false

@@ -129,7 +129,7 @@ class DomainCreator {
         AccessToken accessToken = new AccessToken()
 
         fields.token =  fields.containsKey('token') ? fields.token : "accessToken${generateUniqueNamePart()}"
-        fields.name =  fields.containsKey('name') ? fields.name : 'accessTokenName'
+        fields.name =  fields.containsKey('name') ? fields.name : 'default'
         fields.dateCreated = fields.containsKey('dateCreated') ? fields.dateCreated : Instant.now()
         fields.user = fields.containsKey('user') ? fields.user : createUser(acessTokens: accessToken)
 
@@ -139,8 +139,7 @@ class DomainCreator {
     User createUserWithRole(Map fields = [:], String authority) {
         User user = createUser(fields)
         createUserRole(user: user, role: createRole(authority: authority))
-
-        user
+        return user
     }
 
     UserRole createUserRole(Map fields = [:]) {
