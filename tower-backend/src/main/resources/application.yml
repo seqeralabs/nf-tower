@@ -29,6 +29,7 @@ jackson:
 # Use this to avoid empty lists are stripped
 # See com.fasterxml.jackson.annotation.JsonInclude.Include.*
 #
+---
 dataSource:
   pooled: true
   dbCreate: update
@@ -41,7 +42,7 @@ hibernate:
     queries: false
     use_second_level_cache: false
     use_query_cache: false
-  dialect: org.hibernate.dialect.MySQL57Dialect
+  dialect: org.hibernate.dialect.MySQL55Dialect
 grails:
   gorm:
     failOnError: false
