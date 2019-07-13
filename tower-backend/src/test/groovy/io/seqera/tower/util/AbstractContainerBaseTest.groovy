@@ -40,7 +40,7 @@ abstract class AbstractContainerBaseTest extends Specification {
     }
 
     private static GenericContainer createMySqlDatabase() {
-        new FixedHostPortGenericContainer("mysql:5.7")
+        new FixedHostPortGenericContainer("mysql:5.6")
                 .withFixedExposedPort(3307, 3306)
                 .withEnv([MYSQL_ROOT_PASSWORD: 'root', MYSQL_USER: 'tower', MYSQL_PASSWORD: 'tower', MYSQL_DATABASE: 'tower'])
                 .waitingFor(Wait.forListeningPort())
