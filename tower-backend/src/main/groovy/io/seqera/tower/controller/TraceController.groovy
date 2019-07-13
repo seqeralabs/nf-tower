@@ -140,7 +140,7 @@ class TraceController {
         try {
             log.info("Receiving task trace: ${request.inspect()}")
             List<Task> tasks = traceService.processTaskTrace(request)
-            log.info("Processed task trace ${tasks.id} (${tasks.taskId} ${tasks.status*.name()})")
+            log.info("Processed task trace (${tasks.taskId} ${tasks.status*.name()})")
 
             response = HttpResponse.created(TraceTaskResponse.ofSuccess(request.workflowId.toString()))
             publishUpdatedProgressEvent((Long) tasks.first().workflowId)
