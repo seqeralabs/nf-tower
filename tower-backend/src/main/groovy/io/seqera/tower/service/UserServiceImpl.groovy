@@ -11,31 +11,32 @@
 
 package io.seqera.tower.service
 
-import grails.gorm.DetachedCriteria
-import io.seqera.tower.domain.Workflow
-
 import javax.inject.Inject
 import javax.inject.Singleton
 import javax.validation.ValidationException
 import java.security.Principal
 import java.time.Instant
 
+import grails.gorm.DetachedCriteria
 import grails.gorm.transactions.Transactional
 import groovy.text.GStringTemplateEngine
 import groovy.transform.CompileDynamic
+import groovy.transform.CompileStatic
 import io.micronaut.context.annotation.Value
 import io.seqera.mail.Attachment
 import io.seqera.mail.Mail
-import io.seqera.util.TokenHelper
 import io.seqera.tower.domain.AccessToken
 import io.seqera.tower.domain.Role
 import io.seqera.tower.domain.User
 import io.seqera.tower.domain.UserRole
+import io.seqera.tower.domain.Workflow
 import io.seqera.tower.exceptions.NonExistingUserException
+import io.seqera.util.TokenHelper
 import org.springframework.validation.FieldError
 
 @Singleton
 @Transactional
+@CompileStatic
 class UserServiceImpl implements UserService {
 
 
@@ -56,7 +57,6 @@ class UserServiceImpl implements UserService {
         this.workflowService = workflowService
     }
 
-
     @CompileDynamic
     User register(String email) {
         User user = User.findByEmail(email)
@@ -65,7 +65,7 @@ class UserServiceImpl implements UserService {
         checkUserSaveErrors(user)
         sendAccessEmail(user)
 
-        user
+        return user
     }
 
     protected void sendAccessEmail(User user) {
@@ -162,13 +162,40 @@ class UserServiceImpl implements UserService {
         return rolesOfUser.role.authority
     }
 
+    protected String makeUserNameFromEmail(String email) {
+        def result = email.toLowerCase().replaceAll(/@.*/, '')
+        result = result.replaceAll(/[^a-z\d]/,'-')
+        int p
+        while( (p=result.indexOf('--'))!=-1 )
+            result = result.substring(0,p) + result.substring(p+1, result.size())
+
+        if( result.startsWith('-') )
+            result = result.substring(1)
+
+        if( result.endsWith('-') )
+            result = result.substring(0,result.size()-1)
+        result
+    }
+
+    @CompileDynamic
+    protected String checkUniqueName(final String userName ) {
+        int count=0
+        String result = userName
+        while (User.countByUserName(result)) {
+            result = "${userName}${++count}"
+            if( count > 100 )
+                throw new IllegalStateException("Too many userName check tentatives: $userName")
+        }
+
+        return result
+    }
+
 
     @CompileDynamic
     private User createUser(String email, String authority) {
-        String userName = email.replaceAll(/@.*/, '')
-        if (User.countByUserName(userName)) {
-            userName = "${userName}${new Random().nextInt(100)}"
-        }
+        // create the user name starting from the email user name
+        String userName = makeUserNameFromEmail(email)
+        userName = checkUniqueName(userName)
 
         Role role = Role.findByAuthority(authority) ?: createRole(authority)
 
@@ -183,6 +210,7 @@ class UserServiceImpl implements UserService {
         return user
     }
 
+    @CompileDynamic
     private User updateUserToken(User user) {
         user.authTime = Instant.now()
         user.authToken = TokenHelper.createHexToken()
@@ -190,6 +218,7 @@ class UserServiceImpl implements UserService {
         return user
     }
 
+    @CompileDynamic
     private Role createRole(String authority) {
         Role role = new Role(authority: authority)
         role.save()
@@ -197,6 +226,7 @@ class UserServiceImpl implements UserService {
         return role
     }
 
+    @CompileDynamic
     private void checkUserSaveErrors(User user) {
         if (!user.hasErrors()) {
             return

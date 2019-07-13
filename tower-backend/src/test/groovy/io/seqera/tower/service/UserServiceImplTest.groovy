@@ -114,4 +114,24 @@ class UserServiceImplTest extends Specification {
         'yo@gmail.com'      | 'http://host.com/auth?email=yo%40gmail.com&authToken=abc'
         'yo+xyz@gmail.com'  | 'http://host.com/auth?email=yo%2Bxyz%40gmail.com&authToken=abc'
     }
+
+    def 'should make a user name from email' () {
+        given:
+        UserServiceImpl service = new UserServiceImpl()
+
+        expect:
+        service.makeUserNameFromEmail(EMAIL) == EXPECTED
+        
+        where:
+        EXPECTED    | EMAIL
+        'foo'       | 'foo@bar.com'
+        'f00'       | 'f00@bar.com'
+        'foo-x'     | 'foo.x@bar.com'
+        'foo-x'     | 'foo......x@bar.com'
+        'foo'       | 'foo......@bar.com'
+        'foo'       | '......foo@bar.com'
+        ''          | '......@bar.com'
+        'x-y-z'     | 'x...y..z--@bar.com'
+    }
+
 }

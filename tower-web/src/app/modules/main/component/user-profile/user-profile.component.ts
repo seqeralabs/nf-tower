@@ -9,11 +9,11 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {AuthService} from "../../service/auth.service";
-import {User} from "../../entity/user/user";
+import {AuthService} from "src/app/modules/main/service/auth.service";
+import {User} from "src/app/modules/main/entity/user/user";
 import {NgForm} from "@angular/forms";
 import {HttpErrorResponse} from "@angular/common/http";
-import {NotificationService} from "../../service/notification.service";
+import {NotificationService} from "src/app/modules/main/service/notification.service";
 import {Router} from "@angular/router";
 
 @Component({
