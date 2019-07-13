@@ -5,11 +5,16 @@ jobs:
     environment:
         GRADLE_OPTS: -Dorg.gradle.daemon=false
     steps:
+      - run: $(aws ecr get-login --no-include-email --region eu-west-1)
       - checkout
       - run: ./gradlew check assemble
       - run: make test
       - run: docker build -t tower-backend:latest tower-backend/
       - run: docker build -t tower-web:latest tower-web/
+      - run: docker tag tower-backend:latest 195996028523.dkr.ecr.eu-west-1.amazonaws.com/nf-tower/tower-backend:latest
+      - run: docker tag tower-web:latest 195996028523.dkr.ecr.eu-west-1.amazonaws.com/nf-tower/tower-web:latest
+      - run: docker push 195996028523.dkr.ecr.eu-west-1.amazonaws.com/nf-tower/tower-backend:latest
+      - run: docker push 195996028523.dkr.ecr.eu-west-1.amazonaws.com/nf-tower/tower-web:latest
 
 workflows:
   version: 2
