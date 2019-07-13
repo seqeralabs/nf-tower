@@ -35,6 +35,7 @@ import { NotificationComponent } from './component/notification/notification.com
 import { LandingComponent } from './component/landing/landing.component';
 import { AuthGuard } from "./guard/auth.guard";
 import { AuthComponent } from "./component/auth/auth.component";
+import { BootstrapValidationCssDirective } from "./directive/bootstrap-validation";
 
 /*
  * Main application routing strategy
@@ -66,6 +67,7 @@ export class MainRoutingModule { }
 @NgModule({
   declarations: [
     MainComponent,
+    BootstrapValidationCssDirective,
     SidebarComponent,
     NavbarComponent,
     WorkflowCardComponent,
