@@ -16,6 +16,7 @@ import javax.mail.Message
 import javax.mail.internet.InternetAddress
 import javax.mail.internet.MimeMultipart
 import javax.validation.ValidationException
+import org.grails.datastore.mapping.validation.ValidationException as GrailsValidationException
 import java.time.Instant
 
 import grails.gorm.transactions.TransactionService
@@ -156,7 +157,7 @@ class UserServiceTest extends AbstractContainerBaseTest {
         then: "the user has been created and the userName has an appended number"
         user2.id
         user2.email == email2
-        user2.userName ==~ /${email2.replaceAll(/@.*/, '')}\d+/
+        user2.userName == 'user1'
         user2.authToken
         User.withNewTransaction {
             User.count() == 2
@@ -296,6 +297,43 @@ class UserServiceTest extends AbstractContainerBaseTest {
         def expected = userService.getByAccessToken(tokens.get(0).token)
         then:
         user.id == expected.id
+    }
+
+    def 'user name should not start with number' () {
+        when: 'starts with a number'
+        tx.withNewTransaction { new DomainCreator().createUser(userName: '0abc') }
+        then:
+        notThrown(GrailsValidationException)
+
+        when: 'contains more than one -'
+        tx.withNewTransaction { new DomainCreator().createUser(userName: 'a----b') }
+        then:
+        thrown(GrailsValidationException)
+
+        when: 'contains blanks'
+        tx.withNewTransaction { new DomainCreator().createUser(userName: 'a b') }
+        then:
+        thrown(GrailsValidationException)
+
+        when: 'uppercase is used'
+        tx.withNewTransaction { new DomainCreator().createUser(userName: 'ABC') }
+        then:
+        thrown(GrailsValidationException)
+
+        when: 'underscore is used'
+        tx.withNewTransaction { new DomainCreator().createUser(userName: 'a_b') }
+        then:
+        thrown(GrailsValidationException)
+
+        when: 'starts with -'
+        tx.withNewTransaction { new DomainCreator().createUser(userName: '-aa') }
+        then:
+        thrown(GrailsValidationException)
+
+        when: 'ends with -'
+        tx.withNewTransaction { new DomainCreator().createUser(userName: 'aa-') }
+        then:
+        thrown(GrailsValidationException)
     }
 
 }

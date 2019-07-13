@@ -23,6 +23,8 @@ import groovy.transform.CompileDynamic
 @CompileDynamic
 class User {
 
+    static final USERNAME_REGEX = /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/
+
     String userName
     String email
     String authToken
@@ -38,7 +40,7 @@ class User {
 
     static constraints = {
         email(email: true, unique: true)
-        userName(unique: true)
+        userName(unique: true, blank:false, matches: USERNAME_REGEX)
         authToken(unique: true)
 
         firstName(nullable: true)
