@@ -1,0 +1,47 @@
+<!--
+  ~ Copyright (c) 2019, Seqera Labs.
+  ~
+  ~ This Source Code Form is subject to the terms of the Mozilla Public
+  ~ License, v. 2.0. If a copy of the MPL was not distributed with this
+  ~ file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  ~
+  ~ This Source Code Form is "Incompatible With Secondary Licenses", as
+  ~ defined by the Mozilla Public License, v. 2.0.
+  -->
+
+<div class="container mt-5">
+  <h1 class="mb-4">Access Tokens</h1>
+
+  <p>
+    Security tokens to access Nextflow Tower via API.
+  </p>
+
+  <div class="btn-toolbar">
+
+    <div class="btn-group mr-2">
+      <button type="button" class="btn btn-primary btn-sm" (click)="createNewToken()">New token</button>
+    </div>
+    <div class="btn-group mr-2">
+      <button type="button" class="btn btn-outline-danger btn-sm" [disabled]="disabled" (click)="deleteAllTokens()" >Revoke all</button>
+    </div>
+  </div>
+  <br>
+  
+  <ul class="list-group">
+    <li class="list-group-item" *ngFor="let token of tokens" >
+      <div class="d-flex w-100 justify-content-between">
+        <h5 class="mb-1">{{token.name}}</h5>
+        <small>Last used {{token.lastUsed ? (token.lastUsed | date: 'medium') : 'never'}}</small>
+      </div>
+      <p class="mb-1">{{token.token}} </p>
+      <button type="button" class="btn btn-outline-danger btn-sm btn-delete" (click)="deleteToken(token)">Delete</button>
+    </li>
+  </ul>
+
+  <div class="card" *ngIf="tokens?.length==0">
+    <div class="card-body">
+      No security tokens defined.
+    </div>
+  </div>
+</div>
+  

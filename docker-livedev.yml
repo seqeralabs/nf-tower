@@ -2,7 +2,7 @@ version: "3"
 services:
 
   db:
-    image: mysql:5.7
+    image: mysql:5.6
     networks:
       - backend
     ports:
@@ -24,10 +24,10 @@ services:
 
   backend:
     build:
-      context: ./watchtower-service
+      context: ./tower-backend
       dockerfile: Dockerfile-livedev
     image: tower-backend:livedev
-    command: bash -c 'wait-for-it.sh db:3306 -t 60; ./gradlew watchtower-service:run --continuous'
+    command: bash -c 'wait-for-it.sh db:3306 -t 60; ./gradlew tower-backend:run --continuous'
     networks:
       - frontend
       - backend
@@ -49,13 +49,13 @@ services:
 
   frontend:
     build:
-      context: ./watchtower-gui
+      context: ./tower-web
       dockerfile: Dockerfile-livedev
     image: tower-frontend:livedev
     command: bash -c 'npm i; ng serve --live-reload --watch --poll 3000 --host 0.0.0.0 --port 8000 --proxy-config proxy.conf.json -c livedev'
     volumes:
-      - $PWD/watchtower-gui:$PWD/watchtower-gui
-    working_dir: $PWD/watchtower-gui
+      - $PWD/tower-web:$PWD/tower-web
+    working_dir: $PWD/tower-web
     networks:
       - frontend
     ports:

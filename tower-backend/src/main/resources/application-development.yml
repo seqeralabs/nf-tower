@@ -1,0 +1,23 @@
+---
+micronaut:
+  server:
+    cors:
+      enabled: true
+---
+mail:
+  from: info@seqera.io
+  to: qa@salenda.es
+  smtp:
+    host: smtp.salenda.es
+    port: 25
+    auth: false
+    starttls:
+      enable: false
+      required: false
+---
+tower:
+  serverUrl: http://localhost:4200
+---
+auth:
+  mail:
+    duration: 1d

@@ -1,0 +1,103 @@
+/* You can add global styles to this file, and also import other style files */
+@import "./src/assets/variables";
+
+html {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  height: 100%;
+  width: 100%;
+
+  overflow-x: hidden;
+  background-color: $body-background !important;
+}
+
+#navbar {
+  width: 100%;
+  height: $navbar-height;
+
+  background-color: $navbar-background;
+  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16);
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+#layout {
+  display: flex;
+  min-height: calc(100% - #{$navbar-height});
+  width: 100%;
+}
+
+#sidebar {
+  position: sticky;
+  top: 0;
+  flex: 0 0 25%;
+
+  background-color: $sidebar-background;
+  border-right: $sidebar-border;
+
+  overflow-x: hidden;
+  overflow-y: auto;
+  height: 100vh;
+}
+
+#central {
+  width: 100%;
+  min-height: inherit;
+  flex: 1 0 75%;
+}
+
+#notification-container {
+  position: absolute;
+  top: calc(#{$navbar-height} + 2px);
+  right: 0;
+}
+
+/* callout styles */
+
+.bd-callout {
+    padding: 1.25rem;
+    margin-top: 1.25rem;
+    margin-bottom: 1.25rem;
+    border: 1px solid #eee;
+    border-left-width: .25rem;
+    border-radius: .25rem;
+}
+
+.bd-callout-primary {
+    border-left-color: #007bff;
+ }
+
+.bd-callout-secondary {
+    border-left-color: #6c757d;
+}
+
+.bd-callout-success {
+    border-left-color: #28a745;
+}
+
+.bd-callout-warning {
+    border-left-color: #ffc107;
+}
+
+.bd-callout-danger {
+    border-left-color: #dc3545;
+}
+
+.bd-callout-info {
+    border-left-color: #17a2b8;
+}
+
+.bd-callout-light {
+    border-left-color: #f8f9fa;
+}
+
+.bd-callout-dark {
+    border-left-color: #343a40;
+}
+
+.bd-callout-white {
+    border-left-color: #fff;
+}

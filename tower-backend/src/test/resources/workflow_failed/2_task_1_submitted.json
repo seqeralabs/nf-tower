@@ -1,0 +1,31 @@
+{
+  "tasks": [
+    {
+      "taskId": 1,
+      "status": "SUBMITTED",
+      "hash": "2e/a112fb",
+      "name": "sayHello (2)",
+      "exit": 2147483647,
+      "submit": "2019-05-06T12:04:20.558+02:00",
+      "start": null,
+      "process": "sayHello",
+      "tag": null,
+      "module": [
+
+      ],
+      "container": "nextflow/bash",
+      "attempt": 1,
+      "script": "\n    echo 'Ciao world!'\n    ",
+      "scratch": null,
+      "workdir": "/home/user/Programs/nextflow/work/2e/a112fb713ff5adc7ec71a8f1a90153",
+      "queue": null,
+      "cpus": 1,
+      "memory": null,
+      "disk": null,
+      "time": null,
+      "env": null,
+      "nativeId": null
+    }
+  ],
+  "workflowId": "12345"
+}
