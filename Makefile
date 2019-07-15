@@ -2,6 +2,7 @@ config ?= compile
 
 clean:
 	./gradlew clean
+	rm -rf .db
 	docker rm nf-tower_db_1 || true
 
 test:
