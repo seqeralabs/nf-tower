@@ -33,9 +33,6 @@ mail:
       host: proxy.com
       port: 5566
 ---
-front:
-  url: http://localhost:4200
----
 auth:
   mail:
     duration: 30m

@@ -9,4 +9,4 @@ Not working? Try copying and pasting it to your browser.
 
 --
 This email was sent by ${app_name}
-${frontend_url}
+${server_url}

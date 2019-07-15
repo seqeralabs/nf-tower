@@ -11,15 +11,30 @@
 
 package io.seqera.tower.service
 
+import javax.inject.Inject
+
+import io.micronaut.context.ApplicationContext
+import io.micronaut.test.annotation.MicronautTest
 import io.seqera.mail.Attachment
-import io.seqera.mail.Mail
 import io.seqera.tower.domain.User
 import spock.lang.Specification
 /**
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
+@MicronautTest
 class UserServiceImplTest extends Specification {
+
+    @Inject
+    ApplicationContext context
+
+    def 'should bind properties' () {
+        given:
+        UserServiceImpl userService = context.getBean(UserServiceImpl)
+        expect:
+        userService.appName == 'Nextflow Tower'
+        userService.serverUrl == 'http://localhost:8000'
+    }
 
     def 'should load text template' () {
         given:
@@ -27,7 +42,7 @@ class UserServiceImplTest extends Specification {
                 user: 'Mr Bean',
                 app_name: 'Nextflow Tower',
                 auth_url: 'https://tower.com/login?d78a8ds',
-                frontend_url:'http://host.com']
+                server_url:'http://host.com']
         def service = Spy(UserServiceImpl)
         when:
         def text = service.getTextTemplate(binding)
@@ -44,7 +59,7 @@ class UserServiceImplTest extends Specification {
                 user: 'Mr Bean',
                 app_name: 'Nextflow Tower',
                 auth_url: 'https://tower.com/login?1234',
-                frontend_url:'https://tower.nf']
+                server_url:'https://tower.nf']
         def service = Spy(UserServiceImpl)
         when:
         def text = service.getHtmlTemplate(binding)
@@ -69,42 +84,38 @@ class UserServiceImplTest extends Specification {
     }
 
 
-    def 'should send auth email' () {
+    def 'should build auth email' () {
         given:
-        def TEXT_TPL = 'mail text template'
-        def HTML_TPL = 'mail text template'
         def ATTACH = new Attachment(new File('LOGO'))
         def RECIPIENT = 'alice@domain.com'
-        def LINK = 'http://domain.com/link?register'
-        def HOST = 'http://foo.com'
-        def user = new User(email: RECIPIENT)
+        def user = new User(email: RECIPIENT, userName:'Mr Foo', authToken: 'xyz')
         def mailer = Mock(MailService)
-        def service = Spy(UserServiceImpl)
+        def service = new UserServiceImpl()
         service.mailService = mailer
-        service.frontendUrl = HOST
         service.appName = 'Nextflow Tower'
+        service.serverUrl = 'http://localhost:1234'
 
         when:
-        service.sendAccessEmail(user)
-
+        def mail = service.buildAccessEmail(user)
+        //println mail.text
         then:
-        1 * service.buildAccessUrl(user) >> LINK
-        1 * service.getTextTemplate(_) >> { Map binding -> assert binding.auth_url==LINK; assert binding.frontend_url==HOST; TEXT_TPL }
-        1 * service.getHtmlTemplate(_) >> { Map binding -> assert binding.auth_url==LINK; assert binding.frontend_url==HOST;HTML_TPL }
-        1 * service.getLogoAttachment() >> ATTACH
-        1 * mailer.sendMail(_ as Mail) >> { Mail mail ->
-            assert mail.subject == 'Nextflow Tower Sign in'
-            assert mail.to == RECIPIENT
-            assert mail.text == TEXT_TPL
-            assert mail.body == HTML_TPL
-            assert mail.attachments == [ATTACH]
-        }
-
+        mail.subject == 'Nextflow Tower Sign in'
+        mail.to == RECIPIENT
+        mail.attachments == [ATTACH]
+        // text email
+        mail.text.startsWith('Hi Mr Foo,')
+        mail.text.contains('http://localhost:1234/auth?email=alice%40domain.com&authToken=xyz')
+        mail.text.contains('This email was sent by Nextflow Tower\nhttp://localhost')
+        // html email
+        mail.body.contains('Hi Mr Foo,')
+        mail.body.contains('http://localhost:1234/auth?email=alice%40domain.com&authToken=xyz')
     }
+
 
     def 'should encode url' () {
         given:
-        def service = new UserServiceImpl(frontendUrl: 'http://host.com')
+        def service = new UserServiceImpl ()
+        service.serverUrl = 'http://host.com'
 
         expect:
         service.buildAccessUrl(new User(email:EMAIL, authToken: 'abc')) == EXPECTED

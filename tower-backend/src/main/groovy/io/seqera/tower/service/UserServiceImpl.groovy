@@ -22,6 +22,7 @@ import grails.gorm.transactions.Transactional
 import groovy.text.GStringTemplateEngine
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
+import groovy.util.logging.Slf4j
 import io.micronaut.context.annotation.Value
 import io.seqera.mail.Attachment
 import io.seqera.mail.Mail
@@ -34,22 +35,23 @@ import io.seqera.tower.exceptions.NonExistingUserException
 import io.seqera.util.TokenHelper
 import org.springframework.validation.FieldError
 
+@Slf4j
 @Singleton
 @Transactional
 @CompileStatic
 class UserServiceImpl implements UserService {
 
-
-    @Value('${app.name:Nextflow Tower}')
+    @Value('${tower.app-name}')
     String appName
-    @Value('${front.url}')
-    String frontendUrl
+
+    @Value('${tower.server-url}')
+    String serverUrl
 
     MailService mailService
+
     WorkflowService workflowService
 
-    UserServiceImpl() {
-    }
+    UserServiceImpl() { }
 
     @Inject
     UserServiceImpl(MailService mailService, WorkflowService workflowService) {
@@ -68,14 +70,12 @@ class UserServiceImpl implements UserService {
         return user
     }
 
-    protected void sendAccessEmail(User user) {
-        assert user.email, "Missing email address for user=$user"
-
+    protected Mail buildAccessEmail(User user) {
         // create template binding
         def binding = new HashMap(5)
         binding.app_name = appName
         binding.auth_url = buildAccessUrl(user)
-        binding.frontend_url = frontendUrl
+        binding.server_url = serverUrl
         binding.user = user.firstName ?: user.userName
 
         Mail mail = new Mail()
@@ -84,7 +84,13 @@ class UserServiceImpl implements UserService {
         mail.text(getTextTemplate(binding))
         mail.body(getHtmlTemplate(binding))
         mail.attach(getLogoAttachment())
+        return mail
+    }
 
+    protected void sendAccessEmail(User user) {
+        assert user.email, "Missing email address for user=$user"
+
+        final mail = buildAccessEmail(user)
         mailService.sendMail(mail)
     }
 
@@ -130,7 +136,7 @@ class UserServiceImpl implements UserService {
     }
 
     protected String buildAccessUrl(User user) {
-        String accessUrl = "${frontendUrl}/auth?email=${URLEncoder.encode(user.email,'UTF-8')}&authToken=${user.authToken}"
+        String accessUrl = "${serverUrl}/auth?email=${URLEncoder.encode(user.email,'UTF-8')}&authToken=${user.authToken}"
         return new URI(accessUrl).toString()
     }
 
