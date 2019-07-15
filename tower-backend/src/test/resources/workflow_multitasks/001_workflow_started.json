@@ -1,0 +1,53 @@
+{
+    "workflow": {
+        "start": "2019-06-24T07:18:54+02:00",
+        "projectDir": "/home/salenda/.nextflow/assets/pditommaso/nf-foo",
+        "manifest": {
+            "nextflowVersion": null,
+            "defaultBranch": "master",
+            "version": null,
+            "homePage": null,
+            "gitmodules": null,
+            "description": null,
+            "name": null,
+            "mainScript": "main.nf",
+            "author": null
+        },
+        "complete": null,
+        "profile": "standard",
+        "homeDir": "/home/salenda",
+        "workDir": "/home/salenda/Programs/nextflow/work",
+        "container": "nextflow/stress",
+        "commitId": "6a74cf958aec555fb5b6f5fc04f833a2d2085735",
+        "errorMessage": null,
+        "repository": "https://github.com/pditommaso/nf-foo.git",
+        "containerEngine": "docker",
+        "scriptFile": "/home/salenda/.nextflow/assets/pditommaso/nf-foo/main.nf",
+        "userName": "salenda",
+        "launchDir": "/home/salenda/Programs/nextflow",
+        "runName": "ridiculous_montalcini",
+        "configFiles": [
+            "/home/salenda/.nextflow/assets/pditommaso/nf-foo/nextflow.config"
+        ],
+        "sessionId": "98123edc-701e-4774-952b-c3c64585dde9",
+        "errorReport": null,
+        "scriptId": "78d882e362ffbdba7d6a7453010efb79",
+        "revision": "master",
+        "exitStatus": null,
+        "commandLine": "./nextflow-19.05.6-TOWER-all run 'https://github.com/pditommaso/nf-foo' -with-tower 'http://localhost:8500'",
+        "nextflow": {
+            "version": "19.05.6-TOWER",
+            "build": 5116,
+            "timestamp": "2019-06-18T17:30:00Z"
+        },
+        "resume": false,
+        "success": false,
+        "projectName": "pditommaso/nf-foo",
+        "scriptName": "main.nf",
+        "duration": null,
+        "params": {
+            
+        },
+        "workflowId": null
+    }
+}

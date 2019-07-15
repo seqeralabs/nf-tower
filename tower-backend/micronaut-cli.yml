@@ -1,0 +1,5 @@
+profile: service
+defaultPackage: io.seqera.tower
+---
+testFramework: spock
+sourceLanguage: groovy

@@ -1,0 +1,74 @@
+tower:
+    appName: "${TOWER_APP_NAME:Nextflow Tower}"
+    serverUrl: "${TOWER_SERVER_URL:`http://localhost:8000`}"
+    contactEmail: "${TOWER_CONTACT_EMAIL:info@seqera.io}"
+---
+micronaut:
+  application:
+    name: tower-backend
+  server:
+    netty:
+  security:
+    enabled: true
+    endpoints:
+      login:
+        enabled: true
+      oauth:
+        enabled: true
+    token:
+      jwt:
+        enabled: true
+        signatures:
+          secret:
+            generator:
+              secret: pleaseChangeThisSecretForANewOne
+        generator:
+          access-token-expiration: 3600
+---
+jackson:
+  serialization:
+    writeDatesAsTimestamps: false
+  serialization-inclusion: ALWAYS
+# ^^^^^^
+# Use this to avoid empty lists are stripped
+# See com.fasterxml.jackson.annotation.JsonInclude.Include.*
+#
+---
+dataSource:
+  pooled: true
+  dbCreate: "${DB_CREATE:update}"
+  url: "jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/tower"
+  driverClassName: "${DB_DRIVER:com.mysql.cj.jdbc.Driver}"
+  username: "${DB_USER:tower}"
+  password: "${DB_PASSWORD:tower}"
+hibernate:
+  cache:
+    queries: false
+    use_second_level_cache: false
+    use_query_cache: false
+  dialect: "${DB_DIALECT:org.hibernate.dialect.MySQL55Dialect}"
+grails:
+  gorm:
+    failOnError: false
+---
+mail:
+  from: "${TOWER_CONTACT_EMAIL:info@seqera.io}"
+  smtp:
+    host: "${TOWER_SMTP_HOST:email-smtp.eu-west-1.amazonaws.com}"
+    port: "${TOWER_SMTP_PORT:587}"
+    auth: "${TOWER_SMTP_AUTH:true}"
+    starttls:
+      enable: true
+      required: true
+---
+sse:
+  time:
+    idle:
+      workflow-detail: 5m
+      workflow-list: 3600s
+    throttle:
+      workflow-detail: 1s
+      workflow-list: 0s
+    heartbeat:
+      workflow-list: 1m
+

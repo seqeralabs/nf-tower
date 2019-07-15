@@ -2,7 +2,7 @@ version: "3"
 services:
 
   db:
-    image: mysql:5.7
+    image: mysql:5.6
     networks:
       - backend
     ports:
@@ -14,7 +14,7 @@ services:
       MYSQL_DATABASE: tower
 
   backend:
-    build: ./watchtower-service
+    build: ./tower-backend
     command: bash -c 'wait-for-it.sh db:3306 -t 60; backend-up.sh'
     networks:
       - frontend
@@ -31,7 +31,7 @@ services:
       - db
 
   frontend:
-    build: ./watchtower-gui
+    build: ./tower-web
     networks:
       - frontend
     ports:

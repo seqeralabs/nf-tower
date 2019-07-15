@@ -1,5 +1,0 @@
-profile: service
-defaultPackage: io.seqera.watchtower
----
-testFramework: spock
-sourceLanguage: groovy

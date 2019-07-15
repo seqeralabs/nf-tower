@@ -1,0 +1,63 @@
+{
+    "tasks": [
+        {
+            "taskId": 1,
+            "status": "RUNNING",
+            "hash": "2a/cf6779",
+            "name": "stress_1cpu",
+            "exit": 2147483647,
+            "submit": "2019-06-24T07:18:58.068+02:00",
+            "start": "2019-06-24T07:18:58.147+02:00",
+            "process": "stress_1cpu",
+            "tag": null,
+            "module": [
+                
+            ],
+            "container": "nextflow/stress",
+            "attempt": 1,
+            "script": "\n  stress -c 1 -t 5\n  ",
+            "scratch": null,
+            "workdir": "/home/salenda/Programs/nextflow/work/2a/cf6779c63d33891b0f47ff63099dde",
+            "queue": null,
+            "cpus": 1,
+            "memory": null,
+            "disk": null,
+            "time": null,
+            "env": null,
+            "nativeId": 11137,
+            "workflowId": "12345"
+        },
+        {
+            "taskId": 6,
+            "status": "FAILED",
+            "hash": "1d/3d21ac",
+            "name": "stress_and_fail (1)",
+            "exit": 1,
+            "submit": "2019-06-24T07:18:54.858+02:00",
+            "start": "2019-06-24T07:18:54.873+02:00",
+            "process": "stress_and_fail",
+            "tag": null,
+            "module": [
+                
+            ],
+            "container": "nextflow/stress",
+            "attempt": 1,
+            "script": "\n  stress -c 1 -t 1\n  exit 1\n  ",
+            "scratch": null,
+            "workdir": "/home/salenda/Programs/nextflow/work/1d/3d21ac9f11edbca56e0e01b9dd0932",
+            "queue": null,
+            "cpus": 1,
+            "memory": null,
+            "disk": null,
+            "time": null,
+            "env": null,
+            "errorAction": "IGNORE",
+            "complete": "2019-06-24T07:18:58.036+02:00",
+            "duration": 3178,
+            "realtime": 3163,
+            "nativeId": 9426,
+            "workflowId": "12345"
+        }
+    ],
+    "workflowId": "12345"
+}

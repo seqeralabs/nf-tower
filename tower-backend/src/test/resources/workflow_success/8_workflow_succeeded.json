@@ -1,0 +1,145 @@
+{
+  "workflow": {
+    "start": "2019-05-06T12:04:20+02:00",
+    "projectDir": "/home/user/.nextflow/assets/nextflow-io/hello",
+    "manifest": {
+      "nextflowVersion": null,
+      "defaultBranch": "master",
+      "version": null,
+      "homePage": null,
+      "gitmodules": null,
+      "description": null,
+      "name": null,
+      "mainScript": "main.nf",
+      "author": null
+    },
+    "complete": "2019-05-06T12:04:20+02:00",
+    "profile": "standard",
+    "homeDir": "/home/user",
+    "workDir": "/home/user/Programs/nextflow/work",
+    "container": "nextflow/bash",
+    "commitId": "a9012339ce857d6ec7a078281813d8a93645a3e7",
+    "errorMessage": null,
+    "repository": "https://github.com/nextflow-io/hello.git",
+    "containerEngine": null,
+    "scriptFile": "/home/user/.nextflow/assets/nextflow-io/hello/main.nf",
+    "userName": "user",
+    "launchDir": "/home/user/Programs/nextflow",
+    "runName": "prickly_brenner",
+    "configFiles": [
+      "/home/user/.nextflow/assets/nextflow-io/hello/nextflow.config"
+    ],
+    "sessionId": "f56b8b10-b044-4d42-a7a3-769026f62283",
+    "errorReport": null,
+    "scriptId": "537c2298d228991eb8a3f7dc1001816f",
+    "revision": "master",
+    "exitStatus": 0,
+    "commandLine": "./nextflow-19.05.0-TOWER-all run hello -with-tower",
+    "nextflow": {
+      "version": "19.05.0-TOWER",
+      "build": 5078,
+      "timestamp": "2019-05-05T16:30:00Z"
+    },
+    "stats": {
+      "computeTimeFmt": "(a few seconds)",
+      "cachedCount": 0,
+      "cachedDuration": 0,
+      "failedDuration": 0,
+      "succeedDuration": 28,
+      "failedCount": 0,
+      "cachedPct": 0.0,
+      "cachedCountFmt": "0",
+      "succeedCountFmt": "4",
+      "failedPct": 0.0,
+      "failedCountFmt": "0",
+      "ignoredCountFmt": "0",
+      "ignoredCount": 0,
+      "succeedPct": 100.0,
+      "succeedCount": 4,
+      "ignoredPct": 0.0
+    },
+    "resume": false,
+    "success": true,
+    "projectName": "nextflow-io/hello",
+    "scriptName": "main.nf",
+    "duration": 780,
+    "params": {
+
+    },
+    "workflowId": "12345"
+  },
+  "summary": [
+    {
+      "process": "sayHello",
+      "cpu": {
+        "mean": 44.8,
+        "min": 29.6,
+        "q1": 33.5,
+        "q2": 44.05,
+        "q3": 55.35,
+        "max": 61.5,
+        "minLabel": "sayHello (1)",
+        "maxLabel": "sayHello (4)",
+        "q1Label": "sayHello (1)",
+        "q2Label": "sayHello (2)",
+        "q3Label": "sayHello (3)"
+      },
+      "mem": null,
+      "vmem": null,
+      "time": {
+        "mean": 7,
+        "min": 5,
+        "q1": 5.75,
+        "q2": 6,
+        "q3": 7.25,
+        "max": 11,
+        "minLabel": "sayHello (1)",
+        "maxLabel": "sayHello (2)",
+        "q1Label": "sayHello (1)",
+        "q2Label": "sayHello (3)",
+        "q3Label": "sayHello (4)"
+      },
+      "reads": {
+        "mean": 89022,
+        "min": 89020,
+        "q1": 89020,
+        "q2": 89021,
+        "q3": 89023,
+        "max": 89026,
+        "minLabel": "sayHello (2)",
+        "maxLabel": "sayHello (1)",
+        "q1Label": "sayHello (2)",
+        "q2Label": "sayHello (4)",
+        "q3Label": "sayHello (3)"
+      },
+      "writes": {
+        "mean": 197,
+        "min": 196,
+        "q1": 196,
+        "q2": 196.5,
+        "q3": 197.5,
+        "max": 199,
+        "minLabel": "sayHello (2)",
+        "maxLabel": "sayHello (1)",
+        "q1Label": "sayHello (2)",
+        "q2Label": "sayHello (4)",
+        "q3Label": "sayHello (3)"
+      },
+      "cpuUsage": {
+        "mean": 44.8,
+        "min": 29.6,
+        "q1": 33.5,
+        "q2": 44.05,
+        "q3": 55.35,
+        "max": 61.5,
+        "minLabel": "sayHello (1)",
+        "maxLabel": "sayHello (4)",
+        "q1Label": "sayHello (1)",
+        "q2Label": "sayHello (2)",
+        "q3Label": "sayHello (3)"
+      },
+      "memUsage": null,
+      "timeUsage": null
+    }
+  ]
+}
