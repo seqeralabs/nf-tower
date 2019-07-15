@@ -15,8 +15,8 @@ mail:
       enable: false
       required: false
 ---
-front:
-  url: http://localhost:4200
+tower:
+  serverUrl: http://localhost:4200
 ---
 auth:
   mail:

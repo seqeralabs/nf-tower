@@ -1,3 +1,7 @@
+tower:
+    appName: "${TOWER_APP_NAME:Nextflow Tower}"
+    serverUrl: "${TOWER_SERVER_URL:`http://localhost:8000`}"
+    contactEmail: "${TOWER_CONTACT_EMAIL:info@seqera.io}"
 ---
 micronaut:
   application:
@@ -32,33 +36,30 @@ jackson:
 ---
 dataSource:
   pooled: true
-  dbCreate: update
+  dbCreate: "${DB_CREATE:update}"
   url: "jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/tower"
-  driverClassName: com.mysql.cj.jdbc.Driver
-  username: tower
-  password: tower
+  driverClassName: "${DB_DRIVER:com.mysql.cj.jdbc.Driver}"
+  username: "${DB_USER:tower}"
+  password: "${DB_PASSWORD:tower}"
 hibernate:
   cache:
     queries: false
     use_second_level_cache: false
     use_query_cache: false
-  dialect: org.hibernate.dialect.MySQL55Dialect
+  dialect: "${DB_DIALECT:org.hibernate.dialect.MySQL55Dialect}"
 grails:
   gorm:
     failOnError: false
 ---
 mail:
-  from: info@seqera.io
+  from: "${TOWER_CONTACT_EMAIL:info@seqera.io}"
   smtp:
-    host: email-smtp.eu-west-1.amazonaws.com
-    port: 587
-    auth: true
+    host: "${TOWER_SMTP_HOST:email-smtp.eu-west-1.amazonaws.com}"
+    port: "${TOWER_SMTP_PORT:587}"
+    auth: "${TOWER_SMTP_AUTH:true}"
     starttls:
       enable: true
       required: true
----
-front:
-  url: http://localhost:8000
 ---
 sse:
   time:

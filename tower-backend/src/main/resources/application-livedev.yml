@@ -1,7 +1,6 @@
 #
 # configuration used for dockerized dev environment
 #
----
 micronaut:
   server:
     cors:
