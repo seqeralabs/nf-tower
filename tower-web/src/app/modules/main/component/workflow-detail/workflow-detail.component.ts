@@ -11,8 +11,7 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Workflow} from "../../entity/workflow/workflow";
 import {WorkflowService} from "../../service/workflow.service";
-import {ActivatedRoute, Router} from "@angular/router";
-import {ParamMap} from "@angular/router/src/shared";
+import {ActivatedRoute, Router, ParamMap} from "@angular/router";
 import {HttpErrorResponse} from "@angular/common/http";
 import {NotificationService} from "../../service/notification.service";
 import {ServerSentEventsWorkflowService} from "../../service/server-sent-events-workflow.service";
