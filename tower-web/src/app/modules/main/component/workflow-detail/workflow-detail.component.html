@@ -1,70 +1,93 @@
-<div class="container mt-3">
-  <div *ngIf="workflow">
-    <h1>
-      <a class="project-name" [href]="workflow.data.repository" target="_blank">{{workflow.data.projectName}}</a>&nbsp;
-
-      <div *ngIf="workflow.isStarted" class="spinner-border" role="status">
-        <span class="sr-only">Running...</span>
+<div *ngIf="workflow">
+  <div class="card" [ngClass]="{'started': workflow.isStarted, 'succeed': workflow.isSuccessful, 'failed': workflow.isFailed, 'partialFailed': workflow.isPartialFailed}">
+    <div class="card-header">
+      <div class="row">
+        <div class="col">
+          <h1><a class="project-name" [href]="workflow.data.repository" target="_blank">{{workflow.data.projectName}}</a></h1>
+          <h2>{{workflow.data.runName}}</h2>
+        </div>
+        <div class="col m-auto align-middle text-right pr-5 status-icon">
+          <span *ngIf="workflow.isStarted" class="spinner-border" role="status"></span>
+<!--          <span *ngIf="workflow.isCompleted" class="spinner-border" role="status"></span>-->
+          <span *ngIf="workflow.isCompleted" class="workflow-status mdi"
+                [ngClass]="{'mdi-check-circle-outline': workflow.isSuccessful, 'mdi-alert-circle-outline': workflow.isFailed || workflow.isPartialFailed,
+                            'succeed': workflow.isSuccessful, 'failed': workflow.isFailed, 'partialFailed': workflow.isPartialFailed}">
+          </span>
+        </div>
       </div>
-      <span *ngIf="workflow.isCompleted" class="workflow-status mdi"
-            [ngClass]="{'mdi-check-circle-outline': workflow.isSuccessful, 'mdi-alert-circle-outline': workflow.isFailed || workflow.isPartialFailed,
+
+    </div>
+    <div class="card-body">
+      <h5 class="card-title">Special title treatment</h5>
+      <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+      <a href="#" class="btn btn-primary">Go somewhere</a>
+    </div>
+  </div>
+
+  <h1>
+    <a class="project-name" [href]="workflow.data.repository" target="_blank">{{workflow.data.projectName}}</a>&nbsp;
+
+    <div *ngIf="workflow.isStarted" class="spinner-border" role="status">
+      <span class="sr-only">Running...</span>
+    </div>
+    <span *ngIf="workflow.isCompleted" class="workflow-status mdi"
+          [ngClass]="{'mdi-check-circle-outline': workflow.isSuccessful, 'mdi-alert-circle-outline': workflow.isFailed || workflow.isPartialFailed,
                         'succeed': workflow.isSuccessful, 'failed': workflow.isFailed, 'partialFailed': workflow.isPartialFailed}">
-      </span>
-    </h1>
+    </span>
+  </h1>
 
-    <h2><span class="mdi mdi-run"></span>{{workflow.data.runName}}</h2>
+  <h2><span class="mdi mdi-run"></span>{{workflow.data.runName}}</h2>
 
-    <div class="row mb-3">
-      <div class="col-sm mdi mdi-source-commit"> {{workflow.data.revision}} ({{workflow.briefCommitId}})</div>
-      <div class="col-sm mdi mdi-calendar">
-        Started: {{workflow.getWorkflowStartDateFormatted('ddd MMM D YYYY hh:mm:ss')}}</div>
+  <div class="row mb-3">
+    <div class="col-sm mdi mdi-source-commit"> {{workflow.data.revision}} ({{workflow.briefCommitId}})</div>
+    <div class="col-sm mdi mdi-calendar">
+      Started: {{workflow.getWorkflowStartDateFormatted('ddd MMM D YYYY hh:mm:ss')}}</div>
+  </div>
+  <div class="row mb-3">
+    <div class="col-sm mdi mdi-restore-clock"> {{workflow.data.sessionId}}</div>
+    <div class="col-sm mdi mdi-wall"> Running for: {{workflow.humanizedDuration}}</div>
+  </div>
+  <div class="row mb-3">
+    <div class="col-sm mdi mdi-server"> {{workflow.data.workDir}}</div>
+    <div class="col-sm mdi mdi-desktop-classic"> CPU
+      time: {{workflow.data.stats?.computeTimeFmt ? workflow.data.stats.computeTimeFmt : 'unknown'}}</div>
+  </div>
+  <div class="row mb-3">
+    <div class="col-sm mdi mdi-docker"> {{workflow.data.container}}
+      ({{workflow.data.containerEngine ? workflow.data.containerEngine : 'unknown'}})
     </div>
-    <div class="row mb-3">
-      <div class="col-sm mdi mdi-restore-clock"> {{workflow.data.sessionId}}</div>
-      <div class="col-sm mdi mdi-wall"> Running for: {{workflow.humanizedDuration}}</div>
-    </div>
-    <div class="row mb-3">
-      <div class="col-sm mdi mdi-server"> {{workflow.data.workDir}}</div>
-      <div class="col-sm mdi mdi-desktop-classic"> CPU
-        time: {{workflow.data.stats?.computeTimeFmt ? workflow.data.stats.computeTimeFmt : 'unknown'}}</div>
-    </div>
-    <div class="row mb-3">
-      <div class="col-sm mdi mdi-docker"> {{workflow.data.container}}
-        ({{workflow.data.containerEngine ? workflow.data.containerEngine : 'unknown'}})
-      </div>
-      <div class="col-sm mdi mdi-account"> {{workflow.data.userName}}</div>
-    </div>
+    <div class="col-sm mdi mdi-account"> {{workflow.data.userName}}</div>
+  </div>
 
-    <div class="row mb-1">
-      <div class="col-sm">Command line</div>
+  <div class="row mb-1">
+    <div class="col-sm">Command line</div>
+  </div>
+  <div class="row mb-3">
+    <div class="col-sm">
+      <code class="command-line text-dark">{{workflow.data.commandLine}}</code>
     </div>
-    <div class="row mb-3">
-      <div class="col-sm">
-        <code class="command-line text-dark">{{workflow.data.commandLine}}</code>
-      </div>
-    </div>
+  </div>
 
-    <div class="row">
-      <div class="col-sm">
-        <wt-multicolored-progress-bar [tasksProgress]="workflow.progress.tasksProgress"></wt-multicolored-progress-bar>
-      </div>
+  <div class="row">
+    <div class="col-sm">
+      <wt-multicolored-progress-bar [tasksProgress]="workflow.progress.tasksProgress"></wt-multicolored-progress-bar>
     </div>
+  </div>
 
-    <div *ngIf="workflow.isFailed" class="row">
-      <div class="col-sm">
-        <div class="card border-danger my-3" >
-          <div class="card-header text-danger">Execution failed</div>
-          <div class="card-body">
-            <pre class="card-text">{{workflow.data.errorReport}}</pre>
-          </div>
+  <div *ngIf="workflow.isFailed" class="row">
+    <div class="col-sm">
+      <div class="card border-danger my-3">
+        <div class="card-header text-danger">Execution failed</div>
+        <div class="card-body">
+          <pre class="card-text">{{workflow.data.errorReport}}</pre>
         </div>
       </div>
     </div>
+  </div>
 
-    <div class="row">
-      <div class="col-sm">
-        <wt-workflow-tabs [workflow]="workflow"></wt-workflow-tabs>
-      </div>
+  <div class="row">
+    <div class="col-sm">
+      <wt-workflow-tabs [workflow]="workflow"></wt-workflow-tabs>
     </div>
   </div>
 </div>
