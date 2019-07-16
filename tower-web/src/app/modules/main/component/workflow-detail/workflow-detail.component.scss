@@ -1,9 +1,38 @@
 @import "~src/assets/variables";
 
+@import "./src/assets/variables";
+
+.card {
+  border-top: solid 7px;
+
+  &.started {
+    border-top-color: $started-blue;
+  }
+
+  &.succeed {
+    border-top-color: $succeed-green;
+  }
+
+  &.failed {
+    border-top-color: $failed-red;
+  }
+
+  &.partialFailed {
+    border-top-color: $partialFailed-orange;
+  }
+
+}
+
+.status-icon {
+  font-size: 3.5rem;
+}
+
+
 .spinner-border {
   color: $started-blue;
   font-size: 5px;
-  vertical-align: middle;
+  width: 2.9rem;
+  height: 2.9rem;
 }
 
 
