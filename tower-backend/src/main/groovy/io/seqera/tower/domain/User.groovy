@@ -51,7 +51,6 @@ class User {
     }
 
     static mapping = {
-        table 'usersec'
         version false
     }
 

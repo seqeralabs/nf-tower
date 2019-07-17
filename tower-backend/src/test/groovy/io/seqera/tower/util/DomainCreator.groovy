@@ -23,6 +23,7 @@ import io.seqera.tower.domain.User
 import io.seqera.tower.domain.UserRole
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.enums.TaskStatus
+import org.hibernate.Session
 
 class DomainCreator {
 
@@ -40,6 +41,23 @@ class DomainCreator {
             UserRole.deleteAll(UserRole.list())
             Role.deleteAll(Role.list())
             User.deleteAll(User.list())
+        }
+    }
+
+    static void cleanupMysqlDb() {
+        User.withNewSession { Session session ->
+            User.withNewTransaction {
+                def tables = session.createSQLQuery("select t.table_name from information_schema.tables t where t.table_schema = 'tower' and t.table_name not like 'flyway%'").list()
+                session.createSQLQuery("SET FOREIGN_KEY_CHECKS=0;").executeUpdate()
+                try {
+                    tables.each {
+                        session.createSQLQuery("truncate table $it").executeUpdate()
+                    }
+                }
+                finally {
+                    session.createSQLQuery("SET FOREIGN_KEY_CHECKS=1;").executeUpdate()
+                }
+            }
         }
     }
 

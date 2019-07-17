@@ -47,6 +47,7 @@ hibernate:
     use_second_level_cache: false
     use_query_cache: false
   dialect: "${DB_DIALECT:org.hibernate.dialect.MySQL55Dialect}"
+  naming_strategy: io.seqera.util.H8NamingStrategy
 grails:
   gorm:
     failOnError: false
