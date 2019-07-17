@@ -8,35 +8,21 @@
         </div>
         <div class="col m-auto align-middle text-right pr-5 status-icon">
           <span *ngIf="workflow.isStarted" class="spinner-border" role="status"></span>
-<!--          <span *ngIf="workflow.isCompleted" class="spinner-border" role="status"></span>-->
           <span *ngIf="workflow.isCompleted" class="workflow-status mdi"
                 [ngClass]="{'mdi-check-circle-outline': workflow.isSuccessful, 'mdi-alert-circle-outline': workflow.isFailed || workflow.isPartialFailed,
                             'succeed': workflow.isSuccessful, 'failed': workflow.isFailed, 'partialFailed': workflow.isPartialFailed}">
           </span>
         </div>
       </div>
-
     </div>
     <div class="card-body">
-      <h5 class="card-title">Special title treatment</h5>
-      <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-      <a href="#" class="btn btn-primary">Go somewhere</a>
+      <div class="row">
+        <div class="col">
+          <wt-workflow-main-tabs [workflow]="workflow"></wt-workflow-main-tabs>
+        </div>
+      </div>
     </div>
   </div>
-
-  <h1>
-    <a class="project-name" [href]="workflow.data.repository" target="_blank">{{workflow.data.projectName}}</a>&nbsp;
-
-    <div *ngIf="workflow.isStarted" class="spinner-border" role="status">
-      <span class="sr-only">Running...</span>
-    </div>
-    <span *ngIf="workflow.isCompleted" class="workflow-status mdi"
-          [ngClass]="{'mdi-check-circle-outline': workflow.isSuccessful, 'mdi-alert-circle-outline': workflow.isFailed || workflow.isPartialFailed,
-                        'succeed': workflow.isSuccessful, 'failed': workflow.isFailed, 'partialFailed': workflow.isPartialFailed}">
-    </span>
-  </h1>
-
-  <h2><span class="mdi mdi-run"></span>{{workflow.data.runName}}</h2>
 
   <div class="row mb-3">
     <div class="col-sm mdi mdi-source-commit"> {{workflow.data.revision}} ({{workflow.briefCommitId}})</div>
@@ -57,15 +43,6 @@
       ({{workflow.data.containerEngine ? workflow.data.containerEngine : 'unknown'}})
     </div>
     <div class="col-sm mdi mdi-account"> {{workflow.data.userName}}</div>
-  </div>
-
-  <div class="row mb-1">
-    <div class="col-sm">Command line</div>
-  </div>
-  <div class="row mb-3">
-    <div class="col-sm">
-      <code class="command-line text-dark">{{workflow.data.commandLine}}</code>
-    </div>
   </div>
 
   <div class="row">

@@ -1,6 +1,5 @@
 @import "~src/assets/variables";
 
-@import "./src/assets/variables";
 
 .card {
   border-top: solid 7px;
@@ -64,16 +63,4 @@
   padding: 15px;
   white-space: pre-wrap;
   background-color: #fdddcf;
-}
-
-.command-line {
-  display: inline-block;
-  width: 100%;
-  min-height: 100px;
-  white-space: pre-wrap;
-  border: 1px solid #ccc;
-  padding: 10px 15px;
-  border-radius: 5px;
-  background-color: #F0F2F4;
-  font-size: 0.9rem;
 }
