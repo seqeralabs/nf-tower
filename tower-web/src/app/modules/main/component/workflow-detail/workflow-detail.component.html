@@ -23,39 +23,12 @@
       </div>
       <div class="row">
         <div class="col">
-          <wt-workflow-general [workflow]="workflow"></wt-workflow-general>
+          <wt-workflow-status [tasksProgress]="workflow.progress.tasksProgress"></wt-workflow-status>
         </div>
         <div class="col">
           <wt-workflow-general [workflow]="workflow"></wt-workflow-general>
         </div>
       </div>
-    </div>
-  </div>
-
-  <div class="row mb-3">
-    <div class="col-sm mdi mdi-source-commit"> {{workflow.data.revision}} ({{workflow.briefCommitId}})</div>
-    <div class="col-sm mdi mdi-calendar">
-      Started: {{workflow.getWorkflowStartDateFormatted('ddd MMM D YYYY hh:mm:ss')}}</div>
-  </div>
-  <div class="row mb-3">
-    <div class="col-sm mdi mdi-restore-clock"> {{workflow.data.sessionId}}</div>
-    <div class="col-sm mdi mdi-wall"> Running for: {{workflow.humanizedDuration}}</div>
-  </div>
-  <div class="row mb-3">
-    <div class="col-sm mdi mdi-server"> {{workflow.data.workDir}}</div>
-    <div class="col-sm mdi mdi-desktop-classic"> CPU
-      time: {{workflow.data.stats?.computeTimeFmt ? workflow.data.stats.computeTimeFmt : 'unknown'}}</div>
-  </div>
-  <div class="row mb-3">
-    <div class="col-sm mdi mdi-docker"> {{workflow.data.container}}
-      ({{workflow.data.containerEngine ? workflow.data.containerEngine : 'unknown'}})
-    </div>
-    <div class="col-sm mdi mdi-account"> {{workflow.data.userName}}</div>
-  </div>
-
-  <div class="row">
-    <div class="col-sm">
-      <wt-multicolored-progress-bar [tasksProgress]="workflow.progress.tasksProgress"></wt-multicolored-progress-bar>
     </div>
   </div>
 

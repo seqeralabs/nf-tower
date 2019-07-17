@@ -1,0 +1,25 @@
+@import "./src/assets/variables";
+
+.pending {
+  background-color: $pending-purple;
+}
+
+.running {
+  background-color: $started-blue;
+}
+
+.cached {
+  background-color: $cached-grey;
+}
+
+.submitted {
+  background-color: $submitted-orange;
+}
+
+.succeeded {
+  background-color: $succeed-green;
+}
+
+.failed {
+  background-color: $failed-red;
+}
