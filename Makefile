@@ -23,9 +23,3 @@ run:
 deps:
 	./gradlew -q tower-backend:dependencies --configuration ${config}
 
-dev-up:
-	docker-compose -f docker-livedev.yml up --build
-	echo Open your browser --> http://localhost:4200/
-
-dev-down:
-	docker-compose -f docker-livedev.yml down

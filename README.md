@@ -12,12 +12,6 @@ Nextflow Tower system
 
 See: `docker-compose.yml` file
 
-## Launch stack in dev mode
-
-    make dev-up 
-
-See: `docker-livedev.yml` file for details. 
-
 
 ## Backend settings  
 
@@ -50,3 +44,29 @@ Navigate to GUI in `http://localhost:8000` and follow the instructions.
 
 https://gist.github.com/pditommaso/847cac01446dc3bc57d7fe5d7a0227d1
 
+
+# Development 
+
+### Backend execution 
+
+Define the following env variables: 
+
+- MICRONAUT_ENVIRONMENTS=livedev
+- TOWER_SMTP_USER=<smtp user name>
+- TOWER_SMTP_PASSWORD=<smpt password>
+
+(see `tower-backend/src/main/resources/application-livedev.yml` for further config details)
+
+Launch the backend with the command: 
+
+```
+./gradlew tower-backend:run --continuous
+```
+
+### Frontend execution 
+
+```
+cd tower-web
+npminstall
+npm run livedev
+```
