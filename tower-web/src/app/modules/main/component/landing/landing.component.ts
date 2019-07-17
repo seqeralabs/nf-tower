@@ -18,7 +18,7 @@ import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 })
 export class LandingComponent implements OnInit {
 
-  @ViewChild('iframe')
+  @ViewChild('iframe', {static: true})
   iframe: ElementRef;
 
   constructor() { }
