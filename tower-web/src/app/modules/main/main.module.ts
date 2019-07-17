@@ -38,6 +38,7 @@ import { AuthGuard } from "./guard/auth.guard";
 import { AuthComponent } from "./component/auth/auth.component";
 import { BootstrapValidationCssDirective } from "./directive/bootstrap-validation";
 import { WorkflowMainTabsComponent } from './component/workflow-main-tabs/workflow-main-tabs.component';
+import { WorkflowGeneralComponent } from './component/workflow-general/workflow-general.component';
 
 /*
  * Main application routing strategy
@@ -60,8 +61,8 @@ const routes: Routes = [
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule, WorkflowMainTabsComponent],
-  declarations: [WorkflowMainTabsComponent]
+  exports: [RouterModule, WorkflowMainTabsComponent, WorkflowGeneralComponent],
+  declarations: [WorkflowMainTabsComponent, WorkflowGeneralComponent]
 })
 export class MainRoutingModule { }
 

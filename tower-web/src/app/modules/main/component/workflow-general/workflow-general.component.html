@@ -1,0 +1,67 @@
+<div class="card">
+  <div class="card-header">
+    General
+  </div>
+  <div class="card-body">
+    <div class="row">
+      <div class="col">
+        <p>
+          <span class="mdi mdi-calendar"></span>
+          <span class="pl-5">
+          {{workflow.getWorkflowStartDateFormatted('ddd MMM D hh:mm:ss Z YYYY')}}
+          </span>
+        </p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <p>
+          <span class="mdi mdi-source-commit"></span>
+          <span class="pl-5">
+          {{workflow.data.revision}} ({{workflow.briefCommitId}})
+            </span>
+        </p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <p>
+          <span class="mdi mdi-restore-clock"></span>
+          <span class="pl-5">
+          {{workflow.data.sessionId}}
+          </span>
+        </p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <p>
+          <span class="mdi mdi-account"></span>
+          <span class="pl-5">
+          {{workflow.data.userName}}
+          </span>
+        </p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <p>
+          <span class="mdi mdi-server"></span>
+          <span class="pl-5">
+          {{workflow.data.workDir}}
+          </span>
+        </p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <p>
+          <span class="mdi mdi-docker"></span>
+          <span class="pl-5">
+          {{workflow.data.container}} ({{workflow.data.containerEngine ? workflow.data.containerEngine : 'unknown'}})
+          </span>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
