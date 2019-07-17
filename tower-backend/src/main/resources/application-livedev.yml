@@ -3,23 +3,30 @@
 #
 micronaut:
   server:
-    cors:
-      enabled: true
+    port: 8080
   io:
     watch:
       paths: src/main
       restart: true
 ---
-mail:
-  from: info@seqera.io
-  smtp:
-    host: smtp.salenda.es
-    port: 25
-    auth: false
-    starttls:
-      enable: false
-      required: false
-
+dataSource:
+  pooled: false
+  dbCreate: create
+  url: jdbc:h2:mem:default;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+  driverClassName: org.h2.Driver
+  username: sa
+  password: ""
+hibernate:
+  show_sql: true
+  cache:
+    queries: false
+    use_second_level_cache: false
+    use_query_cache: false
+  dialect: org.hibernate.dialect.H2Dialect
+  naming_strategy: io.seqera.util.H8NamingStrategy
+grails:
+  gorm:
+    failOnError: false
 ---
 mail:
   from: info@seqera.io
@@ -27,6 +34,8 @@ mail:
     host: email-smtp.eu-west-1.amazonaws.com
     port: 587
     auth: true
+    user: "${TOWER_SMTP_USER:`missing stmp user`}"
+    password: "${TOWER_SMTP_PASSWORD:`missing smtp password`}"
     starttls:
       enable: true
       required: true

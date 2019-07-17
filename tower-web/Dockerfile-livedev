@@ -1,5 +1,0 @@
-FROM node:11.14.0-alpine
-RUN apk update && apk upgrade && apk add bash
-RUN echo fs.inotify.max_user_watches=524288 | tee -a /etc/sysctl.conf && sysctl -p
-EXPOSE 4200
-RUN npm install -g @angular/cli@">=7.2.13 <8.0.0"
