@@ -18,7 +18,7 @@ plugins {
 }
 
 version "0.1"
-group "io.sequera.tower"
+group "io.seqera.tower"
 
 repositories {
     mavenCentral()
