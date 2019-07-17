@@ -9,10 +9,10 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 export interface TasksProgress {
-  running: number;
-  submitted: number;
-  failed: number;
   pending: number;
-  succeeded: number;
+  running: number;
   cached: number;
+  submitted: number;
+  succeeded: number;
+  failed: number;
 }

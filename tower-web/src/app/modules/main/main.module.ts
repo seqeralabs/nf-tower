@@ -39,6 +39,7 @@ import { AuthComponent } from "./component/auth/auth.component";
 import { BootstrapValidationCssDirective } from "./directive/bootstrap-validation";
 import { WorkflowMainTabsComponent } from './component/workflow-main-tabs/workflow-main-tabs.component';
 import { WorkflowGeneralComponent } from './component/workflow-general/workflow-general.component';
+import { WorkflowStatusComponent } from './component/workflow-status/workflow-status.component';
 
 /*
  * Main application routing strategy
@@ -61,8 +62,7 @@ const routes: Routes = [
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule, WorkflowMainTabsComponent, WorkflowGeneralComponent],
-  declarations: [WorkflowMainTabsComponent, WorkflowGeneralComponent]
+  exports: [RouterModule],
 })
 export class MainRoutingModule { }
 
@@ -77,6 +77,7 @@ export class MainRoutingModule { }
     NavbarComponent,
     WorkflowCardComponent,
     WorkflowDetailComponent,
+    WorkflowMainTabsComponent, WorkflowGeneralComponent, WorkflowStatusComponent,
     MulticoloredProgressBarComponent,
     WelcomeComponent,
     LoginComponent,
