@@ -23,7 +23,7 @@ import {Router} from "@angular/router";
 })
 export class UserProfileComponent implements OnInit {
 
-  @ViewChild('profileForm')
+  @ViewChild('profileForm', {static: true})
   private profileForm: NgForm;
 
   userCopy: User;

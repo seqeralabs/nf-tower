@@ -25,7 +25,7 @@ export class WorkflowTabsComponent implements OnInit {
   @Input()
   workflow: Workflow;
 
-  @ViewChild(TasksTableComponent)
+  @ViewChild(TasksTableComponent, {static: false})
   private tasksTableComponent: TasksTableComponent;
 
   constructor() { }

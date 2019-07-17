@@ -23,7 +23,7 @@ import {HttpErrorResponse} from "@angular/common/http";
 })
 export class LoginComponent implements OnInit {
 
-  @ViewChild('loginForm')
+  @ViewChild('loginForm', {static: true})
   private loginForm: NgForm;
   private isSubmitted: boolean;
 
