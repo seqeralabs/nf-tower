@@ -27,7 +27,7 @@ class ProcessProgress {
     Long completedTasks
     Long totalTasks
 
-    String lastTaskHash
+    @Deprecated String lastTaskHash
     Long totalDuration
 
 }

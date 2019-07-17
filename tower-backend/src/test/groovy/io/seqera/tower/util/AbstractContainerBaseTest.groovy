@@ -33,7 +33,6 @@ abstract class AbstractContainerBaseTest extends Specification {
 
     static {
         if( isMySql ) {
-            log.info "++++ Testing with MYSQL ++++"
             DATABASE_CONTAINER = createMySqlDatabase()
             DATABASE_CONTAINER.start()
         }
@@ -57,6 +56,11 @@ abstract class AbstractContainerBaseTest extends Specification {
     }
 
     void cleanup() {
-        DomainCreator.cleanupDatabase()
+        if( isMySql )
+            DomainCreator.cleanupMysqlDb()
+        else
+            DomainCreator.cleanupDatabase()
     }
+
+
 }

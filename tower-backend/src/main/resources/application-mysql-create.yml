@@ -1,0 +1,23 @@
+#
+# This configure is only used to generate MySQL schema for scratch
+# See the `CreateMysqlSchema` helper class
+#
+dataSource:
+  pooled: true
+  dbCreate: create-only
+  url: jdbc:mysql://localhost:3307/tower
+  driverClassName: com.mysql.cj.jdbc.Driver
+  username: tower
+  password: tower
+hibernate:
+  show_sql: true
+  cache:
+    queries: false
+    use_second_level_cache: false
+    use_query_cache: false
+  dialect: org.hibernate.dialect.MySQL55Dialect
+  naming_strategy: io.seqera.util.H8NamingStrategy
+grails:
+  gorm:
+    failOnError: false
+

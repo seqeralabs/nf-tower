@@ -78,12 +78,10 @@ class ProgressServiceTest extends AbstractContainerBaseTest {
         progress1.totalTasks == 6
         progress1.completedTasks == 1
         progress1.totalDuration == 6
-        progress1.lastTaskHash == 'lastHash'
         ProcessProgress progress2 = progress.processesProgress.find { it.process == process2 }
         progress2.totalTasks == 7
         progress2.completedTasks == 2
         progress2.totalDuration == 7
-        progress2.lastTaskHash == 'lastHash1'
     }
 
 }

@@ -11,6 +11,9 @@
 
 package io.seqera.tower.controller
 
+import javax.inject.Inject
+import java.time.Instant
+
 import grails.gorm.transactions.Transactional
 import io.micronaut.http.HttpMethod
 import io.micronaut.http.HttpRequest
@@ -33,9 +36,6 @@ import io.seqera.tower.service.auth.AuthenticationProviderByAuthToken
 import io.seqera.tower.util.AbstractContainerBaseTest
 import io.seqera.tower.util.DomainCreator
 
-import javax.inject.Inject
-import java.time.Instant
-
 @MicronautTest(application = Application.class)
 @Transactional
 class LoginControllerTest extends AbstractContainerBaseTest {
@@ -51,7 +51,7 @@ class LoginControllerTest extends AbstractContainerBaseTest {
 
     void 'login with valid credentials (email and authToken) for a user'() {
         given: "a user"
-        User user = new DomainCreator().createUser(firstName: 'User', lastName: 'Userson', avatar: 'http://image.com', organization: 'org', description: 'description')
+        User user = new DomainCreator().createUser()
 
         and: "grant a role to the user"
         UserRole userRole = new DomainCreator().createUserRole(user: user)
@@ -91,7 +91,9 @@ class LoginControllerTest extends AbstractContainerBaseTest {
 
     void 'try to login with valid credentials (email and authToken) for a user which has an expired authToken'() {
         given: "a user"
-        User user = new DomainCreator().createUser(authTime: Instant.now().minus(authenticationProviderByAuthToken.authMailDuration))
+        def duration = authenticationProviderByAuthToken.authMailDuration
+        def time = Instant.now().minus(duration).minus(duration)
+        User user = new DomainCreator().createUser(authTime: time)
 
         when: "do the login request attaching userName and authToken as credentials"
         HttpRequest request = HttpRequest.create(HttpMethod.POST, '/login')
