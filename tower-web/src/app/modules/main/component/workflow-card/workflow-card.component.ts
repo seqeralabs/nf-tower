@@ -27,7 +27,7 @@ export class WorkflowCardComponent implements OnInit {
   workflow: Workflow;
 
   @Output()
-  workflowDeletion: EventEmitter<Workflow> = new EventEmitter();
+  onDeleteWorkflow: EventEmitter<Workflow> = new EventEmitter();
 
   constructor(private httpClient: HttpClient,
               private notificationService: NotificationService,
@@ -38,11 +38,11 @@ export class WorkflowCardComponent implements OnInit {
 
   }
 
-  deleteWorkflow(workflow: Workflow, event) {
+  deleteWorkflow(workflow: Workflow, event: MouseEvent) {
     event.stopPropagation();
 
     let notifier = this.notificationService;
-    let emitter = this.workflowDeletion;
+    let emitter = this.onDeleteWorkflow;
     let confirm = prompt(`Please confirm the deletion of the workflow '${workflow.data.runName}' typing its name below (operation is not recoverable):`)
     if( confirm == workflow.data.runName ) {
         this

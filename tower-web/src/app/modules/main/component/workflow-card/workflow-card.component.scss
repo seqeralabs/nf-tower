@@ -41,3 +41,9 @@
     color: $partialFailed-orange;
   }
 }
+
+div.btn-delete {
+  position: relative;
+  button { position: absolute; right: 0px; bottom: 0px; }
+}
+
