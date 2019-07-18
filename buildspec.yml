@@ -15,14 +15,7 @@ phases:
       - "./gradlew check assemble"
       - "make test"
       - "docker build -t tower-backend:latest tower-backend/"
-      - "docker tag tower-backend:latest 195996028523.dkr.ecr.eu-west-1.amazonaws.com/nf-tower/tower-backend:latest"
       - "docker build -t tower-web:latest tower-web/"
-      - "docker tag tower-web:latest 195996028523.dkr.ecr.eu-west-1.amazonaws.com/nf-tower/tower-web:latest"
-
-  post_build:
-    commands:
-      - "docker push 195996028523.dkr.ecr.eu-west-1.amazonaws.com/nf-tower/tower-backend:latest"
-      - "docker push 195996028523.dkr.ecr.eu-west-1.amazonaws.com/nf-tower/tower-web:latest"
 
 cache:
   paths:
