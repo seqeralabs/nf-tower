@@ -6,7 +6,10 @@
     </h5>
     <p class="mb-0"><span class="mdi mdi-run"></span> {{workflow.data.runName}}</p>
     <p class="mb-0"><span class="mdi mdi-clock-outline"></span> Duration: {{workflow.humanizedDuration}}</p>
-    <p class="mb-0"><span class="mdi mdi-calendar"></span> Started: {{workflow.getWorkflowStartDateFormatted('ddd MMM D YYYY hh:mm:ss')}}</p>
-    <p class="mb-0"><span class="mdi mdi-trash-can"> <a (click)="deleteWorkflow(workflow, $event)">delete</a> </span></p>
+    <p class="mb-0"><span class="mdi mdi-calendar"></span> Started: {{workflow.getWorkflowStartDateFormatted('ddd MMM D YYYY hh:mm:ss')}} </p>
+
+    <div class="btn-delete">
+      <button type="button" class="btn btn-outline-danger btn-sm" (click)="deleteWorkflow(workflow, $event)"><span class="mdi mdi-trash-can"></span></button>
+    </div>
   </div>
 </div>

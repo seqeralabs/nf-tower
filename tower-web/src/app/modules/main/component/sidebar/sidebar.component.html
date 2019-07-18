@@ -1,5 +1,5 @@
 <wt-workflow-card *ngFor="let workflow of workflows"
                   [workflow]="workflow"
-                  (workflowDeletion)="onWorkflowDeletion($event)"
+                  (onDeleteWorkflow)="deleteWorkflowFromSidebar($event)"
                   (click)="showWorkflowDetail(workflow)" >
 </wt-workflow-card>

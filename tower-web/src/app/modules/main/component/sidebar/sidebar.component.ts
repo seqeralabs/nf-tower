@@ -64,7 +64,7 @@ export class SidebarComponent implements OnInit {
     this.router.navigate([`/workflow/${workflow.data.workflowId}`])
   }
 
-  onWorkflowDeletion(workflow: Workflow) {
+  deleteWorkflowFromSidebar(workflow: Workflow) {
     let index = this.workflows.indexOf(workflow);
     if( index==-1 ) {
       console.log(`Oops... can't remove from sidebar workflow name=${workflow.data.runName} id=${workflow.data.workflowId}`)
