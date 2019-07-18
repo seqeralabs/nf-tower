@@ -42,7 +42,7 @@ class WorkflowServiceImpl implements WorkflowService {
     }
 
     @CompileDynamic
-    List<Workflow> list(User owner) {
+    List<Workflow> listByOwner(User owner) {
         Workflow.findAllByOwner(owner, [sort: 'start', order: 'desc'])
     }
 
@@ -111,6 +111,10 @@ class WorkflowServiceImpl implements WorkflowService {
         }
 
         workflow.delete()
+    }
+
+    void deleteById(Serializable workflowId) {
+        delete( get(workflowId) )
     }
 
 }

@@ -296,7 +296,7 @@ class UserServiceImpl implements UserService {
         }
 
         UserRole.findAllByUser(existingUser)*.delete()
-        workflowService.list(existingUser).each { Workflow workflow ->
+        workflowService.listByOwner(existingUser).each { Workflow workflow ->
             workflowService.delete(workflow)
         }
 

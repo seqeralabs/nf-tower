@@ -40,8 +40,6 @@ export class WorkflowDetailComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.route.paramMap.subscribe((params: ParamMap) => {
       this.unsubscribeFromWorkflowLiveEvents();
-
-      console.log('Getting params');
       const workflowId: string = params.get('id');
       this.fetchWorkflow(workflowId);
     });

@@ -11,18 +11,23 @@
 
 package io.seqera.tower.controller
 
+import javax.inject.Inject
+
 import grails.gorm.PagedResultList
 import grails.gorm.transactions.Transactional
 import groovy.util.logging.Slf4j
 import io.micronaut.http.HttpParameters
 import io.micronaut.http.HttpResponse
+import io.micronaut.http.HttpStatus
 import io.micronaut.http.annotation.Controller
+import io.micronaut.http.annotation.Delete
 import io.micronaut.http.annotation.Get
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.micronaut.security.rules.SecurityRule
 import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.Workflow
+import io.seqera.tower.exchange.MessageResponse
 import io.seqera.tower.exchange.task.TaskGet
 import io.seqera.tower.exchange.task.TaskList
 import io.seqera.tower.exchange.workflow.WorkflowGet
@@ -31,9 +36,6 @@ import io.seqera.tower.service.ProgressService
 import io.seqera.tower.service.TaskService
 import io.seqera.tower.service.UserService
 import io.seqera.tower.service.WorkflowService
-
-import javax.inject.Inject
-
 /**
  * Implements the `workflow` API
  */
@@ -59,7 +61,7 @@ class WorkflowController {
     @Transactional
     @Secured(['ROLE_USER'])
     HttpResponse<WorkflowList> list(Authentication authentication) {
-        List<Workflow> workflows = workflowService.list(userService.getFromAuthData(authentication))
+        List<Workflow> workflows = workflowService.listByOwner(userService.getFromAuthData(authentication))
 
         List<WorkflowGet> result = workflows.collect { Workflow workflow ->
             WorkflowGet.of(workflow)
@@ -97,6 +99,20 @@ class WorkflowController {
             TaskGet.of(it)
         }
         HttpResponse.ok(TaskList.of(result, taskPagedResultList.totalCount))
+    }
+
+    @Transactional
+    @Secured(['ROLE_USER'])
+    @Delete('/delete/{workflowId}')
+    HttpResponse delete(Serializable workflowId) {
+        try {
+            workflowService.deleteById(workflowId)
+            HttpResponse.status(HttpStatus.NO_CONTENT)
+        }
+        catch( Exception e ) {
+            log.error "Unable to delete workflow with id=$workflowId", e
+            HttpResponse.badRequest(new MessageResponse("Oops... Failed to delete workflow with ID $workflowId"))
+        }
     }
 
 }
