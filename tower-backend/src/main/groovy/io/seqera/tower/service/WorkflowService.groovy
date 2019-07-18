@@ -17,11 +17,30 @@ import io.seqera.tower.exchange.trace.TraceWorkflowRequest
 
 interface WorkflowService {
 
+    /**
+     * Get a {@link Workflow} by its primary the key
+     *
+     * @param id The workflow primary key
+     * @return The {@link Workflow} for the specified key of {@code null} if not match is found
+     */
     Workflow get(Serializable id)
 
-    List<Workflow> list(User owner)
+    /**
+     * List all {@link Workflow} objects for the given owner {@link User}
+     *
+     * @param owner The owner {@link User} object
+     * @return The list of workflow objects associated to the specified user
+     */
+    List<Workflow> listByOwner(User owner)
 
+    /**
+     * Delete the specified {@link Workflow} object
+     *
+     * @param workflow
+     */
     void delete(Workflow workflow)
+
+    void deleteById(Serializable workflowId)
 
     Workflow processTraceWorkflowRequest(TraceWorkflowRequest request, User owner)
 

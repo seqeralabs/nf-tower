@@ -72,7 +72,7 @@ export class AccessTokenComponent implements OnInit {
       let confirm = prompt(`Please confirm the deletion of the access token '${token.name}' typing its name below (operation is not recoverable):`)
       if( confirm != token.name )
           return;
-      let index = this.tokens.indexOf(token)
+      let index = this.tokens.indexOf(token);
       let url = `${environment.apiUrl}/token/delete/${token.id}`;
       this.httpClient.delete(url)
           .subscribe(

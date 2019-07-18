@@ -9,10 +9,15 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 import {Component, Input, OnInit} from '@angular/core';
-import {Workflow} from "../../entity/workflow/workflow";
-import {WorkflowService} from "../../service/workflow.service";
-import {Router} from "@angular/router";
-import {AuthService} from "../../service/auth.service";
+import {HttpClient} from "@angular/common/http";
+import {Workflow} from "src/app/modules/main/entity/workflow/workflow";
+import {WorkflowService} from "src/app/modules/main/service/workflow.service";
+import {AuthService} from "src/app/modules/main/service/auth.service";
+import {environment} from "src/environments/environment";
+import {HttpErrorResponse} from "@angular/common/http";
+import {NotificationService} from "src/app/modules/main/service/notification.service";
+import { ActivatedRoute, Router, NavigationEnd, Params } from '@angular/router';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'wt-sidebar',
@@ -24,13 +29,29 @@ export class SidebarComponent implements OnInit {
   @Input()
   workflows: Workflow[];
 
-  constructor(private authService: AuthService,
+  currentId;
+
+  constructor(private httpClient: HttpClient,
+              private notificationService: NotificationService,
+              private authService: AuthService,
               private workflowService: WorkflowService,
-              private router: Router) { }
+              private router: Router,
+              private route: ActivatedRoute) { }
 
 
   ngOnInit() {
-    this.goToFirstWorkflow()
+    this.goToFirstWorkflow();
+    this.currentId = this.route.snapshot.paramMap.get('id');
+    // magic hack to get the current selected workflow id from the url params
+    // https://github.com/angular/angular/issues/11023#issuecomment-399667101
+    this.router.events.pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe( () => {
+        let active = this.route;
+        while (active.firstChild) { active = active.firstChild };
+        active.params.subscribe( (params: Params) => {
+          this.currentId = params['id'];
+        });
+      });
   }
 
   private goToFirstWorkflow(): void {
@@ -41,6 +62,25 @@ export class SidebarComponent implements OnInit {
 
   showWorkflowDetail(workflow: Workflow): void {
     this.router.navigate([`/workflow/${workflow.data.workflowId}`])
+  }
+
+  onWorkflowDeletion(workflow: Workflow) {
+    let index = this.workflows.indexOf(workflow);
+    if( index==-1 ) {
+      console.log(`Oops... can't remove from sidebar workflow name=${workflow.data.runName} id=${workflow.data.workflowId}`)
+      return
+    }
+
+    this.workflows.splice(index, 1);
+    if( this.workflows.length == 0 ) {
+      this.router.navigate([`/`]);
+      return
+    }
+
+    // get current selected workflow id
+    if( workflow.data.workflowId == this.currentId ) {
+      this.showWorkflowDetail(this.workflows[0]);
+    }
   }
 
 }

@@ -9,7 +9,7 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 import { Injectable } from '@angular/core';
-import {HttpClient} from "@angular/common/http";
+import {HttpClient, HttpErrorResponse} from "@angular/common/http";
 import {Workflow} from "../entity/workflow/workflow";
 import {environment} from "../../../../environments/environment";
 import {Observable, Subject, of, ReplaySubject, BehaviorSubject} from "rxjs";
@@ -17,6 +17,7 @@ import {map, tap} from "rxjs/operators";
 import {Task} from "../entity/task/task";
 import {findIndex, orderBy} from "lodash";
 import {Progress} from "../entity/progress/progress";
+import {NotificationService} from "./notification.service";
 
 
 const endpointUrl: string = `${environment.apiUrl}/workflow`;
@@ -85,6 +86,17 @@ export class WorkflowService {
   updateWorkflow(newWorkflow: Workflow): void {
     this.workflowsByIdCache.set(newWorkflow.data.workflowId, newWorkflow);
     this.emitWorkflowsFromCache();
+  }
+
+  deleteWorkflow(workflow: Workflow): Observable<string> {
+    let url = `${environment.apiUrl}/workflow/delete/${workflow.data.workflowId}`;
+    return new Observable<string>( observer => {
+      this.http.delete(url)
+        .subscribe(
+          resp => { this.workflowsByIdCache.delete(workflow.data.workflowId);  observer.complete() },
+          (resp: HttpErrorResponse) => { observer.error(resp.error.message) }
+        );
+    });
   }
 
   updateProgress(progress: Progress, workflow: Workflow): void {

@@ -14,6 +14,7 @@ package io.seqera.tower.controller
 import javax.inject.Inject
 import java.time.OffsetDateTime
 
+import grails.gorm.transactions.TransactionService
 import grails.gorm.transactions.Transactional
 import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpResponse
@@ -33,6 +34,7 @@ import io.seqera.tower.domain.Workflow
 import io.seqera.tower.exchange.task.TaskList
 import io.seqera.tower.exchange.workflow.WorkflowGet
 import io.seqera.tower.exchange.workflow.WorkflowList
+import io.seqera.tower.service.WorkflowService
 import io.seqera.tower.util.AbstractContainerBaseTest
 import io.seqera.tower.util.DomainCreator
 
@@ -43,6 +45,12 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
     @Inject
     @Client('/')
     RxHttpClient client
+
+    @Inject
+    TransactionService tx
+
+    @Inject
+    WorkflowService workflowService
 
     void "get a workflow"() {
         given: "a workflow with some summaries"
@@ -183,5 +191,47 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
     }
 
 
+    void "should delete a workflow" () {
+        given:
+        def creator = new DomainCreator()
+        User user
+        Workflow workflow
+        tx.withNewTransaction {
+            user = creator.generateAllowedUser()
+            workflow = creator.createWorkflow(owner: user)
+        }
+        
+        when:
+        String auth = doJwtLogin(user, client)
+        def url = "/workflow/delete/${workflow.id}"
+        def resp = client
+                .toBlocking()
+                .exchange( HttpRequest.DELETE(url).bearerAuth(auth) )
+
+        then:
+        resp.status == HttpStatus.NO_CONTENT
+        and:
+        tx.withNewTransaction { workflowService.get(workflow.id) } == null
+
+    }
+
+    void "should not delete a workflow" () {
+        given:
+        def creator = new DomainCreator()
+        User user = creator.generateAllowedUser()
+
+        when:
+        String auth = doJwtLogin(user, client)
+        def url = "/workflow/delete/1234"
+        client
+            .toBlocking()
+            .exchange( HttpRequest.DELETE(url).bearerAuth(auth) )
+
+        then:
+        def e = thrown(HttpClientResponseException)
+        e.status == HttpStatus.BAD_REQUEST
+        e.message == "Oops... Failed to delete workflow with ID 1234"
+
+    }
 
 }
