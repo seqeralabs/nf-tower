@@ -1,4 +1,4 @@
-# nf-tower ![build status](https://codebuild.eu-west-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiK1E3NmtuOUVrbElTUlBxbHhRY0MvUzNjUVI2bFFMd25HR0xYb2k0T0JkdzJaMU9Ycmw0dHhNK0hzNHVybUhaaFVtQVY0WUdKM0wyY2ZJcHRyTzE0UmE4PSIsIml2UGFyYW1ldGVyU3BlYyI6IkNWdkFVdVUweEFvZWo4QmwiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
+# nf-tower ![build status](https://codebuild.eu-west-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoid1VqblVBMmVDbE54MUdrTUNra0l5eGl3WWcxR0xCaDU1UVFJV1IzRWdodTJNNmx0d2Q3SS84REdaN1BOTUg4VVd5bS9Xdk8zeW5leFRON1NRZTZSVzhvPSIsIml2UGFyYW1ldGVyU3BlYyI6InVyaGJMWktuOGpDVDQ0WGsiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
 
 Nextflow Tower system
 
