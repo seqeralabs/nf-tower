@@ -15,6 +15,7 @@ import javax.inject.Inject
 
 import grails.gorm.PagedResultList
 import grails.gorm.transactions.Transactional
+import groovy.transform.CompileDynamic
 import groovy.util.logging.Slf4j
 import io.micronaut.http.HttpParameters
 import io.micronaut.http.HttpResponse
@@ -25,11 +26,13 @@ import io.micronaut.http.annotation.Get
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.micronaut.security.rules.SecurityRule
+import io.seqera.tower.domain.WorkflowMetrics
 import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.exchange.MessageResponse
 import io.seqera.tower.exchange.task.TaskGet
 import io.seqera.tower.exchange.task.TaskList
+import io.seqera.tower.exchange.workflow.GetWorkflowMetricsResponse
 import io.seqera.tower.exchange.workflow.WorkflowGet
 import io.seqera.tower.exchange.workflow.WorkflowList
 import io.seqera.tower.service.ProgressService
@@ -112,6 +115,25 @@ class WorkflowController {
         catch( Exception e ) {
             log.error "Unable to delete workflow with id=$workflowId", e
             HttpResponse.badRequest(new MessageResponse("Oops... Failed to delete workflow with ID $workflowId"))
+        }
+    }
+
+    @Transactional
+    @Secured(['ROLE_USER'])
+    @Get('/metrics/{workflowId}')
+    @CompileDynamic
+    HttpResponse<GetWorkflowMetricsResponse> metrics(Serializable workflowId) {
+        try {
+            final workflow = workflowService.get(workflowId)
+            if (!workflow)
+                return HttpResponse.notFound(new GetWorkflowMetricsResponse(message:"Oops... Can't find workflow ID $workflowId"))
+
+            final result = workflowService.findMetrics(workflow)
+            HttpResponse.ok(new GetWorkflowMetricsResponse(metrics: new ArrayList<WorkflowMetrics>(result)))
+        }
+        catch( Exception e ) {
+            log.error "Unable to delete workflow with id=$workflowId", e
+            HttpResponse.badRequest(new GetWorkflowMetricsResponse(message:"Oops... Failed to get execution metrics for workflow ID $workflowId"))
         }
     }
 
