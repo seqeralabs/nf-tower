@@ -18,6 +18,7 @@ import { NavbarComponent } from './component/navbar/navbar.component';
 import { HTTP_INTERCEPTORS, HttpClientModule } from "@angular/common/http";
 import { WorkflowCardComponent } from './component/workflow-card/workflow-card.component';
 import { WorkflowDetailComponent } from './component/workflow-detail/workflow-detail.component';
+import { WorkflowMetricsComponent } from './component/workflow-metrics/metrics.component';
 import { MulticoloredProgressBarComponent } from './component/multicolored-progress-bar/multicolored-progress-bar.component';
 import { WelcomeComponent } from './component/welcome/welcome.component';
 import { LoginComponent } from './component/login/login.component';
@@ -36,6 +37,7 @@ import { LandingComponent } from './component/landing/landing.component';
 import { AuthGuard } from "./guard/auth.guard";
 import { AuthComponent } from "./component/auth/auth.component";
 import { BootstrapValidationCssDirective } from "./directive/bootstrap-validation";
+import {Summary} from "@angular/compiler";
 
 /*
  * Main application routing strategy
@@ -49,6 +51,7 @@ const routes: Routes = [
      {path: 'login',        component: LoginComponent},
    ]
   },
+  {path: 'metrics/:id',  component: WorkflowMetricsComponent},
   {path: 'auth',         component: AuthComponent},
   {path: 'logout',       component: LogoutComponent},
 
@@ -80,6 +83,7 @@ export class MainRoutingModule { }
     UserProfileComponent,
     AccessTokenComponent,
     WorkflowTabsComponent,
+    WorkflowMetricsComponent,
     TasksTableComponent,
     TasksProcessesComponent,
     HomeComponent,
