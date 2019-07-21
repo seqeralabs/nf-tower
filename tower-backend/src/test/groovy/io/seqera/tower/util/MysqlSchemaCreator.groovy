@@ -21,7 +21,7 @@ import org.testcontainers.containers.wait.strategy.Wait
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
-class CreateMysqlSchema  {
+class MysqlSchemaCreator {
 
     static void main(String[] args) {
         final env = [MYSQL_ROOT_PASSWORD: 'root', MYSQL_USER: 'tower', MYSQL_PASSWORD: 'tower', MYSQL_DATABASE: 'tower']

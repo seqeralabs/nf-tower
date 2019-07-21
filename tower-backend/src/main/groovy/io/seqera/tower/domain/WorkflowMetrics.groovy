@@ -14,26 +14,34 @@ package io.seqera.tower.domain
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import grails.gorm.annotation.Entity
 import groovy.transform.CompileDynamic
-
+/**
+ * Models execution metrics information collected by nextflow.
+ * The {@link Workflow} has a collection of {@link WorkflowMetrics} objects.
+ *
+ * Each {@link WorkflowMetrics} holds the usage metrics (cpus, mem, vmem, etc) for a
+ * specific process
+ */
 @Entity
 @JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version'])
 @CompileDynamic
-class SummaryEntry {
+class WorkflowMetrics {
 
     /*
      * The process name
      */
     String process
 
-    SummaryData cpu
-    SummaryData mem
-    SummaryData vmem
-    SummaryData time
-    SummaryData reads
-    SummaryData writes
-    SummaryData cpuUsage
-    SummaryData memUsage
-    SummaryData timeUsage
+    ResourceData cpu
+    ResourceData mem
+    ResourceData vmem
+    ResourceData time
+    ResourceData reads
+    ResourceData writes
+    ResourceData cpuUsage
+    ResourceData memUsage
+    ResourceData timeUsage
+
+    static belongsTo = [workflow: Workflow]
 
     static embedded = [
             'cpu',
@@ -59,8 +67,21 @@ class SummaryEntry {
         timeUsage(nullable: true)
     }
 
-    static mapping = {
-        version false
-    }
+}
+
+@CompileDynamic
+class ResourceData {
+
+    Float mean
+    Float min
+    Float q1
+    Float q2
+    Float q3
+    Float max
+    String minLabel
+    String maxLabel
+    String q1Label
+    String q2Label
+    String q3Label
 
 }

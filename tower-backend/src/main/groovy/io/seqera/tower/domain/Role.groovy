@@ -23,7 +23,4 @@ class Role {
         authority(nullable: false, unique: true)
     }
 
-    static mapping = {
-        version false
-    }
 }

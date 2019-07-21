@@ -16,13 +16,14 @@ import java.time.OffsetDateTime
 
 import io.seqera.tower.domain.AccessToken
 import io.seqera.tower.domain.Role
-import io.seqera.tower.domain.SummaryData
-import io.seqera.tower.domain.SummaryEntry
+import io.seqera.tower.domain.ResourceData
+import io.seqera.tower.domain.WorkflowMetrics
 import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.User
 import io.seqera.tower.domain.UserRole
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.enums.TaskStatus
+import org.grails.datastore.mapping.validation.ValidationException
 import org.hibernate.Session
 
 class DomainCreator {
@@ -34,7 +35,7 @@ class DomainCreator {
 
     static void cleanupDatabase() {
         Workflow.withNewTransaction {
-            SummaryEntry.deleteAll(SummaryEntry.list())
+            WorkflowMetrics.deleteAll(WorkflowMetrics.list())
             Task.deleteAll(Task.list())
             Workflow.deleteAll(Workflow.list())
             AccessToken.deleteAll(AccessToken.list())
@@ -103,17 +104,18 @@ class DomainCreator {
         createInstance(task, fields)
     }
 
-    SummaryEntry createSummaryEntry(Map fields = [:]) {
-        SummaryEntry summaryEntry = new SummaryEntry()
+    WorkflowMetrics createWorkflowMetrics(Workflow workflow, Map fields = [:]) {
+        WorkflowMetrics metrics = new WorkflowMetrics()
+        metrics.workflow = workflow
 
         fields.process = fields.containsKey('process') ? fields.process: "magnitude_${generateUniqueNamePart()}"
-        fields.cpu = fields.containsKey('cpu') ? fields.cpu : embedSummaryData()
+        fields.cpu = fields.containsKey('cpu') ? fields.cpu : embedResourceData()
 
-        createInstance(summaryEntry, fields)
+        createInstance(metrics, fields)
     }
 
-    SummaryData embedSummaryData(Map fields = [:]) {
-        SummaryData summaryData = new SummaryData()
+    ResourceData embedResourceData(Map fields = [:]) {
+        ResourceData resource = new ResourceData()
 
         fields.mean = fields.containsKey('mean') ? fields.mean : 0.0
         fields.min = fields.containsKey('min') ? fields.min : 0.0
@@ -128,7 +130,7 @@ class DomainCreator {
         fields.q2Label = fields.containsKey('q2Label') ? fields.q2Label : 'q2Label'
         fields.q3Label = fields.containsKey('q3Label') ? fields.q3Label : 'q3Label'
 
-        populateInstance(summaryData, fields)
+        populateInstance(resource, fields)
     }
 
     User createUser(Map fields = [:]) {
@@ -224,13 +226,24 @@ class DomainCreator {
         if (!save) {
             return instance
         }
-        if (withNewTransaction) {
-            instance.withNewTransaction { instance.save(validate: validate, failOnError: failOnError) }
+
+        def saveEntity = {
+            // call explicitly entity validation due to gorm bug
+            // https://github.com/grails/gorm-hibernate5/issues/110
+            if( validate && !instance.validate() ) {
+                if( failOnError )
+                    throw new ValidationException("Validation Error(s) occurred during save()", instance.errors)
+                return instance
+            }
+            instance.save(validate: validate, failOnError: failOnError)
             return instance
         }
 
-        instance.save(validate: validate, failOnError: failOnError)
-        instance
+        if (withNewTransaction) {
+            return instance.withNewTransaction(saveEntity)
+        }
+
+        return saveEntity()
     }
 
     /**

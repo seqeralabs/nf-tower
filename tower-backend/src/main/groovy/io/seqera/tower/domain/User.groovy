@@ -50,8 +50,4 @@ class User {
         avatar(nullable: true, url: true)
     }
 
-    static mapping = {
-        version false
-    }
-
 }

@@ -121,10 +121,6 @@ class Task {
         exitStatus
     }
 
-    static mapping = {
-        version false
-    }
-
     static constraints = {
         taskId(unique: 'workflow')
 

@@ -55,7 +55,7 @@ class AuthenticationProviderByAccessToken implements AuthenticationProvider {
         User user = userService.getByAccessToken(token)
 
         if( !user ) {
-            log.info "Missing user token=$token"
+            log.info "Missing user with token=$token"
             // a more explanatory message should be returned
             return new AuthFailure("Unknow user with token: $token")
         }

@@ -12,14 +12,15 @@
 package io.seqera.tower.exchange.workflow
 
 
-import io.seqera.tower.domain.SummaryEntry
+import io.seqera.tower.domain.WorkflowMetrics
 import io.seqera.tower.domain.Workflow
+import io.seqera.tower.exchange.progress.ProgressGet
 
 class WorkflowGet {
 
     Workflow workflow
-    io.seqera.tower.exchange.progress.ProgressGet progress
-    List<SummaryEntry> summary
+    ProgressGet progress
+    @Deprecated List<WorkflowMetrics> summary  // <-- TODO rename to summary
 
     static WorkflowGet of(Workflow workflow) {
         new WorkflowGet(workflow: workflow)

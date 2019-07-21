@@ -11,10 +11,11 @@
 
 package io.seqera.tower.service
 
+import javax.inject.Inject
+
 import grails.gorm.transactions.Transactional
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.tower.Application
-import io.seqera.tower.domain.SummaryEntry
 import io.seqera.tower.domain.User
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.exceptions.NonExistingWorkflowException
@@ -23,8 +24,6 @@ import io.seqera.tower.util.AbstractContainerBaseTest
 import io.seqera.tower.util.DomainCreator
 import io.seqera.tower.util.TracesJsonBank
 import io.seqera.tower.util.WorkflowTraceSnapshotStatus
-
-import javax.inject.Inject
 
 @MicronautTest(application = Application.class)
 @Transactional
@@ -97,17 +96,15 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
             Workflow.count() == 1
         }
 
-        and: "there is summary info"
-        workflowSucceeded.summaryEntries.size() == 1
-        workflowSucceeded.summaryEntries.first().process == 'sayHello'
-        workflowSucceeded.summaryEntries.first().cpu
-        workflowSucceeded.summaryEntries.first().time
-        workflowSucceeded.summaryEntries.first().reads
-        workflowSucceeded.summaryEntries.first().writes
-        workflowSucceeded.summaryEntries.first().cpuUsage
-        SummaryEntry.withNewTransaction {
-            SummaryEntry.count() == 1
-        }
+        and: "there is a metrics info"
+        def metrics = workflowService.findMetrics(workflowSucceeded)
+        metrics.size()==1
+        metrics.first().process == 'sayHello'
+        metrics.first().cpu
+        metrics.first().time
+        metrics.first().reads
+        metrics.first().writes
+        metrics.first().cpuUsage
 
         and: "the tasks progress info has been computed"
         workflowSucceeded.tasksProgress.running == 0
@@ -116,6 +113,7 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         workflowSucceeded.tasksProgress.pending == 0
         workflowSucceeded.tasksProgress.succeeded == 0
         workflowSucceeded.tasksProgress.cached == 0
+
     }
 
     void "start a workflow given a started trace, then complete the workflow given a failed trace"() {
@@ -157,17 +155,15 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
             Workflow.count() == 1
         }
 
-        and: "there is summary info"
-        workflowFailed.summaryEntries.size() == 1
-        workflowFailed.summaryEntries.first().process == 'sayHello'
-        workflowFailed.summaryEntries.first().cpu
-        workflowFailed.summaryEntries.first().time
-        workflowFailed.summaryEntries.first().reads
-        workflowFailed.summaryEntries.first().writes
-        workflowFailed.summaryEntries.first().cpuUsage
-        SummaryEntry.withNewTransaction {
-            SummaryEntry.count() == 1
-        }
+        and: "there is a metrics info"
+        def metrics = workflowService.findMetrics(workflowFailed)
+        metrics.size()==1
+        metrics.first().process == 'sayHello'
+        metrics.first().cpu
+        metrics.first().time
+        metrics.first().reads
+        metrics.first().writes
+        metrics.first().cpuUsage
 
         and: "the progress info has been computed"
         workflowFailed.tasksProgress.running == 0
@@ -209,7 +205,7 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         }
 
         then: "the second workflow is treated as a new one, and sessionId/runName combination cannot be repeated"
-        workflowStarted2.errors.getFieldError('sessionId').code == 'unique'
+        workflowStarted2.errors.getFieldError('runName').code == 'unique'
         Workflow.withNewTransaction {
             Workflow.count() == 1
         }
@@ -255,9 +251,11 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
     }
 
     void 'delete a workflow'() {
-        given: 'a workflow with some summary entries'
+        given: 'a workflow with some metrics entries'
         DomainCreator domainCreator = new DomainCreator()
-        Workflow workflow = domainCreator.createWorkflow(summaryEntries: [domainCreator.createSummaryEntry(), domainCreator.createSummaryEntry()])
+        Workflow workflow = domainCreator.createWorkflow()
+        domainCreator.createWorkflowMetrics(workflow)
+        domainCreator.createWorkflowMetrics(workflow)
 
         and: 'some tasks associated with the workflow'
         (1..3).each {

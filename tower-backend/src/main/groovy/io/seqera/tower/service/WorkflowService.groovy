@@ -13,6 +13,7 @@ package io.seqera.tower.service
 
 import io.seqera.tower.domain.User
 import io.seqera.tower.domain.Workflow
+import io.seqera.tower.domain.WorkflowMetrics
 import io.seqera.tower.exchange.trace.TraceWorkflowRequest
 
 interface WorkflowService {
@@ -43,5 +44,7 @@ interface WorkflowService {
     void deleteById(Serializable workflowId)
 
     Workflow processTraceWorkflowRequest(TraceWorkflowRequest request, User owner)
+
+    List<WorkflowMetrics> findMetrics(Workflow workflow)
 
 }

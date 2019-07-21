@@ -13,7 +13,7 @@ package io.seqera.tower.exchange.trace
 
 
 import groovy.transform.ToString
-import io.seqera.tower.domain.SummaryEntry
+import io.seqera.tower.domain.WorkflowMetrics
 import io.seqera.tower.domain.Workflow
 /**
  * Model a Trace workflow request
@@ -24,6 +24,6 @@ import io.seqera.tower.domain.Workflow
 class TraceWorkflowRequest {
 
     Workflow workflow
-    List<SummaryEntry> summary
+    List<WorkflowMetrics> summary //<-- TODO rename to `metrics`
 
 }

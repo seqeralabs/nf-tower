@@ -20,6 +20,7 @@ import groovy.transform.CompileDynamic
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
+@Deprecated
 @Entity
 @JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version', 'workflow'])
 @CompileDynamic
@@ -33,6 +34,5 @@ class TasksProgress {
     Long pending = 0
     Long succeeded = 0
     Long cached = 0
-
 
 }
