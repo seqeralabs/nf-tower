@@ -70,7 +70,7 @@ class TraceServiceTest extends AbstractContainerBaseTest {
 
         then: "the result indicates an error"
         Exception e = thrown(ValidationException)
-        e.message == "Can't save a workflow with the same sessionId of another"
+        e.message == "Can't save a workflow with the same runName of another"
     }
 
     void "process a workflow trace to try to start workflow without submitTime"() {

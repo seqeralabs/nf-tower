@@ -12,6 +12,7 @@
 package io.seqera.tower.controller
 
 import javax.inject.Inject
+import java.time.Instant
 import java.time.OffsetDateTime
 
 import grails.gorm.transactions.TransactionService
@@ -24,14 +25,15 @@ import io.micronaut.http.client.annotation.Client
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.tower.Application
-import io.seqera.tower.domain.Manifest
-import io.seqera.tower.domain.NextflowMeta
-import io.seqera.tower.domain.Stats
+import io.seqera.tower.domain.WfManifest
+import io.seqera.tower.domain.WfNextflow
+import io.seqera.tower.domain.WfStats
 import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.TasksProgress
 import io.seqera.tower.domain.User
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.exchange.task.TaskList
+import io.seqera.tower.exchange.workflow.GetWorkflowMetricsResponse
 import io.seqera.tower.exchange.workflow.WorkflowGet
 import io.seqera.tower.exchange.workflow.WorkflowList
 import io.seqera.tower.service.WorkflowService
@@ -53,25 +55,29 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
     WorkflowService workflowService
 
     void "get a workflow"() {
-        given: "a workflow with some summaries"
-        DomainCreator domainCreator = new DomainCreator()
-        Workflow workflow = domainCreator.createWorkflow(
-            manifest: new Manifest(defaultBranch: 'master'),
-            stats: new Stats(computeTimeFmt: '(a few seconds)'),
-            nextflow: new NextflowMeta(versionNum: "19.05.0-TOWER"),
-            summaryEntries: [domainCreator.createSummaryEntry(), domainCreator.createSummaryEntry()],
-            tasksProgress: new TasksProgress(running: 0, submitted: 0, failed: 0, pending: 0, succeeded: 0, cached: 0)
+        given: "a workflow with some metrics"
+        def creator = new DomainCreator(validate: false)
+        Workflow workflow = creator.createWorkflow(
+                complete: OffsetDateTime.now(),
+                manifest: new WfManifest(defaultBranch: 'master'),
+                stats: new WfStats(computeTimeFmt: '(a few seconds)'),
+                nextflow: new WfNextflow(version: "19.05.0-TOWER", timestamp: Instant.now(), build: '19.01.1'),
+                tasksProgress: new TasksProgress(running: 0, submitted: 0, failed: 0, pending: 0, succeeded: 0, cached: 0)
         )
 
-        and: "perform the request to obtain the workflow"
-        String accessToken = doJwtLogin(domainCreator.generateAllowedUser(), client)
+        creator.createWorkflowMetrics(workflow)
+        creator.createWorkflowMetrics(workflow)
+
+
+        when: "perform the request to obtain the workflow"
+        String accessToken = doJwtLogin(creator.generateAllowedUser(), client)
         HttpResponse<WorkflowGet> response = client.toBlocking().exchange(
                 HttpRequest.GET("/workflow/${workflow.id}")
                            .bearerAuth(accessToken),
                 WorkflowGet.class
         )
 
-        expect: "the workflow data is properly obtained"
+        then: "the workflow data is properly obtained"
         response.status == HttpStatus.OK
         response.body().workflow.workflowId == workflow.id.toString()
         response.body().workflow.stats
@@ -109,8 +115,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         List<Workflow> workflows = (1..4).collect { Integer i ->
             domainCreator.createWorkflow(
                     owner: owner,
-                    start: OffsetDateTime.now().plusSeconds(i),
-                    summaryEntries: [domainCreator.createSummaryEntry(), domainCreator.createSummaryEntry()]
+                    start: OffsetDateTime.now().plusSeconds(i)
             )
         }
 
@@ -199,6 +204,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         tx.withNewTransaction {
             user = creator.generateAllowedUser()
             workflow = creator.createWorkflow(owner: user)
+            creator.createWorkflowMetrics(workflow)
         }
         
         when:
@@ -232,6 +238,56 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         e.status == HttpStatus.BAD_REQUEST
         e.message == "Oops... Failed to delete workflow with ID 1234"
 
+    }
+
+    void 'should get workflow metrics' () {
+        given:
+        def creator = new DomainCreator(validate: false)
+        def user = creator.generateAllowedUser()
+        Workflow workflow = creator.createWorkflow(
+                manifest: new WfManifest(defaultBranch: 'master'),
+                stats: new WfStats(computeTimeFmt: '(a few seconds)'),
+                nextflow: new WfNextflow(version: "19.05.0-TOWER"),
+                tasksProgress: new TasksProgress(running: 0, submitted: 0, failed: 0, pending: 0, succeeded: 0, cached: 0)
+        )
+
+        def metrics = [
+                creator.createWorkflowMetrics(workflow),
+                creator.createWorkflowMetrics(workflow)
+        ]
+
+        when: "perform the request to obtain the metrics"
+        String auth = doJwtLogin(user, client)
+        HttpResponse<GetWorkflowMetricsResponse> response = client
+                .toBlocking()
+                .exchange(
+                    HttpRequest.GET("/workflow/metrics/${workflow.id}") .bearerAuth(auth),
+                    GetWorkflowMetricsResponse )
+
+        then:
+        response.status == HttpStatus.OK
+        response.body().metrics.size() == 2
+        response.body().metrics[0].process == metrics[0].process
+        response.body().metrics[1].process == metrics[1].process
+    }
+
+    void 'should return error message when metrics not found' () {
+        given:
+        def creator = new DomainCreator()
+        def user = creator.generateAllowedUser()
+
+        when: "perform the request to obtain the meticd"
+        def auth = doJwtLogin(user, client)
+        HttpResponse<GetWorkflowMetricsResponse> response = client
+                .toBlocking()
+                .exchange(
+                        HttpRequest.GET("/workflow/metrics/123") .bearerAuth(auth),
+                        GetWorkflowMetricsResponse )
+
+        then:
+        def e = thrown(HttpClientResponseException)
+        e.status == HttpStatus.NOT_FOUND
+        e.message == "Oops... Can't find workflow ID 123"
     }
 
 }

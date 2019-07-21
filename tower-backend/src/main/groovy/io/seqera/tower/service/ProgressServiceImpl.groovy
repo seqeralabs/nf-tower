@@ -20,6 +20,7 @@ import io.seqera.tower.domain.ProcessProgress
 import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.TasksProgress
 import io.seqera.tower.domain.Workflow
+import io.seqera.tower.domain.WorkflowMetrics
 import io.seqera.tower.enums.TaskStatus
 import io.seqera.tower.exchange.progress.ProgressGet
 import io.seqera.tower.exchange.workflow.WorkflowGet
@@ -31,15 +32,18 @@ import java.time.Instant
 @Singleton
 class ProgressServiceImpl implements ProgressService {
 
+    @CompileDynamic  // <-- TODO make this static removing the `findAllByWorkflow` dynamic finder 
     WorkflowGet buildWorkflowGet(Workflow workflow) {
-        ProgressGet progress
+        WorkflowGet result = new WorkflowGet(workflow: workflow)
+
         if (workflow.checkIsStarted()) {
-            progress = computeWorkflowProgress(workflow.id)
+            result.progress = computeWorkflowProgress(workflow.id)
         } else {
-            progress = new ProgressGet(tasksProgress: workflow.tasksProgress, processesProgress: workflow.processesProgress.sort { it.process })
+            result.progress = new ProgressGet(tasksProgress: workflow.tasksProgress, processesProgress: workflow.processesProgress.sort { it.process })
+            result.summary = WorkflowMetrics.findAllByWorkflow(workflow)
         }
 
-        new WorkflowGet(workflow: workflow, progress: progress, summary: workflow.summaryEntries.sort { it.process })
+        return result
     }
 
     ProgressGet computeWorkflowProgress(Long workflowId) {
