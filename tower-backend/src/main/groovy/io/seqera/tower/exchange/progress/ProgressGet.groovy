@@ -14,6 +14,7 @@ package io.seqera.tower.exchange.progress
 import io.seqera.tower.domain.ProcessProgress
 import io.seqera.tower.domain.TasksProgress
 
+// TODO rename to `GetWorkflowProcessProcessResponse`
 class ProgressGet {
 
     TasksProgress tasksProgress
