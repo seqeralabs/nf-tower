@@ -1,0 +1,33 @@
+<div class="card">
+  <div class="card-header">Load</div>
+  <div class="card-body">
+
+    <div class="row mb-2">
+      <div class="col">
+        <div class="card">
+          <div class="card-body">
+            <x-chartist [type]="'Pie'"
+                        [data]="{series: coresGaugeSeries}"
+                        [options]="coreGaugeOptions"
+                        [events]="donutEvents"
+            ></x-chartist>
+          </div>
+          <div class="card-footer text-center">cores</div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card">
+          <div class="card-body">
+            <x-chartist [type]="'Pie'"
+                        [data]="{series: tasksGaugeSeries}"
+                        [options]="taskGaugeOptions"
+                        [events]="donutEvents"
+            ></x-chartist>
+          </div>
+          <div class="card-footer text-center">tasks</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
