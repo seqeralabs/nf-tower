@@ -101,3 +101,22 @@ body {
 .bd-callout-white {
     border-left-color: #fff;
 }
+
+/* Chartist styles */
+.ct-slice-donut {
+  stroke-width: 20px !important;
+}
+
+.ct-filled .ct-slice-donut {
+  stroke: $started-blue;
+}
+
+//.ct-empty .ct-slice-donut-solid {
+.ct-empty .ct-slice-donut {
+  stroke: #d2d4d6;
+}
+
+.ct-label {
+  font-size: 1.25rem !important;
+  stroke: black;
+}

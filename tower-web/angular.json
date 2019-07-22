@@ -32,7 +32,8 @@
               "node_modules/@mdi/font/css/materialdesignicons.min.css",
 
               "node_modules/datatables.net-bs4/css/dataTables.bootstrap4.min.css",
-              "node_modules/datatables.net-scroller-bs4/css/scroller.bootstrap4.min.css"
+              "node_modules/datatables.net-scroller-bs4/css/scroller.bootstrap4.min.css",
+              "node_modules/chartist/dist/chartist.min.css"
             ],
             "scripts": [
               "node_modules/jquery/dist/jquery.min.js",
@@ -42,7 +43,7 @@
               "node_modules/datatables.net/js/jquery.dataTables.min.js",
               "node_modules/datatables.net-bs4/js/dataTables.bootstrap4.min.js",
               "node_modules/datatables.net-scroller/js/dataTables.scroller.min.js",
-              "node_modules/datatables.net-scroller-bs4/js/scroller.bootstrap4.min.js"
+              "node_modules/datatables.net-scroller-bs4/js/scroller.bootstrap4.min.js",
             ],
             "es5BrowserSupport": true
           },

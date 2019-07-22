@@ -41,6 +41,8 @@ import { WorkflowMainTabsComponent } from './component/workflow-main-tabs/workfl
 import { WorkflowGeneralComponent } from './component/workflow-general/workflow-general.component';
 import { WorkflowStatusComponent } from './component/workflow-status/workflow-status.component';
 import { WorkflowAggregatesComponent } from './component/workflow-aggregates/workflow-aggregates.component';
+import { WorkflowUtilizationComponent } from './component/workflow-utilization/workflow-utilization.component';
+import {ChartistModule} from "ng-chartist";
 
 /*
  * Main application routing strategy
@@ -79,7 +81,7 @@ export class MainRoutingModule { }
     WorkflowCardComponent,
     WorkflowDetailComponent,
     WorkflowMainTabsComponent, WorkflowGeneralComponent, WorkflowStatusComponent,
-    WorkflowAggregatesComponent,
+    WorkflowAggregatesComponent, WorkflowUtilizationComponent,
     MulticoloredProgressBarComponent,
     WelcomeComponent,
     LoginComponent,
@@ -100,6 +102,7 @@ export class MainRoutingModule { }
     MainRoutingModule,
     HttpClientModule,
     FormsModule,
+    ChartistModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
