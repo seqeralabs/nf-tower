@@ -168,20 +168,20 @@ class TraceController {
         String workflowDetailFlowableKey = getWorkflowDetailFlowableKey(workflowId)
 
         log.info("Subscribing to live events of workflow: ${workflowDetailFlowableKey}")
-        Flowable<Event<TraceSseResponse>> flowable
+        Flowable<Event<TraceSseResponse>> workflowDetailFlowable
         try {
-            flowable = serverSentEventsService.getThrottledFlowable(workflowDetailFlowableKey, throttleWorkflowDetailFlowableTime)
+            workflowDetailFlowable = serverSentEventsService.getThrottledFlowable(workflowDetailFlowableKey, throttleWorkflowDetailFlowableTime)
         } catch (NonExistingFlowableException e) {
             String message = "No live events emitter: ${workflowDetailFlowableKey}"
             log.info(message)
-            flowable = Flowable.just(Event.of(TraceSseResponse.ofError(SseErrorType.NONEXISTENT, message)))
+            workflowDetailFlowable = Flowable.just(Event.of(TraceSseResponse.ofError(SseErrorType.NONEXISTENT, message)))
         } catch (Exception e) {
             String message = "Unexpected error while obtaining event emitter: ${workflowDetailFlowableKey}"
             log.error("${message} | ${e.message}", e)
-            flowable = Flowable.just(Event.of(TraceSseResponse.ofError(SseErrorType.UNEXPECTED, message)))
+            workflowDetailFlowable = Flowable.just(Event.of(TraceSseResponse.ofError(SseErrorType.UNEXPECTED, message)))
         }
 
-        flowable
+        workflowDetailFlowable
     }
 
     private static String getWorkflowDetailFlowableKey(def workflowId) {
@@ -193,15 +193,15 @@ class TraceController {
         String workflowListFlowableKey = getWorkflowListFlowableKey(userId)
 
         log.info("Subscribing to live events of user: ${workflowListFlowableKey}")
-        Flowable<Event<TraceSseResponse>> flowable
+        Flowable<Event<TraceSseResponse>> workflowListFlowable
         try {
-            flowable = serverSentEventsService.getThrottledFlowable(workflowListFlowableKey, throttleWorkflowListFlowableTime)
+            workflowListFlowable = serverSentEventsService.getThrottledFlowable(workflowListFlowableKey, throttleWorkflowListFlowableTime)
         } catch (NonExistingFlowableException e) {
             String message = "No live events emitter. Generating one: ${workflowListFlowableKey}"
             log.info(message)
 
             serverSentEventsService.createFlowable(workflowListFlowableKey, idleWorkflowListFlowableTimeout)
-            flowable = serverSentEventsService.getThrottledFlowable(workflowListFlowableKey, throttleWorkflowListFlowableTime)
+            workflowListFlowable = serverSentEventsService.getThrottledFlowable(workflowListFlowableKey, throttleWorkflowListFlowableTime)
         } catch (Exception e) {
             String message = "Unexpected error while obtaining event emitter: ${workflowListFlowableKey}"
             log.error("${message} | ${e.message}", e)
@@ -209,15 +209,13 @@ class TraceController {
             return Flowable.just(Event.of(TraceSseResponse.ofError(SseErrorType.UNEXPECTED, message)))
         }
 
-        return flowable.mergeWith(
-            serverSentEventsService.generateHeartbeatFlowable(
-                heartbeatWorkflowListFlowableInterval,
-                    {
-                        log.info("Generating heartbeat ${it} for ${workflowListFlowableKey}")
-                        Event.of(TraceSseResponse.ofHeartbeat("Heartbeat ${it}"))
-                    }
-                )
-        )
+        Flowable heartbeatWorkflowListFlowable = serverSentEventsService.generateHeartbeatFlowable(heartbeatWorkflowListFlowableInterval, {
+            log.info("Generating heartbeat ${it} for ${workflowListFlowableKey}")
+            Event.of(TraceSseResponse.ofHeartbeat("Heartbeat ${it}"))
+        })
+
+        return workflowListFlowable.mergeWith(heartbeatWorkflowListFlowable)
+                                   .takeUntil(workflowListFlowable.takeLast(1))
     }
 
     private static String getWorkflowListFlowableKey(def userId) {
