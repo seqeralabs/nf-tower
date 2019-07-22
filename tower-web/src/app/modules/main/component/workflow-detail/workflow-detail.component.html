@@ -21,9 +21,17 @@
           <wt-workflow-main-tabs [workflow]="workflow"></wt-workflow-main-tabs>
         </div>
       </div>
-      <div class="row">
+      <div class="row mb-3">
         <div class="col">
           <wt-workflow-status [tasksProgress]="workflow.progress.tasksProgress"></wt-workflow-status>
+        </div>
+        <div class="col">
+          <wt-workflow-general [workflow]="workflow"></wt-workflow-general>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <wt-workflow-aggregates [workflow]="workflow"></wt-workflow-aggregates>
         </div>
         <div class="col">
           <wt-workflow-general [workflow]="workflow"></wt-workflow-general>
