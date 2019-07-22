@@ -63,12 +63,10 @@ export class WorkflowUtilizationComponent implements OnInit, OnChanges {
   private computeDonutBinarySeries(filledValue: number, emptyValue: number): any[] {
     return [
       {
-        name: 'filled',
         className: 'ct-filled',
         value: filledValue
       },
       {
-        name: 'empty',
         className: 'ct-empty',
         value: emptyValue
       }
