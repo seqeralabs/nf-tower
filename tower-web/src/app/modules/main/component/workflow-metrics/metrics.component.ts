@@ -32,9 +32,7 @@ export class WorkflowMetricsComponent implements OnInit {
   private data_byprocess = {};
   
   ngOnInit(): void {
-    // lazy laod plotly library to avoid to embed this into the main app bundle
-    this.loadScript('https://cdn.plot.ly/plotly-1.34.0.min.js');
-    
+
     let workflowId = this.route.snapshot.paramMap.get('id');
     let url = `${environment.apiUrl}/workflow/metrics/${workflowId}`;
     this.httpClient.get<any>(url)
@@ -46,16 +44,6 @@ export class WorkflowMetricsComponent implements OnInit {
           this.notificationService.showErrorNotification(resp.error.message);
         }
       )
-  }
-
-  private loadScript(url: string): void {
-    let body = <HTMLDivElement> document.body;
-    let script = document.createElement('script');
-    script.innerHTML = '';
-    script.src = url;
-    script.async = true;
-    script.defer = true;
-    body.appendChild(script);
   }
 
   public renderPlots(allMetrics: Array<WorkflowMetrics>) {
