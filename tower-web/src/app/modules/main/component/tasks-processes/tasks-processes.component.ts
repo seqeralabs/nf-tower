@@ -13,37 +13,32 @@ import {Task} from '../../entity/task/task';
 import {groupBy, last, sumBy} from "lodash";
 import {HumanizeDuration, HumanizeDurationLanguage, ILanguage} from "humanize-duration-ts";
 import {ProcessProgress} from "../../entity/progress/process-progress";
+import {getAllTaskStatusesKeys, TaskStatus, toProgressTag} from "../../entity/task/task-status.enum";
 
 @Component({
   selector: 'wt-tasks-processes',
   templateUrl: './tasks-processes.component.html',
   styleUrls: ['./tasks-processes.component.scss']
 })
-export class TasksProcessesComponent implements OnInit, OnChanges {
+export class TasksProcessesComponent implements OnInit {
 
   @Input()
   processesProgress: ProcessProgress[];
 
-  constructor() { }
+  statusesTags: string[];
+
+  constructor() {
+    this.statusesTags = getAllTaskStatusesKeys().map((statusKey: number) => toProgressTag(statusKey));
+  }
 
   ngOnInit() {
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-  }
-
-
-  computePercentageProcessCompletedTasks(processProgress: ProcessProgress): string {
-    const percentage: number = (processProgress.completedTasks / processProgress.totalTasks) * 100;
+  computePercentageProcessTasks(processProgress: ProcessProgress, progressStatus: string): string {
+    const percentage: number = (processProgress.progress[progressStatus] / processProgress.progress.total) * 100;
 
     return `${percentage}%`;
   }
 
-  getHumanizedTotalDuration(processProgress: ProcessProgress): string {
-    let language: HumanizeDurationLanguage  = new HumanizeDurationLanguage();
-    language.addLanguage('short', <ILanguage> {y: () => 'y', mo: () => 'mo', w: () => 'w', d: () => 'd', h: () => 'h', m: () => 'm', s: () => 's'});
-
-    return new HumanizeDuration(language).humanize(processProgress.totalDuration, {language: 'short', delimiter: ' '});
-  }
 
 }

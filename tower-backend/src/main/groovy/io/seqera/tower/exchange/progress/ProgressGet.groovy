@@ -12,12 +12,12 @@
 package io.seqera.tower.exchange.progress
 
 import io.seqera.tower.domain.ProcessProgress
-import io.seqera.tower.domain.TasksProgress
+import io.seqera.tower.domain.WorkflowTasksProgress
 
 // TODO rename to `GetWorkflowProcessProcessResponse`
 class ProgressGet {
 
-    TasksProgress tasksProgress
+    WorkflowTasksProgress workflowTasksProgress
     List<ProcessProgress> processesProgress
 
 }

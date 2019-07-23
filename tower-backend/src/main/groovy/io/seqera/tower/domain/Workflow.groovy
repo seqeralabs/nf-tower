@@ -35,8 +35,7 @@ class Workflow {
     static hasMany = [tasks: Task, processesProgress: ProcessProgress]
     static belongsTo = [owner: User]
 
-    @Deprecated // TODO remove this
-    TasksProgress tasksProgress
+    WorkflowTasksProgress tasksProgress
 
     OffsetDateTime submit
     OffsetDateTime start //TODO For now, submitTime and startTime are the same, when using Launchpad they would differ.

@@ -21,11 +21,12 @@ export class Task {
     this.data = <TaskData> json.task;
   }
 
+  get isCompleted(): boolean {
+    return (this.data.status == TaskStatus.COMPLETED);
+  }
+
   get statusTag(): string {
     return TaskStatus[this.data.status];
   }
 
-  get isCompleted(): boolean {
-    return (this.data.status == TaskStatus.COMPLETED);
-  }
 }

@@ -11,6 +11,8 @@
 
 package io.seqera.tower.controller
 
+import io.seqera.tower.domain.TasksProgress
+
 import javax.inject.Inject
 import java.time.Instant
 import java.time.OffsetDateTime
@@ -29,7 +31,7 @@ import io.seqera.tower.domain.WfManifest
 import io.seqera.tower.domain.WfNextflow
 import io.seqera.tower.domain.WfStats
 import io.seqera.tower.domain.Task
-import io.seqera.tower.domain.TasksProgress
+import io.seqera.tower.domain.WorkflowTasksProgress
 import io.seqera.tower.domain.User
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.exchange.task.TaskList
@@ -56,13 +58,13 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
 
     void "get a workflow"() {
         given: "a workflow with some metrics"
-        def creator = new DomainCreator(validate: false)
-        Workflow workflow = creator.createWorkflow(
+        DomainCreator domainCreator = new DomainCreator()
+        Workflow workflow = domainCreator.createWorkflow(
                 complete: OffsetDateTime.now(),
                 manifest: new WfManifest(defaultBranch: 'master'),
                 stats: new WfStats(computeTimeFmt: '(a few seconds)'),
                 nextflow: new WfNextflow(version: "19.05.0-TOWER", timestamp: Instant.now(), build: '19.01.1'),
-                tasksProgress: new TasksProgress(running: 0, submitted: 0, failed: 0, pending: 0, succeeded: 0, cached: 0)
+                tasksProgress: new WorkflowTasksProgress(progress: new TasksProgress(running: 0, submitted: 0, failed: 0, pending: 0, succeeded: 0, cached: 0))
         )
 
         creator.createWorkflowMetrics(workflow)
@@ -84,7 +86,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         response.body().workflow.nextflow
         response.body().workflow.manifest
         response.body().summary.size() == 2
-        response.body().progress.tasksProgress
+        response.body().progress.workflowTasksProgress
     }
 
     void "get a workflow as non-authenticated user"() {

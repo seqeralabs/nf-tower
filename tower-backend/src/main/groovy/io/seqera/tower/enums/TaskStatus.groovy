@@ -15,7 +15,7 @@ enum TaskStatus {
 
     NEW, SUBMITTED, RUNNING, CACHED, COMPLETED, FAILED
 
-    String toProgressString() {
+    String toProgressTag() {
         if (this == NEW) {
             return 'pending'
         }
