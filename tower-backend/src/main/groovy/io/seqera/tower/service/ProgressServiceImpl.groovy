@@ -11,14 +11,13 @@
 
 package io.seqera.tower.service
 
-import java.time.OffsetDateTime
-
 import grails.gorm.DetachedCriteria
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
 import io.seqera.tower.domain.ProcessProgress
 import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.TasksProgress
+import io.seqera.tower.domain.WorkflowTasksProgress
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.domain.WorkflowMetrics
 import io.seqera.tower.enums.TaskStatus
@@ -26,7 +25,6 @@ import io.seqera.tower.exchange.progress.ProgressGet
 import io.seqera.tower.exchange.workflow.WorkflowGet
 
 import javax.inject.Singleton
-import java.time.Instant
 
 @Transactional
 @Singleton
@@ -39,7 +37,7 @@ class ProgressServiceImpl implements ProgressService {
         if (workflow.checkIsStarted()) {
             result.progress = computeWorkflowProgress(workflow.id)
         } else {
-            result.progress = new ProgressGet(tasksProgress: workflow.tasksProgress, processesProgress: workflow.processesProgress.sort { it.process })
+            result.progress = new ProgressGet(workflowTasksProgress: workflow.tasksProgress, processesProgress: workflow.processesProgress.sort { it.process })
             result.summary = WorkflowMetrics.findAllByWorkflow(workflow)
         }
 
@@ -47,11 +45,11 @@ class ProgressServiceImpl implements ProgressService {
     }
 
     ProgressGet computeWorkflowProgress(Long workflowId) {
-        new ProgressGet(tasksProgress: computeTasksProgress(workflowId), processesProgress: computeProcessesProgress(workflowId))
+        new ProgressGet(workflowTasksProgress: computeTasksProgress(workflowId), processesProgress: computeProcessesProgress(workflowId))
     }
 
     @CompileDynamic
-    private TasksProgress computeTasksProgress(Long workflowId) {
+    private WorkflowTasksProgress computeTasksProgress(Long workflowId) {
         List<Object[]> tuples = new DetachedCriteria(Task).build {
             workflow {
                 eq('id', workflowId)
@@ -64,99 +62,50 @@ class ProgressServiceImpl implements ProgressService {
         }.list()
 
         Map<String, Long> progressProperties = tuples.collectEntries { Object[] tuple ->
-            [(tuple[0].toProgressString()): tuple[1]]
+            [( ((TaskStatus) tuple[0]).toProgressTag()): (Long) tuple[1]]
         }
-        new TasksProgress(progressProperties)
+
+        TasksProgress progress = new TasksProgress(progressProperties)
+        new WorkflowTasksProgress(progress: progress)
     }
 
+    @CompileDynamic
     private List<ProcessProgress> computeProcessesProgress(Long workflowId) {
-        Map<String, Long> totalCountByProcess = queryProcessesTasksStatus(workflowId)
-        Map<String, Long> completedCountByProcess = queryProcessesTasksStatus(workflowId, TaskStatus.COMPLETED)
-        Map<String, Long> totalDurationByProcess = queryProcessesTotalDuration(workflowId)
-        Map<String, String> lastSubmittedTaskHashByProcess = queryProcessesLastSubmittedTaskHash(workflowId)
+        Map<String, Map<TaskStatus, List<Map>>> statusCountByProcess = queryProcessesTasksStatus(workflowId)
 
-        totalCountByProcess.collect { String process, Long totalCount ->
-            new ProcessProgress(
-                    process: process, totalTasks: totalCount, completedTasks: completedCountByProcess[process] ?: 0,
-                    totalDuration: totalDurationByProcess[process] ?: 0, lastTaskHash: lastSubmittedTaskHashByProcess[process]
-            )
+        statusCountByProcess.collect { String process, Map<TaskStatus, List<Map>> statusCountsOfProcess ->
+            TasksProgress progress = new TasksProgress()
+
+            statusCountsOfProcess.each { TaskStatus status, List<Map> countOfProcess ->
+                progress[status.toProgressTag()] = countOfProcess.first().count
+            }
+
+            new ProcessProgress(process: process, progress: progress)
         }.sort { it.process }
     }
 
     @CompileDynamic
-    private Map<String, Long> queryProcessesTasksStatus(Long workflowId, TaskStatus status = null) {
+    private Map<String, Map> queryProcessesTasksStatus(Long workflowId) {
         List<Object[]> tuples = new DetachedCriteria(Task).build {
-            if (status) {
-                eq('status', status)
-            }
-
             workflow {
                 eq('id', workflowId)
             }
 
             projections {
                 groupProperty('process')
+                groupProperty('status')
                 countDistinct('id')
             }
         }.list()
 
-        Map<String, Long> statusCountByProcess = tuples.collectEntries { Object[] tuple ->
-            [(tuple[0]): tuple[1]]
-        }
+        Map<String, Map<TaskStatus, List<Map>>> statusCountByProcess = tuples.collect { Object[] tuple ->
+            [process: tuple[0], status: tuple[1], count: tuple[2]]
+        }.groupBy([
+            { Map data -> data.process },
+            { Map data -> data.status },
+        ])
+
         statusCountByProcess
     }
 
-    @CompileDynamic
-    private Map<String, Long> queryProcessesTotalDuration(Long workflowId) {
-        List<Object[]> tuples = new DetachedCriteria(Task).build {
-            workflow {
-                eq('id', workflowId)
-            }
-
-            projections {
-                groupProperty('process')
-                sum('duration')
-            }
-        }.list()
-
-        Map<String, Long> totalDurationByProcess = tuples.collectEntries { Object[] tuple ->
-            [(tuple[0]): tuple[1]]
-        }
-        totalDurationByProcess
-    }
-
-    @CompileDynamic
-    private Map<String, String> queryProcessesLastSubmittedTaskHash(Long workflowId) {
-        List<Object[]> tuples = new DetachedCriteria(Task).build {
-            workflow {
-                eq('id', workflowId)
-            }
-
-            projections {
-                groupProperty('process')
-                max('submit')
-            }
-        }.list()
-        Map<String, Instant> lastSubmitTimeTaskByProcess = tuples.collectEntries { Object[] tuple ->
-            [(tuple[0]): tuple[1]]
-        }
-
-        Map<String, String> lastSubmittedTaskHashByProcess = lastSubmitTimeTaskByProcess.collectEntries { String process, OffsetDateTime submitTime ->
-            String hash = new DetachedCriteria(Task).build {
-                workflow {
-                    eq('id', workflowId)
-                }
-                eq('process', process)
-                eq('submit', submitTime)
-
-                projections {
-                    property('hash')
-                }
-            }.get()
-
-            [(process): hash]
-        }
-
-        lastSubmittedTaskHashByProcess
-    }
 }

@@ -1,25 +1,31 @@
-<div class="mt-4"></div>
-<div class="row mb-3" *ngFor="let processProgress of processesProgress">
-  <div class="col-sm">
-    <div class="row mb-0 process-summary">
-      <div class="col-sm process-name">
-        {{processProgress.process}}
-      </div>
-      <div class="col-sm offset-sm-1">
-        [{{processProgress.lastTaskHash}}]
-      </div>
-      <div class="col-sm offset-sm-2 duration-label">
-        {{getHumanizedTotalDuration(processProgress)}}
-      </div>
-      <div class="col-sm progress-label">
-        {{processProgress.completedTasks}} of {{processProgress.totalTasks}}
+<div class="card">
+  <div class="card-header">Processes</div>
+  <div class="card-body">
+
+    <div class="row mb-3" *ngFor="let processProgress of processesProgress">
+      <div class="col-sm">
+        <div class="row mb-0 process-summary">
+          <div class="col-sm process-name">
+            {{processProgress.process}}
+          </div>
+          <div class="col-sm progress-label">
+            {{processProgress.progress.succeeded}} of {{processProgress.progress.total}}
+          </div>
+        </div>
+        <div class="progress">
+          <div class="progress-bar"
+               *ngFor="let status of statusesTags"
+               [style.width]="computePercentageProcessTasks(processProgress, status)"
+               [ngClass]="status"
+          >
+          </div>
+        </div>
       </div>
     </div>
-    <div class="progress progress-thin">
-      <div class="progress-bar"
-           [ngClass]="{'tasks-completed': computePercentageProcessCompletedTasks(processProgress) == '100%', 'tasks-running': computePercentageProcessCompletedTasks(processProgress) != '100%'}"
-           [style.width]="computePercentageProcessCompletedTasks(processProgress)">
-      </div>
-    </div>
+
   </div>
 </div>
+
+
+
+

@@ -23,7 +23,7 @@
       </div>
       <div class="row mb-3">
         <div class="col">
-          <wt-workflow-status [tasksProgress]="workflow.progress.tasksProgress"></wt-workflow-status>
+          <wt-workflow-status [tasksProgress]="workflow.progress.workflowTasksProgress.progress"></wt-workflow-status>
         </div>
         <div class="col">
           <wt-workflow-general [workflow]="workflow"></wt-workflow-general>
@@ -42,7 +42,7 @@
           <wt-workflow-load [workflow]="workflow"></wt-workflow-load>
         </div>
         <div class="col">
-          <wt-workflow-general [workflow]="workflow"></wt-workflow-general>
+          <wt-tasks-processes [processesProgress]="workflow.progress.processesProgress"></wt-tasks-processes>
         </div>
       </div>
     </div>

@@ -23,11 +23,8 @@ class ProcessProgress {
     static belongsTo = [workflow: Workflow]
 
     String process
+    TasksProgress progress
 
-    Long completedTasks
-    Long totalTasks
-
-    @Deprecated String lastTaskHash
-    Long totalDuration
+    static embedded = ['progress']
 
 }

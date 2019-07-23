@@ -15,4 +15,5 @@ export interface TasksProgress {
   submitted: number;
   succeeded: number;
   failed: number;
+  total: number;
 }

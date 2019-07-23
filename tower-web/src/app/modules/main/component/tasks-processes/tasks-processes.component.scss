@@ -1,11 +1,36 @@
 @import "~src/assets/variables";
 
-.tasks-completed {
-  background-color: $succeed-green;
-}
+.progress {
+  height: 6px;
 
-.tasks-running {
-  background-color: $started-blue;
+  //.progress-bar {
+  //  transition: width .6s ease;
+  //}
+
+  .submitted {
+    background-color: $submitted-orange;
+  }
+
+  .pending {
+    background-color: $pending-purple;
+  }
+
+  .running {
+    background-color: $started-blue;
+  }
+
+  .cached {
+    background-color: $cached-grey;
+  }
+
+  .succeeded {
+    background-color: $succeed-green;
+  }
+
+  .failed {
+    background-color: $failed-red;
+  }
+
 }
 
 .row.process-summary {
@@ -15,11 +40,6 @@
     text-align: left;
     font-size: 1.1em;
   }
-
-}
-
-.progress-thin {
-  height: 6px;
 }
 
 

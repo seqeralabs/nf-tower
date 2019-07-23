@@ -9,17 +9,7 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 import {TasksProgress} from "./tasks-progress";
-import {ProcessProgress} from "./process-progress";
-import {WorkflowTasksProgress} from "./workflow-tasks-progress";
 
-export class Progress {
-
-  workflowTasksProgress: WorkflowTasksProgress;
-  processesProgress: ProcessProgress[];
-
-  constructor(json: any) {
-    this.workflowTasksProgress = <WorkflowTasksProgress> json.workflowTasksProgress;
-    this.processesProgress = <ProcessProgress[]> json.processesProgress;
-  }
-
+export interface WorkflowTasksProgress {
+  progress: TasksProgress;
 }

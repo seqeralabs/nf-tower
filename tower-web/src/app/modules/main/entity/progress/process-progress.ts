@@ -8,13 +8,10 @@
  * This Source Code Form is "Incompatible With Secondary Licenses", as
  * defined by the Mozilla Public License, v. 2.0.
  */
+import {TasksProgress} from "./tasks-progress";
+
 export interface ProcessProgress {
   process: string;
-
-  totalTasks: number;
-  completedTasks: number;
-
-  lastTaskHash: string;
-  totalDuration: number;
+  progress: TasksProgress
 
 }

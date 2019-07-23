@@ -107,13 +107,12 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         metrics.first().cpuUsage
 
         and: "the tasks progress info has been computed"
-        workflowSucceeded.tasksProgress.running == 0
-        workflowSucceeded.tasksProgress.submitted == 0
-        workflowSucceeded.tasksProgress.failed == 0
-        workflowSucceeded.tasksProgress.pending == 0
-        workflowSucceeded.tasksProgress.succeeded == 0
-        workflowSucceeded.tasksProgress.cached == 0
-
+        workflowSucceeded.tasksProgress.progress.running == 0
+        workflowSucceeded.tasksProgress.progress.submitted == 0
+        workflowSucceeded.tasksProgress.progress.failed == 0
+        workflowSucceeded.tasksProgress.progress.pending == 0
+        workflowSucceeded.tasksProgress.progress.succeeded == 0
+        workflowSucceeded.tasksProgress.progress.cached == 0
     }
 
     void "start a workflow given a started trace, then complete the workflow given a failed trace"() {
@@ -166,12 +165,12 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         metrics.first().cpuUsage
 
         and: "the progress info has been computed"
-        workflowFailed.tasksProgress.running == 0
-        workflowFailed.tasksProgress.submitted == 0
-        workflowFailed.tasksProgress.failed == 0
-        workflowFailed.tasksProgress.pending == 0
-        workflowFailed.tasksProgress.succeeded == 0
-        workflowFailed.tasksProgress.cached == 0
+        workflowFailed.tasksProgress.progress.running == 0
+        workflowFailed.tasksProgress.progress.submitted == 0
+        workflowFailed.tasksProgress.progress.failed == 0
+        workflowFailed.tasksProgress.progress.pending == 0
+        workflowFailed.tasksProgress.progress.succeeded == 0
+        workflowFailed.tasksProgress.progress.cached == 0
     }
 
     void "start a workflow given a started trace, then try to start the same one"() {

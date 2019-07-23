@@ -10,6 +10,23 @@
  */
 export enum TaskStatus {
 
-  SUBMITTED, RUNNING, COMPLETED, SUCCEEDED, FAILED
+  NEW, SUBMITTED, RUNNING, CACHED, COMPLETED, FAILED
+
+}
+
+export function toProgressTag(statusKey: number): string {
+  if (statusKey == TaskStatus.NEW) {
+    return 'pending'
+  }
+  if (statusKey == TaskStatus.COMPLETED) {
+    return 'succeeded'
+  }
+  return TaskStatus[statusKey].toLowerCase()
+}
+
+export function getAllTaskStatusesKeys(): TaskStatus[] {
+  return Object.keys(TaskStatus)
+               .map(key => Number(key))
+               .filter(key => !isNaN(key))
 
 }

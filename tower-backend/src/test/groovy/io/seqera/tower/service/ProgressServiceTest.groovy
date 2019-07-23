@@ -65,23 +65,32 @@ class ProgressServiceTest extends AbstractContainerBaseTest {
         ProgressGet progress = progressService.computeWorkflowProgress(workflow.id)
 
         then: "the tasks has been successfully computed"
-        progress.tasksProgress.pending == 2
-        progress.tasksProgress.submitted == 2
-        progress.tasksProgress.running == 2
-        progress.tasksProgress.cached == 2
-        progress.tasksProgress.failed == 2
-        progress.tasksProgress.succeeded == 3
+        progress.workflowTasksProgress.progress.pending == 2
+        progress.workflowTasksProgress.progress.submitted == 2
+        progress.workflowTasksProgress.progress.running == 2
+        progress.workflowTasksProgress.progress.cached == 2
+        progress.workflowTasksProgress.progress.failed == 2
+        progress.workflowTasksProgress.progress.succeeded == 3
 
         then: "the processes progress has been successfully computed"
         progress.processesProgress.size() == 2
         ProcessProgress progress1 = progress.processesProgress.find { it.process == process1 }
-        progress1.totalTasks == 6
-        progress1.completedTasks == 1
-        progress1.totalDuration == 6
+        progress1.progress.running == 1
+        progress1.progress.submitted == 1
+        progress1.progress.failed == 1
+        progress1.progress.pending == 1
+        progress1.progress.succeeded == 1
+        progress1.progress.cached == 1
+        progress1.progress.total == 6
+
         ProcessProgress progress2 = progress.processesProgress.find { it.process == process2 }
-        progress2.totalTasks == 7
-        progress2.completedTasks == 2
-        progress2.totalDuration == 7
+        progress2.progress.running == 1
+        progress2.progress.submitted == 1
+        progress2.progress.failed == 1
+        progress2.progress.pending == 1
+        progress2.progress.succeeded == 2
+        progress2.progress.cached == 1
+        progress2.progress.total == 7
     }
 
 }

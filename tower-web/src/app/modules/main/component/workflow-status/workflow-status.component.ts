@@ -11,6 +11,7 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {TasksProgress} from "../../entity/progress/tasks-progress";
 import {chunk} from "lodash";
+import {getAllTaskStatusesKeys, TaskStatus, toProgressTag} from "../../entity/task/task-status.enum";
 
 @Component({
   selector: 'wt-workflow-status',
@@ -22,13 +23,14 @@ export class WorkflowStatusComponent implements OnInit {
   @Input()
   tasksProgress: TasksProgress;
 
-  private statuses: string[];
+  private statusesTags: string[];
 
   statusesRows: string[][];
 
   constructor() {
-    this.statuses = ['pending', 'running', 'cached', 'submitted', 'succeeded', 'failed'];
-    this.statusesRows = chunk(this.statuses, 3)
+    console.log("All task statuses", getAllTaskStatusesKeys());
+    this.statusesTags = getAllTaskStatusesKeys().map((statusKey: number) => toProgressTag(statusKey));
+    this.statusesRows = chunk(this.statusesTags, 3)
   }
 
   ngOnInit() {
