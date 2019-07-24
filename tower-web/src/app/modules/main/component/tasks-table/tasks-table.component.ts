@@ -48,6 +48,10 @@ export class TasksTableComponent implements OnInit, OnChanges {
     }
   }
 
+  private reloadTable(): void {
+    this.dataTable.ajax.reload(null, false);
+  }
+
   private destroyDataTable(): void {
     if (this.dataTable) {
       this.dataTable.destroy();
@@ -71,10 +75,7 @@ export class TasksTableComponent implements OnInit, OnChanges {
             start: data.start,
             length: data.length,
             search: data.search.value,
-            order: data.order.map((orderInfo: any) => {
-              return {column: data.columns[orderInfo.column].name, dir: orderInfo.dir}
-
-            })
+            order: data.order.map((orderInfo: any) => ({column: data.columns[orderInfo.column].name, dir: orderInfo.dir}))
           };
 
           return filterParams;
@@ -99,16 +100,6 @@ export class TasksTableComponent implements OnInit, OnChanges {
         }
       }
     });
-  }
-
-  adjustTableColumns(): void {
-    if (this.dataTable) {
-      this.dataTable.columns.adjust().draw();
-    }
-  }
-
-  reloadTable(): void {
-    this.dataTable.ajax.reload(null, false);
   }
 
 }
