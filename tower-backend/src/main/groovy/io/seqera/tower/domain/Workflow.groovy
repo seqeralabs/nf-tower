@@ -26,7 +26,7 @@ import io.seqera.tower.enums.WorkflowStatus
  *  see https://www.nextflow.io/docs/latest/tracing.html#execution-report
  */
 @Entity
-@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'tasks', 'tasksProgress', 'processesProgress', 'owner'])
+@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'tasks', 'workflowTasksProgress', 'processesProgress', 'owner'])
 @CompileDynamic
 class Workflow {
 
@@ -34,8 +34,7 @@ class Workflow {
 
     static hasMany = [tasks: Task, processesProgress: ProcessProgress]
     static belongsTo = [owner: User]
-
-    WorkflowTasksProgress tasksProgress
+    static hasOne = [workflowTasksProgress: WorkflowTasksProgress]
 
     OffsetDateTime submit
     OffsetDateTime start //TODO For now, submitTime and startTime are the same, when using Launchpad they would differ.
@@ -147,7 +146,7 @@ class Workflow {
         manifest(nullable: true)
         nextflow(nullable: true)
         stats(nullable: true)
-        tasksProgress(nullable: true)
+        workflowTasksProgress(nullable: true, unique: true)
     }
 
     static mapping = {

@@ -37,7 +37,7 @@ class ProgressServiceImpl implements ProgressService {
         if (workflow.checkIsStarted()) {
             result.progress = computeWorkflowProgress(workflow.id)
         } else {
-            result.progress = new ProgressGet(workflowTasksProgress: workflow.tasksProgress, processesProgress: workflow.processesProgress.sort { it.process })
+            result.progress = new ProgressGet(workflowTasksProgress: workflow.workflowTasksProgress, processesProgress: workflow.processesProgress.sort { it.process })
             result.summary = WorkflowMetrics.findAllByWorkflow(workflow)
         }
 
