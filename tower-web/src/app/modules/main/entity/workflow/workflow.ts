@@ -64,6 +64,10 @@ export class Workflow {
     return this.data.commitId.substring(0, 6)
   }
 
+  get params(): string {
+    return JSON.stringify(this.data.params);
+  }
+
   getWorkflowStartDateFormatted(format: string): string {
     return dateFormat(this.data.start, format);
   }
