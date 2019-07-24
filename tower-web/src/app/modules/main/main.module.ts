@@ -19,7 +19,6 @@ import { HTTP_INTERCEPTORS, HttpClientModule } from "@angular/common/http";
 import { WorkflowCardComponent } from './component/workflow-card/workflow-card.component';
 import { WorkflowDetailComponent } from './component/workflow-detail/workflow-detail.component';
 import { WorkflowMetricsComponent } from './component/workflow-metrics/metrics.component';
-import { MulticoloredProgressBarComponent } from './component/multicolored-progress-bar/multicolored-progress-bar.component';
 import { WelcomeComponent } from './component/welcome/welcome.component';
 import { LoginComponent } from './component/login/login.component';
 import { FormsModule} from "@angular/forms";
@@ -28,7 +27,6 @@ import { ErrorInterceptor } from "./interceptor/error.interceptor";
 import { LogoutComponent } from './component/logout/logout.component';
 import { UserProfileComponent } from './component/user-profile/user-profile.component';
 import { AccessTokenComponent } from "./component/access-token/access-token.component";
-import { WorkflowTabsComponent } from "./component/workflow-tabs/workflow-tabs.component";
 import { TasksTableComponent } from './component/tasks-table/tasks-table.component';
 import { TasksProcessesComponent } from './component/tasks-processes/tasks-processes.component';
 import { HomeComponent } from './component/home/home.component';
@@ -83,14 +81,12 @@ export class MainRoutingModule { }
     WorkflowDetailComponent,
     WorkflowMainTabsComponent, WorkflowGeneralComponent, WorkflowStatusComponent,
     WorkflowAggregatesComponent, WorkflowUtilizationComponent, WorkflowLoadComponent,
-    MulticoloredProgressBarComponent,
     WelcomeComponent,
     LoginComponent,
     AuthComponent,
     LogoutComponent,
     UserProfileComponent,
     AccessTokenComponent,
-    WorkflowTabsComponent,
     WorkflowMetricsComponent,
     TasksTableComponent,
     TasksProcessesComponent,
