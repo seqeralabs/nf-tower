@@ -11,6 +11,9 @@
 
 package io.seqera.tower.util
 
+import io.seqera.tower.domain.TasksProgress
+import io.seqera.tower.domain.WorkflowTasksProgress
+
 import java.time.Instant
 import java.time.OffsetDateTime
 
@@ -102,6 +105,15 @@ class DomainCreator {
         fields.submit = fields.containsKey('submit') ? fields.submit : OffsetDateTime.now()
 
         createInstance(task, fields)
+    }
+
+    WorkflowTasksProgress createWorkflowTasksProgress(Map fields = [:]) {
+        WorkflowTasksProgress workflowTasksProgress = new WorkflowTasksProgress()
+
+        fields.workflow = fields.containsKey('workflow') ? fields.workflow : createWorkflow()
+        fields.progress = fields.containsKey('progress') ? fields.progress : new TasksProgress()
+
+        createInstance(workflowTasksProgress, fields)
     }
 
     WorkflowMetrics createWorkflowMetrics(Workflow workflow, Map fields = [:]) {

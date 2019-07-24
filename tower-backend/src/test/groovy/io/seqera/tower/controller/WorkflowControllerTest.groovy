@@ -58,14 +58,15 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
 
     void "get a workflow"() {
         given: "a workflow with some metrics"
-        DomainCreator domainCreator = new DomainCreator()
-        Workflow workflow = domainCreator.createWorkflow(
+        DomainCreator creator = new DomainCreator()
+        Workflow workflow = creator.createWorkflow(
                 complete: OffsetDateTime.now(),
                 manifest: new WfManifest(defaultBranch: 'master'),
                 stats: new WfStats(computeTimeFmt: '(a few seconds)'),
                 nextflow: new WfNextflow(version: "19.05.0-TOWER", timestamp: Instant.now(), build: '19.01.1'),
-                tasksProgress: new WorkflowTasksProgress(progress: new TasksProgress(running: 0, submitted: 0, failed: 0, pending: 0, succeeded: 0, cached: 0))
         )
+        WorkflowTasksProgress workflowTasksProgress = creator.createWorkflowTasksProgress(workflow: workflow)
+        workflow.refresh()
 
         creator.createWorkflowMetrics(workflow)
         creator.createWorkflowMetrics(workflow)
@@ -250,7 +251,6 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
                 manifest: new WfManifest(defaultBranch: 'master'),
                 stats: new WfStats(computeTimeFmt: '(a few seconds)'),
                 nextflow: new WfNextflow(version: "19.05.0-TOWER"),
-                tasksProgress: new TasksProgress(running: 0, submitted: 0, failed: 0, pending: 0, succeeded: 0, cached: 0)
         )
 
         def metrics = [
