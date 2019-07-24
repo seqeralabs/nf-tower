@@ -45,6 +45,11 @@
           <wt-tasks-processes [processesProgress]="workflow.progress.processesProgress"></wt-tasks-processes>
         </div>
       </div>
+      <div class="row mb-3">
+        <div class="col">
+          <wt-tasks-table [workflowId]="workflow.data.workflowId" [progress]="workflow.progress"></wt-tasks-table>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -56,12 +61,6 @@
           <pre class="card-text">{{workflow.data.errorReport}}</pre>
         </div>
       </div>
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="col-sm">
-      <wt-workflow-tabs [workflow]="workflow"></wt-workflow-tabs>
     </div>
   </div>
 </div>

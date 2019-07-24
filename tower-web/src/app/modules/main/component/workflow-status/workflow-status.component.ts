@@ -28,7 +28,6 @@ export class WorkflowStatusComponent implements OnInit {
   statusesRows: string[][];
 
   constructor() {
-    console.log("All task statuses", getAllTaskStatusesKeys());
     this.statusesTags = getAllTaskStatusesKeys().map((statusKey: number) => toProgressTag(statusKey));
     this.statusesRows = chunk(this.statusesTags, 3)
   }
