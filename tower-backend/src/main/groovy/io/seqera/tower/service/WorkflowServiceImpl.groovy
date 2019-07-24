@@ -101,7 +101,7 @@ class WorkflowServiceImpl implements WorkflowService {
     private void associateProgress(Workflow workflow) {
         if (!workflow.checkIsStarted()) {
             ProgressGet progress = progressService.computeWorkflowProgress(workflow.id)
-            workflow.tasksProgress = progress.workflowTasksProgress
+            workflow.workflowTasksProgress = progress.workflowTasksProgress
             progress.processesProgress.each { ProcessProgress processProgress ->
                 workflow.addToProcessesProgress(processProgress)
             }

@@ -65,7 +65,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
                 stats: new WfStats(computeTimeFmt: '(a few seconds)'),
                 nextflow: new WfNextflow(version: "19.05.0-TOWER", timestamp: Instant.now(), build: '19.01.1'),
         )
-        WorkflowTasksProgress workflowTasksProgress = creator.createWorkflowTasksProgress(workflow: workflow)
+        creator.createWorkflowTasksProgress(workflow: workflow)
 
         creator.createWorkflowMetrics(workflow)
         creator.createWorkflowMetrics(workflow)
@@ -86,7 +86,6 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         response.body().workflow.nextflow
         response.body().workflow.manifest
         response.body().summary.size() == 2
-        //TODO Failing from some unknown reason
         response.body().progress.workflowTasksProgress
     }
 

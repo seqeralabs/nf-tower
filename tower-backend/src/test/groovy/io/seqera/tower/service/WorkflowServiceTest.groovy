@@ -57,7 +57,7 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         }
 
         and: "there is no progress info"
-        !workflow.tasksProgress
+        !workflow.workflowTasksProgress
     }
 
     void "start a workflow given a started trace, then complete the workflow given a succeeded trace"() {
@@ -107,12 +107,12 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         metrics.first().cpuUsage
 
         and: "the tasks progress info has been computed"
-        workflowSucceeded.tasksProgress.progress.running == 0
-        workflowSucceeded.tasksProgress.progress.submitted == 0
-        workflowSucceeded.tasksProgress.progress.failed == 0
-        workflowSucceeded.tasksProgress.progress.pending == 0
-        workflowSucceeded.tasksProgress.progress.succeeded == 0
-        workflowSucceeded.tasksProgress.progress.cached == 0
+        workflowSucceeded.workflowTasksProgress.progress.running == 0
+        workflowSucceeded.workflowTasksProgress.progress.submitted == 0
+        workflowSucceeded.workflowTasksProgress.progress.failed == 0
+        workflowSucceeded.workflowTasksProgress.progress.pending == 0
+        workflowSucceeded.workflowTasksProgress.progress.succeeded == 0
+        workflowSucceeded.workflowTasksProgress.progress.cached == 0
     }
 
     void "start a workflow given a started trace, then complete the workflow given a failed trace"() {
@@ -165,12 +165,12 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         metrics.first().cpuUsage
 
         and: "the progress info has been computed"
-        workflowFailed.tasksProgress.progress.running == 0
-        workflowFailed.tasksProgress.progress.submitted == 0
-        workflowFailed.tasksProgress.progress.failed == 0
-        workflowFailed.tasksProgress.progress.pending == 0
-        workflowFailed.tasksProgress.progress.succeeded == 0
-        workflowFailed.tasksProgress.progress.cached == 0
+        workflowFailed.workflowTasksProgress.progress.running == 0
+        workflowFailed.workflowTasksProgress.progress.submitted == 0
+        workflowFailed.workflowTasksProgress.progress.failed == 0
+        workflowFailed.workflowTasksProgress.progress.pending == 0
+        workflowFailed.workflowTasksProgress.progress.succeeded == 0
+        workflowFailed.workflowTasksProgress.progress.cached == 0
     }
 
     void "start a workflow given a started trace, then try to start the same one"() {

@@ -26,7 +26,7 @@ import groovy.transform.CompileDynamic
 @CompileDynamic
 class WorkflowTasksProgress {
 
-    static belongsTo = [workflow: Workflow]
+    Workflow workflow
 
     TasksProgress progress
 
