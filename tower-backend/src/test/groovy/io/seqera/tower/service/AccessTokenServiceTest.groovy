@@ -53,7 +53,7 @@ class AccessTokenServiceTest extends AbstractContainerBaseTest {
         tokens = tx.withNewTransaction { tokenService.findByUser(user) }
         then:
         tokens.size() == 2
-        tokens.find { it.name == 'new-token'}.id == 2
+        tokens.find { it.name == 'new-token'}.id
 
     }
 
