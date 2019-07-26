@@ -1,7 +1,7 @@
 ---
 dataSource:
   pooled: true
-  dbCreate: create-drop
+  dbCreate: none
   jmxExport: true
   url: jdbc:mysql://localhost:3307/tower
   driverClassName: com.mysql.cj.jdbc.Driver
