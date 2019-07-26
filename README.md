@@ -67,6 +67,6 @@ Launch the backend with the command:
 
 ```
 cd tower-web
-npminstall
+npm install
 npm run livedev
 ```
