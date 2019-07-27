@@ -68,7 +68,7 @@
     },
     "workflowId": "12345"
   },
-  "summary": [
+  "metrics": [
     {
       "process": "sayHello",
       "cpu": {

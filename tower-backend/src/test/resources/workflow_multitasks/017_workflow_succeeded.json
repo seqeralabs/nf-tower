@@ -68,7 +68,7 @@
         },
         "workflowId": "12345"
     },
-    "summary": [
+    "metrics": [
         {
             "cpu": {
                 "mean": 94.5,

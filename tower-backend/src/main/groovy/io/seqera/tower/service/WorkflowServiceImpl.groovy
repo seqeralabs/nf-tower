@@ -47,7 +47,7 @@ class WorkflowServiceImpl implements WorkflowService {
     }
 
     Workflow processTraceWorkflowRequest(TraceWorkflowRequest request, User owner) {
-        request.workflow.checkIsStarted() ? saveWorkflow(request.workflow, owner) : updateWorkflow(request.workflow, request.summary)
+        request.workflow.checkIsStarted() ? saveWorkflow(request.workflow, owner) : updateWorkflow(request.workflow, request.metrics)
     }
 
     private Workflow saveWorkflow(Workflow workflow, User owner) {

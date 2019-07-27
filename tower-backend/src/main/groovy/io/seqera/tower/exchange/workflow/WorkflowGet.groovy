@@ -20,7 +20,7 @@ class WorkflowGet {
 
     Workflow workflow
     ProgressGet progress
-    @Deprecated List<WorkflowMetrics> summary  // <-- TODO rename to summary
+    @Deprecated List<WorkflowMetrics> metrics
 
     static WorkflowGet of(Workflow workflow) {
         new WorkflowGet(workflow: workflow)
