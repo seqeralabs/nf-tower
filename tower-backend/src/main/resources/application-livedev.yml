@@ -34,7 +34,7 @@ mail:
     host: email-smtp.eu-west-1.amazonaws.com
     port: 587
     auth: true
-    user: "${TOWER_SMTP_USER:`missing stmp user`}"
+    user: "${TOWER_SMTP_USER:`missing smtp user`}"
     password: "${TOWER_SMTP_PASSWORD:`missing smtp password`}"
     starttls:
       enable: true

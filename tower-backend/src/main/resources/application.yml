@@ -36,18 +36,18 @@ jackson:
 #
 ---
 dataSource:
-  pooled: false
-  dbCreate: update
-  url: jdbc:h2:mem:default;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-  driverClassName: org.h2.Driver
-  username: sa
-  password: ""
+  pooled: true
+  dbCreate: "${TOWER_DB_CREATE:`update`}"
+  url: "${TOWER_DB_URL:`jdbc:h2:file:./.db/h2/tower`}"
+  driverClassName: "${TOWER_DB_DRIVER:`org.h2.Driver`}"
+  username: "${TOWER_DB_USER:`sa`}"
+  password: "${TOWER_DB_PASSWORD:``}"
 hibernate:
   cache:
     queries: false
     use_second_level_cache: false
     use_query_cache: false
-  dialect: "${DB_DIALECT:org.hibernate.dialect.MySQL55Dialect}"
+  dialect: "${TOWER_DB_DIALECT:org.hibernate.dialect.H2Dialect}"
   naming_strategy: io.seqera.util.H8NamingStrategy
 grails:
   gorm:
@@ -59,6 +59,8 @@ mail:
     host: "${TOWER_SMTP_HOST:email-smtp.eu-west-1.amazonaws.com}"
     port: "${TOWER_SMTP_PORT:587}"
     auth: "${TOWER_SMTP_AUTH:true}"
+    user: "${TOWER_SMTP_USER}"
+    password: "${TOWER_SMTP_PASSWORD}"
     starttls:
       enable: true
       required: true
