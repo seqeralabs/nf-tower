@@ -155,10 +155,6 @@ class Mailer {
         def props = config.getMailProperties()
         def key = "smtp.${name}"
         def value = props.getProperty("mail.$key")
-        if( !value ) {
-            // fallback on env properties
-            value = env.get("TOWER_${key.toUpperCase().replace('.','_')}".toString())
-        }
         return value
     }
 
