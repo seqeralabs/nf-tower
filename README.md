@@ -6,11 +6,11 @@ Nextflow Tower system
 
     make build
 
-## Running locally
+## Run locally
 
     make run
 
-See: `docker-compose.yml` file
+See: `docker-compose.yml` file for details
 
 
 ## Backend settings  
@@ -20,30 +20,17 @@ Tower backend settings can be provided either:
   - `tower.yml` in the launching directory
 
 A minimal config requires the settings for the SMTP 
-server, for example: 
+server, using the following variables: 
 
-```yml
-mail:
-  smtp:
-    host: email-smtp.eu-west-1.amazonaws.com
-    port: 587
-    auth: true
-    user: <replace with your user id>
-    password: <replace with your password>
-    starttls:
-      enable: true
-      required: true
-```
+- TOWER_SMTP_HOST: The SMTP server host name eg. `email-smtp.eu-west-1.amazonaws.com`.
+- TOWER_SMTP_PORT: The SMTP server port number eg. `587`.
+- TOWER_SMTP_USER: The SMTP user name.  
+- TOWER_SMTP_PASSWORD: The SMTP user password.
+ 
 
 ## Basic use case
     
 Navigate to GUI in `http://localhost:8000` and follow the instructions.
-
-
-## Tower Mock Server 
-
-https://gist.github.com/pditommaso/847cac01446dc3bc57d7fe5d7a0227d1
-
 
 # Development 
 
@@ -51,11 +38,10 @@ https://gist.github.com/pditommaso/847cac01446dc3bc57d7fe5d7a0227d1
 
 Define the following env variables: 
 
-- MICRONAUT_ENVIRONMENTS=livedev
 - TOWER_SMTP_USER=<smtp user name>
 - TOWER_SMTP_PASSWORD=<smpt password>
 
-(see `tower-backend/src/main/resources/application-livedev.yml` for further config details)
+(see `tower-backend/src/main/resources/application.yml` for further config details)
 
 Launch the backend with the command: 
 
@@ -70,3 +56,19 @@ cd tower-web
 npm install
 npm run livedev
 ```
+
+## Database 
+
+Tower is designed to be database agnostic and can use most popular SQL 
+database server, such as MySql, Postgres, Oracle and many other. 
+
+By default it uses a [H2](https://www.h2database.com) embedded database meant to be used only for 
+evaluation purpose. 
+
+The following environment variable can be used to configure a production database: 
+
+- TOWER_DB_URL: Database JDBC connection URL eg. `jdbc:mysql://localhost:3307/tower`. 
+- TOWER_DB_DRIVER: Database JDBC driver class name e.g. `com.mysql.cj.jdbc.Driver`.
+- TOWER_DB_DIALECT: Database SQL Hibernate dialect `org.hibernate.dialect.MySQL55Dialect`.   
+- TOWER_DB_USER: Database user name.
+- TOWER_DB_PASSWORD: Database user password.

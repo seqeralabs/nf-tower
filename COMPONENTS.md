@@ -26,10 +26,6 @@ Config:
   - tower-backend/src/main/resources/application.yml
   - tower-backend/src/main/resources/application-livedev.yml
 
-## MySQL
-
-    DB_HOST: db
-    DB_PORT: 3306
  
 
 ## Email authentication
