@@ -34,7 +34,7 @@ class MysqlSchemaCreator {
 
         container.start()
 
-        def ctx = ApplicationContext.build(Application, 'mysql-create').start()
+        def ctx = ApplicationContext.build(Application, 'mysql').start()
         try {
             User.withNewTransaction {User.count()} == 0
         }
