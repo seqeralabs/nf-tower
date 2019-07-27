@@ -85,7 +85,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         response.body().workflow.stats
         response.body().workflow.nextflow
         response.body().workflow.manifest
-        response.body().summary.size() == 2
+        response.body().metrics.size() == 2
         response.body().progress.workflowTasksProgress
     }
 

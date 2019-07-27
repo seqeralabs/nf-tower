@@ -24,6 +24,6 @@ import io.seqera.tower.domain.Workflow
 class TraceWorkflowRequest {
 
     Workflow workflow
-    List<WorkflowMetrics> summary //<-- TODO rename to `metrics`
+    List<WorkflowMetrics> metrics
 
 }
