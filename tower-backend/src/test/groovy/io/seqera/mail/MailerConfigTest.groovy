@@ -72,22 +72,6 @@ class MailerConfigTest extends Specification {
 
     }
 
-    def 'should get config from env' () {
-
-        when:
-        def mailer = new Mailer( config: new MailerConfig() )
-        then:
-        mailer.getUser() == null
-        mailer.getPassword() == null
-
-        when:
-        mailer = new Mailer( config: new MailerConfig(), env: [TOWER_SMTP_USER: 'foo', TOWER_SMTP_PASSWORD: 'secret'] )
-        then:
-        mailer.getUser() == 'foo'
-        mailer.getPassword() == 'secret'
-
-    }
-
 }
 
 

@@ -279,7 +279,6 @@ class MailerTest extends Specification {
 
     void 'should fetch config properties' () {
         given:
-        Map ENV = [TOWER_SMTP_USER: 'jim', TOWER_SMTP_PASSWORD: 'secret', TOWER_SMTP_HOST: 'g.com', TOWER_SMTP_PORT: '864']
         Map SMTP = [host:'hola.com', user:'foo', password: 'bar', port: 234]
         Mailer mail
 
@@ -291,21 +290,6 @@ class MailerTest extends Specification {
         mail.password == 'bar'
         mail.port == 234
 
-        when:
-        mail = new Mailer(config: [smtp: [host: 'local', port: '999']], env: ENV)
-        then:
-        mail.host == 'local'
-        mail.port == 999
-        mail.user == 'jim'
-        mail.password == 'secret'
-
-        when:
-        mail = new Mailer(env: ENV)
-        then:
-        mail.host == 'g.com'
-        mail.port == 864
-        mail.user == 'jim'
-        mail.password == 'secret'
     }
 
 
