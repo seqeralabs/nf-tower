@@ -9,17 +9,17 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 import {Component, OnInit} from '@angular/core';
-import {HttpClient, HttpErrorResponse} from "@angular/common/http";
-import {NotificationService} from "src/app/modules/main/service/notification.service";
-import {WorkflowMetrics} from "src/app/modules/main/entity/workflow/workflow-metrics";
-import {environment} from "src/environments/environment";
-import {ActivatedRoute} from "@angular/router";
-import Plotly from './plotly-1.34.0.min.js'
+import {HttpClient, HttpErrorResponse} from '@angular/common/http';
+import {NotificationService} from 'src/app/modules/main/service/notification.service';
+import {WorkflowMetrics} from 'src/app/modules/main/entity/workflow/workflow-metrics';
+import {environment} from 'src/environments/environment';
+import {ActivatedRoute} from '@angular/router';
+import Plotly from './plotly-1.34.0.min.js';
 
 declare let $: any;
 
 @Component({
-  selector: 'wt-workflow-summary',
+  selector: 'wt-workflow-metrics',
   templateUrl: './metrics.component.html',
   styleUrls: ['./metrics.component.scss']
 })
@@ -30,20 +30,20 @@ export class WorkflowMetricsComponent implements OnInit {
               private notificationService: NotificationService) { }
 
   private data_byprocess = {};
-  
+
   ngOnInit(): void {
 
-    let workflowId = this.route.snapshot.paramMap.get('id');
-    let url = `${environment.apiUrl}/workflow/metrics/${workflowId}`;
+    const workflowId = this.route.snapshot.paramMap.get('id');
+    const url = `${environment.apiUrl}/workflow/metrics/${workflowId}`;
     this.httpClient.get<any>(url)
       .subscribe(
         data => {
-            this.renderPlots(data.metrics) // <-- rename
+            this.renderPlots(data.metrics); // <-- rename
         },
         (resp: HttpErrorResponse) => {
           this.notificationService.showErrorNotification(resp.error.message);
         }
-      )
+      );
   }
 
   public renderPlots(allMetrics: Array<WorkflowMetrics>) {
