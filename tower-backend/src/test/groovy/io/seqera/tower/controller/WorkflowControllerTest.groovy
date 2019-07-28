@@ -11,11 +11,10 @@
 
 package io.seqera.tower.controller
 
-import io.seqera.tower.domain.TasksProgress
-
 import javax.inject.Inject
 import java.time.Instant
 import java.time.OffsetDateTime
+import java.time.temporal.ChronoUnit
 
 import grails.gorm.transactions.TransactionService
 import grails.gorm.transactions.Transactional
@@ -27,15 +26,22 @@ import io.micronaut.http.client.annotation.Client
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.tower.Application
+import io.seqera.tower.domain.Task
+import io.seqera.tower.domain.User
 import io.seqera.tower.domain.WfManifest
 import io.seqera.tower.domain.WfNextflow
 import io.seqera.tower.domain.WfStats
-import io.seqera.tower.domain.Task
-import io.seqera.tower.domain.WorkflowTasksProgress
-import io.seqera.tower.domain.User
 import io.seqera.tower.domain.Workflow
+import io.seqera.tower.domain.WorkflowComment
 import io.seqera.tower.exchange.task.TaskList
+import io.seqera.tower.exchange.workflow.AddWorkflowCommentRequest
+import io.seqera.tower.exchange.workflow.AddWorkflowCommentResponse
+import io.seqera.tower.exchange.workflow.DeleteWorkflowCommentRequest
+import io.seqera.tower.exchange.workflow.DeleteWorkflowCommentResponse
+import io.seqera.tower.exchange.workflow.ListWorkflowCommentsResponse
 import io.seqera.tower.exchange.workflow.GetWorkflowMetricsResponse
+import io.seqera.tower.exchange.workflow.UpdateWorkflowCommentRequest
+import io.seqera.tower.exchange.workflow.UpdateWorkflowCommentResponse
 import io.seqera.tower.exchange.workflow.WorkflowGet
 import io.seqera.tower.exchange.workflow.WorkflowList
 import io.seqera.tower.service.WorkflowService
@@ -200,6 +206,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
 
     void "should delete a workflow" () {
         given:
+        def now = OffsetDateTime.now()
         def creator = new DomainCreator()
         User user
         Workflow workflow
@@ -207,6 +214,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
             user = creator.generateAllowedUser()
             workflow = creator.createWorkflow(owner: user)
             creator.createWorkflowMetrics(workflow)
+            new WorkflowComment(author: user, text: 'Hello', workflow: workflow, dateCreated: now, lastUpdated: now).save(failOnError:true)
         }
         
         when:
@@ -291,4 +299,154 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         e.message == "Oops... Can't find workflow ID 123"
     }
 
+
+    void 'should get workflow comments' () {
+        given:
+        def creator = new DomainCreator(validate: false)
+        def user = creator.generateAllowedUser()
+        Workflow workflow = creator.createWorkflow()
+
+        def t0 = OffsetDateTime.now()
+        WorkflowComment.withNewTransaction {
+            new WorkflowComment(
+                    author: user,
+                    text: 'First hello',
+                    workflow: workflow,
+                    dateCreated: t0,
+                    lastUpdated: t0,
+                    )
+                    .save(failOnError:true)
+
+            new WorkflowComment(
+                    author: user,
+                    text: 'Second hello',
+                    workflow: workflow,
+                    dateCreated: t0.plusMinutes(5),
+                    lastUpdated: t0.plusMinutes(5),
+                    )
+                    .save(failOnError:true)
+        }
+
+        when: "perform the request to obtain the comments"
+        String auth = doJwtLogin(user, client)
+        HttpResponse<ListWorkflowCommentsResponse> response = client
+                .toBlocking()
+                .exchange(
+                        HttpRequest.GET("/workflow/${workflow.id}/comments") .bearerAuth(auth),
+                        ListWorkflowCommentsResponse )
+
+        then:
+        response.status == HttpStatus.OK
+        response.body().comments.size() == 2
+        response.body().comments[0].text == 'Second hello'
+        response.body().comments[1].text == 'First hello'
+    }
+
+    def 'should add a workflow comment' () {
+        given:
+        def creator = new DomainCreator(validate: false)
+        def user = creator.generateAllowedUser()
+        Workflow workflow = creator.createWorkflow()
+
+        when: "perform the request to obtain the comments"
+        String auth = doJwtLogin(user, client)
+        def ts =  OffsetDateTime.now()
+        def req = new AddWorkflowCommentRequest(text: 'Great job', timestamp: ts)
+        def post = HttpRequest.POST("/workflow/${workflow.id}/comment/add", req)
+        def resp = client
+                .toBlocking()
+                .exchange( post.bearerAuth(auth), AddWorkflowCommentResponse )
+
+        then:
+        resp.status == HttpStatus.OK
+        resp.body().commentId != null
+
+        and:
+        workflowService.getComments(workflow).size() ==1
+        workflowService.getComments(workflow)[0].id == resp.body().commentId
+    }
+
+    def 'should update a workflow comment' () {
+        given:
+        def creator = new DomainCreator(validate: false)
+        def user = creator.generateAllowedUser()
+        Workflow workflow = creator.createWorkflow()
+
+        def t0 = OffsetDateTime.now().truncatedTo(ChronoUnit.MINUTES).minusMinutes(10)
+        def comment = tx.withNewTransaction {
+            new WorkflowComment(
+                    author: user,
+                    text: 'First comment',
+                    workflow: workflow,
+                    dateCreated: t0,
+                    lastUpdated: t0 )
+                    .save(failOnError:true)
+        }
+
+        when: "perform the request to obtain the comments"
+        def COMMENT = 'The new comment'
+        String auth = doJwtLogin(user, client)
+        def ts =  OffsetDateTime.now().truncatedTo(ChronoUnit.MINUTES)
+        def req = new UpdateWorkflowCommentRequest(commentId: comment.id, text: COMMENT, timestamp: ts)
+        def put = HttpRequest.PUT("/workflow/${workflow.id}/comment", req)
+        def resp = client
+                .toBlocking()
+                .exchange( put.bearerAuth(auth), UpdateWorkflowCommentResponse )
+
+        then:
+        resp.status == HttpStatus.OK
+
+        and:
+        workflowService.getComments(workflow).size() ==1
+        workflowService.getComments(workflow)[0].text == COMMENT
+        workflowService.getComments(workflow)[0].dateCreated == t0
+        workflowService.getComments(workflow)[0].lastUpdated == ts
+    }
+
+    def 'should delete a workflow comment' () {
+        given:
+        def creator = new DomainCreator(validate: false)
+        def user = creator.generateAllowedUser()
+        Workflow workflow = creator.createWorkflow()
+
+        def t0 = OffsetDateTime.now().truncatedTo(ChronoUnit.MINUTES).minusMinutes(10)
+        def comment1 = tx.withNewTransaction {
+            new WorkflowComment(
+                    author: user,
+                    text: 'First comment',
+                    workflow: workflow,
+                    dateCreated: t0,
+                    lastUpdated: t0 )
+                    .save(failOnError:true)
+        }
+
+        def comment2 = tx.withNewTransaction {
+            new WorkflowComment(
+                    author: user,
+                    text: 'Second comment',
+                    workflow: workflow,
+                    dateCreated: t0,
+                    lastUpdated: t0 )
+                    .save(failOnError:true)
+        }
+
+        when: "perform the request to obtain the comments"
+        String auth = doJwtLogin(user, client)
+        def ts =  OffsetDateTime.now().truncatedTo(ChronoUnit.MINUTES)
+        def req = new DeleteWorkflowCommentRequest(commentId: comment1.id, timestamp: ts)
+        def delete = HttpRequest.DELETE("/workflow/${workflow.id}/comment", req)
+        def resp = client
+                .toBlocking()
+                .exchange( delete.bearerAuth(auth), DeleteWorkflowCommentResponse )
+
+        then:
+        resp.status == HttpStatus.OK
+
+        and:
+        // comment1 has been deleted
+        tx.withNewTransaction { WorkflowComment.get(comment1.id) } == null
+
+        // comment2 still here
+        tx.withNewTransaction { WorkflowComment.get(comment2.id) } != null
+    }
 }

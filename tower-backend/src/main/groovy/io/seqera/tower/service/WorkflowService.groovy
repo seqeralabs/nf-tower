@@ -11,8 +11,10 @@
 
 package io.seqera.tower.service
 
+
 import io.seqera.tower.domain.User
 import io.seqera.tower.domain.Workflow
+import io.seqera.tower.domain.WorkflowComment
 import io.seqera.tower.domain.WorkflowMetrics
 import io.seqera.tower.exchange.trace.TraceWorkflowRequest
 
@@ -46,5 +48,8 @@ interface WorkflowService {
     Workflow processTraceWorkflowRequest(TraceWorkflowRequest request, User owner)
 
     List<WorkflowMetrics> findMetrics(Workflow workflow)
+
+    List<WorkflowComment> getComments(Workflow workflow)
+
 
 }

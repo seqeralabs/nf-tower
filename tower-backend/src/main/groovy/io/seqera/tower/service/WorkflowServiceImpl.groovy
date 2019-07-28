@@ -13,10 +13,12 @@ package io.seqera.tower.service
 
 import javax.inject.Inject
 import javax.inject.Singleton
+import java.time.OffsetDateTime
 
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
 import io.seqera.tower.domain.ProcessProgress
+import io.seqera.tower.domain.WorkflowComment
 import io.seqera.tower.domain.WorkflowMetrics
 import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.User
@@ -110,7 +112,7 @@ class WorkflowServiceImpl implements WorkflowService {
 
     void delete(Workflow workflowToDelete) {
         WorkflowMetrics.where { workflow == workflowToDelete }.deleteAll()
-        
+        WorkflowComment.where { workflow == workflowToDelete }.deleteAll()
         workflowToDelete.tasks?.each { Task task ->
             task.delete()
         }
@@ -126,5 +128,35 @@ class WorkflowServiceImpl implements WorkflowService {
     List<WorkflowMetrics> findMetrics(Workflow workflow) {
         WorkflowMetrics.findAllByWorkflow(workflow)
     }
+
+    @CompileDynamic
+    List<WorkflowComment> getComments(Workflow owner) {
+        WorkflowComment.where { workflow == owner }.list(sort: 'lastUpdated', order:'desc')
+    }
+
+    WorkflowComment createComment(Workflow workflow, String text, OffsetDateTime timestamp) {
+        if( timestamp == null )
+            timestamp = OffsetDateTime.now()
+
+        final comment = new WorkflowComment()
+        comment.workflow = workflow
+        comment.text = text
+        comment.lastUpdated = timestamp
+        comment.dateCreated = timestamp
+        return comment.save()
+    }
+
+    WorkflowComment updateComment(Workflow workflow, Serializable commentId, String text, OffsetDateTime timestamp) {
+        if( timestamp == null )
+            timestamp = OffsetDateTime.now()
+
+        final comment = new WorkflowComment()
+        comment.workflow = workflow
+        comment.text = text
+        comment.lastUpdated = timestamp
+        comment.dateCreated = timestamp
+        return comment.save()
+    }
+
 
 }
