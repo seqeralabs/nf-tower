@@ -219,7 +219,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         
         when:
         String auth = doJwtLogin(user, client)
-        def url = "/workflow/delete/${workflow.id}"
+        def url = "/workflow/${workflow.id}"
         def resp = client
                 .toBlocking()
                 .exchange( HttpRequest.DELETE(url).bearerAuth(auth) )
@@ -238,7 +238,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
 
         when:
         String auth = doJwtLogin(user, client)
-        def url = "/workflow/delete/1234"
+        def url = "/workflow/1234"
         client
             .toBlocking()
             .exchange( HttpRequest.DELETE(url).bearerAuth(auth) )
