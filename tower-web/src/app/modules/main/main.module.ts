@@ -8,7 +8,7 @@
  * This Source Code Form is "Incompatible With Secondary Licenses", as
  * defined by the Mozilla Public License, v. 2.0.
  */
- 
+
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
@@ -38,9 +38,9 @@ import { BootstrapValidationCssDirective } from "./directive/bootstrap-validatio
 import { WorkflowMainTabsComponent } from './component/workflow-main-tabs/workflow-main-tabs.component';
 import { WorkflowGeneralComponent } from './component/workflow-general/workflow-general.component';
 import { WorkflowStatusComponent } from './component/workflow-status/workflow-status.component';
-import { WorkflowAggregatesComponent } from './component/workflow-aggregates/workflow-aggregates.component';
+import { WorkflowStatsComponent } from './component/workflow-stats/workflow-stats.component';
 import { WorkflowUtilizationComponent } from './component/workflow-utilization/workflow-utilization.component';
-import {ChartistModule} from "ng-chartist";
+import { ChartistModule } from "ng-chartist";
 import { WorkflowLoadComponent } from './component/workflow-load/workflow-load.component';
 
 /*
@@ -80,7 +80,7 @@ export class MainRoutingModule { }
     WorkflowCardComponent,
     WorkflowDetailComponent,
     WorkflowMainTabsComponent, WorkflowGeneralComponent, WorkflowStatusComponent,
-    WorkflowAggregatesComponent, WorkflowUtilizationComponent, WorkflowLoadComponent,
+    WorkflowStatsComponent, WorkflowUtilizationComponent, WorkflowLoadComponent,
     WelcomeComponent,
     LoginComponent,
     AuthComponent,
