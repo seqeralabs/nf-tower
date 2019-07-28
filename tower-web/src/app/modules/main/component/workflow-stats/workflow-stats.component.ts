@@ -12,11 +12,11 @@ import {Component, Input, OnInit} from '@angular/core';
 import {Workflow} from "../../entity/workflow/workflow";
 
 @Component({
-  selector: 'wt-workflow-aggregates',
-  templateUrl: './workflow-aggregates.component.html',
-  styleUrls: ['./workflow-aggregates.component.scss']
+  selector: 'wt-workflow-stats',
+  templateUrl: './workflow-stats.component.html',
+  styleUrls: ['./workflow-stats.component.scss']
 })
-export class WorkflowAggregatesComponent implements OnInit {
+export class WorkflowStatsComponent implements OnInit {
 
   @Input()
   workflow: Workflow;
