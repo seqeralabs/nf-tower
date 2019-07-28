@@ -132,7 +132,7 @@ class WorkflowController {
 
     @Transactional
     @Secured(['ROLE_USER'])
-    @Get('/metrics/{workflowId}')
+    @Get('/{workflowId}/metrics')
     @CompileDynamic
     HttpResponse<GetWorkflowMetricsResponse> metrics(Serializable workflowId) {
         try {
