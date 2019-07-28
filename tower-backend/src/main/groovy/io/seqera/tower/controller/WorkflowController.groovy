@@ -118,7 +118,7 @@ class WorkflowController {
 
     @Transactional
     @Secured(['ROLE_USER'])
-    @Delete('/delete/{workflowId}')
+    @Delete('/{workflowId}')
     HttpResponse delete(Serializable workflowId) {
         try {
             workflowService.deleteById(workflowId)

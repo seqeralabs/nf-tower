@@ -89,7 +89,7 @@ export class WorkflowService {
   }
 
   deleteWorkflow(workflow: Workflow): Observable<string> {
-    let url = `${environment.apiUrl}/workflow/delete/${workflow.data.workflowId}`;
+    let url = `${environment.apiUrl}/workflow/${workflow.data.workflowId}`;
     return new Observable<string>( observer => {
       this.http.delete(url)
         .subscribe(
