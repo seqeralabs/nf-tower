@@ -12,12 +12,15 @@
 package io.seqera.tower.service
 
 import javax.inject.Inject
+import java.time.OffsetDateTime
+import java.time.temporal.ChronoUnit
 
 import grails.gorm.transactions.Transactional
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.tower.Application
 import io.seqera.tower.domain.User
 import io.seqera.tower.domain.Workflow
+import io.seqera.tower.domain.WorkflowComment
 import io.seqera.tower.exceptions.NonExistingWorkflowException
 import io.seqera.tower.exchange.trace.TraceWorkflowRequest
 import io.seqera.tower.util.AbstractContainerBaseTest
@@ -270,6 +273,40 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         Workflow.withNewTransaction {
             Workflow.count() == 0
         }
+    }
+
+    def 'should find comments' () {
+        def creator = new DomainCreator(validate: false)
+        def user = creator.createUser()
+        def workflow = creator.createWorkflow()
+
+        def t0 = OffsetDateTime.now().truncatedTo(ChronoUnit.SECONDS)
+        def t1 = t0.minusMinutes(10)
+        def t2 = t0
+        WorkflowComment.withNewTransaction {
+            new WorkflowComment(author: user,
+                    text: 'First hello',
+                    workflow: workflow,
+                    lastUpdated: t1,
+                    dateCreated: t1)
+                    .save(failOnError:true)
+
+            new WorkflowComment(author: user,
+                    text: 'Second hello',
+                    workflow: workflow,
+                    lastUpdated: t2,
+                    dateCreated: t2)
+                    .save(failOnError:true)
+        }
+
+        when:
+        def comments = workflowService.getComments(workflow)
+        then:
+        comments.size() == 2
+        comments[0].dateCreated == t2
+        comments[0].text == 'Second hello'
+        comments[1].dateCreated == t1
+        comments[1].text == 'First hello'
     }
 
 }

@@ -11,20 +11,20 @@
 
 package io.seqera.tower.util
 
-import io.seqera.tower.domain.TasksProgress
-import io.seqera.tower.domain.WorkflowTasksProgress
-
 import java.time.Instant
 import java.time.OffsetDateTime
 
 import io.seqera.tower.domain.AccessToken
-import io.seqera.tower.domain.Role
 import io.seqera.tower.domain.ResourceData
-import io.seqera.tower.domain.WorkflowMetrics
+import io.seqera.tower.domain.Role
 import io.seqera.tower.domain.Task
+import io.seqera.tower.domain.TasksProgress
 import io.seqera.tower.domain.User
 import io.seqera.tower.domain.UserRole
 import io.seqera.tower.domain.Workflow
+import io.seqera.tower.domain.WorkflowComment
+import io.seqera.tower.domain.WorkflowMetrics
+import io.seqera.tower.domain.WorkflowTasksProgress
 import io.seqera.tower.enums.TaskStatus
 import org.grails.datastore.mapping.validation.ValidationException
 import org.hibernate.Session
@@ -38,6 +38,7 @@ class DomainCreator {
 
     static void cleanupDatabase() {
         Workflow.withNewTransaction {
+            WorkflowComment.deleteAll(WorkflowComment.list())
             WorkflowMetrics.deleteAll(WorkflowMetrics.list())
             Task.deleteAll(Task.list())
             Workflow.deleteAll(Workflow.list())
@@ -125,6 +126,7 @@ class DomainCreator {
 
         createInstance(metrics, fields)
     }
+
 
     ResourceData embedResourceData(Map fields = [:]) {
         ResourceData resource = new ResourceData()
