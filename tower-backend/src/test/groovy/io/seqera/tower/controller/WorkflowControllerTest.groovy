@@ -270,7 +270,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         HttpResponse<GetWorkflowMetricsResponse> response = client
                 .toBlocking()
                 .exchange(
-                    HttpRequest.GET("/workflow/metrics/${workflow.id}") .bearerAuth(auth),
+                    HttpRequest.GET("/workflow/${workflow.id}/metrics") .bearerAuth(auth),
                     GetWorkflowMetricsResponse )
 
         then:
@@ -290,7 +290,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         HttpResponse<GetWorkflowMetricsResponse> response = client
                 .toBlocking()
                 .exchange(
-                        HttpRequest.GET("/workflow/metrics/123") .bearerAuth(auth),
+                        HttpRequest.GET("/workflow/123/metrics") .bearerAuth(auth),
                         GetWorkflowMetricsResponse )
 
         then:

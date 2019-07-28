@@ -34,7 +34,7 @@ export class WorkflowMetricsComponent implements OnInit {
   ngOnInit(): void {
 
     const workflowId = this.route.snapshot.paramMap.get('id');
-    const url = `${environment.apiUrl}/workflow/metrics/${workflowId}`;
+    const url = `${environment.apiUrl}/workflow/${workflowId}/metrics`;
     this.httpClient.get<any>(url)
       .subscribe(
         data => {
