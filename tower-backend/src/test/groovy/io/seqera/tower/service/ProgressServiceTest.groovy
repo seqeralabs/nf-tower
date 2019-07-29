@@ -65,12 +65,12 @@ class ProgressServiceTest extends AbstractContainerBaseTest {
         ProgressGet progress = progressService.computeWorkflowProgress(workflow.id)
 
         then: "the tasks has been successfully computed"
-        progress.workflowTasksProgress.progress.pending == 2
-        progress.workflowTasksProgress.progress.submitted == 2
-        progress.workflowTasksProgress.progress.running == 2
-        progress.workflowTasksProgress.progress.cached == 2
-        progress.workflowTasksProgress.progress.failed == 2
-        progress.workflowTasksProgress.progress.succeeded == 3
+        progress.workflowProgress.pending == 2
+        progress.workflowProgress.submitted == 2
+        progress.workflowProgress.running == 2
+        progress.workflowProgress.cached == 2
+        progress.workflowProgress.failed == 2
+        progress.workflowProgress.succeeded == 3
 
         then: "the processes progress has been successfully computed"
         progress.processesProgress.size() == 2

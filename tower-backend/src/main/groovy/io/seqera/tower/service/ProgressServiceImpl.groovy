@@ -37,7 +37,7 @@ class ProgressServiceImpl implements ProgressService {
         if (workflow.checkIsStarted()) {
             result.progress = computeWorkflowProgress(workflow.id)
         } else {
-            result.progress = new ProgressGet(workflowTasksProgress: workflow.workflowTasksProgress, processesProgress: workflow.processesProgress.sort { it.process })
+            result.progress = new ProgressGet(workflowProgress: workflow.workflowTasksProgress, processesProgress: workflow.processesProgress.sort { it.process })
             result.metrics = WorkflowMetrics.findAllByWorkflow(workflow)
         }
 
@@ -45,7 +45,7 @@ class ProgressServiceImpl implements ProgressService {
     }
 
     ProgressGet computeWorkflowProgress(Long workflowId) {
-        new ProgressGet(workflowTasksProgress: computeTasksProgress(workflowId), processesProgress: computeProcessesProgress(workflowId))
+        new ProgressGet(workflowProgress: computeTasksProgress(workflowId), processesProgress: computeProcessesProgress(workflowId))
     }
 
     @CompileDynamic
@@ -65,8 +65,7 @@ class ProgressServiceImpl implements ProgressService {
             [( ((TaskStatus) tuple[0]).toProgressTag()): (Long) tuple[1]]
         }
 
-        TasksProgress progress = new TasksProgress(progressProperties)
-        new WorkflowProgress(progress: progress)
+        new WorkflowProgress(progressProperties)
     }
 
     @CompileDynamic
