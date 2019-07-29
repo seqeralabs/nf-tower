@@ -17,7 +17,7 @@ import groovy.transform.CompileDynamic
 import io.seqera.tower.domain.ProcessProgress
 import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.TasksProgress
-import io.seqera.tower.domain.WorkflowTasksProgress
+import io.seqera.tower.domain.WorkflowProgress
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.domain.WorkflowMetrics
 import io.seqera.tower.enums.TaskStatus
@@ -49,7 +49,7 @@ class ProgressServiceImpl implements ProgressService {
     }
 
     @CompileDynamic
-    private WorkflowTasksProgress computeTasksProgress(Long workflowId) {
+    private WorkflowProgress computeTasksProgress(Long workflowId) {
         List<Object[]> tuples = new DetachedCriteria(Task).build {
             workflow {
                 eq('id', workflowId)
@@ -66,7 +66,7 @@ class ProgressServiceImpl implements ProgressService {
         }
 
         TasksProgress progress = new TasksProgress(progressProperties)
-        new WorkflowTasksProgress(progress: progress)
+        new WorkflowProgress(progress: progress)
     }
 
     @CompileDynamic

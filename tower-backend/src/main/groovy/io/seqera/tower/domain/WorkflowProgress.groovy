@@ -24,7 +24,7 @@ import groovy.transform.CompileDynamic
 @Entity
 @JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version', 'workflow'])
 @CompileDynamic
-class WorkflowTasksProgress {
+class WorkflowProgress {
 
     Workflow workflow
 
