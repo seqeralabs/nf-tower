@@ -15,4 +15,10 @@ export interface ProgressState {
   submitted: number;
   succeeded: number;
   failed: number;
+
+  totalCpus: number;
+  cpuRealtime: number;
+  memory: number;
+  diskReads: number;
+  diskWrites: number;
 }
