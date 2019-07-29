@@ -35,7 +35,7 @@ export class TasksProcessesComponent implements OnInit {
   }
 
   computePercentageProcessTasks(processProgress: ProcessProgress, progressStatus: string): string {
-    const percentage: number = (processProgress.progress[progressStatus] / processProgress.progress.total) * 100;
+    const percentage: number = (processProgress.data[progressStatus] / processProgress.total) * 100;
 
     return `${percentage}%`;
   }

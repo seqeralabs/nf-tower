@@ -21,7 +21,10 @@ export class Workflow {
 
   constructor(json: any) {
     this.data = <WorkflowData> json.workflow;
-    this.progress = <Progress> json.progress;
+
+    if (json.progress) {
+      this.progress = new Progress(json.progress);
+    }
   }
 
 

@@ -8,12 +8,14 @@
  * This Source Code Form is "Incompatible With Secondary Licenses", as
  * defined by the Mozilla Public License, v. 2.0.
  */
-export interface TasksProgress {
-  pending: number;
-  running: number;
-  cached: number;
-  submitted: number;
-  succeeded: number;
-  failed: number;
-  total: number;
+import {ProgressState} from "./progress-state";
+
+export class WorkflowProgress {
+
+  data: ProgressState;
+
+  constructor(json: any) {
+    this.data = <ProgressState> json;
+  }
+
 }
