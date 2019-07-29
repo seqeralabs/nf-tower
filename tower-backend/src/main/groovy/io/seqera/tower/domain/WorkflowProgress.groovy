@@ -24,13 +24,22 @@ import groovy.transform.CompileDynamic
 @Entity
 @JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version', 'workflow'])
 @CompileDynamic
-class WorkflowProgress {
+class WorkflowProgress implements ProgressState {
 
     Workflow workflow
 
-    TasksProgress progress
+    Long running = 0
+    Long submitted = 0
+    Long failed = 0
+    Long pending = 0
+    Long succeeded = 0
+    Long cached = 0
 
-    static embedded = ['progress']
+    Long cpus = 0
+    Long realtime = 0
+    Long memory = 0
+    Long diskReads = 0
+    Long diskWrites = 0
 
 }
 

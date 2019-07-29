@@ -17,7 +17,7 @@ import io.seqera.tower.domain.WorkflowProgress
 // TODO rename to `GetWorkflowProcessProcessResponse`
 class ProgressGet {
 
-    WorkflowProgress workflowTasksProgress
+    WorkflowProgress workflowProgress
     List<ProcessProgress> processesProgress
 
 }
