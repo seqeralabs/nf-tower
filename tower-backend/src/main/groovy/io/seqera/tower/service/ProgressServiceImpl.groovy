@@ -16,7 +16,6 @@ import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
 import io.seqera.tower.domain.ProcessProgress
 import io.seqera.tower.domain.Task
-import io.seqera.tower.domain.TasksProgress
 import io.seqera.tower.domain.WorkflowProgress
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.domain.WorkflowMetrics
@@ -73,13 +72,16 @@ class ProgressServiceImpl implements ProgressService {
         Map<String, Map<TaskStatus, List<Map>>> statusCountByProcess = queryProcessesTasksStatus(workflowId)
 
         statusCountByProcess.collect { String process, Map<TaskStatus, List<Map>> statusCountsOfProcess ->
-            TasksProgress progress = new TasksProgress()
+            Map progressProperties = [:]
 
             statusCountsOfProcess.each { TaskStatus status, List<Map> countOfProcess ->
-                progress[status.toProgressTag()] = countOfProcess.first().count
+                progressProperties[status.toProgressTag()] = countOfProcess.first().count
             }
 
-            new ProcessProgress(process: process, progress: progress)
+            ProcessProgress processProgress = new ProcessProgress(progressProperties)
+            processProgress.process = process
+
+            processProgress
         }.sort { it.process }
     }
 

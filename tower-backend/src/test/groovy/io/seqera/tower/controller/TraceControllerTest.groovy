@@ -213,8 +213,8 @@ class TraceControllerTest extends AbstractContainerBaseTest {
             Task.count() == 6
         }
 
-        and: 'the task event has been sent'
-        sleep(500) // <-- sleep a prudential time in order to make sure the event has been received
+        and: 'the task progress event has been sent'
+        detailSubscriber.awaitCount(1)
         detailSubscriber.assertValueCount(1)
 
         when: 'keep the simulation going'
