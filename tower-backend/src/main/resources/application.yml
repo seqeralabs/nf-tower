@@ -29,6 +29,8 @@ micronaut:
 jackson:
   serialization:
     writeDatesAsTimestamps: false
+  deserialization:
+    adjustDatesToContextTimeZone: false
   serialization-inclusion: ALWAYS
 # ^^^^^^
 # Use this to avoid empty lists are stripped
