@@ -9,8 +9,8 @@ interface ProgressState {
     Long getSucceeded()
     Long getCached()
 
-    Long getCpus()
-    Long getRealtime()
+    Long getTotalCpus()
+    Long getCpuRealtime()
     Long getMemory()
     Long getDiskReads()
     Long getDiskWrites()

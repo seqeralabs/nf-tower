@@ -31,8 +31,8 @@ class ProcessProgress implements ProgressState {
     Long succeeded = 0
     Long cached = 0
 
-    Long cpus = 0
-    Long realtime = 0
+    Long totalCpus = 0
+    Long cpuRealtime = 0
     Long memory = 0
     Long diskReads = 0
     Long diskWrites = 0

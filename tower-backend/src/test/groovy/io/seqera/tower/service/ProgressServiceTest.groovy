@@ -33,32 +33,29 @@ class ProgressServiceTest extends AbstractContainerBaseTest {
 
 
     void "compute the progress info of a workflow"() {
-        given: 'create a pending task of a process and associated with a workflow'
+        given: 'create a pending task of a process and associated with a workflow (with some stats)'
         DomainCreator domainCreator = new DomainCreator()
         String process1 = 'process1'
-        Task task1 = domainCreator.createTask(status: TaskStatus.NEW, process: process1, duration: 1)
+        Task task1 = domainCreator.createTask(status: TaskStatus.NEW, process: process1, cpus: 1, realtime: 2, peakRss: 1, rchar: 1, wchar: 1)
         Workflow workflow = task1.workflow
 
-        and: 'a task for the previous process in each status'
-        [TaskStatus.SUBMITTED, TaskStatus.CACHED, TaskStatus.RUNNING, TaskStatus.FAILED].each { TaskStatus status ->
-            domainCreator.createTask(status: status, workflow: workflow, process: process1, duration: 1)
+        and: 'a task for the previous process in each status (with some stats each one)'
+        [TaskStatus.SUBMITTED, TaskStatus.CACHED, TaskStatus.RUNNING, TaskStatus.FAILED, TaskStatus.COMPLETED].each { TaskStatus status ->
+            domainCreator.createTask(status: status, workflow: workflow, process: process1, cpus: 1, realtime: 2, peakRss: 1, rchar: 1, wchar: 1)
         }
 
-        and: 'one more completed task of the same process'
-        domainCreator.createTask(status: TaskStatus.COMPLETED, workflow: workflow, process: process1, duration: 1, hash: "lastHash")
-
-        and: 'a pending task of another process'
+        and: 'a pending task of another process (without stats)'
         String process2 = 'process2'
-        domainCreator.createTask(status: TaskStatus.NEW, workflow: workflow, process: process2, duration: 1)
+        domainCreator.createTask(status: TaskStatus.NEW, workflow: workflow, process: process2)
 
-        and: 'a task for the previous process in each status'
+        and: 'a task for the previous process in each status (with some stats each one)'
         [TaskStatus.SUBMITTED, TaskStatus.CACHED, TaskStatus.RUNNING, TaskStatus.FAILED].each { TaskStatus status ->
-            domainCreator.createTask(status: status, workflow: workflow, process: process2, duration: 1)
+            domainCreator.createTask(status: status, workflow: workflow, process: process2, cpus: 1, realtime: 2, peakRss: 1, rchar: 1, wchar: 1)
         }
 
-        and: 'two more completed tasks'
+        and: 'two more completed tasks (with some stats each one)'
         2.times {
-            domainCreator.createTask(status: TaskStatus.COMPLETED, workflow: workflow, process: process2, duration: 1, hash: "lastHash${it}")
+            domainCreator.createTask(status: TaskStatus.COMPLETED, workflow: workflow, process: process2, cpus: 1, realtime: 2, peakRss: 1, rchar: 1, wchar: 1)
         }
 
         when: "compute the progress of the workflow"
@@ -72,6 +69,13 @@ class ProgressServiceTest extends AbstractContainerBaseTest {
         progress.workflowProgress.failed == 2
         progress.workflowProgress.succeeded == 3
 
+        progress.workflowProgress.totalCpus == 12
+        progress.workflowProgress.cpuRealtime == 24
+        progress.workflowProgress.memory == 12
+        progress.workflowProgress.diskReads == 12
+        progress.workflowProgress.diskWrites == 12
+
+
         then: "the processes progress has been successfully computed"
         progress.processesProgress.size() == 2
         ProcessProgress progress1 = progress.processesProgress.find { it.process == process1 }
@@ -82,6 +86,12 @@ class ProgressServiceTest extends AbstractContainerBaseTest {
         progress1.succeeded == 1
         progress1.cached == 1
 
+        progress1.cpuRealtime == 12
+        progress1.totalCpus == 6
+        progress1.memory == 6
+        progress1.diskReads == 6
+        progress1.diskWrites == 6
+
         ProcessProgress progress2 = progress.processesProgress.find { it.process == process2 }
         progress2.running == 1
         progress2.submitted == 1
@@ -89,6 +99,12 @@ class ProgressServiceTest extends AbstractContainerBaseTest {
         progress2.pending == 1
         progress2.succeeded == 2
         progress2.cached == 1
+
+        progress2.cpuRealtime == 12
+        progress2.totalCpus == 6
+        progress2.memory == 6
+        progress2.diskReads == 6
+        progress2.diskWrites == 6
     }
 
 }
