@@ -75,22 +75,20 @@ class ProgressServiceTest extends AbstractContainerBaseTest {
         then: "the processes progress has been successfully computed"
         progress.processesProgress.size() == 2
         ProcessProgress progress1 = progress.processesProgress.find { it.process == process1 }
-        progress1.progress.running == 1
-        progress1.progress.submitted == 1
-        progress1.progress.failed == 1
-        progress1.progress.pending == 1
-        progress1.progress.succeeded == 1
-        progress1.progress.cached == 1
-        progress1.progress.total == 6
+        progress1.running == 1
+        progress1.submitted == 1
+        progress1.failed == 1
+        progress1.pending == 1
+        progress1.succeeded == 1
+        progress1.cached == 1
 
         ProcessProgress progress2 = progress.processesProgress.find { it.process == process2 }
-        progress2.progress.running == 1
-        progress2.progress.submitted == 1
-        progress2.progress.failed == 1
-        progress2.progress.pending == 1
-        progress2.progress.succeeded == 2
-        progress2.progress.cached == 1
-        progress2.progress.total == 7
+        progress2.running == 1
+        progress2.submitted == 1
+        progress2.failed == 1
+        progress2.pending == 1
+        progress2.succeeded == 2
+        progress2.cached == 1
     }
 
 }

@@ -42,25 +42,3 @@ class WorkflowProgress implements ProgressState {
     Long diskWrites = 0
 
 }
-
-/**
- * Model available task statuses progress count
- */
-@CompileDynamic
-class TasksProgress {
-
-    Long running = 0
-    Long submitted = 0
-    Long failed = 0
-    Long pending = 0
-    Long succeeded = 0
-    Long cached = 0
-
-    @JsonGetter('total')
-    Long getTotal() {
-        running + submitted + failed + pending + succeeded + cached
-    }
-
-    static transients = ['total']
-
-}
