@@ -9,18 +9,17 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 import { Injectable } from '@angular/core';
-import {HttpClient, HttpErrorResponse} from "@angular/common/http";
-import {Workflow} from "../entity/workflow/workflow";
-import {environment} from "../../../../environments/environment";
-import {Observable, Subject, of, ReplaySubject, BehaviorSubject} from "rxjs";
-import {map, tap} from "rxjs/operators";
-import {Task} from "../entity/task/task";
-import {findIndex, orderBy} from "lodash";
-import {Progress} from "../entity/progress/progress";
-import {NotificationService} from "./notification.service";
+import {HttpClient, HttpErrorResponse} from '@angular/common/http';
+import {Workflow} from '../entity/workflow/workflow';
+import {environment} from '../../../../environments/environment';
+import {Observable, Subject, of, ReplaySubject} from 'rxjs';
+import {map, tap} from 'rxjs/operators';
+import {findIndex, orderBy} from 'lodash';
+import {Progress} from '../entity/progress/progress';
+import {NotificationService} from './notification.service';
 
 
-const endpointUrl: string = `${environment.apiUrl}/workflow`;
+const endpointUrl = `${environment.apiUrl}/workflow`;
 
 @Injectable({
   providedIn: 'root'
@@ -49,7 +48,7 @@ export class WorkflowService {
   }
 
   private requestWorkflowList(): Observable<Workflow[]> {
-    const url: string = `${endpointUrl}/list`;
+    const url = `${endpointUrl}/list`;
 
     return this.http.get(url).pipe(
       map((data: any) => data.workflows ? data.workflows.map((item: any) => new Workflow(item)) : []),
@@ -60,7 +59,7 @@ export class WorkflowService {
   getWorkflow(id: string | number, bypassCache: boolean = false): Observable<Workflow> {
     if (!bypassCache && !this.isWorkflowsCacheEmpty()) {
       console.log(`Getting workflow ${id} from cache`);
-      let workflow: Workflow = this.workflowsByIdCache.get(id);
+      const workflow: Workflow = this.workflowsByIdCache.get(id);
       if (workflow) {
         return of(workflow);
       }
@@ -71,7 +70,7 @@ export class WorkflowService {
 
   private requestWorkflow(id: string | number): Observable<Workflow> {
     console.log(`Requesting workflow ${id}`);
-    const url: string = `${endpointUrl}/${id}`;
+    const url = `${endpointUrl}/${id}`;
 
     return this.http.get(url).pipe(
       map((data: any[]) => new Workflow(data)),
@@ -89,12 +88,12 @@ export class WorkflowService {
   }
 
   deleteWorkflow(workflow: Workflow): Observable<string> {
-    let url = `${environment.apiUrl}/workflow/${workflow.data.workflowId}`;
+    const url = `${environment.apiUrl}/workflow/${workflow.data.workflowId}`;
     return new Observable<string>( observer => {
       this.http.delete(url)
         .subscribe(
-          resp => { this.workflowsByIdCache.delete(workflow.data.workflowId);  observer.complete() },
-          (resp: HttpErrorResponse) => { observer.error(resp.error.message) }
+          resp => { this.workflowsByIdCache.delete(workflow.data.workflowId);  observer.complete(); },
+          (resp: HttpErrorResponse) => { observer.error(resp.error.message); }
         );
     });
   }
@@ -105,7 +104,6 @@ export class WorkflowService {
 
   private emitWorkflowsFromCache(): void {
     const cachedWorkflows: Workflow[] = Array.from(this.workflowsByIdCache.values());
-
     this.workflowsSubject.next(orderBy(cachedWorkflows, [(w: Workflow) => w.data.start], ['desc']));
   }
 
