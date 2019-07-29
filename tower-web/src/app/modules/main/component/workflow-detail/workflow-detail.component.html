@@ -23,7 +23,7 @@
       </div>
       <div class="row mb-3">
         <div class="col">
-          <wt-workflow-status [tasksProgress]="workflow.progress.workflowTasksProgress.progress"></wt-workflow-status>
+          <wt-workflow-status [workflowProgressState]="workflow.progress.workflowProgress.data"></wt-workflow-status>
         </div>
         <div class="col">
           <wt-workflow-general [workflow]="workflow"></wt-workflow-general>

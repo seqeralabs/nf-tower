@@ -8,10 +8,20 @@
  * This Source Code Form is "Incompatible With Secondary Licenses", as
  * defined by the Mozilla Public License, v. 2.0.
  */
-import {TasksProgress} from "./tasks-progress";
+import {ProgressState} from "./progress-state";
 
-export interface ProcessProgress {
+export class ProcessProgress {
+
   process: string;
-  progress: TasksProgress
+  data: ProgressState;
+
+  constructor(json: any) {
+    this.process = json.process;
+    this.data = <ProgressState> json;
+  }
+
+  get total(): number {
+    return this.data.pending + this.data.running + this.data.cached + this.data.submitted + this.data.succeeded + this.data.failed;
+  }
 
 }
