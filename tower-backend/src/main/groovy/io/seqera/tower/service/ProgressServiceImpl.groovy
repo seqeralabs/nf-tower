@@ -45,37 +45,12 @@ class ProgressServiceImpl implements ProgressService {
         return result
     }
 
-    ProgressGet computeWorkflowProgress(Long workflowId) {
-        List<ProcessProgress> processProgresses = computeProcessesProgress(workflowId)
-
-        new ProgressGet(workflowProgress: computeWorkflowProgressState(processProgresses), processesProgress: processProgresses)
-    }
-
-    private WorkflowProgress computeWorkflowProgressState(List<ProcessProgress> processProgresses) {
-        WorkflowProgress workflowProgress = new WorkflowProgress()
-        processProgresses.each { ProcessProgress processProgress ->
-            workflowProgress.running = workflowProgress.running + processProgress.running
-            workflowProgress.submitted = workflowProgress.submitted + processProgress.submitted
-            workflowProgress.failed = workflowProgress.failed + processProgress.failed
-            workflowProgress.pending = workflowProgress.pending + processProgress.pending
-            workflowProgress.succeeded = workflowProgress.succeeded + processProgress.succeeded
-            workflowProgress.cached = workflowProgress.cached + processProgress.cached
-
-            workflowProgress.totalCpus = workflowProgress.totalCpus + processProgress.totalCpus
-            workflowProgress.cpuRealtime = workflowProgress.cpuRealtime + processProgress.cpuRealtime
-            workflowProgress.memory = workflowProgress.memory + processProgress.memory
-            workflowProgress.diskReads = workflowProgress.diskReads + processProgress.diskReads
-            workflowProgress.diskWrites = workflowProgress.diskWrites + processProgress.diskWrites
-        }
-
-        workflowProgress
-    }
-
     @CompileDynamic
-    private List<ProcessProgress> computeProcessesProgress(Long workflowId) {
+    ProgressGet computeWorkflowProgress(Long workflowId) {
         Map<String, Map<TaskStatus, List<Map>>> rawProgressByProcessAndStatus = queryProcessesProgress(workflowId)
 
-        rawProgressByProcessAndStatus.collect { String process, Map<TaskStatus, List<Map>> statusCountsOfProcess ->
+        WorkflowProgress workflowProgress = new WorkflowProgress()
+        List<ProcessProgress> processProgresses = rawProgressByProcessAndStatus.collect { String process, Map<TaskStatus, List<Map>> statusCountsOfProcess ->
             ProcessProgress processProgress = new ProcessProgress(process: process)
 
             statusCountsOfProcess.each { TaskStatus status, List<Map> rawProgresses ->
@@ -89,8 +64,12 @@ class ProgressServiceImpl implements ProgressService {
                 processProgress.diskWrites = processProgress.diskWrites + (Long) (rawProgress.diskWrites ?: 0)
             }
 
+            workflowProgress.sumProgressState(processProgress)
+
             processProgress
-        }.sort { it.process }
+        }
+
+        new ProgressGet(workflowProgress: workflowProgress, processesProgress: processProgresses.sort { it.process })
     }
 
     @CompileDynamic

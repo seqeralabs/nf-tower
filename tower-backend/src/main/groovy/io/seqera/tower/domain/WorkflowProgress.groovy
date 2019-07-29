@@ -41,4 +41,19 @@ class WorkflowProgress implements ProgressState {
     Long diskReads = 0
     Long diskWrites = 0
 
+    void sumProgressState(ProgressState progressState) {
+        running = running + progressState.running
+        submitted = submitted + progressState.submitted
+        failed = failed + progressState.failed
+        pending = pending + progressState.pending
+        succeeded = succeeded + progressState.succeeded
+        cached = cached + progressState.cached
+
+        totalCpus = totalCpus + progressState.totalCpus
+        cpuRealtime = cpuRealtime + progressState.cpuRealtime
+        memory = memory + progressState.memory
+        diskReads = diskReads + progressState.diskReads
+        diskWrites = diskWrites + progressState.diskWrites
+    }
+
 }
