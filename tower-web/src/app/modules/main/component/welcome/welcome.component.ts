@@ -10,6 +10,7 @@
  */
 import {Component, Input, OnInit} from '@angular/core';
 import {User} from "../../entity/user/user";
+import {AuthService} from "../../service/auth.service";
 
 @Component({
   selector: 'wt-welcome',
@@ -18,12 +19,12 @@ import {User} from "../../entity/user/user";
 })
 export class WelcomeComponent implements OnInit {
 
-  @Input()
   user: User;
 
+  constructor(private auth: AuthService) { }
 
-  constructor() { }
-
-  ngOnInit() {}
+  ngOnInit() {
+    this.user = this.auth.currentUser
+  }
 
 }
