@@ -52,6 +52,7 @@ const routes: Routes = [
      {path: 'workflow/:id', component: WorkflowDetailComponent},
      {path: 'profile',      component: UserProfileComponent, canActivate: [AuthGuard]},
      {path: 'tokens',       component: AccessTokenComponent, canActivate: [AuthGuard]},
+     {path: 'welcome',      component: WelcomeComponent, canActivate: [AuthGuard]},
      {path: 'login',        component: LoginComponent},
    ]
   },

@@ -11,12 +11,16 @@
       </p>
 
       <div class='bd-callout bd-callout-success'>
-        <h5>1. Download latest version of Nextflow</h5>
+        <h5>1. Install Nextflow</h5>
           <p>
-          Download latest Nextflow from <a href="http://www2.nextflow.io.s3.amazonaws.com/tmp/nextflow-19.05.10-TOWER-all">this link</a>.
-          Rename it as `nextflow` and give it execute permission as shown below:
+            If you don't have it already install Nextflow as usual:
           </p>
-          <pre class="p-3 bg-light text-dark">chmod +x nextflow</pre>
+          <pre class="p-3 bg-light text-dark">curl https://get.nextflow.io | bash</pre>
+
+          <p>
+          Finalise the installation copying the <code>nextflow</code> launcher in a directory in
+            your <code>$PATH</code>.
+          </p>
       </div>
 
       <div class='bd-callout bd-callout-success'>
@@ -24,7 +28,9 @@
         <p>
         Define the following environment variable in your environment:
         </p>
-        <pre class="p-3 bg-light text-dark">export TOWER_ACCESS_TOKEN={{user.data.nfAccessToken}}</pre>
+        <pre class="p-3 bg-light text-dark">
+export TOWER_ACCESS_TOKEN={{user.data.nfAccessToken}}
+export NXF_VER=19.08.0-SNAPSHOT </pre>
       </div>
 
       <div class='bd-callout bd-callout-success'>
@@ -32,7 +38,7 @@
         <p>
           Launch nextflow as usual adding the -with-tower command line option:
         </p>
-        <pre class="p-3 bg-light text-dark">./nextflow run hello -with-tower</pre>
+        <pre class="p-3 bg-light text-dark">nextflow run hello -with-tower</pre>
       </div>
 
       <div class='bd-callout bd-callout-success'>
@@ -45,5 +51,5 @@
 
     </div>
   </div>
-  
+
 </div>
