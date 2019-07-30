@@ -11,7 +11,7 @@
 
 package io.seqera.tower.service
 
-import grails.gorm.DetachedCriteria
+
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
 import io.seqera.tower.domain.ProcessProgress
@@ -45,23 +45,16 @@ class ProgressServiceImpl implements ProgressService {
         return result
     }
 
-    @CompileDynamic
     ProgressGet computeWorkflowProgress(Long workflowId) {
         Map<String, Map<TaskStatus, List<Map>>> rawProgressByProcessAndStatus = queryProcessesProgress(workflowId)
 
         WorkflowProgress workflowProgress = new WorkflowProgress()
-        List<ProcessProgress> processProgresses = rawProgressByProcessAndStatus.collect { String process, Map<TaskStatus, List<Map>> statusCountsOfProcess ->
+        List<ProcessProgress> processProgresses = rawProgressByProcessAndStatus.collect { String process, Map<TaskStatus, List<Map>> rawProgressOfProcess ->
             ProcessProgress processProgress = new ProcessProgress(process: process)
 
-            statusCountsOfProcess.each { TaskStatus status, List<Map> rawProgresses ->
-                Map rawProgress = rawProgresses.first()
-
-                processProgress[status.toProgressTag()] = rawProgress.count
-                processProgress.totalCpus = processProgress.totalCpus + (Long) (rawProgress.totalCpus ?: 0)
-                processProgress.cpuRealtime = processProgress.cpuRealtime + (Long) (rawProgress.cpuRealtime ?: 0)
-                processProgress.memory = processProgress.memory + (Long) (rawProgress.memory ?: 0)
-                processProgress.diskReads = processProgress.diskReads + (Long) (rawProgress.diskReads ?: 0)
-                processProgress.diskWrites = processProgress.diskWrites + (Long) (rawProgress.diskWrites ?: 0)
+            rawProgressOfProcess.each { status, rawProgresses ->
+                Map rawProgress = ((List<Map>) rawProgresses).first()
+                associateProcessProgressProperties(processProgress, (TaskStatus) status, rawProgress)
             }
 
             workflowProgress.sumProgressState(processProgress)
@@ -70,6 +63,20 @@ class ProgressServiceImpl implements ProgressService {
         }
 
         new ProgressGet(workflowProgress: workflowProgress, processesProgress: processProgresses.sort { it.process })
+    }
+
+    @CompileDynamic
+    private void associateProcessProgressProperties(ProcessProgress processProgress, TaskStatus status, Map properties) {
+        properties.each { String propertyName, value ->
+            if (propertyName == 'status' || propertyName == 'process') {
+                return
+            }
+            if (propertyName == 'count') {
+                processProgress[status.toProgressTag()] = value
+                return
+            }
+            processProgress[propertyName] += value ?: 0
+        }
     }
 
     @CompileDynamic
@@ -89,6 +96,8 @@ class ProgressServiceImpl implements ProgressService {
                 sum('rchar', 'diskReads')
                 sum('wchar', 'diskWrites')
                 sqlProjection('sum(cpus * realtime) as cpuRealtime', 'cpuRealtime', StandardBasicTypes.LONG)
+                sqlProjection('sum(peak_rss) / sum(memory) as memoryEfficiency', 'memoryEfficiency', StandardBasicTypes.DOUBLE)
+                sqlProjection('sum(realtime * pcpu / 100) / sum(realtime * cpus) as cpuEfficiency', 'cpuEfficiency', StandardBasicTypes.DOUBLE)
             }
         }
 

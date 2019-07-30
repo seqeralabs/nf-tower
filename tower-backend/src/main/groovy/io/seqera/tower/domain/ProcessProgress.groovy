@@ -24,17 +24,19 @@ class ProcessProgress implements ProgressState {
 
     String process
 
-    Long running = 0
-    Long submitted = 0
-    Long failed = 0
-    Long pending = 0
-    Long succeeded = 0
-    Long cached = 0
+    Long running = 0l
+    Long submitted = 0l
+    Long failed = 0l
+    Long pending = 0l
+    Long succeeded = 0l
+    Long cached = 0l
 
-    Long totalCpus = 0
-    Long cpuRealtime = 0
-    Long memory = 0
-    Long diskReads = 0
-    Long diskWrites = 0
+    Long totalCpus = 0l
+    Long cpuRealtime = 0l
+    Long memory = 0l
+    Long diskReads = 0l
+    Long diskWrites = 0l
+    Double memoryEfficiency = 0d
+    Double cpuEfficiency = 0d
 
 }

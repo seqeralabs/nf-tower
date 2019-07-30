@@ -14,5 +14,7 @@ interface ProgressState {
     Long getMemory()
     Long getDiskReads()
     Long getDiskWrites()
+    Double getMemoryEfficiency()
+    Double getCpuEfficiency()
 
 }

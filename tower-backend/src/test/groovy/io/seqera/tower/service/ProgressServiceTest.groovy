@@ -36,12 +36,12 @@ class ProgressServiceTest extends AbstractContainerBaseTest {
         given: 'create a pending task of a process and associated with a workflow (with some stats)'
         DomainCreator domainCreator = new DomainCreator()
         String process1 = 'process1'
-        Task task1 = domainCreator.createTask(status: TaskStatus.NEW, process: process1, cpus: 1, realtime: 2, peakRss: 1, rchar: 1, wchar: 1)
+        Task task1 = domainCreator.createTask(status: TaskStatus.NEW, process: process1, cpus: 1, realtime: 2, peakRss: 1, rchar: 1, wchar: 1, pcpu: 10, memory: 2)
         Workflow workflow = task1.workflow
 
         and: 'a task for the previous process in each status (with some stats each one)'
         [TaskStatus.SUBMITTED, TaskStatus.CACHED, TaskStatus.RUNNING, TaskStatus.FAILED, TaskStatus.COMPLETED].each { TaskStatus status ->
-            domainCreator.createTask(status: status, workflow: workflow, process: process1, cpus: 1, realtime: 2, peakRss: 1, rchar: 1, wchar: 1)
+            domainCreator.createTask(status: status, workflow: workflow, process: process1, cpus: 1, realtime: 2, peakRss: 1, rchar: 1, wchar: 1, pcpu: 10, memory: 2)
         }
 
         and: 'a pending task of another process (without stats)'
@@ -50,12 +50,12 @@ class ProgressServiceTest extends AbstractContainerBaseTest {
 
         and: 'a task for the previous process in each status (with some stats each one)'
         [TaskStatus.SUBMITTED, TaskStatus.CACHED, TaskStatus.RUNNING, TaskStatus.FAILED].each { TaskStatus status ->
-            domainCreator.createTask(status: status, workflow: workflow, process: process2, cpus: 1, realtime: 2, peakRss: 1, rchar: 1, wchar: 1)
+            domainCreator.createTask(status: status, workflow: workflow, process: process2, cpus: 1, realtime: 2, peakRss: 1, rchar: 1, wchar: 1, pcpu: 10, memory: 2)
         }
 
         and: 'two more completed tasks (with some stats each one)'
         2.times {
-            domainCreator.createTask(status: TaskStatus.COMPLETED, workflow: workflow, process: process2, cpus: 1, realtime: 2, peakRss: 1, rchar: 1, wchar: 1)
+            domainCreator.createTask(status: TaskStatus.COMPLETED, workflow: workflow, process: process2, cpus: 1, realtime: 2, peakRss: 1, rchar: 1, wchar: 1, pcpu: 10, memory: 2)
         }
 
         when: "compute the progress of the workflow"
@@ -74,6 +74,8 @@ class ProgressServiceTest extends AbstractContainerBaseTest {
         progress.workflowProgress.memory == 12
         progress.workflowProgress.diskReads == 12
         progress.workflowProgress.diskWrites == 12
+        progress.workflowProgress.memoryEfficiency == 5.5
+        progress.workflowProgress.cpuEfficiency == 1.1
 
 
         then: "the processes progress has been successfully computed"
@@ -91,6 +93,8 @@ class ProgressServiceTest extends AbstractContainerBaseTest {
         progress1.memory == 6
         progress1.diskReads == 6
         progress1.diskWrites == 6
+        progress1.memoryEfficiency == 3.0 // (1/2 + 1/2 + 1/2 + 1/2 + 1/2 + 1/2)
+        progress1.cpuEfficiency == 0.6 // ((2 * 10 / 100) / 2) * 6
 
         ProcessProgress progress2 = progress.processesProgress.find { it.process == process2 }
         progress2.running == 1
@@ -105,6 +109,8 @@ class ProgressServiceTest extends AbstractContainerBaseTest {
         progress2.memory == 6
         progress2.diskReads == 6
         progress2.diskWrites == 6
+        progress2.memoryEfficiency == 2.5 // (1/2 + 1/2 + 1/2 + 1/2 + 2/4)
+        progress2.cpuEfficiency == 0.5 // ((2 * 10 / 100) / 2) * 5
     }
 
 }
