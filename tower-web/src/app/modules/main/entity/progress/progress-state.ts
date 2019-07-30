@@ -21,4 +21,6 @@ export interface ProgressState {
   memory: number;
   diskReads: number;
   diskWrites: number;
+  memoryEfficiency: number;
+  cpuEfficiency: number;
 }
