@@ -12,7 +12,7 @@ import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core'
 import {Workflow} from "../../entity/workflow/workflow";
 import {interval, Subscription, timer} from "rxjs";
 import * as differenceInMilliseconds from "date-fns/difference_in_milliseconds";
-import {HumanizeDuration, HumanizeDurationLanguage, ILanguage} from "humanize-duration-ts";
+import {DurationUtil} from "../../util/duration-util";
 
 @Component({
   selector: 'wt-workflow-stats',
@@ -51,15 +51,8 @@ export class WorkflowStatsComponent implements OnInit, OnChanges {
     this.wallTimeTimerSubscription = interval(1000).subscribe(() => {
       const now: Date = new Date();
       const difference: number = differenceInMilliseconds(now, this.workflow.data.start);
-      this.wallTime = this.toHumanizedDuration(difference);
+      this.wallTime = DurationUtil.humanizeDuration(difference);
     });
-  }
-
-  private toHumanizedDuration(durationMs: number): string {
-      let language: HumanizeDurationLanguage  = new HumanizeDurationLanguage();
-      language.addLanguage('short', <ILanguage> {y: () => 'y', mo: () => 'mo', w: () => 'w', d: () => 'd', h: () => 'h', m: () => 'm', s: () => 's'});
-
-      return new HumanizeDuration(language).humanize(durationMs, {language: 'short', delimiter: ' '});
   }
 
 }
