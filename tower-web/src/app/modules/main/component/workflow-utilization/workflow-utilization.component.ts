@@ -57,14 +57,14 @@ export class WorkflowUtilizationComponent implements OnInit, OnChanges {
   }
 
   private computeMemoryDonutSeries(): void {
-    const memoryEfficiency: number = Math.floor(Math.random() * 100);
+    const memoryEfficiency: number = this.workflow.progress.workflowProgress.data.memoryEfficiency;
     const unused = 100 - memoryEfficiency;
 
     this.memoryDonutSeries = this.computeDonutBinarySeries(memoryEfficiency, unused);
   }
 
   private computeCpuDonutSeries(): void {
-    const cpuEfficiency: number = Math.floor(Math.random() * 100);
+    const cpuEfficiency: number = this.workflow.progress.workflowProgress.data.cpuEfficiency;
     const unused = 100 - cpuEfficiency;
 
     this.cpuDonutSeries = this.computeDonutBinarySeries(cpuEfficiency, unused);
@@ -74,11 +74,11 @@ export class WorkflowUtilizationComponent implements OnInit, OnChanges {
     return [
       {
         className: 'ct-filled',
-        value: filledValue
+        value: filledValue.toFixed(2)
       },
       {
         className: 'ct-empty',
-        value: emptyValue
+        value: emptyValue.toFixed(2)
       }
     ];
   }
