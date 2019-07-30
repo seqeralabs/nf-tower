@@ -9,7 +9,6 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 import {ProgressState} from "./progress-state";
-import {HumanizeDuration, HumanizeDurationLanguage, ILanguage} from "humanize-duration-ts";
 
 export class WorkflowProgress {
 
