@@ -162,4 +162,7 @@ class Task {
         invCtxt(nullable: true)
     }
 
+    static mapping = {
+        script(type: 'text')
+    }
 }
