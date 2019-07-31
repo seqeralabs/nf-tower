@@ -13,6 +13,7 @@ package io.seqera.tower.exchange.token
 
 import groovy.transform.CompileStatic
 import io.seqera.tower.domain.AccessToken
+import io.seqera.tower.exchange.BaseResponse
 
 /**
  * Model a list of {@link AccessToken} owned by the user
@@ -20,7 +21,7 @@ import io.seqera.tower.domain.AccessToken
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
 @CompileStatic
-class ListAccessTokensResponse implements io.seqera.tower.exchange.BaseResponse{
+class ListAccessTokensResponse implements BaseResponse{
     List<AccessToken> tokens
     String message
 }
