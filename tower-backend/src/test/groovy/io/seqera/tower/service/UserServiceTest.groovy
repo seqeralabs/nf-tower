@@ -12,25 +12,19 @@
 package io.seqera.tower.service
 
 import javax.inject.Inject
-import javax.mail.Message
-import javax.mail.internet.InternetAddress
-import javax.mail.internet.MimeMultipart
 import javax.validation.ValidationException
-import org.grails.datastore.mapping.validation.ValidationException as GrailsValidationException
-import java.time.Instant
 
 import grails.gorm.transactions.TransactionService
 import grails.gorm.transactions.Transactional
 import io.micronaut.test.annotation.MicronautTest
-import io.seqera.mail.MailerConfig
 import io.seqera.tower.Application
-import io.seqera.tower.domain.AccessToken
 import io.seqera.tower.domain.User
 import io.seqera.tower.domain.UserRole
 import io.seqera.tower.exceptions.NonExistingUserException
 import io.seqera.tower.util.AbstractContainerBaseTest
 import io.seqera.tower.util.DomainCreator
-import org.subethamail.wiser.Wiser
+import io.seqera.util.StringUtils
+import org.grails.datastore.mapping.validation.ValidationException as GrailsValidationException
 
 @MicronautTest(application = Application.class)
 @Transactional
@@ -40,144 +34,54 @@ class UserServiceTest extends AbstractContainerBaseTest {
     UserService userService
 
     @Inject
-    MailerConfig mailerConfig
-
-    @Inject
     AccessTokenService accessTokenService
 
     @Inject
     TransactionService tx
 
-    Wiser smtpServer
+    def 'should create a user' () {
+        given:
+        def EMAIL = 'random@email.com'
 
-    void setup() {
-        smtpServer = new Wiser(mailerConfig.smtp.port)
-        smtpServer.start()
-    }
-
-    void cleanup() {
-        smtpServer.stop()
-    }
-
-    void "register a new user"() {
-        given: "an email"
-        String email = 'tomas@seqera.io'
-
-        when: "register the user"
-        User user
-        User.withNewTransaction {
-            user = userService.register(email)
-        }
-
-        then: "the user has been created"
-        user.id
-        user.email == email
-        user.userName == email.replaceAll(/@.*/, '')
-        user.authToken
-        User.withNewTransaction {
-            User.count() == 1
-        }
+        when:
+        User user = userService.create(EMAIL,'ROLE_USER')
+        then:
+        user.email == EMAIL 
+        user.userName == 'random'
+        user.id != null
+        and:
+        !user.trusted
+        !user.trusted
+        !user.authToken
+        user.accessTokens.size() == 1
 
         and:
-        user.accessTokens.size() == 1
-        AccessToken.withNewTransaction {
-            AccessToken.count() == 1
-        }
-
-        and: "a role was attached to the user"
-        UserRole.list().first().user.id == user.id
-        UserRole.list().first().role.authority == 'ROLE_USER'
-
-        and: "the access link was sent to the user"
-        smtpServer.messages.size() == 1
-        Message message = smtpServer.messages.first().mimeMessage
-        message.allRecipients.contains(new InternetAddress(user.email))
-        message.subject == 'Nextflow Tower Sign in'
-        (message.content as MimeMultipart).getBodyPart(0).content.getBodyPart(0).content.contains('Hi tomas,')
+        User.get(user.id) == user
+        UserRole.findByUser(user).role.authority == 'ROLE_USER'
     }
 
-    void "register a user already registered"() {
-        given: "an existing user"
-        User existingUser = new DomainCreator().createUser()
+    def 'should create a trusted user' () {
+        given:
+        def EMAIL = 'me@hack.com'
+        and:
+        // there should be a `*@hack.com` in the application-test.yml
+        assert (userService as UserServiceImpl).trustedEmails.find { StringUtils.like(EMAIL, it) }
 
-        and: 'save the authToken and authTime for a later check'
-        String authToken = existingUser.authToken
-        Instant authTime = existingUser.authTime
+        when:
+        User user = userService.create(EMAIL,'ROLE_USER')
+        then:
+        user.email == EMAIL
+        user.userName == 'me'
+        user.id != null
+        and:
+        user.trusted
 
-        when: "register a user with the same email of the previous one"
-        User userToRegister
-        User.withNewTransaction {
-            userToRegister = userService.register(existingUser.email)
-        }
-        String userName = userToRegister.userName
-
-        then: "the returned user is the same as the previous one"
-        userToRegister.id == existingUser.id
-        userToRegister.email == existingUser.email
-        User.withNewTransaction {
-            User.count() == 1
-        }
-
-        and: 'the auth token has been refreshed'
-        userToRegister.authToken != authToken
-        userToRegister.authTime > authTime
-
-        and: 'the access email has been sent'
-        smtpServer.messages.size() == 1
-        Message message = smtpServer.messages.first().mimeMessage
-        message.allRecipients.contains(new InternetAddress(existingUser.email))
-        message.subject == 'Nextflow Tower Sign in'
-        (message.content as MimeMultipart).getBodyPart(0).content.getBodyPart(0).content.contains("Hi $userName,")
+        and:
+        User.get(user.id) == user
+        UserRole.findByUser(user).role.authority == 'ROLE_USER'
     }
 
-    void "register a new user and then a user with a similar email"() {
-        when: "register a user"
-        String email = 'user@seqera.io'
-        User user
-        User.withNewTransaction {
-            user = userService.register('user@seqera.io')
-        }
 
-        then: "the user has been created"
-        user.id
-        user.email == email
-        user.userName == email.replaceAll(/@.*/, '')
-        user.authToken
-        User.withNewTransaction {
-            User.count() == 1
-        }
-
-        when: "register a user with a similar email to the first one"
-        String email2 = 'user@email.com'
-        User user2
-        User.withNewTransaction {
-            user2 = userService.register(email2)
-        }
-
-        then: "the user has been created and the userName has an appended number"
-        user2.id
-        user2.email == email2
-        user2.userName == 'user1'
-        user2.authToken
-        User.withNewTransaction {
-            User.count() == 2
-        }
-    }
-
-    void "try to register a user given an invalid email"() {
-        given: "an invalid email"
-        String badEmail = 'badEmail'
-
-        when: "register a user with a bad email"
-        userService.register(badEmail)
-
-        then: "the user couldn't be created"
-        ValidationException e = thrown(ValidationException)
-        e.message == "Can't save a user with bad email format"
-        User.withNewTransaction {
-            User.count() == 0
-        }
-    }
 
     void "update an existing user given new user data"() {
         given: 'an existing user'

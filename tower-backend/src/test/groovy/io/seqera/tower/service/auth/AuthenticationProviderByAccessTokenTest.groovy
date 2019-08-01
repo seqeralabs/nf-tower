@@ -37,7 +37,7 @@ class AuthenticationProviderByAccessTokenTest extends Specification {
 
     def 'should allow access new user' () {
         given: "register a user"
-        User user = userService.register('user@seqera.io')
+        User user = userService.access('user@seqera.io')
 
         when:
         def result = authProvider.authToken0(user.accessTokens.first().token)
@@ -78,7 +78,7 @@ class AuthenticationProviderByAccessTokenTest extends Specification {
         final now = Instant.now()
         final tkn = TokenHelper.createHexToken()
         GroovyMock(UserServiceImpl) {
-            register(_ as String) >> { String email -> new User(email:email, userName: email, authToken: tkn, authTime: now, accessTokens: [new AccessToken(token: 'token')]) }
+            access(_ as String) >> { String email -> new User(email:email, userName: email, authToken: tkn, authTime: now, accessTokens: [new AccessToken(token: 'token')]) }
             getByAccessToken(_ as String) >> { args -> new User(email:'foo', userName:'foo', authToken: args[0], authTime: now) }
             findAuthoritiesOfUser(_ as User) >> ['role_a', 'role_b']
         }

@@ -11,10 +11,9 @@
 
 package io.seqera.tower.domain
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-
 import java.time.Instant
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import grails.gorm.annotation.Entity
 import groovy.transform.CompileDynamic
 
@@ -36,18 +35,22 @@ class User {
     String description
     String avatar
 
+    boolean trusted
+
     static hasMany = [workflows: Workflow, accessTokens: AccessToken]
 
     static constraints = {
         email(email: true, unique: true)
         userName(unique: true, blank:false, matches: USERNAME_REGEX)
-        authToken(unique: true)
+        authToken(unique: true, nullable: true)
+        authTime(nullable: true)
 
         firstName(nullable: true)
         lastName(nullable: true)
         organization(nullable: true)
         description(nullable: true)
         avatar(nullable: true, url: true)
+        trusted(nullable: true)
     }
 
 }
