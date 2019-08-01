@@ -19,19 +19,17 @@ import java.time.Instant
 
 import grails.gorm.DetachedCriteria
 import grails.gorm.transactions.Transactional
-import groovy.text.GStringTemplateEngine
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import io.micronaut.context.annotation.Value
-import io.seqera.mail.Attachment
-import io.seqera.mail.Mail
 import io.seqera.tower.domain.AccessToken
 import io.seqera.tower.domain.Role
 import io.seqera.tower.domain.User
 import io.seqera.tower.domain.UserRole
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.exceptions.NonExistingUserException
+import io.seqera.util.StringUtils
 import io.seqera.util.TokenHelper
 import org.springframework.validation.FieldError
 
@@ -41,104 +39,19 @@ import org.springframework.validation.FieldError
 @CompileStatic
 class UserServiceImpl implements UserService {
 
-    @Value('${tower.app-name}')
-    String appName
-
-    @Value('${tower.server-url}')
-    String serverUrl
-
-    MailService mailService
-
     WorkflowService workflowService
+
+
+    @Value('${tower.trusted-emails}')
+    List<String> trustedEmails = Collections.emptyList()
 
     UserServiceImpl() { }
 
     @Inject
-    UserServiceImpl(MailService mailService, WorkflowService workflowService) {
-        this.mailService = mailService
+    UserServiceImpl(WorkflowService workflowService) {
         this.workflowService = workflowService
     }
 
-    @CompileDynamic
-    User register(String email) {
-        User user = User.findByEmail(email)
-
-        user = user ? updateUserToken(user) : createUser(email, 'ROLE_USER')
-        checkUserSaveErrors(user)
-        sendAccessEmail(user)
-
-        return user
-    }
-
-    protected Mail buildAccessEmail(User user) {
-        // create template binding
-        def binding = new HashMap(5)
-        binding.app_name = appName
-        binding.auth_url = buildAccessUrl(user)
-        binding.server_url = serverUrl
-        binding.user = user.firstName ?: user.userName
-
-        Mail mail = new Mail()
-        mail.to(user.email)
-        mail.subject("$appName Sign in")
-        mail.text(getTextTemplate(binding))
-        mail.body(getHtmlTemplate(binding))
-        mail.attach(getLogoAttachment())
-        return mail
-    }
-
-    protected void sendAccessEmail(User user) {
-        assert user.email, "Missing email address for user=$user"
-
-        final mail = buildAccessEmail(user)
-        mailService.sendMail(mail)
-    }
-
-    /**
-     * Load and resolve default text email template
-     *
-     * @return Resolved text template string
-     */
-    protected String getTextTemplate(Map binding) {
-        getTemplateFile('/io/seqera/tower/service/auth-mail.txt', binding)
-    }
-
-    /**
-     * Load and resolve default HTML email template
-     *
-     * @return Resolved HTML template string
-     */
-    protected String getHtmlTemplate(Map binding) {
-        getTemplateFile('/io/seqera/tower/service/auth-mail.html', binding)
-    }
-
-    /**
-     * Load the HTML email logo attachment
-     * @return A {@link Attachment} object representing the image logo to be included in the HTML email
-     */
-    protected Attachment getLogoAttachment() {
-        Attachment.resource('/io/seqera/tower/service/seqera-logo.png', contentId: '<seqera-logo>', disposition: 'inline')
-    }
-
-    protected String getTemplateFile(String classpathResource, Map binding) {
-        def source = this.class.getResourceAsStream(classpathResource)
-        if (!source)
-            throw new IllegalArgumentException("Cannot load notification default template -- check classpath resource: $classpathResource")
-        loadMailTemplate0(source, binding)
-    }
-
-    private String loadMailTemplate0(InputStream source, Map binding) {
-        def map = new HashMap()
-        map.putAll(binding)
-
-        def template = new GStringTemplateEngine().createTemplate(new InputStreamReader(source))
-        template.make(map).toString()
-    }
-
-    protected String buildAccessUrl(User user) {
-        String accessUrl = "${serverUrl}/auth?email=${URLEncoder.encode(user.email,'UTF-8')}&authToken=${user.authToken}"
-        return new URI(accessUrl).toString()
-    }
 
     @CompileDynamic
     User findByEmailAndAuthToken(String email, String token) {
@@ -198,30 +111,42 @@ class UserServiceImpl implements UserService {
 
 
     @CompileDynamic
-    private User createUser(String email, String authority) {
+    User create(String email, String authority) {
         // create the user name starting from the email user name
         String userName = makeUserNameFromEmail(email)
         userName = checkUniqueName(userName)
 
         Role role = Role.findByAuthority(authority) ?: createRole(authority)
 
-        String authToken = TokenHelper.createHexToken()
-        User user = new User(email: email, authToken: authToken, userName: userName, authTime: Instant.now())
+        User user = new User(email: email, userName: userName)
+        user.trusted = isTrustedEmail(email)
         user.addToAccessTokens(new AccessToken(token: TokenHelper.createHexToken(), name: 'default', dateCreated: Instant.now()))
         user.save()
 
         UserRole userRole = new UserRole(user: user, role: role)
         userRole.save()
 
+        checkUserSaveErrors(user)
+
         return user
     }
 
+
+    protected boolean isTrustedEmail(String email) {
+        for( String pattern : trustedEmails ) {
+            if( StringUtils.like(email, pattern) )
+                return true
+        }
+        return false
+    }
+
+
     @CompileDynamic
-    private User updateUserToken(User user) {
+    @Override
+    User generateAuthToken(User user) {
         user.authTime = Instant.now()
         user.authToken = TokenHelper.createHexToken()
-        user.save()
-        return user
+        return user.save()
     }
 
     @CompileDynamic

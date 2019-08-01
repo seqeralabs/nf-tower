@@ -11,10 +11,11 @@
 
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from "@angular/router";
-import {AuthService} from "../../service/auth.service";
-import {NgForm} from "@angular/forms";
-import {NotificationService} from "../../service/notification.service";
 import {HttpErrorResponse} from "@angular/common/http";
+import {NgForm} from "@angular/forms";
+import {AuthService} from "src/app/modules/main/service/auth.service";
+import {NotificationService} from "src/app/modules/main/service/notification.service";
+import {AccessGateState} from "src/app/modules/main/entity/gate";
 
 @Component({
   selector: 'wt-login',
@@ -23,38 +24,41 @@ import {HttpErrorResponse} from "@angular/common/http";
 })
 export class LoginComponent implements OnInit {
 
+  State = AccessGateState;
+
   @ViewChild('loginForm', {static: true})
   private loginForm: NgForm;
   private isSubmitted: boolean;
 
   email: string;
-  isRegistered: boolean;
-  registeredMessage: string;
+  state: AccessGateState;
 
   constructor(private route: ActivatedRoute,
               private router: Router,
               private authService: AuthService,
               private notificationService: NotificationService) {
     this.isSubmitted = false;
-    this.isRegistered = false;
+    this.state = null;
   }
 
-  ngOnInit() {
-
-  }
+  ngOnInit() { }
 
   submit(): void {
     this.isSubmitted = true;
 
-    this.authService.register(this.email).subscribe(
-      (message) => {
-        this.isRegistered = true;
-        this.registeredMessage = message;
-      },
-      (error: HttpErrorResponse) => {
-        this.isSubmitted = false;
-        this.notificationService.showErrorNotification(error.error);
-      }
+    this
+      .authService
+      .access(this.email)
+      .subscribe(
+          (data) => {
+            this.state = data.state
+            console.log(`>>> OK: ${this.state}`);
+          },
+          (resp: HttpErrorResponse) => {
+            this.isSubmitted = false;
+            console.log(`error: ${resp.error}`);
+            this.notificationService.showErrorNotification(resp.error.message);
+          }
     );
   }
 

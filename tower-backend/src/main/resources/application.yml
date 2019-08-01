@@ -2,6 +2,8 @@ tower:
     appName: "${TOWER_APP_NAME:Nextflow Tower}"
     serverUrl: "${TOWER_SERVER_URL:`http://localhost:8000`}"
     contactEmail: "${TOWER_CONTACT_EMAIL:info@seqera.io}"
+    trustedEmails:
+      - '*@seqera.io'
 ---
 micronaut:
   application:

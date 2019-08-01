@@ -10,14 +10,16 @@
  */
 import { Injectable } from '@angular/core';
 import {BehaviorSubject, Observable, of, Subject} from "rxjs";
-import {delay, map, tap} from "rxjs/operators";
+import {map, tap} from "rxjs/operators";
 import {User} from "../entity/user/user";
 import {HttpClient} from "@angular/common/http";
-import {environment} from "../../../../environments/environment";
+import {environment} from "src/environments/environment";
 import {UserData} from "../entity/user/user-data";
+import {AccessGateResponse} from "../entity/gate";
 
 const authEndpointUrl: string = `${environment.apiUrl}/login`;
 const userEndpointUrl: string = `${environment.apiUrl}/user`;
+const gateEndpointUrl: string = `${environment.apiUrl}/gate`;
 
 @Injectable({
   providedIn: 'root'
@@ -70,10 +72,8 @@ export class AuthService {
     this.userSubject.next(user);
   }
 
-  register(email: string): Observable<string> {
-    return this.http.post(`${userEndpointUrl}/register`, {username: email, password: null}, {responseType: "text"}).pipe(
-      map((message: string) => message)
-    );
+  access(email: string): Observable<AccessGateResponse> {
+    return this.http.post<AccessGateResponse>(`${gateEndpointUrl}/access`, {email: email})
   }
 
   update(user: User): Observable<string> {

@@ -17,7 +17,9 @@ import io.seqera.tower.domain.User
 
 interface UserService {
 
-    User register(String email)
+    User create(String email, String authority)
+
+    User generateAuthToken(User user)
 
     User getFromAuthData(Principal userSecurityData)
 
