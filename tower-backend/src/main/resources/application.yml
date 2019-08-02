@@ -11,6 +11,9 @@ micronaut:
   server:
     port: 8080
     netty:
+  caches:
+    rate-limiter:
+      expire-after-access: 10m
   security:
     enabled: true
     endpoints:
