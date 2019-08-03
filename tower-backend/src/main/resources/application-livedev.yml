@@ -9,6 +9,10 @@ micronaut:
       paths: src/main
       restart: true
 ---
+tower:
+  admin:
+    password: secret
+---
 dataSource:
   pooled: false
   dbCreate: update

@@ -52,11 +52,9 @@ export class LoginComponent implements OnInit {
       .subscribe(
           (data) => {
             this.state = data.state
-            console.log(`>>> OK: ${this.state}`);
           },
           (resp: HttpErrorResponse) => {
             this.isSubmitted = false;
-            console.log(`error: ${resp.error}`);
             this.notificationService.showErrorNotification(resp.error.message);
           }
     );

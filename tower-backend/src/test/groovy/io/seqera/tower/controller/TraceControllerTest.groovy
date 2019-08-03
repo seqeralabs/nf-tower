@@ -35,7 +35,7 @@ import io.seqera.tower.exchange.trace.TraceTaskResponse
 import io.seqera.tower.exchange.trace.TraceWorkflowRequest
 import io.seqera.tower.exchange.trace.TraceWorkflowResponse
 import io.seqera.tower.exchange.trace.sse.TraceSseResponse
-import io.seqera.tower.service.auth.AuthenticationProviderByAccessToken
+import io.seqera.tower.service.auth.AuthenticationByApiToken
 import io.seqera.tower.util.AbstractContainerBaseTest
 import io.seqera.tower.util.DomainCreator
 import io.seqera.tower.util.NextflowSimulator
@@ -56,7 +56,7 @@ class TraceControllerTest extends AbstractContainerBaseTest {
     DefaultHttpClient sseClient
 
     protected HttpRequest appendBasicAuth(User user, MutableHttpRequest request) {
-        request.basicAuth(AuthenticationProviderByAccessToken.ID, user.accessTokens.first().token)
+        request.basicAuth(AuthenticationByApiToken.ID, user.accessTokens.first().token)
     }
 
 

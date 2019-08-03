@@ -32,7 +32,7 @@ import io.reactivex.Flowable
 import io.seqera.tower.Application
 import io.seqera.tower.domain.User
 import io.seqera.tower.domain.UserRole
-import io.seqera.tower.service.auth.AuthenticationProviderByAuthToken
+import io.seqera.tower.service.auth.AuthenticationByMailAuthToken
 import io.seqera.tower.util.AbstractContainerBaseTest
 import io.seqera.tower.util.DomainCreator
 
@@ -43,7 +43,7 @@ class LoginControllerTest extends AbstractContainerBaseTest {
     @Inject
     JwtTokenValidator tokenValidator
     @Inject
-    AuthenticationProviderByAuthToken authenticationProviderByAuthToken
+    AuthenticationByMailAuthToken authenticationProviderByAuthToken
 
     @Inject
     @Client('/')
