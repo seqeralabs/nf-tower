@@ -24,16 +24,20 @@ import io.seqera.tower.domain.User
 import io.seqera.tower.service.UserService
 import org.reactivestreams.Publisher
 
+/**
+ * Access token auth provider. This policy is used to authenticate API call
+ * for which a {@link io.seqera.tower.domain.AccessToken} should be provided
+ */
 @Slf4j
 @Singleton
-class AuthenticationProviderByAccessToken implements AuthenticationProvider {
+class AuthenticationByApiToken implements AuthenticationProvider {
 
     public static final ID = '@token'
 
     private UserService userService
 
     @Inject
-    AuthenticationProviderByAccessToken(UserService userService) {
+    AuthenticationByApiToken(UserService userService) {
         this.userService = userService
     }
 

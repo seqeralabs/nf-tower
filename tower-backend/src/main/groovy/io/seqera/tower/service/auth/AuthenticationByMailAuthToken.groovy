@@ -26,8 +26,11 @@ import io.seqera.tower.domain.User
 import io.seqera.tower.service.UserService
 import org.reactivestreams.Publisher
 
+/**
+ * Main application authentication provider
+ */
 @Singleton
-class AuthenticationProviderByAuthToken implements AuthenticationProvider {
+class AuthenticationByMailAuthToken implements AuthenticationProvider {
 
     private UserService userService
 
@@ -35,13 +38,13 @@ class AuthenticationProviderByAuthToken implements AuthenticationProvider {
     Duration authMailDuration 
 
     @Inject
-    AuthenticationProviderByAuthToken(UserService userService) {
+    AuthenticationByMailAuthToken(UserService userService) {
         this.userService = userService
     }
 
     @Override
-    Publisher<AuthenticationResponse> authenticate(AuthenticationRequest authenticationRequest) {
-        final result = authenticate0((String)authenticationRequest.identity, (String) authenticationRequest.secret)
+    Publisher<AuthenticationResponse> authenticate(AuthenticationRequest request) {
+        final result = authenticate0((String)request.identity, (String) request.secret)
         return Flowable.just(result) as Publisher<AuthenticationResponse>
     }
 

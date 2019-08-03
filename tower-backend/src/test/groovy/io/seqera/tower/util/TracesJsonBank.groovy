@@ -22,7 +22,7 @@ import io.seqera.tower.exchange.trace.TraceTaskRequest
 import io.seqera.tower.exchange.trace.TraceTaskResponse
 import io.seqera.tower.exchange.trace.TraceWorkflowRequest
 import io.seqera.tower.exchange.trace.TraceWorkflowResponse
-import io.seqera.tower.service.auth.AuthenticationProviderByAccessToken
+import io.seqera.tower.service.auth.AuthenticationByApiToken
 
 enum WorkflowTraceSnapshotStatus {
     STARTED, SUCCEEDED, FAILED, MALFORMED
@@ -132,7 +132,7 @@ class NextflowSimulator {
     }
 
     private buildRequest(String endpoint, def body) {
-        HttpRequest.POST(endpoint, body).basicAuth(AuthenticationProviderByAccessToken.ID, user.accessTokens.first().token)
+        HttpRequest.POST(endpoint, body).basicAuth(AuthenticationByApiToken.ID, user.accessTokens.first().token)
     }
 
     private void sleepIfSet() {

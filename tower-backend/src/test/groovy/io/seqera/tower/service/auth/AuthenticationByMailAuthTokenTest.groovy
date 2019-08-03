@@ -31,10 +31,10 @@ import spock.lang.Specification
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
 @MicronautTest
-class AuthenticationProviderByAuthTokenTest extends Specification {
+class AuthenticationByMailAuthTokenTest extends Specification {
 
     @Inject
-    AuthenticationProviderByAuthToken authProvider
+    AuthenticationByMailAuthToken authProvider
 
     @Inject
     UserService userService
@@ -78,7 +78,7 @@ class AuthenticationProviderByAuthTokenTest extends Specification {
         def TOKEN = 'xyz'
         def USER = new User(email: EMAIL)
         def userService = Mock(UserService)
-        AuthenticationProviderByAuthToken provider = Spy(AuthenticationProviderByAuthToken, constructorArgs: [userService])
+        AuthenticationByMailAuthToken provider = Spy(AuthenticationByMailAuthToken, constructorArgs: [userService])
 
         when:
         def result = provider.authenticate0(EMAIL, TOKEN)

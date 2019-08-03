@@ -27,10 +27,10 @@ import javax.inject.Inject
 import java.time.Instant
 
 @MicronautTest
-class AuthenticationProviderByAccessTokenTest extends Specification {
+class AuthenticationByApiTokenTest extends Specification {
 
     @Inject
-    AuthenticationProviderByAccessToken authProvider
+    AuthenticationByApiToken authProvider
 
     @Inject
     UserService userService
@@ -54,7 +54,7 @@ class AuthenticationProviderByAccessTokenTest extends Specification {
         def TOKEN = 'xyz'
         def USER = new User(userName: NAME, email:EMAIL)
         def userService = Mock(UserService)
-        AuthenticationProviderByAccessToken provider = Spy(AuthenticationProviderByAccessToken, constructorArgs: [userService])
+        AuthenticationByApiToken provider = Spy(AuthenticationByApiToken, constructorArgs: [userService])
 
         when:
         def result = provider.authToken0(TOKEN)
