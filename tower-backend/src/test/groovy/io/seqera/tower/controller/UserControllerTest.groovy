@@ -23,6 +23,7 @@ import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.tower.Application
 import io.seqera.tower.domain.User
+import io.seqera.tower.exchange.user.ListUserResponse
 import io.seqera.tower.util.AbstractContainerBaseTest
 import io.seqera.tower.util.DomainCreator
 
@@ -94,6 +95,29 @@ class UserControllerTest extends AbstractContainerBaseTest {
         then: 'the user has been deleted'
         response.status == HttpStatus.OK
         response.body() == 'User successfully deleted!'
+    }
+
+    def 'should list users' () {
+        given: "an existing user"
+        User admin = new DomainCreator().createUserWithRole([:], 'ROLE_USER')
+        User u1 = new DomainCreator().createUser()
+        User u2 = new DomainCreator().createUser()
+
+        when:
+        String accessToken = doJwtLogin(admin, client)
+        def req = HttpRequest.GET("/user/list")
+        def resp = client.toBlocking().exchange(req.bearerAuth(accessToken), ListUserResponse)
+        then:
+        resp.status() == HttpStatus.OK
+        resp.body().users.size()==3
+
+
+        when:
+        req = HttpRequest.GET("/user/list?max=1")
+        resp = client.toBlocking().exchange(req.bearerAuth(accessToken), ListUserResponse)
+        then:
+        resp.status() == HttpStatus.OK
+        resp.body().users.size()==1
     }
 
 }

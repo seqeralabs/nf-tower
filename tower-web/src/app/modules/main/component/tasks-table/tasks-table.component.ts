@@ -8,11 +8,8 @@
  * This Source Code Form is "Incompatible With Secondary Licenses", as
  * defined by the Mozilla Public License, v. 2.0.
  */
-import {AfterViewInit, Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
+import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {Task} from "../../entity/task/task";
-import {environment} from "../../../../../environments/environment";
-import {Workflow} from "../../entity/workflow/workflow";
-import {AuthService} from "../../service/auth.service";
 import {Progress} from "../../entity/progress/progress";
 import {WorkflowService} from "../../service/workflow.service";
 

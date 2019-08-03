@@ -19,6 +19,7 @@ import io.micronaut.context.event.ShutdownEvent
 import io.micronaut.context.event.StartupEvent
 import io.micronaut.runtime.context.scope.refresh.RefreshEvent
 import io.micronaut.runtime.event.annotation.EventListener
+import io.micronaut.security.event.LoginSuccessfulEvent
 /**
  * Object listening for application events
  * 
@@ -44,4 +45,8 @@ class ApplicationListener {
         log.info "Got refresh event: " + event.getSource()
     }
 
+    @EventListener
+    void onUserLogin(LoginSuccessfulEvent event) {
+        log.info "Login $event.source"
+    }
 }

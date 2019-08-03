@@ -12,6 +12,7 @@
 package io.seqera.tower.domain
 
 import java.time.Instant
+import java.time.OffsetDateTime
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import grails.gorm.annotation.Entity
@@ -37,6 +38,10 @@ class User {
 
     boolean trusted
 
+    OffsetDateTime dateCreated
+    OffsetDateTime lastUpdated
+    OffsetDateTime lastAccess
+
     static hasMany = [workflows: Workflow, accessTokens: AccessToken]
 
     static constraints = {
@@ -51,6 +56,7 @@ class User {
         description(nullable: true)
         avatar(nullable: true, url: true)
         trusted(nullable: true)
+        lastAccess(nullable: true)
     }
 
 }
