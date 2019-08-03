@@ -84,6 +84,8 @@ sse:
       workflow-list: 1m
 ---
 endpoints:
+  bean:
+    enabled: true
   info:
     enabled: true
   metrics:
