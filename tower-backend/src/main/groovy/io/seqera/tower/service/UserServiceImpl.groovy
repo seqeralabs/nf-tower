@@ -52,6 +52,10 @@ class UserServiceImpl implements UserService {
         this.workflowService = workflowService
     }
 
+    @Override
+    List<User> list(int offset=0, int max=100) {
+        User.list(offset:offset, max:max)
+    }
 
     @CompileDynamic
     User findByEmailAndAuthToken(String email, String token) {

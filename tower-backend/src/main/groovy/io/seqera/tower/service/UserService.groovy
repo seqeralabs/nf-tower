@@ -29,6 +29,12 @@ interface UserService {
 
     User findByEmailAndAuthToken(String email, String token)
 
+    List<User> list()
+
+    List<User> list(int offset)
+
+    List<User> list(int offset, int max)
+
     @Deprecated
     User findByUserNameAndAccessToken(String userName, String token)
 
