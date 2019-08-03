@@ -1,5 +1,7 @@
 version: 0.2
-
+env:
+  variables:
+    GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 phases:
   install:
     commands:

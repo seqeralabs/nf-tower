@@ -95,7 +95,9 @@ afterEvaluate {
         version=${version}
         commitId=${gitVersion()}
         """.stripIndent().toString()
-    file("src/main/resources/META-INF/build-info.properties").text = info
+    def f = file("src/main/resources/META-INF/build-info.properties")
+    f.parentFile.mkdir()
+    f.text = info
 }
 
 //Only for the main (not test) source set
