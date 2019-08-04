@@ -24,7 +24,7 @@ import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.User
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.exceptions.NonExistingWorkflowException
-import io.seqera.tower.exchange.progress.ProgressGet
+import io.seqera.tower.exchange.progress.ProgressData
 import io.seqera.tower.exchange.trace.TraceWorkflowRequest
 
 @Transactional
@@ -102,7 +102,7 @@ class WorkflowServiceImpl implements WorkflowService {
 
     private void associateProgress(Workflow workflow) {
         if (!workflow.checkIsStarted()) {
-            ProgressGet progress = progressService.computeWorkflowProgress(workflow.id)
+            ProgressData progress = progressService.computeWorkflowProgress(workflow.id)
             workflow.workflowTasksProgress = progress.workflowProgress
             progress.processesProgress.each { ProcessProgress processProgress ->
                 workflow.addToProcessesProgress(processProgress)
