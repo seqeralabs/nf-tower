@@ -13,7 +13,7 @@ package io.seqera.tower.exchange.trace.sse
 
 
 import io.seqera.tower.enums.SseErrorType
-import io.seqera.tower.exchange.progress.ProgressGet
+import io.seqera.tower.exchange.progress.ProgressData
 import io.seqera.tower.exchange.workflow.WorkflowGet
 
 import java.time.Instant
@@ -21,7 +21,7 @@ import java.time.Instant
 class TraceSseResponse {
 
     WorkflowGet workflow
-    ProgressGet progress
+    ProgressData progress
     SseHeartbeat heartbeat
     SseError error
 
@@ -29,7 +29,7 @@ class TraceSseResponse {
         new TraceSseResponse(workflow: workflow)
     }
 
-    static TraceSseResponse ofProgress(ProgressGet progress) {
+    static TraceSseResponse ofProgress(ProgressData progress) {
         new TraceSseResponse(progress: progress)
     }
 

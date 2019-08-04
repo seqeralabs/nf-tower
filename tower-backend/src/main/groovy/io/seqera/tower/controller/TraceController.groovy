@@ -29,7 +29,7 @@ import io.seqera.tower.domain.User
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.enums.SseErrorType
 import io.seqera.tower.exceptions.NonExistingFlowableException
-import io.seqera.tower.exchange.progress.ProgressGet
+import io.seqera.tower.exchange.progress.ProgressData
 import io.seqera.tower.exchange.trace.TraceTaskRequest
 import io.seqera.tower.exchange.trace.TraceTaskResponse
 import io.seqera.tower.exchange.trace.TraceWorkflowRequest
@@ -156,7 +156,7 @@ class TraceController {
         String workflowDetailFlowableKey = getWorkflowDetailFlowableKey(workflowId)
 
         try {
-            ProgressGet progress = progressService.computeWorkflowProgress(workflowId)
+            ProgressData progress = progressService.computeWorkflowProgress(workflowId)
             serverSentEventsService.publishEvent(workflowDetailFlowableKey, Event.of(TraceSseResponse.ofProgress(progress)))
         } catch (NonExistingFlowableException e) {
             log.error("No flowable found while trying to publish task data: ${workflowDetailFlowableKey}")

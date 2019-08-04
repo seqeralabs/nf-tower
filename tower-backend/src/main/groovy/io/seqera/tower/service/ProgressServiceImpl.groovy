@@ -20,7 +20,7 @@ import io.seqera.tower.domain.WorkflowProgress
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.domain.WorkflowMetrics
 import io.seqera.tower.enums.TaskStatus
-import io.seqera.tower.exchange.progress.ProgressGet
+import io.seqera.tower.exchange.progress.ProgressData
 import io.seqera.tower.exchange.workflow.WorkflowGet
 import org.hibernate.criterion.CriteriaSpecification
 import org.hibernate.type.StandardBasicTypes
@@ -38,14 +38,14 @@ class ProgressServiceImpl implements ProgressService {
         if (workflow.checkIsStarted()) {
             result.progress = computeWorkflowProgress(workflow.id)
         } else {
-            result.progress = new ProgressGet(workflowProgress: workflow.workflowTasksProgress, processesProgress: workflow.processesProgress.sort { it.process })
+            result.progress = new ProgressData(workflowProgress: workflow.workflowTasksProgress, processesProgress: workflow.processesProgress.sort { it.process })
             result.metrics = WorkflowMetrics.findAllByWorkflow(workflow)
         }
 
         return result
     }
 
-    ProgressGet computeWorkflowProgress(Long workflowId) {
+    ProgressData computeWorkflowProgress(Long workflowId) {
         Map<String, Map<TaskStatus, List<Map>>> rawProgressByProcessAndStatus = queryProcessesProgress(workflowId)
 
         WorkflowProgress workflowProgress = new WorkflowProgress()
@@ -62,7 +62,7 @@ class ProgressServiceImpl implements ProgressService {
             processProgress
         }
 
-        new ProgressGet(workflowProgress: workflowProgress, processesProgress: processProgresses.sort { it.process })
+        new ProgressData(workflowProgress: workflowProgress, processesProgress: processProgresses.sort { it.process })
     }
 
     @CompileDynamic

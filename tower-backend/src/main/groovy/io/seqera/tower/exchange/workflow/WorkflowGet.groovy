@@ -14,12 +14,12 @@ package io.seqera.tower.exchange.workflow
 
 import io.seqera.tower.domain.WorkflowMetrics
 import io.seqera.tower.domain.Workflow
-import io.seqera.tower.exchange.progress.ProgressGet
+import io.seqera.tower.exchange.progress.ProgressData
 
 class WorkflowGet {
 
     Workflow workflow
-    ProgressGet progress
+    ProgressData progress
     @Deprecated List<WorkflowMetrics> metrics
 
     static WorkflowGet of(Workflow workflow) {

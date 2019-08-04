@@ -18,7 +18,7 @@ import io.seqera.tower.domain.ProcessProgress
 import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.enums.TaskStatus
-import io.seqera.tower.exchange.progress.ProgressGet
+import io.seqera.tower.exchange.progress.ProgressData
 import io.seqera.tower.util.AbstractContainerBaseTest
 import io.seqera.tower.util.DomainCreator
 
@@ -59,7 +59,7 @@ class ProgressServiceTest extends AbstractContainerBaseTest {
         }
 
         when: "compute the progress of the workflow"
-        ProgressGet progress = progressService.computeWorkflowProgress(workflow.id)
+        ProgressData progress = progressService.computeWorkflowProgress(workflow.id)
 
         then: "the tasks has been successfully computed"
         progress.workflowProgress.pending == 2
