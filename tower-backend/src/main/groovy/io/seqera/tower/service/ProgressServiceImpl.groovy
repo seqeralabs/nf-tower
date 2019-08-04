@@ -11,22 +11,20 @@
 
 package io.seqera.tower.service
 
+import javax.inject.Singleton
 
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
+import groovy.util.logging.Slf4j
 import io.seqera.tower.domain.ProcessProgress
 import io.seqera.tower.domain.Task
-import io.seqera.tower.domain.WorkflowProgress
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.domain.WorkflowMetrics
-import io.seqera.tower.enums.TaskStatus
+import io.seqera.tower.domain.WorkflowProgress
 import io.seqera.tower.exchange.progress.ProgressData
 import io.seqera.tower.exchange.workflow.WorkflowGet
-import org.hibernate.criterion.CriteriaSpecification
-import org.hibernate.type.StandardBasicTypes
 
-import javax.inject.Singleton
-
+@Slf4j
 @Transactional
 @Singleton
 class ProgressServiceImpl implements ProgressService {
@@ -46,63 +44,46 @@ class ProgressServiceImpl implements ProgressService {
     }
 
     ProgressData computeWorkflowProgress(Long workflowId) {
-        Map<String, Map<TaskStatus, List<Map>>> rawProgressByProcessAndStatus = queryProcessesProgress(workflowId)
+        List<List<Object>> tasks = Task.executeQuery("""\
+            select
+               t.process,
+               t.status,
+               count(*),
+               sum(t.cpus) as totalCpus,
+               sum(t.cpus * t.realtime) as cpuTime,
+               sum(t.pcpu * t.realtime / 100) as cpuLoad,
+               sum(t.peakRss) as memoryRss,
+               sum(t.memory) as memoryReq,
+               sum(t.rchar) as diskReads,
+               sum(t.wchar) as diskWrites,
+               sum(t.volCtxt) as volCtxt, 
+               sum(t.invCtxt) as invCtxt
+               
+             from Task t
+             where t.workflow.id = :workflowId
+             group by t.process, t.status""", [workflowId: workflowId])
 
-        WorkflowProgress workflowProgress = new WorkflowProgress()
-        List<ProcessProgress> processProgresses = rawProgressByProcessAndStatus.collect { String process, Map<TaskStatus, List<Map>> rawProgressOfProcess ->
-            ProcessProgress processProgress = new ProcessProgress(process: process)
-
-            rawProgressOfProcess.each { status, rawProgresses ->
-                Map rawProgress = ((List<Map>) rawProgresses).first()
-                associateProcessProgressProperties(processProgress, (TaskStatus) status, rawProgress)
+        // aggregate tasks by name and status
+        def aggregate = new HashMap<String,ProcessProgress>(20)
+        for( List cols : tasks ) {
+            def name = cols[0] as String
+            def progress = aggregate.get(name)
+            if( progress == null ) {
+                progress = new ProcessProgress(process: name)
+                aggregate.put(name, progress)
             }
-
-            workflowProgress.sumProgressState(processProgress)
-
-            processProgress
+            progress.sumCols(cols)
         }
 
-        new ProgressData(workflowProgress: workflowProgress, processesProgress: processProgresses.sort { it.process })
-    }
-
-    @CompileDynamic
-    private void associateProcessProgressProperties(ProcessProgress processProgress, TaskStatus status, Map properties) {
-        properties.each { String propertyName, value ->
-            if (propertyName == 'status' || propertyName == 'process') {
-                return
-            }
-            if (propertyName == 'count') {
-                processProgress[status.toProgressTag()] = value
-                return
-            }
-            processProgress[propertyName] += value ?: 0
-        }
-    }
-
-    @CompileDynamic
-    private Map<String, Map> queryProcessesProgress(Long workflowId) {
-        List<Map> rawProgressRows = Task.createCriteria().list {
-            resultTransformer(CriteriaSpecification.ALIAS_TO_ENTITY_MAP)
-            workflow {
-                eq('id', workflowId)
-            }
-
-            projections {
-                groupProperty('process', 'process')
-                groupProperty('status', 'status')
-                countDistinct('id', 'count')
-                sum('cpus', 'totalCpus')
-                sum('peakRss', 'memory')
-                sum('rchar', 'diskReads')
-                sum('wchar', 'diskWrites')
-                sqlProjection('sum(cpus * realtime) as cpuRealtime', 'cpuRealtime', StandardBasicTypes.LONG)
-                sqlProjection('sum(peak_rss) / sum(memory) as memoryEfficiency', 'memoryEfficiency', StandardBasicTypes.DOUBLE)
-                sqlProjection('sum(realtime * pcpu / 100) / sum(realtime * cpus) as cpuEfficiency', 'cpuEfficiency', StandardBasicTypes.DOUBLE)
-            }
+        // aggregate workflow process
+        final processProgresses = new ArrayList<ProcessProgress>(aggregate.values()).sort{it.process}
+        final workflowProgress = new WorkflowProgress()
+        for( ProcessProgress p : processProgresses ) {
+            workflowProgress.sumProgress(p)
         }
 
-        Map<String, Map<TaskStatus, List<Map>>> rawProgressByProcessAndStatus = rawProgressRows.groupBy({ Map data -> data.process }, { Map data -> data.status })
-        rawProgressByProcessAndStatus
+        new ProgressData(workflowProgress: workflowProgress, processesProgress: processProgresses)
     }
+
 
 }
