@@ -43,7 +43,7 @@ import io.seqera.tower.exchange.workflow.GetWorkflowMetricsResponse
 import io.seqera.tower.exchange.workflow.UpdateWorkflowCommentRequest
 import io.seqera.tower.exchange.workflow.UpdateWorkflowCommentResponse
 import io.seqera.tower.exchange.workflow.WorkflowGet
-import io.seqera.tower.exchange.workflow.WorkflowList
+import io.seqera.tower.exchange.workflow.ListWorklowResponse
 import io.seqera.tower.service.WorkflowService
 import io.seqera.tower.util.AbstractContainerBaseTest
 import io.seqera.tower.util.DomainCreator
@@ -134,10 +134,10 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
 
         and: "perform the request to obtain the workflows"
         String accessToken = doJwtLogin(owner, client)
-        HttpResponse<WorkflowList> response = client.toBlocking().exchange(
+        HttpResponse<ListWorklowResponse> response = client.toBlocking().exchange(
                 HttpRequest.GET("/workflow/list")
                            .bearerAuth(accessToken),
-                WorkflowList.class
+                ListWorklowResponse.class
         )
 
         expect: "the workflows data is properly obtained"
