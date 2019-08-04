@@ -21,10 +21,18 @@ export class WelcomeComponent implements OnInit {
 
   user: User;
 
+  nextflowRunCommand = 'nextflow run hello -with-tower ';
+
   constructor(private auth: AuthService) { }
 
   ngOnInit() {
     this.user = this.auth.currentUser
+    const parsedUrl = new URL(window.location.href);
+    const baseUrl = parsedUrl.origin;
+    console.log(baseUrl);
+    if( !baseUrl.endsWith('/tower.seqera.io') ) {
+      this.nextflowRunCommand += baseUrl + '/api'
+    }
   }
 
 }
