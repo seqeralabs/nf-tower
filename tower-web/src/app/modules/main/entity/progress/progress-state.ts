@@ -8,12 +8,19 @@
  * This Source Code Form is "Incompatible With Secondary Licenses", as
  * defined by the Mozilla Public License, v. 2.0.
  */
-export interface TasksProgress {
+export interface ProgressState {
   pending: number;
   running: number;
   cached: number;
   submitted: number;
   succeeded: number;
   failed: number;
-  total: number;
+
+  totalCpus: number;
+  cpuRealtime: number;
+  memory: number;
+  diskReads: number;
+  diskWrites: number;
+  memoryEfficiency: number;
+  cpuEfficiency: number;
 }

@@ -18,13 +18,25 @@ import groovy.transform.CompileDynamic
 @Entity
 @JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version', 'workflow'])
 @CompileDynamic
-class ProcessProgress {
+class ProcessProgress implements ProgressState {
 
     static belongsTo = [workflow: Workflow]
 
     String process
-    TasksProgress progress
 
-    static embedded = ['progress']
+    Long running = 0l
+    Long submitted = 0l
+    Long failed = 0l
+    Long pending = 0l
+    Long succeeded = 0l
+    Long cached = 0l
+
+    Long totalCpus = 0l
+    Long cpuRealtime = 0l
+    Long memory = 0l
+    Long diskReads = 0l
+    Long diskWrites = 0l
+    Double memoryEfficiency = 0d
+    Double cpuEfficiency = 0d
 
 }
