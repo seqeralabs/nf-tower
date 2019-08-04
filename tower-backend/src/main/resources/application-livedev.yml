@@ -12,6 +12,9 @@ micronaut:
 tower:
   admin:
     password: secret
+  trustedEmails:
+    - '*@seqera.io'
+    - 'paolo*'
 ---
 dataSource:
   pooled: false
