@@ -8,18 +8,17 @@
  * This Source Code Form is "Incompatible With Secondary Licenses", as
  * defined by the Mozilla Public License, v. 2.0.
  */
-import {TasksProgress} from "./tasks-progress";
 import {ProcessProgress} from "./process-progress";
-import {WorkflowTasksProgress} from "./workflow-tasks-progress";
+import {WorkflowProgress} from "./workflow-progress";
 
 export class Progress {
 
-  workflowTasksProgress: WorkflowTasksProgress;
+  workflowProgress: WorkflowProgress;
   processesProgress: ProcessProgress[];
 
   constructor(json: any) {
-    this.workflowTasksProgress = <WorkflowTasksProgress> json.workflowTasksProgress;
-    this.processesProgress = <ProcessProgress[]> json.processesProgress;
+    this.workflowProgress = new WorkflowProgress(json.workflowProgress);
+    this.processesProgress = json.processesProgress.map((processProgress => new ProcessProgress(processProgress)));
   }
 
 }

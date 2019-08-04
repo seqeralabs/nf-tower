@@ -10,18 +10,28 @@
  */
 import {ProgressState} from "./progress-state";
 
-export class ProcessProgress {
+export class WorkflowProgress {
 
-  process: string;
   data: ProgressState;
 
   constructor(json: any) {
-    this.process = json.process;
     this.data = <ProgressState> json;
   }
 
-  get total(): number {
-    return this.data.pending + this.data.running + this.data.cached + this.data.submitted + this.data.succeeded + this.data.failed;
+  get totalCpuHours(): string {
+    return (this.data.cpuRealtime / (1000 * 60 * 60)).toFixed(2);
+  }
+
+  get totalMemoryGb(): string {
+    return (this.data.memory / 1024 / 1024 / 1024).toFixed(2);
+  }
+
+  get totalDiskReadGb(): string {
+    return (this.data.diskReads / 1024 / 1024 / 1024).toFixed(2);
+  }
+
+  get totalDiskWriteGb(): string {
+    return (this.data.diskWrites / 1024 / 1024 / 1024).toFixed(2);
   }
 
 }

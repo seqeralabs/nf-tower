@@ -11,18 +11,19 @@
 
 package io.seqera.tower.service
 
-import grails.gorm.DetachedCriteria
+
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
 import io.seqera.tower.domain.ProcessProgress
 import io.seqera.tower.domain.Task
-import io.seqera.tower.domain.TasksProgress
-import io.seqera.tower.domain.WorkflowTasksProgress
+import io.seqera.tower.domain.WorkflowProgress
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.domain.WorkflowMetrics
 import io.seqera.tower.enums.TaskStatus
 import io.seqera.tower.exchange.progress.ProgressGet
 import io.seqera.tower.exchange.workflow.WorkflowGet
+import org.hibernate.criterion.CriteriaSpecification
+import org.hibernate.type.StandardBasicTypes
 
 import javax.inject.Singleton
 
@@ -37,7 +38,7 @@ class ProgressServiceImpl implements ProgressService {
         if (workflow.checkIsStarted()) {
             result.progress = computeWorkflowProgress(workflow.id)
         } else {
-            result.progress = new ProgressGet(workflowTasksProgress: workflow.workflowTasksProgress, processesProgress: workflow.processesProgress.sort { it.process })
+            result.progress = new ProgressGet(workflowProgress: workflow.workflowTasksProgress, processesProgress: workflow.processesProgress.sort { it.process })
             result.metrics = WorkflowMetrics.findAllByWorkflow(workflow)
         }
 
@@ -45,67 +46,63 @@ class ProgressServiceImpl implements ProgressService {
     }
 
     ProgressGet computeWorkflowProgress(Long workflowId) {
-        new ProgressGet(workflowTasksProgress: computeTasksProgress(workflowId), processesProgress: computeProcessesProgress(workflowId))
-    }
+        Map<String, Map<TaskStatus, List<Map>>> rawProgressByProcessAndStatus = queryProcessesProgress(workflowId)
 
-    @CompileDynamic
-    private WorkflowTasksProgress computeTasksProgress(Long workflowId) {
-        List<Object[]> tuples = new DetachedCriteria(Task).build {
-            workflow {
-                eq('id', workflowId)
+        WorkflowProgress workflowProgress = new WorkflowProgress()
+        List<ProcessProgress> processProgresses = rawProgressByProcessAndStatus.collect { String process, Map<TaskStatus, List<Map>> rawProgressOfProcess ->
+            ProcessProgress processProgress = new ProcessProgress(process: process)
+
+            rawProgressOfProcess.each { status, rawProgresses ->
+                Map rawProgress = ((List<Map>) rawProgresses).first()
+                associateProcessProgressProperties(processProgress, (TaskStatus) status, rawProgress)
             }
 
-            projections {
-                groupProperty('status')
-                countDistinct('id')
-            }
-        }.list()
+            workflowProgress.sumProgressState(processProgress)
 
-        Map<String, Long> progressProperties = tuples.collectEntries { Object[] tuple ->
-            [( ((TaskStatus) tuple[0]).toProgressTag()): (Long) tuple[1]]
+            processProgress
         }
 
-        TasksProgress progress = new TasksProgress(progressProperties)
-        new WorkflowTasksProgress(progress: progress)
+        new ProgressGet(workflowProgress: workflowProgress, processesProgress: processProgresses.sort { it.process })
     }
 
     @CompileDynamic
-    private List<ProcessProgress> computeProcessesProgress(Long workflowId) {
-        Map<String, Map<TaskStatus, List<Map>>> statusCountByProcess = queryProcessesTasksStatus(workflowId)
-
-        statusCountByProcess.collect { String process, Map<TaskStatus, List<Map>> statusCountsOfProcess ->
-            TasksProgress progress = new TasksProgress()
-
-            statusCountsOfProcess.each { TaskStatus status, List<Map> countOfProcess ->
-                progress[status.toProgressTag()] = countOfProcess.first().count
+    private void associateProcessProgressProperties(ProcessProgress processProgress, TaskStatus status, Map properties) {
+        properties.each { String propertyName, value ->
+            if (propertyName == 'status' || propertyName == 'process') {
+                return
             }
-
-            new ProcessProgress(process: process, progress: progress)
-        }.sort { it.process }
+            if (propertyName == 'count') {
+                processProgress[status.toProgressTag()] = value
+                return
+            }
+            processProgress[propertyName] += value ?: 0
+        }
     }
 
     @CompileDynamic
-    private Map<String, Map> queryProcessesTasksStatus(Long workflowId) {
-        List<Object[]> tuples = new DetachedCriteria(Task).build {
+    private Map<String, Map> queryProcessesProgress(Long workflowId) {
+        List<Map> rawProgressRows = Task.createCriteria().list {
+            resultTransformer(CriteriaSpecification.ALIAS_TO_ENTITY_MAP)
             workflow {
                 eq('id', workflowId)
             }
 
             projections {
-                groupProperty('process')
-                groupProperty('status')
-                countDistinct('id')
+                groupProperty('process', 'process')
+                groupProperty('status', 'status')
+                countDistinct('id', 'count')
+                sum('cpus', 'totalCpus')
+                sum('peakRss', 'memory')
+                sum('rchar', 'diskReads')
+                sum('wchar', 'diskWrites')
+                sqlProjection('sum(cpus * realtime) as cpuRealtime', 'cpuRealtime', StandardBasicTypes.LONG)
+                sqlProjection('sum(peak_rss) / sum(memory) as memoryEfficiency', 'memoryEfficiency', StandardBasicTypes.DOUBLE)
+                sqlProjection('sum(realtime * pcpu / 100) / sum(realtime * cpus) as cpuEfficiency', 'cpuEfficiency', StandardBasicTypes.DOUBLE)
             }
-        }.list()
+        }
 
-        Map<String, Map<TaskStatus, List<Map>>> statusCountByProcess = tuples.collect { Object[] tuple ->
-            [process: tuple[0], status: tuple[1], count: tuple[2]]
-        }.groupBy([
-            { Map data -> data.process },
-            { Map data -> data.status },
-        ])
-
-        statusCountByProcess
+        Map<String, Map<TaskStatus, List<Map>>> rawProgressByProcessAndStatus = rawProgressRows.groupBy({ Map data -> data.process }, { Map data -> data.status })
+        rawProgressByProcessAndStatus
     }
 
 }

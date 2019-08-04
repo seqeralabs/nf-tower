@@ -10,9 +10,9 @@
  */
 import {WorkflowData} from "./workflow-data";
 import {WorkflowStatus} from "./workflow-status.enum";
-import {HumanizeDuration, HumanizeDurationLanguage, ILanguage} from "humanize-duration-ts";
 import * as dateFormat from "date-fns/format";
 import {Progress} from "../progress/progress";
+import {DurationUtil} from "../../util/duration-util";
 
 export class Workflow {
 
@@ -21,7 +21,10 @@ export class Workflow {
 
   constructor(json: any) {
     this.data = <WorkflowData> json.workflow;
-    this.progress = <Progress> json.progress;
+
+    if (json.progress) {
+      this.progress = new Progress(json.progress);
+    }
   }
 
 
@@ -54,10 +57,7 @@ export class Workflow {
   }
 
   get humanizedDuration(): string {
-    let language: HumanizeDurationLanguage  = new HumanizeDurationLanguage();
-    language.addLanguage('short', <ILanguage> {y: () => 'y', mo: () => 'mo', w: () => 'w', d: () => 'd', h: () => 'h', m: () => 'm', s: () => 's'});
-
-    return new HumanizeDuration(language).humanize(this.data.duration, {language: 'short', delimiter: ' '});
+    return DurationUtil.humanizeDuration(this.data.duration)
   }
 
   get briefCommitId(): string {

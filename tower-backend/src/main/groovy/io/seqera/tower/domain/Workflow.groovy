@@ -34,7 +34,7 @@ class Workflow {
 
     static hasMany = [tasks: Task, processesProgress: ProcessProgress]
     static belongsTo = [owner: User]
-    static hasOne = [workflowTasksProgress: WorkflowTasksProgress]
+    static hasOne = [workflowTasksProgress: WorkflowProgress]
 
     OffsetDateTime submit
     OffsetDateTime start //TODO For now, submitTime and startTime are the same, when using Launchpad they would differ.

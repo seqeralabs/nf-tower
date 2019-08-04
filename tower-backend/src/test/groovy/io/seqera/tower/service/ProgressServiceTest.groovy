@@ -33,64 +33,84 @@ class ProgressServiceTest extends AbstractContainerBaseTest {
 
 
     void "compute the progress info of a workflow"() {
-        given: 'create a pending task of a process and associated with a workflow'
+        given: 'create a pending task of a process and associated with a workflow (with some stats)'
         DomainCreator domainCreator = new DomainCreator()
         String process1 = 'process1'
-        Task task1 = domainCreator.createTask(status: TaskStatus.NEW, process: process1, duration: 1)
+        Task task1 = domainCreator.createTask(status: TaskStatus.NEW, process: process1, cpus: 1, realtime: 2, peakRss: 1, rchar: 1, wchar: 1, pcpu: 10, memory: 2)
         Workflow workflow = task1.workflow
 
-        and: 'a task for the previous process in each status'
-        [TaskStatus.SUBMITTED, TaskStatus.CACHED, TaskStatus.RUNNING, TaskStatus.FAILED].each { TaskStatus status ->
-            domainCreator.createTask(status: status, workflow: workflow, process: process1, duration: 1)
+        and: 'a task for the previous process in each status (with some stats each one)'
+        [TaskStatus.SUBMITTED, TaskStatus.CACHED, TaskStatus.RUNNING, TaskStatus.FAILED, TaskStatus.COMPLETED].each { TaskStatus status ->
+            domainCreator.createTask(status: status, workflow: workflow, process: process1, cpus: 1, realtime: 2, peakRss: 1, rchar: 1, wchar: 1, pcpu: 10, memory: 2)
         }
 
-        and: 'one more completed task of the same process'
-        domainCreator.createTask(status: TaskStatus.COMPLETED, workflow: workflow, process: process1, duration: 1, hash: "lastHash")
-
-        and: 'a pending task of another process'
+        and: 'a pending task of another process (without stats)'
         String process2 = 'process2'
-        domainCreator.createTask(status: TaskStatus.NEW, workflow: workflow, process: process2, duration: 1)
+        domainCreator.createTask(status: TaskStatus.NEW, workflow: workflow, process: process2)
 
-        and: 'a task for the previous process in each status'
+        and: 'a task for the previous process in each status (with some stats each one)'
         [TaskStatus.SUBMITTED, TaskStatus.CACHED, TaskStatus.RUNNING, TaskStatus.FAILED].each { TaskStatus status ->
-            domainCreator.createTask(status: status, workflow: workflow, process: process2, duration: 1)
+            domainCreator.createTask(status: status, workflow: workflow, process: process2, cpus: 1, realtime: 2, peakRss: 1, rchar: 1, wchar: 1, pcpu: 10, memory: 2)
         }
 
-        and: 'two more completed tasks'
+        and: 'two more completed tasks (with some stats each one)'
         2.times {
-            domainCreator.createTask(status: TaskStatus.COMPLETED, workflow: workflow, process: process2, duration: 1, hash: "lastHash${it}")
+            domainCreator.createTask(status: TaskStatus.COMPLETED, workflow: workflow, process: process2, cpus: 1, realtime: 2, peakRss: 1, rchar: 1, wchar: 1, pcpu: 10, memory: 2)
         }
 
         when: "compute the progress of the workflow"
         ProgressGet progress = progressService.computeWorkflowProgress(workflow.id)
 
         then: "the tasks has been successfully computed"
-        progress.workflowTasksProgress.progress.pending == 2
-        progress.workflowTasksProgress.progress.submitted == 2
-        progress.workflowTasksProgress.progress.running == 2
-        progress.workflowTasksProgress.progress.cached == 2
-        progress.workflowTasksProgress.progress.failed == 2
-        progress.workflowTasksProgress.progress.succeeded == 3
+        progress.workflowProgress.pending == 2
+        progress.workflowProgress.submitted == 2
+        progress.workflowProgress.running == 2
+        progress.workflowProgress.cached == 2
+        progress.workflowProgress.failed == 2
+        progress.workflowProgress.succeeded == 3
+
+        progress.workflowProgress.totalCpus == 12
+        progress.workflowProgress.cpuRealtime == 24
+        progress.workflowProgress.memory == 12
+        progress.workflowProgress.diskReads == 12
+        progress.workflowProgress.diskWrites == 12
+        progress.workflowProgress.memoryEfficiency == 5.5
+        progress.workflowProgress.cpuEfficiency == 1.1
+
 
         then: "the processes progress has been successfully computed"
         progress.processesProgress.size() == 2
         ProcessProgress progress1 = progress.processesProgress.find { it.process == process1 }
-        progress1.progress.running == 1
-        progress1.progress.submitted == 1
-        progress1.progress.failed == 1
-        progress1.progress.pending == 1
-        progress1.progress.succeeded == 1
-        progress1.progress.cached == 1
-        progress1.progress.total == 6
+        progress1.running == 1
+        progress1.submitted == 1
+        progress1.failed == 1
+        progress1.pending == 1
+        progress1.succeeded == 1
+        progress1.cached == 1
+
+        progress1.cpuRealtime == 12
+        progress1.totalCpus == 6
+        progress1.memory == 6
+        progress1.diskReads == 6
+        progress1.diskWrites == 6
+        progress1.memoryEfficiency == 3.0 // (1/2 + 1/2 + 1/2 + 1/2 + 1/2 + 1/2)
+        progress1.cpuEfficiency == 0.6 // ((2 * 10 / 100) / 2) * 6
 
         ProcessProgress progress2 = progress.processesProgress.find { it.process == process2 }
-        progress2.progress.running == 1
-        progress2.progress.submitted == 1
-        progress2.progress.failed == 1
-        progress2.progress.pending == 1
-        progress2.progress.succeeded == 2
-        progress2.progress.cached == 1
-        progress2.progress.total == 7
+        progress2.running == 1
+        progress2.submitted == 1
+        progress2.failed == 1
+        progress2.pending == 1
+        progress2.succeeded == 2
+        progress2.cached == 1
+
+        progress2.cpuRealtime == 12
+        progress2.totalCpus == 6
+        progress2.memory == 6
+        progress2.diskReads == 6
+        progress2.diskWrites == 6
+        progress2.memoryEfficiency == 2.5 // (1/2 + 1/2 + 1/2 + 1/2 + 2/4)
+        progress2.cpuEfficiency == 0.5 // ((2 * 10 / 100) / 2) * 5
     }
 
 }
