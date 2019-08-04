@@ -11,11 +11,11 @@
 
 package io.seqera.tower.exchange.workflow
 
-class WorkflowList {
+class ListWorklowResponse {
 
     List<WorkflowGet> workflows
 
-    static WorkflowList of(List<WorkflowGet> workflows) {
-        new WorkflowList(workflows: workflows)
+    static ListWorklowResponse of(List<WorkflowGet> workflows) {
+        new ListWorklowResponse(workflows: workflows)
     }
 }

@@ -44,7 +44,7 @@ import io.seqera.tower.exchange.workflow.GetWorkflowMetricsResponse
 import io.seqera.tower.exchange.workflow.UpdateWorkflowCommentRequest
 import io.seqera.tower.exchange.workflow.UpdateWorkflowCommentResponse
 import io.seqera.tower.exchange.workflow.WorkflowGet
-import io.seqera.tower.exchange.workflow.WorkflowList
+import io.seqera.tower.exchange.workflow.ListWorklowResponse
 import io.seqera.tower.service.ProgressService
 import io.seqera.tower.service.TaskService
 import io.seqera.tower.service.UserService
@@ -75,13 +75,13 @@ class WorkflowController {
     @Get("/list")
     @Transactional
     @Secured(['ROLE_USER'])
-    HttpResponse<WorkflowList> list(Authentication authentication) {
+    HttpResponse<ListWorklowResponse> list(Authentication authentication) {
         List<Workflow> workflows = workflowService.listByOwner(userService.getFromAuthData(authentication))
 
         List<WorkflowGet> result = workflows.collect { Workflow workflow ->
             WorkflowGet.of(workflow)
         }
-        HttpResponse.ok(WorkflowList.of(result))
+        HttpResponse.ok(ListWorklowResponse.of(result))
     }
 
     @Get("/{id}")
