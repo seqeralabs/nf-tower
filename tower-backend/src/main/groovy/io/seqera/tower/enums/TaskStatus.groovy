@@ -13,7 +13,13 @@ package io.seqera.tower.enums
 
 enum TaskStatus {
 
-    NEW, SUBMITTED, RUNNING, CACHED, COMPLETED, FAILED
+    NEW,        // just created
+    SUBMITTED,  // submitted to scheduler, pending execution
+    RUNNING,    // task execution started
+    CACHED,     // task cached
+    COMPLETED,  // completed successfully
+    FAILED,     // completed with error
+    ABORTED     // execution aborted
 
     String toProgressTag() {
         if (this == NEW) {
