@@ -11,21 +11,26 @@
 
 package io.seqera.tower.domain
 
+import groovy.transform.CompileStatic
+
+@CompileStatic
 interface ProgressState {
 
-    Long getRunning()
-    Long getSubmitted()
-    Long getFailed()
-    Long getPending()
-    Long getSucceeded()
-    Long getCached()
+    long getPending()
+    long getRunning()
+    long getSubmitted()
+    long getSucceeded()
+    long getFailed()
+    long getCached()
 
-    Long getTotalCpus()
-    Long getCpuRealtime()
-    Long getMemory()
-    Long getDiskReads()
-    Long getDiskWrites()
-    Double getMemoryEfficiency()
-    Double getCpuEfficiency()
+    long getTotalCpus()
+    long getCpuTime()
+    double getCpuLoad()
+    long getMemoryRss()
+    long getMemoryReq()
+    long getReadBytes()
+    long getWriteBytes()
+    long getVolCtxSwitch()
+    long getInvCtxSwitch()
 
 }

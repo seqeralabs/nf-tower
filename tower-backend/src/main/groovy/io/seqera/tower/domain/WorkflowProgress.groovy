@@ -15,7 +15,6 @@ import com.fasterxml.jackson.annotation.JsonGetter
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import grails.gorm.annotation.Entity
 import groovy.transform.CompileDynamic
-
 /**
  * Model workflow progress counters
  *
@@ -28,36 +27,56 @@ class WorkflowProgress implements ProgressState {
 
     Workflow workflow
 
-    Long running = 0l
-    Long submitted = 0l
-    Long failed = 0l
-    Long pending = 0l
-    Long succeeded = 0l
-    Long cached = 0l
+    long running
+    long submitted
+    long failed
+    long pending
+    long succeeded
+    long cached
 
-    Long totalCpus = 0l
-    Long cpuRealtime = 0l
-    Long memory = 0l
-    Long diskReads = 0l
-    Long diskWrites = 0l
-    Double memoryEfficiency = 0d
-    Double cpuEfficiency = 0d
+    long totalCpus
+    long cpuTime
+    double cpuLoad
+    long memoryRss
+    long memoryReq
+    long readBytes
+    long writeBytes
+    long volCtxSwitch
+    long invCtxSwitch
 
-    void sumProgressState(ProgressState progressState) {
-        running = running + progressState.running
-        submitted = submitted + progressState.submitted
-        failed = failed + progressState.failed
-        pending = pending + progressState.pending
-        succeeded = succeeded + progressState.succeeded
-        cached = cached + progressState.cached
+    long loadTasks
+    long loadCpus
+    long loadMemory
 
-        totalCpus = totalCpus + progressState.totalCpus
-        cpuRealtime = cpuRealtime + progressState.cpuRealtime
-        memory = memory + progressState.memory
-        diskReads = diskReads + progressState.diskReads
-        diskWrites = diskWrites + progressState.diskWrites
-        memoryEfficiency = memoryEfficiency + progressState.memoryEfficiency
-        cpuEfficiency = cpuEfficiency + progressState.cpuEfficiency
+    @JsonGetter('memoryEfficiency')
+    double getMemoryEfficiency() {
+        memoryReq!=0 ? memoryRss / memoryReq * 100 : 0
+    }
+
+    @JsonGetter('cpuEfficiency')
+    double getCpuEfficiency() {
+        cpuTime!=0 ? cpuLoad / cpuTime * 100 : 0
+    }
+
+    void sumProgress(ProgressState progress) {
+
+        pending += progress.pending
+        submitted += progress.submitted
+        running += progress.running
+        succeeded += progress.succeeded
+        failed += progress.failed
+        cached += progress.cached
+
+        totalCpus += progress.totalCpus
+        cpuTime += progress.cpuTime
+        cpuLoad += progress.cpuLoad
+        memoryRss += progress.memoryRss
+        memoryReq += progress.memoryReq
+        readBytes += progress.readBytes
+        writeBytes += progress.writeBytes
+        volCtxSwitch += progress.volCtxSwitch
+        invCtxSwitch += progress.invCtxSwitch
+
     }
 
 }

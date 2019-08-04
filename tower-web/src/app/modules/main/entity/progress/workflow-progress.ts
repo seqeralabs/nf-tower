@@ -19,19 +19,19 @@ export class WorkflowProgress {
   }
 
   get totalCpuHours(): string {
-    return (this.data.cpuRealtime / (1000 * 60 * 60)).toFixed(2);
+    return (this.data.cpuTime / (1000 * 60 * 60)).toFixed(2);
   }
 
   get totalMemoryGb(): string {
-    return (this.data.memory / 1024 / 1024 / 1024).toFixed(2);
+    return (this.data.memoryRss / 1024 / 1024 / 1024).toFixed(2);
   }
 
   get totalDiskReadGb(): string {
-    return (this.data.diskReads / 1024 / 1024 / 1024).toFixed(2);
+    return (this.data.readBytes / 1024 / 1024 / 1024).toFixed(2);
   }
 
   get totalDiskWriteGb(): string {
-    return (this.data.diskWrites / 1024 / 1024 / 1024).toFixed(2);
+    return (this.data.writeBytes / 1024 / 1024 / 1024).toFixed(2);
   }
 
 }

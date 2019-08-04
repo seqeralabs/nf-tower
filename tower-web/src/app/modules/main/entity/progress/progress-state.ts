@@ -17,10 +17,15 @@ export interface ProgressState {
   failed: number;
 
   totalCpus: number;
-  cpuRealtime: number;
-  memory: number;
-  diskReads: number;
-  diskWrites: number;
+  cpuTime: number;
+  cpuLoad: number;
+  memoryRss: number;
+  memoryReq: number;
+  readBytes: number;
+  writeBytes: number;
+  volCtxSwitch: number;
+  invCtxSwitch: number;
   memoryEfficiency: number;
   cpuEfficiency: number;
+
 }
