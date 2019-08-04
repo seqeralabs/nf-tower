@@ -27,13 +27,13 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles.scss",
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "node_modules/@mdi/font/css/materialdesignicons.min.css",
 
               "node_modules/datatables.net-bs4/css/dataTables.bootstrap4.min.css",
               "node_modules/datatables.net-scroller-bs4/css/scroller.bootstrap4.min.css",
-              "node_modules/chartist/dist/chartist.min.css"
+              "node_modules/chartist/dist/chartist.min.css",
+              "src/styles.scss"
             ],
             "scripts": [
               "node_modules/jquery/dist/jquery.min.js",
