@@ -142,8 +142,9 @@ class TraceController {
             List<Task> tasks = traceService.processTaskTrace(request)
             log.info("Processed task trace (${tasks.taskId} ${tasks.status*.name()})")
 
-            response = HttpResponse.created(TraceTaskResponse.ofSuccess(request.workflowId.toString()))
-            publishUpdatedProgressEvent((Long) tasks.first().workflowId)
+            final workflow = tasks.first().workflow
+            response = HttpResponse.created(TraceTaskResponse.ofSuccess(workflow.id.toString()))
+            publishUpdatedProgressEvent(workflow)
         } catch (Exception e) {
             log.error("Failed to handle trace trace=$request", e)
             response = HttpResponse.badRequest(TraceTaskResponse.ofError(e.message))
@@ -152,11 +153,11 @@ class TraceController {
         response
     }
 
-    private void publishUpdatedProgressEvent(Long workflowId) {
-        String workflowDetailFlowableKey = getWorkflowDetailFlowableKey(workflowId)
+    private void publishUpdatedProgressEvent(Workflow workflow) {
+        String workflowDetailFlowableKey = getWorkflowDetailFlowableKey(workflow.id)
 
         try {
-            ProgressData progress = progressService.computeWorkflowProgress(workflowId)
+            ProgressData progress = progressService.fetchWorkflowProgress(workflow)
             serverSentEventsService.publishEvent(workflowDetailFlowableKey, Event.of(TraceSseResponse.ofProgress(progress)))
         } catch (NonExistingFlowableException e) {
             log.error("No flowable found while trying to publish task data: ${workflowDetailFlowableKey}")

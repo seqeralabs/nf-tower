@@ -31,11 +31,36 @@ class ProgressServiceImpl implements ProgressService {
 
     @CompileDynamic
     WorkflowGet buildWorkflowGet(Workflow workflow) {
-        WorkflowGet result = new WorkflowGet(workflow: workflow)
-        result.progress = computeWorkflowProgress(workflow.id)
-        if( workflow.complete ) {
+        final result = new WorkflowGet(workflow: workflow)
+
+        // fetch progress
+        result.progress = fetchWorkflowProgress(workflow)
+
+        // fetch metrics
+        if( workflow.complete )
             result.metrics = WorkflowMetrics.findAllByWorkflow(workflow)
+
+        return result
+    }
+
+    void updatePeaks(Workflow workflow, WorkflowProgress progress) {
+
+        if( workflow.peakLoadCpus < progress.loadCpus ) {
+            workflow.peakLoadCpus = progress.loadCpus
         }
+        if( workflow.peakLoadTasks < progress.loadTasks ) {
+            workflow.peakLoadTasks = progress.loadTasks
+        }
+        if( workflow.peakLoadMemory < progress.loadMemory ) {
+            workflow.peakLoadMemory = progress.loadMemory
+        }
+        if( workflow.isDirty() )
+            workflow.save()
+    }
+
+    ProgressData fetchWorkflowProgress(Workflow workflow) {
+        final result = computeWorkflowProgress(workflow.id)
+        updatePeaks(workflow, result.workflowProgress)
         return result
     }
 

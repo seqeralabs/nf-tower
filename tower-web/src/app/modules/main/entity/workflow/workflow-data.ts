@@ -54,4 +54,8 @@ export interface WorkflowData {
 
   params: any;
   configFiles: string[];
+
+  peakLoadCpus: number;
+  peakLoadTasks: number;
+  peakLoadMemory: number;
 }

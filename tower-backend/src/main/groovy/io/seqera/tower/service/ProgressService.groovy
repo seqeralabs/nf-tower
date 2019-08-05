@@ -19,6 +19,6 @@ interface ProgressService {
 
     WorkflowGet buildWorkflowGet(Workflow workflow)
 
-    ProgressData computeWorkflowProgress(Long workflowId)
+    ProgressData fetchWorkflowProgress(Workflow workflow)
 
 }

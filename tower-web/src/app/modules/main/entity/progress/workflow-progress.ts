@@ -12,10 +12,10 @@ import {ProgressState} from "./progress-state";
 
 export class WorkflowProgress {
 
-  data: ProgressState;
+  data: WorkflowProgressState;
 
   constructor(json: any) {
-    this.data = <ProgressState> json;
+    this.data = <WorkflowProgressState> json;
   }
 
   get totalCpuHours(): string {
@@ -33,5 +33,25 @@ export class WorkflowProgress {
   get totalDiskWriteGb(): string {
     return (this.data.writeBytes / 1024 / 1024 / 1024).toFixed(2);
   }
+
+  get loadCpus(): number {
+    return this.data.loadCpus;
+  }
+
+  get loadTasks(): number {
+    return this.data.loadTasks;
+  }
+
+  get loadMemory(): number {
+    return this.data.loadMemory;
+  }
+
+}
+
+interface WorkflowProgressState extends ProgressState {
+
+  loadCpus: number;
+  loadTasks: number;
+  loadMemory: number;
 
 }

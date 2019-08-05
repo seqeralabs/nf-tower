@@ -75,6 +75,10 @@ class Workflow {
     WfNextflow nextflow
     WfStats stats
 
+    Long peakLoadCpus
+    Long peakLoadTasks
+    Long peakLoadMemory
+
     String workflowId
 
     static embedded = ['manifest', 'nextflow', 'stats']
@@ -145,6 +149,10 @@ class Workflow {
         manifest(nullable: true)
         nextflow(nullable: true)
         stats(nullable: true)
+
+        peakLoadCpus(nullable: true)
+        peakLoadTasks(nullable: true)
+        peakLoadMemory(nullable: true)
     }
 
     static mapping = {
