@@ -11,29 +11,24 @@
 
 package io.seqera.tower.exchange.progress
 
-import static io.seqera.tower.enums.TaskStatus.*
-
+import com.fasterxml.jackson.annotation.JsonIgnore
 import groovy.transform.CompileStatic
 import groovy.transform.ToString
-import io.seqera.tower.domain.ProgressState
 import io.seqera.tower.enums.TaskStatus
+import io.seqera.tower.service.ProgressRow
+import io.seqera.tower.service.ProgressState
 
 @CompileStatic
 @ToString(includeNames = true, includes = 'pending,running,submitted,succeeded,failed,cached,totalCpus,cpuTime,cpuLoad,memoryRss,memoryReq,readBytes,writeBytes,volCtxSwitch,invCtxSwitch')
 class ProcessProgress implements ProgressState {
 
+    @JsonIgnore
+    Map<TaskStatus,Long> taskCount = new LinkedHashMap<>(10)
+
     String process
-
-    long pending
-    long running
-    long submitted
-    long succeeded
-    long failed     // note: includes tasks `aborted`
-    long cached
-
     long totalCpus
     long cpuTime
-    double cpuLoad
+    float cpuLoad
     long memoryRss
     long memoryReq
     long readBytes
@@ -41,49 +36,22 @@ class ProcessProgress implements ProgressState {
     long volCtxSwitch
     long invCtxSwitch
 
-    ProcessProgress sumCols(List cols) {
-        assert process==cols[0]
+    ProcessProgress plus(ProgressRow row) {
+        assert process==row.process
 
-        // aggregate status
-        final status = cols[1] as TaskStatus
-        final long count = ll(cols[2])
-        if( status == RUNNING)
-            running += count
-        else if( status == SUBMITTED )
-            submitted += count
-        else if( status == NEW )
-            pending += count
-        else if( status == COMPLETED )
-            succeeded += count
-        else if( status == FAILED )
-            failed += count
-        else if( status == ABORTED )
-            failed += count
-        else if( status == CACHED )
-            cached += count
-        else
-            throw new IllegalArgumentException("Unknown task status: $status")
+        sumTaskCount(row.status, row.count)
 
-        totalCpus += ll(cols[3])    // total cpus
-        cpuTime += ll(cols[4])      // cpus * realtime
-        cpuLoad += dd(cols[5])      // %cpu * realtime / 100
-        memoryRss += ll(cols[6])    // peak memory rss used
-        memoryReq += ll(cols[7])    // total memory requested
-        readBytes += ll(cols[8])    // total bytes read
-        writeBytes += ll(cols[9])   // total bytes written
-        volCtxSwitch += ll(cols[10]) // total voluntary ctx switches
-        invCtxSwitch += ll(cols[11]) // total involuntary ctx switches
+        totalCpus += row.totalCpus          // total cpus
+        cpuTime += row.cpuTime              // cpus * realtime
+        cpuLoad += row.cpuLoad              // %cpu * realtime / 100
+        memoryRss += row.memoryRss          // peak memory rss used
+        memoryReq += row.memoryReq          // total memory requested
+        readBytes += row.readBytes          // total bytes read
+        writeBytes += row.writeBytes        // total bytes written
+        volCtxSwitch += row.volCtxSwitch    // total voluntary ctx switches
+        invCtxSwitch += row.invCtxSwitch    // total involuntary ctx switches
 
         return this
     }
 
-    @CompileStatic
-    private long ll(x) {
-        x == null ? 0 : x as long
-    }
-
-    @CompileStatic
-    private double dd(x) {
-        x == null ? 0 : x as double
-    }
 }
