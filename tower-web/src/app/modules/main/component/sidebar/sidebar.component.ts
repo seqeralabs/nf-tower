@@ -8,35 +8,38 @@
  * This Source Code Form is "Incompatible With Secondary Licenses", as
  * defined by the Mozilla Public License, v. 2.0.
  */
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
 import {Workflow} from "src/app/modules/main/entity/workflow/workflow";
 import {WorkflowService} from "src/app/modules/main/service/workflow.service";
 import {AuthService} from "src/app/modules/main/service/auth.service";
-import {environment} from "src/environments/environment";
-import {HttpErrorResponse} from "@angular/common/http";
 import {NotificationService} from "src/app/modules/main/service/notification.service";
 import { ActivatedRoute, Router, NavigationEnd, Params } from '@angular/router';
-import { filter } from 'rxjs/operators';
+import {debounceTime, distinctUntilChanged, filter} from 'rxjs/operators';
+import {FormControl} from "@angular/forms";
 
 @Component({
   selector: 'wt-sidebar',
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.scss']
 })
-export class SidebarComponent implements OnInit {
+export class SidebarComponent implements OnInit, OnDestroy {
 
   @Input()
   workflows: Workflow[];
 
-  currentId;
+  searchBoxFormControl: FormControl;
+
+  currentId: string | number;
 
   constructor(private httpClient: HttpClient,
               private notificationService: NotificationService,
               private authService: AuthService,
               private workflowService: WorkflowService,
               private router: Router,
-              private route: ActivatedRoute) { }
+              private route: ActivatedRoute) {
+    this.searchBoxFormControl = new FormControl();
+  }
 
 
   ngOnInit() {
@@ -47,11 +50,23 @@ export class SidebarComponent implements OnInit {
     this.router.events.pipe(filter(event => event instanceof NavigationEnd))
       .subscribe( () => {
         let active = this.route;
-        while (active.firstChild) { active = active.firstChild };
+        while (active.firstChild) { active = active.firstChild }
         active.params.subscribe( (params: Params) => {
           this.currentId = params['id'];
         });
       });
+
+    this.searchBoxFormControl.valueChanges.pipe(
+      debounceTime(500),
+      distinctUntilChanged()
+    ).subscribe((text: string) => {
+      console.log('The text', text);
+      this.workflowService.emitWorkflowsFromServer(null, 0, text);
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.router.navigate(['/'])
   }
 
   private goToFirstWorkflow(): void {
@@ -64,23 +79,28 @@ export class SidebarComponent implements OnInit {
     this.router.navigate([`/workflow/${workflow.data.workflowId}`])
   }
 
-  deleteWorkflowFromSidebar(workflow: Workflow) {
-    let index = this.workflows.indexOf(workflow);
-    if( index==-1 ) {
-      console.log(`Oops... can't remove from sidebar workflow name=${workflow.data.runName} id=${workflow.data.workflowId}`)
-      return
+  deleteWorkflow(workflowToDelete: Workflow) {
+    const confirm = prompt(`Please confirm the deletion of the workflow '${workflowToDelete.data.runName}' typing its name below (operation is not recoverable):`);
+    if (confirm != workflowToDelete.data.runName) {
+      return;
     }
 
-    this.workflows.splice(index, 1);
-    if( this.workflows.length == 0 ) {
-      this.router.navigate([`/`]);
-      return
-    }
+    const oldWorkflowsSize: number = this.workflows.length;
+    this.workflowService.deleteWorkflow(workflowToDelete).subscribe(
+      () => {},
+      (errorMessage: string) => this.notificationService.showErrorNotification(errorMessage),
+      () => {
+        if( workflowToDelete.data.workflowId != this.currentId ) {
+          return;
+        }
 
-    // get current selected workflow id
-    if( workflow.data.workflowId == this.currentId ) {
-      this.showWorkflowDetail(this.workflows[0]);
-    }
+        setTimeout(() => {
+          if (oldWorkflowsSize > 1) {
+            this.showWorkflowDetail(this.workflows[0])
+          }
+        });
+      }
+    );
   }
 
 }

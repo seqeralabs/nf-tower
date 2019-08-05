@@ -9,7 +9,7 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 import { Injectable } from '@angular/core';
-import {HttpClient, HttpErrorResponse} from '@angular/common/http';
+import {HttpClient, HttpErrorResponse, HttpParams} from '@angular/common/http';
 import {Workflow} from '../entity/workflow/workflow';
 import {environment} from '../../../../environments/environment';
 import {Observable, Subject, of, ReplaySubject} from 'rxjs';
@@ -38,7 +38,7 @@ export class WorkflowService {
   get workflows$(): Observable<Workflow[]> {
     if (this.isWorkflowsCacheEmpty()) {
       console.log('Initializing workflows');
-      this.requestWorkflowList().subscribe((workflows: Workflow[]) => this.workflowsSubject.next(workflows));
+      this.emitWorkflowsFromServer();
     } else {
       console.log('Getting workflows from cache');
       this.emitWorkflowsFromCache();
@@ -47,10 +47,27 @@ export class WorkflowService {
     return this.workflowsSubject.asObservable();
   }
 
-  private requestWorkflowList(): Observable<Workflow[]> {
+  emitWorkflowsFromServer(max?: number, offset?: number, searchText?: string): void {
+    this.requestWorkflowList(max, offset, searchText).subscribe((workflows: Workflow[]) => this.workflowsSubject.next(workflows));
+  }
+
+  private emitWorkflowsFromCache(): void {
+    const cachedWorkflows: Workflow[] = Array.from(this.workflowsByIdCache.values());
+    this.workflowsSubject.next(orderBy(cachedWorkflows, [(w: Workflow) => w.data.start], ['desc']));
+  }
+
+  private requestWorkflowList(max?: number, offset?: number, searchText?: string): Observable<Workflow[]> {
     const url = `${endpointUrl}/list`;
 
-    return this.http.get(url).pipe(
+    const rawParams: any = {};
+    if (max != null) rawParams.max = `${max}`;
+    if (offset != null) rawParams.offset = `${offset}`;
+    if (searchText != null) rawParams.search = searchText;
+    const httpParams = new HttpParams({
+      fromObject: rawParams
+    });
+
+    return this.http.get(url, {params: httpParams}).pipe(
       map((data: any) => data.workflows ? data.workflows.map((item: any) => new Workflow(item)) : []),
       tap((workflows: Workflow[]) => workflows.forEach((workflow: Workflow) => this.workflowsByIdCache.set(workflow.data.workflowId, workflow)))
     );
@@ -92,19 +109,18 @@ export class WorkflowService {
     return new Observable<string>( observer => {
       this.http.delete(url)
         .subscribe(
-          resp => { this.workflowsByIdCache.delete(workflow.data.workflowId);  observer.complete(); },
-          (resp: HttpErrorResponse) => { observer.error(resp.error.message); }
+          resp => {
+            this.workflowsByIdCache.delete(workflow.data.workflowId);
+            this.emitWorkflowsFromCache();
+            observer.complete();
+            },
+          (resp: HttpErrorResponse) => observer.error(resp.error.message)
         );
     });
   }
 
   updateProgress(progress: Progress, workflow: Workflow): void {
     workflow.progress = progress;
-  }
-
-  private emitWorkflowsFromCache(): void {
-    const cachedWorkflows: Workflow[] = Array.from(this.workflowsByIdCache.values());
-    this.workflowsSubject.next(orderBy(cachedWorkflows, [(w: Workflow) => w.data.start], ['desc']));
   }
 
   private isWorkflowsCacheEmpty(): boolean {

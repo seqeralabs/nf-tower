@@ -1,13 +1,13 @@
 <div class="row">
   <div class="col m-2">
     <div class="form-group">
-      <input id="search" name="search" type="text" class="form-control" placeholder="Search...">
+      <input id="search" name="search" type="text" class="form-control" placeholder="Search..." [formControl]="searchBoxFormControl">
     </div>
   </div>
 </div>
 
 <wt-workflow-card *ngFor="let workflow of workflows"
                   [workflow]="workflow"
-                  (onDeleteWorkflow)="deleteWorkflowFromSidebar($event)"
+                  (onDeleteWorkflow)="deleteWorkflow($event)"
                   (click)="showWorkflowDetail(workflow)" >
 </wt-workflow-card>
