@@ -95,20 +95,20 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         response.body().progress.workflowProgress
     }
 
-    void "get a workflow as non-authenticated user"() {
-        given: "a workflow with some summaries"
+    void "try to get a workflow as non-authenticated user"() {
+        given: "a workflow"
         DomainCreator domainCreator = new DomainCreator()
         Workflow workflow = domainCreator.createWorkflow()
 
-        when: "perform the request to obtain the workflow as a not allowed user"
+        when: "perform the request to obtain the workflow as an anonymous user"
         HttpResponse<WorkflowGet> response = client.toBlocking().exchange(
                 HttpRequest.GET("/workflow/${workflow.id}"),
                 WorkflowGet.class
         )
 
-        then: "the workflow data is properly obtained"
-        response.status == HttpStatus.OK
-        response.body().workflow.workflowId == workflow.id.toString()
+        then: "the server responds UNAUTHORIZED"
+        HttpClientResponseException e = thrown(HttpClientResponseException)
+        e.status == HttpStatus.UNAUTHORIZED
     }
 
     void "get a list of workflows"() {
