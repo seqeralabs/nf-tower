@@ -11,21 +11,21 @@
 
 package io.seqera.tower.service
 
+import javax.inject.Inject
+
+import grails.gorm.transactions.TransactionService
 import grails.gorm.transactions.Transactional
 import groovy.json.JsonSlurper
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.tower.Application
-import io.seqera.tower.exchange.progress.ProcessProgress
 import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.enums.TaskStatus
+import io.seqera.tower.exchange.progress.ProcessProgress
 import io.seqera.tower.exchange.progress.ProgressData
 import io.seqera.tower.exchange.progress.WorkflowProgress
 import io.seqera.tower.util.AbstractContainerBaseTest
 import io.seqera.tower.util.DomainCreator
-
-import javax.inject.Inject
-
 import io.seqera.tower.util.DomainHelper
 
 @MicronautTest(application = Application.class)
@@ -34,6 +34,8 @@ class ProgressServiceTest extends AbstractContainerBaseTest {
 
     @Inject
     ProgressService progressService
+
+    @Inject TransactionService tx
 
     void "compute simple progress" () {
         String process1 = 'process1'
@@ -52,7 +54,7 @@ class ProgressServiceTest extends AbstractContainerBaseTest {
         )
 
         when: "compute the progress of the workflow"
-        def progress = progressService.computeWorkflowProgress(task1.workflow.id)
+        def progress = progressService.fetchWorkflowProgress(task1.workflow)
         then:
         with(progress.workflowProgress) {
             pending==0
@@ -70,8 +72,8 @@ class ProgressServiceTest extends AbstractContainerBaseTest {
             writeBytes == 4
             volCtxSwitch == 5
             invCtxSwitch == 6
-            cpuEfficiency == 25.0d
-            memoryEfficiency == 50.0d
+            cpuEfficiency == 25.0F
+            memoryEfficiency == 50.0F
         }
 
         progress.processesProgress.size() ==1
@@ -123,7 +125,7 @@ class ProgressServiceTest extends AbstractContainerBaseTest {
         domainCreator.createTask(status: TaskStatus.COMPLETED, workflow: workflow, process: process2, cpus: 1, realtime: 2, peakRss: 1, rchar: 1, wchar: 1, pcpu: 10, memory: 2, volCtxt: 10, invCtxt: 30)
 
         when: "compute the progress of the workflow"
-        ProgressData progress = progressService.computeWorkflowProgress(workflow.id)
+        ProgressData progress = progressService.fetchWorkflowProgress(workflow)
 
         then: "the tasks has been successfully computed"
         progress.workflowProgress.pending == 2
@@ -188,6 +190,63 @@ class ProgressServiceTest extends AbstractContainerBaseTest {
         progress2.writeBytes == 6
         progress2.volCtxSwitch == 60
         progress2.invCtxSwitch == 180
+    }
+
+    void "should compute load and save peak" () {
+        given:
+        def creator = new DomainCreator()
+        def workflow = new DomainCreator().createWorkflow()
+
+        def task1 = creator.createTask(
+                workflow: workflow,
+                status: TaskStatus.RUNNING,
+                process: 'p1',
+                cpus: 1,
+                memory: 2,
+        )
+
+        when: "compute the progress of the workflow"
+        def progress = progressService.fetchWorkflowProgress(workflow)
+        then:
+        progress.workflowProgress.loadTasks == 1
+        progress.workflowProgress.loadCpus == 1
+        progress.workflowProgress.loadMemory == 2
+        and:
+        workflow.peakLoadTasks == 1
+        workflow.peakLoadCpus == 1
+        workflow.peakLoadMemory == 2
+
+        when: 'create another running task'
+        def task2 = creator.createTask(
+                workflow: workflow,
+                status: TaskStatus.RUNNING,
+                process: 'p1',
+                cpus: 10,
+                memory: 40,
+        )
+
+        progress = tx.withNewTransaction {progressService.fetchWorkflowProgress(workflow)}
+        then:
+        progress.workflowProgress.loadTasks == 2
+        progress.workflowProgress.loadCpus == 11
+        progress.workflowProgress.loadMemory == 42
+        and:
+        workflow.peakLoadTasks == 2
+        workflow.peakLoadCpus == 11
+        workflow.peakLoadMemory == 42
+
+        when: 'task 2 complete'
+        task2.status = TaskStatus.COMPLETED; task2.save(flush:true)
+        progress = progressService.fetchWorkflowProgress(workflow)
+        then:
+        progress.workflowProgress.loadTasks == 1
+        progress.workflowProgress.loadCpus == 1
+        progress.workflowProgress.loadMemory == 2
+        and:
+        workflow.peakLoadTasks == 2
+        workflow.peakLoadCpus == 11
+        workflow.peakLoadMemory == 42
+
     }
 
     def 'should serialise progress' () {
