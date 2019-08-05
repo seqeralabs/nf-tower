@@ -40,18 +40,6 @@ export class WorkflowCardComponent implements OnInit {
 
   deleteWorkflow(workflow: Workflow, event: MouseEvent) {
     event.stopPropagation();
-
-    let notifier = this.notificationService;
-    let emitter = this.onDeleteWorkflow;
-    let confirm = prompt(`Please confirm the deletion of the workflow '${workflow.data.runName}' typing its name below (operation is not recoverable):`)
-    if( confirm == workflow.data.runName ) {
-        this
-          .workflowService
-          .deleteWorkflow(workflow)
-          .subscribe( {
-            error(message) { notifier.showErrorNotification(message) },
-            complete() { emitter.next(workflow) }
-          } )
-    }
+    this.onDeleteWorkflow.next(workflow);
   }
 }

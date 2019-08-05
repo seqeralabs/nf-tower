@@ -21,7 +21,7 @@ import { WorkflowDetailComponent } from './component/workflow-detail/workflow-de
 import { WorkflowMetricsComponent } from './component/workflow-metrics/metrics.component';
 import { WelcomeComponent } from './component/welcome/welcome.component';
 import { LoginComponent } from './component/login/login.component';
-import { FormsModule} from "@angular/forms";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import { JwtInterceptor } from "./interceptor/jwt.interceptor";
 import { ErrorInterceptor } from "./interceptor/error.interceptor";
 import { LogoutComponent } from './component/logout/logout.component';
@@ -101,7 +101,8 @@ export class MainRoutingModule { }
     MainRoutingModule,
     HttpClientModule,
     FormsModule,
-    ChartistModule
+    ChartistModule,
+    ReactiveFormsModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
