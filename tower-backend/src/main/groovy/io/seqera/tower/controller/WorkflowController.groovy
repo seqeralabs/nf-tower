@@ -86,7 +86,7 @@ class WorkflowController {
 
     @Get("/{id}")
     @Transactional
-    @Secured(SecurityRule.IS_ANONYMOUS)
+    @Secured(['ROLE_USER'])
     HttpResponse<WorkflowGet> get(Long id) {
         Workflow workflow = workflowService.get(id)
 
