@@ -60,26 +60,26 @@ class ProgressServiceImpl implements ProgressService {
              group by t.process, t.status""", [workflowId: workflowId])
 
         // aggregate tasks by name and status
-        def aggregate = new HashMap<String,ProcessProgress>(20)
+        final workflowProgress = new WorkflowProgress()
+        final aggregate = new HashMap<String,ProcessProgress>(20)
         for( List cols : tasks ) {
-            def name = cols[0] as String
-            def progress = aggregate.get(name)
-            if( progress == null ) {
-                progress = new ProcessProgress(process: name)
-                aggregate.put(name, progress)
+            final row = new ProgressRow(cols)
+            // aggregate by process name
+            def name = row.process
+            def process = aggregate.get(name)
+            if( process == null ) {
+                process = new ProcessProgress(process: name)
+                aggregate.put(name, process)
             }
-            progress.sumCols(cols)
+            process.plus(row)
+            
+            // aggregate all nums for workflow
+            workflowProgress.plus(row)
         }
 
         // aggregate workflow process
         final processProgresses = new ArrayList<ProcessProgress>(aggregate.values()).sort{it.process}
-        final workflowProgress = new WorkflowProgress()
-        for( ProcessProgress p : processProgresses ) {
-            workflowProgress.sumProgress(p)
-        }
-
         new ProgressData(workflowProgress: workflowProgress, processesProgress: processProgresses)
     }
-
 
 }

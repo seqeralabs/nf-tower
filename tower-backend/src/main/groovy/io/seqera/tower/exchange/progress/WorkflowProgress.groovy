@@ -11,10 +11,14 @@
 
 package io.seqera.tower.exchange.progress
 
-import com.fasterxml.jackson.annotation.JsonGetter
-import groovy.transform.CompileStatic
-import io.seqera.tower.domain.ProgressState
+import static io.seqera.tower.enums.TaskStatus.*
 
+import com.fasterxml.jackson.annotation.JsonGetter
+import com.fasterxml.jackson.annotation.JsonIgnore
+import groovy.transform.CompileStatic
+import io.seqera.tower.enums.TaskStatus
+import io.seqera.tower.service.ProgressRow
+import io.seqera.tower.service.ProgressState
 /**
  * Model workflow progress counters
  *
@@ -23,16 +27,12 @@ import io.seqera.tower.domain.ProgressState
 @CompileStatic
 class WorkflowProgress implements ProgressState {
 
-    long running
-    long submitted
-    long failed
-    long pending
-    long succeeded
-    long cached
+    @JsonIgnore
+    final Map<TaskStatus, Long> taskCount = new HashMap<>(10)
 
     long totalCpus
     long cpuTime
-    double cpuLoad
+    float cpuLoad
     long memoryRss
     long memoryReq
     long readBytes
@@ -45,36 +45,39 @@ class WorkflowProgress implements ProgressState {
     long loadMemory
 
     @JsonGetter('memoryEfficiency')
-    double getMemoryEfficiency() {
+    float getMemoryEfficiency() {
         if( memoryReq==0 ) return 0
-        return memoryRss / memoryReq * 100 as double
+        return memoryRss / memoryReq * 100 as float
     }
 
     @JsonGetter('cpuEfficiency')
-    double getCpuEfficiency() {
+    float getCpuEfficiency() {
         if( cpuTime==0 ) return 0
-        return cpuLoad / cpuTime * 100 as double
+        return cpuLoad / cpuTime * 100 as float
     }
 
-    void sumProgress(ProgressState progress) {
+    WorkflowProgress plus(ProgressRow row) {
 
-        pending += progress.pending
-        submitted += progress.submitted
-        running += progress.running
-        succeeded += progress.succeeded
-        failed += progress.failed
-        cached += progress.cached
+        sumTaskCount(row.status, row.count)
 
-        totalCpus += progress.totalCpus
-        cpuTime += progress.cpuTime
-        cpuLoad += progress.cpuLoad
-        memoryRss += progress.memoryRss
-        memoryReq += progress.memoryReq
-        readBytes += progress.readBytes
-        writeBytes += progress.writeBytes
-        volCtxSwitch += progress.volCtxSwitch
-        invCtxSwitch += progress.invCtxSwitch
+        if( row.status == COMPLETED ) {
+            totalCpus += row.totalCpus
+            cpuTime += row.cpuTime
+            cpuLoad += row.cpuLoad
+            memoryRss += row.memoryRss
+            memoryReq += row.memoryReq
+            readBytes += row.readBytes
+            writeBytes += row.writeBytes
+            volCtxSwitch += row.volCtxSwitch
+            invCtxSwitch += row.invCtxSwitch
+        }
+        else if( row.status == RUNNING ) {
+            loadTasks += row.count
+            loadCpus += row.totalCpus
+            loadMemory += row.memoryReq
+        }
 
+        return this
     }
 
 }

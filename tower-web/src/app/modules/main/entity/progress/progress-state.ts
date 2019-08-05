@@ -9,6 +9,7 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 export interface ProgressState {
+
   pending: number;
   running: number;
   cached: number;

@@ -12,6 +12,7 @@
 package io.seqera.tower.service
 
 import grails.gorm.transactions.Transactional
+import groovy.json.JsonSlurper
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.tower.Application
 import io.seqera.tower.exchange.progress.ProcessProgress
@@ -19,10 +20,13 @@ import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.enums.TaskStatus
 import io.seqera.tower.exchange.progress.ProgressData
+import io.seqera.tower.exchange.progress.WorkflowProgress
 import io.seqera.tower.util.AbstractContainerBaseTest
 import io.seqera.tower.util.DomainCreator
 
 import javax.inject.Inject
+
+import io.seqera.tower.util.DomainHelper
 
 @MicronautTest(application = Application.class)
 @Transactional
@@ -129,18 +133,23 @@ class ProgressServiceTest extends AbstractContainerBaseTest {
         progress.workflowProgress.failed == 2
         progress.workflowProgress.succeeded == 3
 
-        progress.workflowProgress.totalCpus == 12
-        progress.workflowProgress.cpuTime == 24
-        progress.workflowProgress.cpuLoad == 2.4d
-        progress.workflowProgress.memoryRss == 12
-        progress.workflowProgress.memoryReq == 24
-        progress.workflowProgress.readBytes == 12
-        progress.workflowProgress.writeBytes == 12
-        progress.workflowProgress.volCtxSwitch == 60
-        progress.workflowProgress.invCtxSwitch == 180
+        progress.workflowProgress.totalCpus == 3
+        progress.workflowProgress.cpuTime == 6
+        progress.workflowProgress.cpuLoad == 0.6f
+        progress.workflowProgress.memoryRss == 3
+        progress.workflowProgress.memoryReq == 6
+        progress.workflowProgress.readBytes == 3
+        progress.workflowProgress.writeBytes == 3
+        progress.workflowProgress.volCtxSwitch == 20
+        progress.workflowProgress.invCtxSwitch == 60
 
-        progress.workflowProgress.cpuEfficiency == 10.0d
-        progress.workflowProgress.memoryEfficiency == 50.0d
+        progress.workflowProgress.cpuEfficiency == 10.0f
+        progress.workflowProgress.memoryEfficiency == 50.0f
+
+        progress.workflowProgress.loadTasks == 2
+        progress.workflowProgress.loadCpus == 2
+        progress.workflowProgress.loadMemory == 4
+
 
 
         then: "the processes progress has been successfully computed"
@@ -154,7 +163,7 @@ class ProgressServiceTest extends AbstractContainerBaseTest {
         progress1.cached == 1
 
         progress1.cpuTime == 12
-        progress1.cpuLoad == 1.2d
+        progress1.cpuLoad == 1.2f
         progress1.totalCpus == 6
         progress1.memoryRss == 6
         progress1.readBytes == 6
@@ -171,7 +180,7 @@ class ProgressServiceTest extends AbstractContainerBaseTest {
         progress2.cached == 1
 
         progress2.cpuTime == 12
-        progress2.cpuLoad == 1.2d
+        progress2.cpuLoad == 1.2f
         progress2.totalCpus == 6
         progress2.memoryRss == 6
         progress2.memoryReq == 12
@@ -181,4 +190,26 @@ class ProgressServiceTest extends AbstractContainerBaseTest {
         progress2.invCtxSwitch == 180
     }
 
+    def 'should serialise progress' () {
+        given:
+        def progress = new WorkflowProgress()
+        progress.taskCount[ TaskStatus.RUNNING ] = 3L
+        progress.taskCount[ TaskStatus.COMPLETED ] = 4L
+        progress.loadMemory = 10
+        progress.cpuTime = 30
+
+        when:
+        def json = DomainHelper.toJson(progress)
+        println json
+        and:
+        Map map = new JsonSlurper().parseText(json)
+        then:
+        map.cpuTime == 30 
+        map.loadMemory == 10
+        map.running == 3
+        map.succeeded == 4
+        map.containsKey('failed')
+        !map.containsKey('aborted')
+        !map.containsKey('taskCount')
+    }
 }
