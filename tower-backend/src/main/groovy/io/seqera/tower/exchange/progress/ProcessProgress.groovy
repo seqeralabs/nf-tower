@@ -9,24 +9,18 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 
-package io.seqera.tower.domain
+package io.seqera.tower.exchange.progress
 
 import static io.seqera.tower.enums.TaskStatus.*
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import grails.gorm.annotation.Entity
-import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.transform.ToString
+import io.seqera.tower.domain.ProgressState
 import io.seqera.tower.enums.TaskStatus
 
+@CompileStatic
 @ToString(includeNames = true, includes = 'pending,running,submitted,succeeded,failed,cached,totalCpus,cpuTime,cpuLoad,memoryRss,memoryReq,readBytes,writeBytes,volCtxSwitch,invCtxSwitch')
-@Entity
-@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version', 'workflow'])
-@CompileDynamic
 class ProcessProgress implements ProgressState {
-
-    static belongsTo = [workflow: Workflow]
 
     String process
 

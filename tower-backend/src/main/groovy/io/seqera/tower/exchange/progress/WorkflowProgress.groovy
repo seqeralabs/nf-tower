@@ -3,29 +3,25 @@
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. 
  *
  * This Source Code Form is "Incompatible With Secondary Licenses", as
  * defined by the Mozilla Public License, v. 2.0.
  */
 
-package io.seqera.tower.domain
+package io.seqera.tower.exchange.progress
 
 import com.fasterxml.jackson.annotation.JsonGetter
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import grails.gorm.annotation.Entity
-import groovy.transform.CompileDynamic
+import groovy.transform.CompileStatic
+import io.seqera.tower.domain.ProgressState
+
 /**
  * Model workflow progress counters
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
-@Entity
-@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version', 'workflow'])
-@CompileDynamic
+@CompileStatic
 class WorkflowProgress implements ProgressState {
-
-    Workflow workflow
 
     long running
     long submitted
@@ -50,12 +46,14 @@ class WorkflowProgress implements ProgressState {
 
     @JsonGetter('memoryEfficiency')
     double getMemoryEfficiency() {
-        memoryReq!=0 ? memoryRss / memoryReq * 100 : 0
+        if( memoryReq==0 ) return 0
+        return memoryRss / memoryReq * 100 as double
     }
 
     @JsonGetter('cpuEfficiency')
     double getCpuEfficiency() {
-        cpuTime!=0 ? cpuLoad / cpuTime * 100 : 0
+        if( cpuTime==0 ) return 0
+        return cpuLoad / cpuTime * 100 as double
     }
 
     void sumProgress(ProgressState progress) {

@@ -58,9 +58,6 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         Workflow.withNewTransaction {
             Workflow.count() == 1
         }
-
-        and: "there is no progress info"
-        !workflow.workflowTasksProgress
     }
 
     void "start a workflow given a started trace, then complete the workflow given a succeeded trace"() {
@@ -109,13 +106,6 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         metrics.first().writes
         metrics.first().cpuUsage
 
-        and: "the tasks progress info has been computed"
-        workflowSucceeded.workflowTasksProgress.running == 0
-        workflowSucceeded.workflowTasksProgress.submitted == 0
-        workflowSucceeded.workflowTasksProgress.failed == 0
-        workflowSucceeded.workflowTasksProgress.pending == 0
-        workflowSucceeded.workflowTasksProgress.succeeded == 0
-        workflowSucceeded.workflowTasksProgress.cached == 0
     }
 
     void "start a workflow given a started trace, then complete the workflow given a failed trace"() {
@@ -167,13 +157,7 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         metrics.first().writes
         metrics.first().cpuUsage
 
-        and: "the progress info has been computed"
-        workflowFailed.workflowTasksProgress.running == 0
-        workflowFailed.workflowTasksProgress.submitted == 0
-        workflowFailed.workflowTasksProgress.failed == 0
-        workflowFailed.workflowTasksProgress.pending == 0
-        workflowFailed.workflowTasksProgress.succeeded == 0
-        workflowFailed.workflowTasksProgress.cached == 0
+
     }
 
     void "start a workflow given a started trace, then try to start the same one"() {

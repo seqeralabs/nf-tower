@@ -17,14 +17,12 @@ import java.time.OffsetDateTime
 
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
-import io.seqera.tower.domain.ProcessProgress
-import io.seqera.tower.domain.WorkflowComment
-import io.seqera.tower.domain.WorkflowMetrics
 import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.User
 import io.seqera.tower.domain.Workflow
+import io.seqera.tower.domain.WorkflowComment
+import io.seqera.tower.domain.WorkflowMetrics
 import io.seqera.tower.exceptions.NonExistingWorkflowException
-import io.seqera.tower.exchange.progress.ProgressData
 import io.seqera.tower.exchange.trace.TraceWorkflowRequest
 
 @Transactional
@@ -74,7 +72,6 @@ class WorkflowServiceImpl implements WorkflowService {
 
         updateChangeableFields(existingWorkflow, workflow)
         associateMetrics(existingWorkflow, metrics)
-        associateProgress(existingWorkflow)
 
         existingWorkflow.save()
         existingWorkflow
@@ -97,16 +94,6 @@ class WorkflowServiceImpl implements WorkflowService {
         for( WorkflowMetrics metrics : allMetrics ) {
             metrics.workflow = workflow
             metrics.save()
-        }
-    }
-
-    private void associateProgress(Workflow workflow) {
-        if (!workflow.checkIsStarted()) {
-            ProgressData progress = progressService.computeWorkflowProgress(workflow.id)
-            workflow.workflowTasksProgress = progress.workflowProgress
-            progress.processesProgress.each { ProcessProgress processProgress ->
-                workflow.addToProcessesProgress(processProgress)
-            }
         }
     }
 

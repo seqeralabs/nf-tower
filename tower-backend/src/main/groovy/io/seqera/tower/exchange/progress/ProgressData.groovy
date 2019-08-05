@@ -11,9 +11,6 @@
 
 package io.seqera.tower.exchange.progress
 
-import io.seqera.tower.domain.ProcessProgress
-import io.seqera.tower.domain.WorkflowProgress
-
 class ProgressData {
 
     WorkflowProgress workflowProgress
