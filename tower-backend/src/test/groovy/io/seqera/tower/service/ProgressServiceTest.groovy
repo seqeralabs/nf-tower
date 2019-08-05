@@ -14,7 +14,7 @@ package io.seqera.tower.service
 import grails.gorm.transactions.Transactional
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.tower.Application
-import io.seqera.tower.domain.ProcessProgress
+import io.seqera.tower.exchange.progress.ProcessProgress
 import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.enums.TaskStatus

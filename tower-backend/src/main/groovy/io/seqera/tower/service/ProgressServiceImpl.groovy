@@ -16,12 +16,12 @@ import javax.inject.Singleton
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
 import groovy.util.logging.Slf4j
-import io.seqera.tower.domain.ProcessProgress
 import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.domain.WorkflowMetrics
-import io.seqera.tower.domain.WorkflowProgress
+import io.seqera.tower.exchange.progress.ProcessProgress
 import io.seqera.tower.exchange.progress.ProgressData
+import io.seqera.tower.exchange.progress.WorkflowProgress
 import io.seqera.tower.exchange.workflow.WorkflowGet
 
 @Slf4j
@@ -29,17 +29,13 @@ import io.seqera.tower.exchange.workflow.WorkflowGet
 @Singleton
 class ProgressServiceImpl implements ProgressService {
 
-    @CompileDynamic  // <-- TODO make this static removing the `findAllByWorkflow` dynamic finder 
+    @CompileDynamic
     WorkflowGet buildWorkflowGet(Workflow workflow) {
         WorkflowGet result = new WorkflowGet(workflow: workflow)
-
-        if (workflow.checkIsStarted()) {
-            result.progress = computeWorkflowProgress(workflow.id)
-        } else {
-            result.progress = new ProgressData(workflowProgress: workflow.workflowTasksProgress, processesProgress: workflow.processesProgress.sort { it.process })
+        result.progress = computeWorkflowProgress(workflow.id)
+        if( workflow.complete ) {
             result.metrics = WorkflowMetrics.findAllByWorkflow(workflow)
         }
-
         return result
     }
 

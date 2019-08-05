@@ -23,7 +23,6 @@ import io.seqera.tower.domain.UserRole
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.domain.WorkflowComment
 import io.seqera.tower.domain.WorkflowMetrics
-import io.seqera.tower.domain.WorkflowProgress
 import io.seqera.tower.enums.TaskStatus
 import org.grails.datastore.mapping.validation.ValidationException
 import org.hibernate.Session
@@ -105,14 +104,6 @@ class DomainCreator {
         fields.submit = fields.containsKey('submit') ? fields.submit : OffsetDateTime.now()
 
         createInstance(task, fields)
-    }
-
-    WorkflowProgress createWorkflowTasksProgress(Map fields = [:]) {
-        WorkflowProgress workflowTasksProgress = new WorkflowProgress()
-
-        fields.workflow = fields.containsKey('workflow') ? fields.workflow : createWorkflow()
-
-        createInstance(workflowTasksProgress, fields)
     }
 
     WorkflowMetrics createWorkflowMetrics(Workflow workflow, Map fields = [:]) {
