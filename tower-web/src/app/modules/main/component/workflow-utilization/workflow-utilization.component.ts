@@ -10,6 +10,7 @@
  */
 import {AfterViewInit, Component, Input, OnChanges, OnInit} from '@angular/core';
 import {Workflow} from "../../entity/workflow/workflow";
+import {WorkflowProgress} from "../../entity/progress/workflow-progress";
 
 @Component({
   selector: 'wt-workflow-utilization',
@@ -19,7 +20,7 @@ import {Workflow} from "../../entity/workflow/workflow";
 export class WorkflowUtilizationComponent implements OnInit, OnChanges {
 
   @Input()
-  workflow: Workflow;
+  workflowProgress: WorkflowProgress;
 
 
   memoryDonutSeries: any;
@@ -57,14 +58,14 @@ export class WorkflowUtilizationComponent implements OnInit, OnChanges {
   }
 
   private computeMemoryDonutSeries(): void {
-    const memoryEfficiency: number = this.workflow.progress.workflowProgress.data.memoryEfficiency;
+    const memoryEfficiency: number = this.workflowProgress.data.memoryEfficiency;
     const unused = 100 - memoryEfficiency;
 
     this.memoryDonutSeries = this.computeDonutBinarySeries(memoryEfficiency, unused);
   }
 
   private computeCpuDonutSeries(): void {
-    const cpuEfficiency: number = this.workflow.progress.workflowProgress.data.cpuEfficiency;
+    const cpuEfficiency: number = this.workflowProgress.data.cpuEfficiency;
     const unused = 100 - cpuEfficiency;
 
     this.cpuDonutSeries = this.computeDonutBinarySeries(cpuEfficiency, unused);
