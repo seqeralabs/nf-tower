@@ -9,19 +9,19 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 
-import {AfterContentInit, AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import { Component, OnInit} from '@angular/core';
 import {User} from "../../entity/user/user";
 import {AuthService} from "../../service/auth.service";
 import {Router} from "@angular/router";
 import {Workflow} from "../../entity/workflow/workflow";
 import {WorkflowService} from "../../service/workflow.service";
 import {ServerSentEventsWorkflowService} from "../../service/server-sent-events-workflow.service";
-import {Task} from "../../entity/task/task";
 import {SseError} from "../../entity/sse/sse-error";
 import {Subscription} from "rxjs";
 import {NotificationService} from "../../service/notification.service";
 import {SseHeartbeat} from "../../entity/sse/sse-heartbeat";
 import {FilteringParams} from "../../util/filtering-params";
+import {intersectionBy} from "lodash";
 
 @Component({
   selector: 'wt-home',
@@ -35,7 +35,9 @@ export class HomeComponent implements OnInit {
   private liveEventsSubscription: Subscription;
 
   shouldLoadLandingPage: boolean;
-  isSearchingText: boolean;
+
+  isSearchActive: boolean;
+  isSearchTriggered: boolean;
 
   constructor(private authService: AuthService,
               private workflowService: WorkflowService,
@@ -54,13 +56,17 @@ export class HomeComponent implements OnInit {
           return;
         }
 
-        this.workflowService.workflows$.subscribe( (workflows: Workflow[]) => {
-          this.workflows = workflows;
-          this.subscribeToWorkflowListLiveEvents();
-        });
+        this.workflowService.workflows$.subscribe( (workflows: Workflow[]) => this.reactToWorkflowsEmission(workflows));
 
       }
     )
+  }
+
+  private reactToWorkflowsEmission(emittedWorkflows: Workflow[]): void {
+    this.workflows = (!this.isSearchActive || this.isSearchTriggered) ? emittedWorkflows : intersectionBy(this.workflows, emittedWorkflows, (workflow: Workflow) => workflow.data.workflowId);
+    this.subscribeToWorkflowListLiveEvents();
+
+    this.isSearchTriggered = false;
   }
 
   private subscribeToWorkflowListLiveEvents(): void {
@@ -91,11 +97,11 @@ export class HomeComponent implements OnInit {
   }
 
   get shouldLoadSidebar(): boolean {
-    return (this.user && (this.isSearchingText || this.areWorkflowsInitiatied) && (this.isAtRoot || this.router.url.startsWith('/workflow')));
+    return (this.user && (this.isSearchActive || this.areWorkflowsInitiatied) && (this.isAtRoot || this.router.url.startsWith('/workflow')));
   }
 
   get shouldLoadWelcomeMessage(): boolean {
-    return (this.user && (!this.isSearchingText || !this.areWorkflowsInitiatied) && this.isAtRoot);
+    return (this.user && (!this.isSearchActive || !this.areWorkflowsInitiatied) && this.isAtRoot);
   }
 
   private get areWorkflowsInitiatied() {
@@ -113,7 +119,8 @@ export class HomeComponent implements OnInit {
   }
 
   searchWorkflows(filteringParams: FilteringParams) {
-    this.isSearchingText = filteringParams.isSearchText;
+    this.isSearchActive = filteringParams.isSearchText;
+    this.isSearchTriggered = true;
 
     this.workflowService.emitWorkflowsFromServer(filteringParams);
   }
