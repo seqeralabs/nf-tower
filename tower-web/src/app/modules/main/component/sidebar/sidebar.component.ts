@@ -8,7 +8,7 @@
  * This Source Code Form is "Incompatible With Secondary Licenses", as
  * defined by the Mozilla Public License, v. 2.0.
  */
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
 import {Workflow} from "src/app/modules/main/entity/workflow/workflow";
 import {WorkflowService} from "src/app/modules/main/service/workflow.service";
@@ -17,33 +17,44 @@ import {NotificationService} from "src/app/modules/main/service/notification.ser
 import { ActivatedRoute, Router, NavigationEnd, Params } from '@angular/router';
 import {debounceTime, distinctUntilChanged, filter} from 'rxjs/operators';
 import {FormControl} from "@angular/forms";
+import {FilteringParams} from "../../util/filtering-params";
 
 @Component({
   selector: 'wt-sidebar',
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.scss']
 })
-export class SidebarComponent implements OnInit, OnDestroy {
+export class SidebarComponent implements OnInit, OnDestroy, OnChanges {
 
   @Input()
   workflows: Workflow[];
 
-  searchBoxFormControl: FormControl;
+  @Output()
+  onDeleteWorkflow: EventEmitter<Workflow> = new EventEmitter();
+  @Output()
+  onSearchingWorkflows: EventEmitter<FilteringParams> = new EventEmitter();
+
+  searchBoxFormControl: FormControl = new FormControl();
+  offset: number = 0;
+  isSearchTriggered: boolean;
 
   currentId: string | number;
+  workflowToDelete: Workflow;
+
+
 
   constructor(private httpClient: HttpClient,
-              private notificationService: NotificationService,
               private authService: AuthService,
               private workflowService: WorkflowService,
               private router: Router,
-              private route: ActivatedRoute) {
-    this.searchBoxFormControl = new FormControl();
-  }
+              private route: ActivatedRoute) {}
 
 
   ngOnInit() {
-    this.goToFirstWorkflow();
+    if (this.router.url == '/') {
+      this.goToFirstWorkflow();
+    }
+
     this.currentId = this.route.snapshot.paramMap.get('id');
     // magic hack to get the current selected workflow id from the url params
     // https://github.com/angular/angular/issues/11023#issuecomment-399667101
@@ -56,51 +67,54 @@ export class SidebarComponent implements OnInit, OnDestroy {
         });
       });
 
-    this.searchBoxFormControl.valueChanges.pipe(
-      debounceTime(500),
-      distinctUntilChanged()
-    ).subscribe((text: string) => {
-      console.log('The text', text);
-      this.workflowService.emitWorkflowsFromServer(null, 0, text);
-    });
+    this.subscribeToSearchTextInput();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (!changes.workflows) {
+      return;
+    }
+
+    if (this.workflowToDelete && this.workflowToDelete.data.workflowId == this.currentId) {
+      this.workflowToDelete = null;
+      this.goToFirstWorkflow()
+    }
+
+    this.isSearchTriggered = this.isSearchTriggered ? false : this.isSearchTriggered;
   }
 
   ngOnDestroy(): void {
     this.router.navigate(['/'])
   }
 
+  private subscribeToSearchTextInput(): void {
+    this.searchBoxFormControl.valueChanges.pipe(
+      debounceTime(500),
+      distinctUntilChanged()
+    ).subscribe((text: string) => this.searchWorkflows(text));
+  }
+
+  private searchWorkflows(searchText: string) {
+    this.isSearchTriggered = true;
+    this.onSearchingWorkflows.next(new FilteringParams(10, this.offset, searchText));
+  }
+
   private goToFirstWorkflow(): void {
-    if (this.router.url == '/') {
-      this.showWorkflowDetail(this.workflows[0]);
-    }
+    this.showWorkflowDetail(this.workflows[0]);
   }
 
   showWorkflowDetail(workflow: Workflow): void {
     this.router.navigate([`/workflow/${workflow.data.workflowId}`])
   }
 
-  deleteWorkflow(workflowToDelete: Workflow) {
-    const confirm = prompt(`Please confirm the deletion of the workflow '${workflowToDelete.data.runName}' typing its name below (operation is not recoverable):`);
-    if (confirm != workflowToDelete.data.runName) {
+  deleteWorkflow(workflow: Workflow) {
+    const confirm = prompt(`Please confirm the deletion of the workflow '${workflow.data.runName}' typing its name below (operation is not recoverable):`);
+    if (confirm != workflow.data.runName) {
       return;
     }
 
-    const oldWorkflowsSize: number = this.workflows.length;
-    this.workflowService.deleteWorkflow(workflowToDelete).subscribe(
-      () => {},
-      (errorMessage: string) => this.notificationService.showErrorNotification(errorMessage),
-      () => {
-        if( workflowToDelete.data.workflowId != this.currentId ) {
-          return;
-        }
-
-        setTimeout(() => {
-          if (oldWorkflowsSize > 1) {
-            this.showWorkflowDetail(this.workflows[0])
-          }
-        });
-      }
-    );
+    this.workflowToDelete = workflow;
+    this.onDeleteWorkflow.next(workflow);
   }
 
 }

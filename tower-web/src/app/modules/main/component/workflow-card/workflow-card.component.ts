@@ -29,9 +29,7 @@ export class WorkflowCardComponent implements OnInit {
   @Output()
   onDeleteWorkflow: EventEmitter<Workflow> = new EventEmitter();
 
-  constructor(private httpClient: HttpClient,
-              private notificationService: NotificationService,
-              private workflowService: WorkflowService) {
+  constructor() {
   }
 
   ngOnInit() {
