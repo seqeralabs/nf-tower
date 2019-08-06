@@ -9,7 +9,7 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 
-import { Component, OnInit} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {User} from "../../entity/user/user";
 import {AuthService} from "../../service/auth.service";
 import {Router} from "@angular/router";
@@ -21,7 +21,7 @@ import {Subscription} from "rxjs";
 import {NotificationService} from "../../service/notification.service";
 import {SseHeartbeat} from "../../entity/sse/sse-heartbeat";
 import {FilteringParams} from "../../util/filtering-params";
-import {intersectionBy} from "lodash";
+import {intersectionBy, concat} from "lodash";
 
 @Component({
   selector: 'wt-home',
@@ -36,8 +36,10 @@ export class HomeComponent implements OnInit {
 
   shouldLoadLandingPage: boolean;
 
-  isSearchActive: boolean;
+  searchingText: string;
+  offset: number = 0;
   isSearchTriggered: boolean;
+  isLoadingNextPage: boolean;
 
   constructor(private authService: AuthService,
               private workflowService: WorkflowService,
@@ -63,10 +65,24 @@ export class HomeComponent implements OnInit {
   }
 
   private reactToWorkflowsEmission(emittedWorkflows: Workflow[]): void {
-    this.workflows = (!this.isSearchActive || this.isSearchTriggered) ? emittedWorkflows : intersectionBy(this.workflows, emittedWorkflows, (workflow: Workflow) => workflow.data.workflowId);
+    if (this.isLoadingNextPage && emittedWorkflows.length > 0) {
+      console.log('Loading next page', this.isLoadingNextPage, emittedWorkflows);
+      this.workflows = concat(this.workflows, emittedWorkflows);
+      this.offset += emittedWorkflows.length;
+
+    } else if (!this.isLoadingNextPage && !this.isSearchActive || this.isSearchTriggered) {
+      console.log('Searching or updating', this.isLoadingNextPage, this.isSearchActive, this.isSearchTriggered);
+      this.workflows = emittedWorkflows;
+
+    } else if (!this.isLoadingNextPage) {
+      this.workflows = intersectionBy(this.workflows, emittedWorkflows, (workflow: Workflow) => workflow.data.workflowId);
+
+    }
+
     this.subscribeToWorkflowListLiveEvents();
 
     this.isSearchTriggered = false;
+    this.isLoadingNextPage = false;
   }
 
   private subscribeToWorkflowListLiveEvents(): void {
@@ -108,21 +124,43 @@ export class HomeComponent implements OnInit {
     return (this.workflows && (this.workflows.length > 0));
   }
 
+  private get isSearchActive(): boolean {
+    return (this.searchingText != null  && this.searchingText.length > 0);
+  }
+
   deleteWorkflow(workflowToDelete: Workflow) {
     this.workflowService.deleteWorkflow(workflowToDelete).subscribe(
        () => {},
-       (errorMessage: string) => this.notificationService.showErrorNotification(errorMessage),
-       () => {
-
-    }
+       (errorMessage: string) => this.notificationService.showErrorNotification(errorMessage)
     );
   }
 
-  searchWorkflows(filteringParams: FilteringParams) {
-    this.isSearchActive = filteringParams.isSearchText;
+  searchWorkflows(searchText: string) {
+    this.searchingText = searchText;
     this.isSearchTriggered = true;
 
-    this.workflowService.emitWorkflowsFromServer(filteringParams);
+    this.offset = 0;
+    this.workflowService.emitWorkflowsFromServer(new FilteringParams(10, this.offset, searchText));
+  }
+
+  onSidebarScroll(event) {
+    //Check if the end of the container has been reached: https://stackoverflow.com/a/50038429
+    const isScrollEndReached = (event.target.offsetHeight + event.target.scrollTop >= event.target.scrollHeight);
+    if (!isScrollEndReached) {
+      return;
+    }
+
+    console.log('End reached');
+    this.loadNewPage();
+  }
+
+  private loadNewPage(): void {
+    if (this.isLoadingNextPage) {
+      return;
+    }
+
+    this.isLoadingNextPage = true;
+    this.workflowService.emitWorkflowsFromServer(new FilteringParams(10, this.offset + 10, this.searchingText))
   }
 
 }

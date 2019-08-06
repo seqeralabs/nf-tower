@@ -32,7 +32,7 @@ export class SidebarComponent implements OnInit, OnDestroy, OnChanges {
   @Output()
   onDeleteWorkflow: EventEmitter<Workflow> = new EventEmitter();
   @Output()
-  onSearchingWorkflows: EventEmitter<FilteringParams> = new EventEmitter();
+  onSearchingWorkflows: EventEmitter<string> = new EventEmitter();
 
   searchBoxFormControl: FormControl = new FormControl();
   offset: number = 0;
@@ -94,9 +94,9 @@ export class SidebarComponent implements OnInit, OnDestroy, OnChanges {
     ).subscribe((text: string) => this.searchWorkflows(text));
   }
 
-  private searchWorkflows(searchText: string) {
+  private searchWorkflows(searchText: string): void {
     this.isSearchTriggered = true;
-    this.onSearchingWorkflows.next(new FilteringParams(10, this.offset, searchText));
+    this.onSearchingWorkflows.next(searchText);
   }
 
   private goToFirstWorkflow(): void {
@@ -111,7 +111,7 @@ export class SidebarComponent implements OnInit, OnDestroy, OnChanges {
     this.router.navigate([`/workflow/${workflow.data.workflowId}`])
   }
 
-  deleteWorkflow(workflow: Workflow) {
+  deleteWorkflow(workflow: Workflow): void {
     const confirm = prompt(`Please confirm the deletion of the workflow '${workflow.data.runName}' typing its name below (operation is not recoverable):`);
     if (confirm != workflow.data.runName) {
       return;

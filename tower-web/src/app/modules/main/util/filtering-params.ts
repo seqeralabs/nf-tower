@@ -22,10 +22,6 @@ export class FilteringParams {
     this.search = search;
   }
 
-  get isSearchText(): boolean {
-    return (this.search && this.search.length > 0);
-  }
-
   toHttpParams(): HttpParams {
     const rawParams: any = {};
     if (this.max != null) rawParams.max = `${this.max}`;

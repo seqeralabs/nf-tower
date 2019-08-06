@@ -2,9 +2,20 @@
 
 <wt-navbar *ngIf="!shouldLoadLandingPage"></wt-navbar>
 <div *ngIf="!shouldLoadLandingPage" id="layout">
-  <div id="sidebar" *ngIf="shouldLoadSidebar">
+
+  <div id="sidebar" *ngIf="shouldLoadSidebar" (scroll)="onSidebarScroll($event)">
     <wt-sidebar [workflows]="workflows" (onDeleteWorkflow)="deleteWorkflow($event)"
-                (onSearchingWorkflows)="searchWorkflows($event)"></wt-sidebar>
+                (onSearchingWorkflows)="searchWorkflows($event)">
+    </wt-sidebar>
+
+    <div class="row load-gap">
+      <div *ngIf="!isLoadingNextPage" class="mdi mdi-infinity m-auto"></div>
+      <div *ngIf="isLoadingNextPage" class="spinner-grow m-auto" role="status">
+        <span class="sr-only">Loading...</span>
+      </div>
+    </div>
+
+
   </div>
 
   <div id="central">
