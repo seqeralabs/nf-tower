@@ -16,6 +16,11 @@
       </div>
     </div>
     <div class="card-body">
+      <div class="row mb-4" *ngIf="workflow.isFailed">
+        <div class="col">
+          <wt-workflow-error [workflow]="workflow"></wt-workflow-error>
+        </div>
+      </div>
       <div class="row mb-4">
         <div class="col">
           <wt-workflow-main-tabs [workflow]="workflow"></wt-workflow-main-tabs>
