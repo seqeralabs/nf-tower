@@ -21,6 +21,7 @@ import {SseError} from "../../entity/sse/sse-error";
 import {Subscription} from "rxjs";
 import {NotificationService} from "../../service/notification.service";
 import {SseHeartbeat} from "../../entity/sse/sse-heartbeat";
+import {FilteringParams} from "../../util/filtering-params";
 
 @Component({
   selector: 'wt-home',
@@ -34,6 +35,7 @@ export class HomeComponent implements OnInit {
   private liveEventsSubscription: Subscription;
 
   shouldLoadLandingPage: boolean;
+  isSearchingText: boolean;
 
   constructor(private authService: AuthService,
               private workflowService: WorkflowService,
@@ -89,15 +91,31 @@ export class HomeComponent implements OnInit {
   }
 
   get shouldLoadSidebar(): boolean {
-    return (this.user && this.areWorkflowsInitiatied && (this.isAtRoot || this.router.url.startsWith('/workflow')))
+    return (this.user && (this.isSearchingText || this.areWorkflowsInitiatied) && (this.isAtRoot || this.router.url.startsWith('/workflow')));
   }
 
   get shouldLoadWelcomeMessage(): boolean {
-    return (this.user && !this.areWorkflowsInitiatied && this.isAtRoot);
+    return (this.user && (!this.isSearchingText || !this.areWorkflowsInitiatied) && this.isAtRoot);
   }
 
   private get areWorkflowsInitiatied() {
     return (this.workflows && (this.workflows.length > 0));
+  }
+
+  deleteWorkflow(workflowToDelete: Workflow) {
+    this.workflowService.deleteWorkflow(workflowToDelete).subscribe(
+       () => {},
+       (errorMessage: string) => this.notificationService.showErrorNotification(errorMessage),
+       () => {
+
+    }
+    );
+  }
+
+  searchWorkflows(filteringParams: FilteringParams) {
+    this.isSearchingText = filteringParams.isSearchText;
+
+    this.workflowService.emitWorkflowsFromServer(filteringParams);
   }
 
 }

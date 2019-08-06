@@ -17,6 +17,7 @@ import {map, tap} from 'rxjs/operators';
 import {findIndex, orderBy} from 'lodash';
 import {Progress} from '../entity/progress/progress';
 import {NotificationService} from './notification.service';
+import {FilteringParams} from "../util/filtering-params";
 
 
 const endpointUrl = `${environment.apiUrl}/workflow`;
@@ -38,7 +39,7 @@ export class WorkflowService {
   get workflows$(): Observable<Workflow[]> {
     if (this.isWorkflowsCacheEmpty()) {
       console.log('Initializing workflows');
-      this.emitWorkflowsFromServer();
+      this.emitWorkflowsFromServer(new FilteringParams(10, 0, null));
     } else {
       console.log('Getting workflows from cache');
       this.emitWorkflowsFromCache();
@@ -47,8 +48,8 @@ export class WorkflowService {
     return this.workflowsSubject.asObservable();
   }
 
-  emitWorkflowsFromServer(max?: number, offset?: number, searchText?: string): void {
-    this.requestWorkflowList(max, offset, searchText).subscribe((workflows: Workflow[]) => this.workflowsSubject.next(workflows));
+  emitWorkflowsFromServer(filteringParams: FilteringParams): void {
+    this.requestWorkflowList(filteringParams).subscribe((workflows: Workflow[]) => this.workflowsSubject.next(workflows));
   }
 
   private emitWorkflowsFromCache(): void {
@@ -56,18 +57,10 @@ export class WorkflowService {
     this.workflowsSubject.next(orderBy(cachedWorkflows, [(w: Workflow) => w.data.start], ['desc']));
   }
 
-  private requestWorkflowList(max?: number, offset?: number, searchText?: string): Observable<Workflow[]> {
+  private requestWorkflowList(filteringParams: FilteringParams): Observable<Workflow[]> {
     const url = `${endpointUrl}/list`;
 
-    const rawParams: any = {};
-    if (max != null) rawParams.max = `${max}`;
-    if (offset != null) rawParams.offset = `${offset}`;
-    if (searchText != null) rawParams.search = searchText;
-    const httpParams = new HttpParams({
-      fromObject: rawParams
-    });
-
-    return this.http.get(url, {params: httpParams}).pipe(
+    return this.http.get(url, { params: filteringParams.toHttpParams() }).pipe(
       map((data: any) => data.workflows ? data.workflows.map((item: any) => new Workflow(item)) : []),
       tap((workflows: Workflow[]) => workflows.forEach((workflow: Workflow) => this.workflowsByIdCache.set(workflow.data.workflowId, workflow)))
     );
