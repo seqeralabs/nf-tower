@@ -100,7 +100,11 @@ export class SidebarComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   private goToFirstWorkflow(): void {
-    this.showWorkflowDetail(this.workflows[0]);
+    if (this.workflows.length > 0) {
+      this.showWorkflowDetail(this.workflows[0]);
+    } else {
+      this.router.navigate(['/']);
+    }
   }
 
   showWorkflowDetail(workflow: Workflow): void {
