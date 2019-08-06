@@ -21,16 +21,11 @@ export class WorkflowLoadComponent implements OnInit {
   @Input()
   workflow: Workflow;
 
-
   coresGaugeSeries: any;
   tasksGaugeSeries: any;
 
-  coreGaugeOptions: any = {
-    donut: true, donutWidth: 10, startAngle: 270, total: 6000
-  };
-  taskGaugeOptions: any = {
-    donut: true, donutWidth: 10, startAngle: 270, total: 6000
-  };
+  coreGaugeOptions: any;
+  taskGaugeOptions; any;
 
   donutEvents: any = {
     draw: this.centerTextInGauge
@@ -39,11 +34,23 @@ export class WorkflowLoadComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
+    const maxTasks: number = this.workflow.data.peakLoadTasks;
+    const maxCores: number = this.workflow.data.peakLoadCpus;
+    console.log(`Donut init maxCores=${maxCores}; maxTasks=${maxTasks}`);
+    this.coreGaugeOptions = this.computeGaugeOptions(maxCores);
+    this.taskGaugeOptions = this.computeGaugeOptions(maxTasks);
   }
 
   ngOnChanges(): void {
-    this.computeCoreGaugeSeries();
-    this.computeTaskGaugeSeries();
+    const maxTasks: number = this.workflow.data.peakLoadTasks;
+    const maxCores: number = this.workflow.data.peakLoadCpus;
+    const loadTasks: number = this.workflow.progress.workflowProgress.loadTasks;
+    const loadCores: number = this.workflow.progress.workflowProgress.loadCpus;
+    console.log(`Donut update loadCores=${loadCores}; maxCores=${maxCores}; loadTasks=${loadTasks} maxTasks=${maxTasks}`);
+    this.coreGaugeOptions = this.computeGaugeOptions(maxCores);
+    this.taskGaugeOptions = this.computeGaugeOptions(maxTasks);
+    this.coresGaugeSeries = this.computeGaugeBinarySeries(loadCores, maxCores);
+    this.tasksGaugeSeries = this.computeGaugeBinarySeries(loadTasks, maxTasks);
   }
 
   private centerTextInGauge(ctx): void {
@@ -58,31 +65,11 @@ export class WorkflowLoadComponent implements OnInit {
     }
   }
 
-  private computeCoreGaugeSeries(): void {
-    const cores: number = Math.floor(Math.random() * (this.coreGaugeOptions.total / 2));
-    const unused = 3000 - cores;
-
-    this.coresGaugeSeries = this.computeGaugeBinarySeries(cores, unused);
+  private computeGaugeOptions(total: number): any {
+    return { donut: true, donutWidth: 10, startAngle: 270, total: total*2 };
   }
 
-  private computeTaskGaugeSeries(): void {
-    const tasks: number = Math.floor(Math.random() * (this.taskGaugeOptions.total / 2));
-    const unused = 3000 - tasks;
-
-    this.tasksGaugeSeries = this.computeGaugeBinarySeries(tasks, unused);
-  }
-
-  private computeCoreGaugeOptions(): void {
-    const total: number = Math.floor(Math.random() * 3000) * 2;
-    this.coreGaugeOptions = {donut: true, donutWidth: 10, startAngle: 270, total: total}
-  }
-
-  private computeTasksGaugeOptions(): void {
-    const total: number = Math.floor(Math.random() * 3000) * 2;
-    this.taskGaugeOptions = {donut: true, donutWidth: 10, startAngle: 270, total: total}
-  }
-
-  private computeGaugeBinarySeries(filledValue: number, emptyValue: number): any[] {
+  private computeGaugeBinarySeries(filledValue: number, totalValue: number): any[] {
     return [
       {
         className: 'ct-filled',
@@ -90,7 +77,7 @@ export class WorkflowLoadComponent implements OnInit {
       },
       {
         className: 'ct-empty',
-        value: emptyValue
+        value: totalValue-filledValue
       }
     ];
   }
