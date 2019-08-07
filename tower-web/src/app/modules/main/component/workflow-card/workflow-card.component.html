@@ -9,7 +9,7 @@
     <p class="mb-0"><span class="mdi mdi-calendar"></span> Started: {{workflow.getWorkflowStartDateFormatted('ddd MMM D YYYY hh:mm:ss')}} </p>
 
     <div class="btn-delete">
-      <button type="button" class="btn btn-outline-danger btn-sm" (click)="deleteWorkflow(workflow, $event)"><span class="mdi mdi-trash-can"></span></button>
+      <button type="button" class="btn btn-outline-danger btn-sm" [disabled]="workflow.isStarted" (click)="deleteWorkflow(workflow, $event)"><span class="mdi mdi-trash-can"></span></button>
     </div>
   </div>
 </div>
