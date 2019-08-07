@@ -67,6 +67,8 @@ dependencies {
     compile 'io.micronaut.configuration:micronaut-flyway:1.1.0'
     compile "ch.qos.logback:logback-classic:1.2.3"
 
+    annotationProcessor "io.micronaut.configuration:micronaut-openapi"
+    compile "io.swagger.core.v3:swagger-annotations"
     testCompile "io.micronaut:micronaut-inject-groovy"
     testCompile("org.spockframework:spock-core") {
         exclude group: "org.codehaus.groovy", module: "groovy-all"
