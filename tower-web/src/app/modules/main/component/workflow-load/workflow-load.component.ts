@@ -22,10 +22,6 @@ export class WorkflowLoadComponent implements OnInit, OnChanges {
 
   @Input()
   workflowProgress: WorkflowProgress;
-  @Input()
-  maxTasks: number;
-  @Input()
-  maxCores: number;
 
   coresGaugeSeries: any;
   tasksGaugeSeries: any;
@@ -43,11 +39,11 @@ export class WorkflowLoadComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(): void {
-    console.log(`Gauge update loadCores=${this.workflowProgress.loadCpus}; maxCores=${this.maxCores}; loadTasks=${this.workflowProgress.loadTasks} maxTasks=${this.maxTasks}`);
-    this.coreGaugeOptions = this.computeGaugeOptions(this.maxCores);
-    this.taskGaugeOptions = this.computeGaugeOptions(this.maxTasks);
-    this.coresGaugeSeries = this.computeGaugeBinarySeries(this.workflowProgress.loadCpus, this.maxCores);
-    this.tasksGaugeSeries = this.computeGaugeBinarySeries(this.workflowProgress.loadTasks, this.maxTasks);
+    console.log(`Gauge update loadCores=${this.workflowProgress.loadCpus}; maxCores=${this.workflowProgress.peakLoadCpus}; loadTasks=${this.workflowProgress.loadTasks} maxTasks=${this.workflowProgress.peakLoadTasks}`);
+    this.coreGaugeOptions = this.computeGaugeOptions(this.workflowProgress.peakLoadCpus);
+    this.taskGaugeOptions = this.computeGaugeOptions(this.workflowProgress.peakLoadTasks);
+    this.coresGaugeSeries = this.computeGaugeBinarySeries(this.workflowProgress.loadCpus, this.workflowProgress.peakLoadCpus);
+    this.tasksGaugeSeries = this.computeGaugeBinarySeries(this.workflowProgress.loadTasks, this.workflowProgress.peakLoadTasks);
   }
 
   private centerTextInGauge(ctx): void {

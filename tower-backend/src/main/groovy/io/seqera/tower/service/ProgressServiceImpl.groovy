@@ -43,7 +43,7 @@ class ProgressServiceImpl implements ProgressService {
         return result
     }
 
-    void updatePeaks(Workflow workflow, WorkflowProgress progress) {
+    private void updatePeaks(Workflow workflow, WorkflowProgress progress) {
 
         if( workflow.peakLoadCpus < progress.loadCpus ) {
             workflow.peakLoadCpus = progress.loadCpus
@@ -54,6 +54,11 @@ class ProgressServiceImpl implements ProgressService {
         if( workflow.peakLoadMemory < progress.loadMemory ) {
             workflow.peakLoadMemory = progress.loadMemory
         }
+
+        progress.peakLoadCpus = workflow.peakLoadCpus
+        progress.peakLoadTasks = workflow.peakLoadTasks
+        progress.peakLoadMemory = workflow.peakLoadMemory
+
         if( workflow.isDirty() )
             workflow.save()
     }
