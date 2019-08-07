@@ -27,9 +27,8 @@ export class Workflow {
     }
   }
 
-
-  get isStarted(): boolean {
-    return (this.computeStatus() === WorkflowStatus.STARTED);
+  get isRunning(): boolean {
+    return (this.computeStatus() === WorkflowStatus.RUNNING);
   }
 
   get isSuccessful(): boolean {
@@ -45,11 +44,11 @@ export class Workflow {
   }
 
   get isCompleted(): boolean {
-    return !this.isStarted;
+    return !this.isRunning;
   }
 
   private computeStatus(): WorkflowStatus {
-    return (!this.data.complete)                               ? WorkflowStatus.STARTED   :
+    return (!this.data.complete)                               ? WorkflowStatus.RUNNING   :
            (this.data.success && this.data.stats.ignoredCount) ? WorkflowStatus.PARTIAL_FAILED :
            (this.data.success)                                 ? WorkflowStatus.SUCCEEDED :
                                                                  WorkflowStatus.FAILED

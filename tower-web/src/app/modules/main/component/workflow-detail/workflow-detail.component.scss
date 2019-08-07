@@ -7,8 +7,8 @@
   border-left: 0;
   border-right: 0;
 
-  &.started {
-    border-top-color: $started-blue;
+  &.running {
+    border-top-color: $running-blue;
   }
 
   &.succeed {
@@ -31,7 +31,7 @@
 
 
 .spinner-border {
-  color: $started-blue;
+  color: $running-blue;
   font-size: 5px;
   width: 2.9rem;
   height: 2.9rem;
