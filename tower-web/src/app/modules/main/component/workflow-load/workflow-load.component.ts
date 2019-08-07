@@ -8,18 +8,24 @@
  * This Source Code Form is "Incompatible With Secondary Licenses", as
  * defined by the Mozilla Public License, v. 2.0.
  */
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnChanges, OnInit} from '@angular/core';
 import {Workflow} from "../../entity/workflow/workflow";
+import {WorkflowProgress} from "../../entity/progress/workflow-progress";
 
 @Component({
   selector: 'wt-workflow-load',
   templateUrl: './workflow-load.component.html',
   styleUrls: ['./workflow-load.component.scss']
 })
-export class WorkflowLoadComponent implements OnInit {
+export class WorkflowLoadComponent implements OnInit, OnChanges {
+
 
   @Input()
-  workflow: Workflow;
+  workflowProgress: WorkflowProgress;
+  @Input()
+  maxTasks: number;
+  @Input()
+  maxCores: number;
 
   coresGaugeSeries: any;
   tasksGaugeSeries: any;
@@ -34,23 +40,14 @@ export class WorkflowLoadComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
-    const maxTasks: number = this.workflow.data.peakLoadTasks;
-    const maxCores: number = this.workflow.data.peakLoadCpus;
-    console.log(`Donut init maxCores=${maxCores}; maxTasks=${maxTasks}`);
-    this.coreGaugeOptions = this.computeGaugeOptions(maxCores);
-    this.taskGaugeOptions = this.computeGaugeOptions(maxTasks);
   }
 
   ngOnChanges(): void {
-    const maxTasks: number = this.workflow.data.peakLoadTasks;
-    const maxCores: number = this.workflow.data.peakLoadCpus;
-    const loadTasks: number = this.workflow.progress.workflowProgress.loadTasks;
-    const loadCores: number = this.workflow.progress.workflowProgress.loadCpus;
-    console.log(`Donut update loadCores=${loadCores}; maxCores=${maxCores}; loadTasks=${loadTasks} maxTasks=${maxTasks}`);
-    this.coreGaugeOptions = this.computeGaugeOptions(maxCores);
-    this.taskGaugeOptions = this.computeGaugeOptions(maxTasks);
-    this.coresGaugeSeries = this.computeGaugeBinarySeries(loadCores, maxCores);
-    this.tasksGaugeSeries = this.computeGaugeBinarySeries(loadTasks, maxTasks);
+    console.log(`Gauge update loadCores=${this.workflowProgress.loadCpus}; maxCores=${this.maxCores}; loadTasks=${this.workflowProgress.loadTasks} maxTasks=${this.maxTasks}`);
+    this.coreGaugeOptions = this.computeGaugeOptions(this.maxCores);
+    this.taskGaugeOptions = this.computeGaugeOptions(this.maxTasks);
+    this.coresGaugeSeries = this.computeGaugeBinarySeries(this.workflowProgress.loadCpus, this.maxCores);
+    this.tasksGaugeSeries = this.computeGaugeBinarySeries(this.workflowProgress.loadTasks, this.maxTasks);
   }
 
   private centerTextInGauge(ctx): void {
