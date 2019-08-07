@@ -44,6 +44,10 @@ class WorkflowProgress implements ProgressState {
     long loadCpus
     long loadMemory
 
+    long peakLoadCpus
+    long peakLoadTasks
+    long peakLoadMemory
+
     @JsonGetter('memoryEfficiency')
     float getMemoryEfficiency() {
         if( memoryReq==0 ) return 0
