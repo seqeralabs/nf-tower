@@ -152,6 +152,10 @@ class ProgressServiceTest extends AbstractContainerBaseTest {
         progress.workflowProgress.loadCpus == 2
         progress.workflowProgress.loadMemory == 4
 
+        progress.workflowProgress.peakLoadTasks == 2
+        progress.workflowProgress.peakLoadCpus == 2
+        progress.workflowProgress.peakLoadMemory == 4
+
 
 
         then: "the processes progress has been successfully computed"
@@ -246,6 +250,9 @@ class ProgressServiceTest extends AbstractContainerBaseTest {
         workflow.peakLoadTasks == 2
         workflow.peakLoadCpus == 11
         workflow.peakLoadMemory == 42
+        progress.workflowProgress.peakLoadTasks == 2
+        progress.workflowProgress.peakLoadCpus == 11
+        progress.workflowProgress.peakLoadMemory == 42
 
     }
 
