@@ -296,7 +296,7 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         then: 'the obtained workflows are as expected'
         obtainedWorkflows.sort { it.commitId }.commitId == expectedWorkflowCommitIds
 
-        where: 'the pagination params are'
+        where: 'the search params are'
         search      | expectedWorkflowCommitIds
         'project%'  | ["commitId0", "commitId1", "commitId2", "commitId3"]
         'runName%'  | ["commitId0", "commitId1", "commitId2", "commitId3"]
