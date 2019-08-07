@@ -21,7 +21,7 @@ import {ProgressState} from "../../entity/progress/progress-state";
 export class WorkflowStatusComponent implements OnInit {
 
   @Input()
-  workflowProgressState: ProgressState;
+  progressState: ProgressState;
 
   private statusesTags: string[];
 
