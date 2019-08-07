@@ -5,7 +5,7 @@
     <div class="card-deck mb-2" *ngFor="let statusRow of statusesRows">
       <div *ngFor="let status of statusRow" class="card text-center">
         <div class="card-body">
-          <h2 class="card-title">{{workflowProgressState[status]}}</h2>
+          <h2 class="card-title">{{progressState[status]}}</h2>
         </div>
         <div class="card-footer text-white" [ngClass]="status">{{status}}</div>
       </div>
