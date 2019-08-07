@@ -26,7 +26,7 @@ export class FilteringParams {
     const rawParams: any = {};
     if (this.max != null) rawParams.max = `${this.max}`;
     if (this.offset != null) rawParams.offset = `${this.offset}`;
-    if (this.search != null) rawParams.search = this.search;
+    if (this.search != null && this.search != '') rawParams.search = this.search;
 
     return new HttpParams({
       fromObject: rawParams
