@@ -80,7 +80,7 @@ class WorkflowController {
         Long offset = filterParams.getFirst('offset', Long.class, 0l)
 
         String search = filterParams.getFirst('search', String.class, '')
-        String searchRegex = search.contains('*') ? search.replaceAll(/\*/, '%') : "${search}%"
+        String searchRegex = search ? search.contains('*') ? search.replaceAll(/\*/, '%') : "${search}%" : null
 
         List<Workflow> workflows = workflowService.listByOwner(userService.getFromAuthData(authentication), max, offset, searchRegex)
 
@@ -112,7 +112,7 @@ class WorkflowController {
         String orderDir = filterParams.getFirst('order[0][dir]', String.class, 'asc')
 
         String search = filterParams.getFirst('search', String.class, '')
-        String searchRegex = search.contains('*') ? search.replaceAll(/\*/, '%') : "${search}%"
+        String searchRegex = search ? search.contains('*') ? search.replaceAll(/\*/, '%') : "${search}%" : null
 
         PagedResultList<Task> taskPagedResultList = taskService.findTasks(workflowId, max, offset, orderProperty, orderDir, searchRegex)
 
