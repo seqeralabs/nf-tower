@@ -118,7 +118,7 @@ class GateServiceImpl implements GateService {
      * @return A {@link io.seqera.mail.Attachment} object representing the image logo to be included in the HTML email
      */
     protected Attachment getLogoAttachment() {
-        Attachment.resource('/io/seqera/tower/service/seqera-logo.png', contentId: '<seqera-logo>', disposition: 'inline')
+        Attachment.resource('/io/seqera/tower/service/tower-logo.png', contentId: '<tower-logo>', disposition: 'inline')
     }
 
     protected String getTemplateFile(String classpathResource, Map binding) {

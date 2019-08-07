@@ -1,4 +1,4 @@
-<div *ngIf="workflow">
+<div *ngIf="workflow" class="tw-workflow">
   <div class="card" [ngClass]="{'started': workflow.isStarted, 'succeed': workflow.isSuccessful, 'failed': workflow.isFailed, 'partialFailed': workflow.isPartialFailed}">
     <div class="card-header">
       <div class="row">

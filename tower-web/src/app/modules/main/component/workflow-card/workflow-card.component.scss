@@ -2,8 +2,12 @@
 
 .card {
   cursor: pointer;
-  margin: 5px 5px 10px 5px;
-  border-left: solid 7px;
+  margin: 5px 6px;
+  border-left: solid 6px;
+  border-radius: 2px;
+  border-top: 0;
+  border-right: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
 
   p {
     font-size: 0.9em;

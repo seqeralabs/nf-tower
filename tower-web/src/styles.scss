@@ -9,7 +9,6 @@ html {
 body {
   height: 100%;
   width: 100%;
-
   overflow-x: hidden;
   background-color: $body-background;
 }
@@ -31,11 +30,14 @@ pre {
 #navbar {
   width: 100%;
   height: $navbar-height;
-
-  background-color: $navbar-background;
-  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16);
+  background-color: white;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.16);
   padding-top: 20px;
   padding-bottom: 20px;
+}
+
+.navbar-brand img {
+  width: 240px;
 }
 
 #layout {
@@ -48,10 +50,8 @@ pre {
   position: sticky;
   top: 0;
   flex: 0 0 25%;
-
   background-color: $sidebar-background;
   border-right: $sidebar-border;
-
   overflow-x: hidden;
   overflow-y: auto;
   height: 100vh;

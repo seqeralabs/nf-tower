@@ -1,8 +1,11 @@
 @import "~src/assets/variables";
 
 
-.card {
+.tw-workflow > .card {
   border-top: solid 7px;
+  border-radius: 2px;
+  border-left: 0;
+  border-right: 0;
 
   &.started {
     border-top-color: $started-blue;

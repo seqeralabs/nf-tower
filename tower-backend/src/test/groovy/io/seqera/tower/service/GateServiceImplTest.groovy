@@ -76,8 +76,8 @@ class GateServiceImplTest extends Specification {
         when:
         def attach = service.getLogoAttachment()
         then:
-        attach.resource == '/io/seqera/tower/service/seqera-logo.png'
-        attach.params.contentId == '<seqera-logo>'
+        attach.resource == '/io/seqera/tower/service/tower-logo.png'
+        attach.params.contentId == '<tower-logo>'
         attach.params.disposition == 'inline'
         then:
         this.class.getResource(attach.resource) != null
