@@ -5,7 +5,7 @@
       <div class="col">
         <p>
           <span class="mdi mdi-calendar"></span>
-          <span class="pl-5">
+          <span class="pl-3">
           {{workflow.getWorkflowStartDateFormatted('ddd MMM D hh:mm:ss Z YYYY')}}
           </span>
         </p>
@@ -15,7 +15,7 @@
       <div class="col">
         <p>
           <span class="mdi mdi-source-commit"></span>
-          <span class="pl-5">
+          <span class="pl-3">
           {{workflow.data.revision}} ({{workflow.briefCommitId}})
             </span>
         </p>
@@ -25,7 +25,7 @@
       <div class="col">
         <p>
           <span class="mdi mdi-restore-clock"></span>
-          <span class="pl-5">
+          <span class="pl-3">
           {{workflow.data.sessionId}}
           </span>
         </p>
@@ -35,7 +35,7 @@
       <div class="col">
         <p>
           <span class="mdi mdi-account"></span>
-          <span class="pl-5">
+          <span class="pl-3">
           {{workflow.data.userName}}
           </span>
         </p>
@@ -45,7 +45,7 @@
       <div class="col">
         <p>
           <span class="mdi mdi-server"></span>
-          <span class="pl-5">
+          <span class="pl-3">
           {{workflow.data.workDir}}
           </span>
         </p>
@@ -55,7 +55,7 @@
       <div class="col">
         <p>
           <span class="mdi mdi-docker"></span>
-          <span class="pl-5">
+          <span class="pl-3">
           {{workflow.data.container}} ({{workflow.data.containerEngine ? workflow.data.containerEngine : 'unknown'}})
           </span>
         </p>
