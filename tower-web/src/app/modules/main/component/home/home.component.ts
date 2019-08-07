@@ -21,7 +21,7 @@ import {Subscription} from "rxjs";
 import {NotificationService} from "../../service/notification.service";
 import {SseHeartbeat} from "../../entity/sse/sse-heartbeat";
 import {FilteringParams} from "../../util/filtering-params";
-import {intersectionBy, concat} from "lodash";
+import {intersectionBy, concat, get} from "lodash";
 
 @Component({
   selector: 'wt-home',
@@ -39,7 +39,7 @@ export class HomeComponent implements OnInit {
   searchingText: string;
   offset: number = 0;
   isSearchTriggered: boolean;
-  isLoadingNextPage: boolean;
+  isNextPageLoadTriggered: boolean;
 
   constructor(private authService: AuthService,
               private workflowService: WorkflowService,
@@ -58,31 +58,41 @@ export class HomeComponent implements OnInit {
           return;
         }
 
-        this.workflowService.workflows$.subscribe( (workflows: Workflow[]) => this.reactToWorkflowsEmission(workflows));
+        this.workflowService.workflows$.subscribe((workflows: Workflow[]) => {
+          this.receiveWorkflows(workflows);
+          this.subscribeToWorkflowListLiveEvents();
+        });
 
       }
     )
   }
 
-  private reactToWorkflowsEmission(emittedWorkflows: Workflow[]): void {
-    if (this.isLoadingNextPage && emittedWorkflows.length > 0) {
-      console.log('Loading next page', this.isLoadingNextPage, emittedWorkflows);
-      this.workflows = concat(this.workflows, emittedWorkflows);
+  private receiveWorkflows(emittedWorkflows: Workflow[]): void {
+
+    //Paginating event: concat the newly received workflows to the current ones
+    if (this.isNextPageLoadTriggered) {
       this.offset += emittedWorkflows.length;
 
-    } else if (!this.isLoadingNextPage && !this.isSearchActive || this.isSearchTriggered) {
-      console.log('Searching or updating', this.isLoadingNextPage, this.isSearchActive, this.isSearchTriggered);
+      this.workflows = concat(this.workflows, emittedWorkflows);
+    }
+    //Searching event or no search currently active (initialization event, live update event, delete event): replace the workflows with the newly received ones, from server (searching) or cache (live update, delete)
+    else if (this.isSearchTriggered || !this.isSearchActive) {
+      const nWorkflowsIncrement: number = emittedWorkflows.length - get(this.workflows, 'length', 0);
+      this.offset = this.offset + nWorkflowsIncrement;
+
       this.workflows = emittedWorkflows;
 
-    } else if (!this.isLoadingNextPage) {
-      this.workflows = intersectionBy(this.workflows, emittedWorkflows, (workflow: Workflow) => workflow.data.workflowId);
+    }
+    //Search is active: keep the filtered workflows, drop the ones no longer present (delete event) and ignore the new ones (live update event)
+    else if (this.isSearchActive) {
+      const nWorkflowsIncrement: number = emittedWorkflows.length - this.workflows.length;
+      this.offset = (nWorkflowsIncrement < 0) ? this.offset + nWorkflowsIncrement : this.offset;
 
+      this.workflows = intersectionBy(this.workflows, emittedWorkflows, (workflow: Workflow) => workflow.data.workflowId);
     }
 
-    this.subscribeToWorkflowListLiveEvents();
-
     this.isSearchTriggered = false;
-    this.isLoadingNextPage = false;
+    this.isNextPageLoadTriggered = false;
   }
 
   private subscribeToWorkflowListLiveEvents(): void {
@@ -139,8 +149,7 @@ export class HomeComponent implements OnInit {
     this.searchingText = searchText;
     this.isSearchTriggered = true;
 
-    this.offset = 0;
-    this.workflowService.emitWorkflowsFromServer(new FilteringParams(10, this.offset, searchText));
+    this.workflowService.emitWorkflowsFromServer(new FilteringParams(10, 0, searchText));
   }
 
   onSidebarScroll(event) {
@@ -155,12 +164,12 @@ export class HomeComponent implements OnInit {
   }
 
   private loadNewPage(): void {
-    if (this.isLoadingNextPage) {
+    if (this.isNextPageLoadTriggered) {
       return;
     }
 
-    this.isLoadingNextPage = true;
-    this.workflowService.emitWorkflowsFromServer(new FilteringParams(10, this.offset + 10, this.searchingText))
+    this.isNextPageLoadTriggered = true;
+    this.workflowService.emitWorkflowsFromServer(new FilteringParams(10, this.offset, this.searchingText))
   }
 
 }

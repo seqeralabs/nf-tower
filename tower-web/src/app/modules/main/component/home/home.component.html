@@ -9,8 +9,7 @@
     </wt-sidebar>
 
     <div class="row load-gap">
-      <div *ngIf="!isLoadingNextPage" class="mdi mdi-infinity m-auto"></div>
-      <div *ngIf="isLoadingNextPage" class="spinner-grow m-auto" role="status">
+      <div *ngIf="isNextPageLoadTriggered" class="spinner-grow m-auto" role="status">
         <span class="sr-only">Loading...</span>
       </div>
     </div>
