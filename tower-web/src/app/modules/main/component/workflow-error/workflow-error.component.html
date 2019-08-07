@@ -18,7 +18,9 @@
     The exit status of the task that caused the workflow execution to fail was: <code>{{workflow.data.exitStatus}}</code>
   </p>
   <p>
-    The full error message was (<a data-toggle="collapse" href="#wf-err-msg" role="button" aria-expanded="true" >show/hide</a>):
+    <a style="color: inherit" data-toggle="collapse" href="#wf-err-msg" role="button" aria-expanded="true" >
+      The full error message is reported below <span class="mdi mdi-arrow-collapse"></span>
+    </a>
   </p>
   <div id="wf-err-msg" class="collapse show">
   <pre >{{workflow.data.errorReport}}</pre>
