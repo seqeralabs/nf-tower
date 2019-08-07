@@ -23,11 +23,11 @@
   }
 }
 
-.workflow--started {
-  border-left-color: $started-blue;
+.workflow--running {
+  border-left-color: $running-blue;
 
   .card-title {
-    color: $started-blue;
+    color: $running-blue;
   }
 }
 

@@ -1,5 +1,5 @@
 <div *ngIf="workflow" class="tw-workflow">
-  <div class="card" [ngClass]="{'started': workflow.isStarted, 'succeed': workflow.isSuccessful, 'failed': workflow.isFailed, 'partialFailed': workflow.isPartialFailed}">
+  <div class="card" [ngClass]="{'running': workflow.isRunning, 'succeed': workflow.isSuccessful, 'failed': workflow.isFailed, 'partialFailed': workflow.isPartialFailed}">
     <div class="card-header">
       <div class="row">
         <div class="col">
@@ -7,7 +7,7 @@
           <h2>{{workflow.data.runName}}</h2>
         </div>
         <div class="col m-auto align-middle text-right pr-5 status-icon">
-          <span *ngIf="workflow.isStarted" class="spinner-border" role="status"></span>
+          <span *ngIf="workflow.isRunning" class="spinner-border" role="status"></span>
           <span *ngIf="workflow.isCompleted" class="workflow-status mdi"
                 [ngClass]="{'mdi-check-circle-outline': workflow.isSuccessful, 'mdi-alert-circle-outline': workflow.isFailed || workflow.isPartialFailed,
                             'succeed': workflow.isSuccessful, 'failed': workflow.isFailed, 'partialFailed': workflow.isPartialFailed}">
