@@ -69,6 +69,7 @@ dependencies {
 
     annotationProcessor "io.micronaut.configuration:micronaut-openapi"
     compile "io.swagger.core.v3:swagger-annotations"
+
     testCompile "io.micronaut:micronaut-inject-groovy"
     testCompile("org.spockframework:spock-core") {
         exclude group: "org.codehaus.groovy", module: "groovy-all"
@@ -81,6 +82,12 @@ dependencies {
     testCompile 'net.bytebuddy:byte-buddy:1.9.12'
     testCompile "org.objenesis:objenesis:2.1"
 
+    if (System.getProperty('_system_type')=='Darwin') {
+        // https://docs.micronaut.io/latest/guide/index.html#automaticRestart
+        developmentOnly "io.micronaut:micronaut-runtime-osx"
+        developmentOnly "net.java.dev.jna:jna"
+        developmentOnly "io.methvin:directory-watcher"
+    }
 }
 
 test.classpath += configurations.developmentOnly
