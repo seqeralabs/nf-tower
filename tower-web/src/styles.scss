@@ -43,6 +43,7 @@ pre {
 #layout {
   display: flex;
   min-height: calc(100% - #{$navbar-height});
+  padding-top: $navbar-height;
   width: 100%;
 }
 
