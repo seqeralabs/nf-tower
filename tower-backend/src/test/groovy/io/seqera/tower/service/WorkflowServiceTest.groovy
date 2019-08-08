@@ -11,8 +11,11 @@
 
 package io.seqera.tower.service
 
+import spock.lang.Unroll
+
 import javax.inject.Inject
 import java.time.OffsetDateTime
+import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 
 import grails.gorm.transactions.Transactional
@@ -234,6 +237,74 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
 
         then: "the workflow has been correctly saved"
         thrown(NonExistingWorkflowException)
+    }
+
+    @Unroll
+    void "list some workflows belonging to user"() {
+        given: 'the owner of the workflows'
+        DomainCreator creator = new DomainCreator()
+        User owner = creator.createUser()
+
+        and: 'some workflows of the owner with increasing start dates and custom project and run name'
+        List<Workflow> userWorkflows = []
+        ZonedDateTime now = ZonedDateTime.now()
+        nUserWorkflows.times {
+            userWorkflows << creator.createWorkflow(owner: owner, start: now.plusSeconds(it).toOffsetDateTime(), projectName: "project${it}", runName: "runName${it}")
+        }
+
+        and: 'some other workflows'
+        List<Workflow> otherWorkflows = []
+        nOtherWorkflows.times {
+            otherWorkflows << creator.createWorkflow()
+        }
+
+        when: 'list the workflows of the user'
+        List<Workflow> obtainedUserWorkflows = workflowService.listByOwner(owner, max, offset, null)
+
+        and: 'compute the number of expected workflows'
+        Integer nExpectedWorkflows = (max == null || nUserWorkflows < max) ? nUserWorkflows : max
+        Integer rangeOrigin = offset ?: 0
+
+        then: 'the obtained workflows are as expected'
+        obtainedUserWorkflows.size() == nExpectedWorkflows
+        obtainedUserWorkflows.id == userWorkflows.sort { w1, w2 -> w2.start <=> w1.start }[rangeOrigin..<(rangeOrigin + nExpectedWorkflows)].id
+
+        where: 'the pagination params are'
+        nUserWorkflows | nOtherWorkflows | max  | offset
+        20             | 10              | 10   | 0
+        20             | 10              | 10   | 10
+        20             | 10              | 10   | 0
+        20             | 10              | 10   | 10
+        20             | 10              | null | null
+    }
+
+    @Unroll
+    void "search workflows belonging to a user by text"() {
+        given: 'the owner of the workflows'
+        DomainCreator creator = new DomainCreator()
+        User owner = creator.createUser()
+
+        and: 'some workflows of the owner with custom project and run name'
+        List<Workflow> userWorkflows = []
+        4.times {
+            userWorkflows << creator.createWorkflow(owner: owner, projectName: "project${it}", runName: "runName${it}", commitId: "commitId${it}")
+        }
+
+        when: 'search for the workflows associated with the user'
+        List<Workflow> obtainedWorkflows = workflowService.listByOwner(owner, 10, 0, search)
+
+        then: 'the obtained workflows are as expected'
+        obtainedWorkflows.sort { it.commitId }.commitId == expectedWorkflowCommitIds
+
+        where: 'the search params are'
+        search      | expectedWorkflowCommitIds
+        'project%'  | ["commitId0", "commitId1", "commitId2", "commitId3"]
+        'runName%'  | ["commitId0", "commitId1", "commitId2", "commitId3"]
+        'PrOjEct%'  | ["commitId0", "commitId1", "commitId2", "commitId3"]
+        'rUnNAme%'  | ["commitId0", "commitId1", "commitId2", "commitId3"]
+        'project0'  | ["commitId0"]
+        'runName1'  | ["commitId1"]
+        '%a%'       | ["commitId0", "commitId1", "commitId2", "commitId3"]
     }
 
     void 'delete a workflow'() {

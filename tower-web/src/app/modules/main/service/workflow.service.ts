@@ -9,7 +9,7 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 import { Injectable } from '@angular/core';
-import {HttpClient, HttpErrorResponse} from '@angular/common/http';
+import {HttpClient, HttpErrorResponse, HttpParams} from '@angular/common/http';
 import {Workflow} from '../entity/workflow/workflow';
 import {environment} from '../../../../environments/environment';
 import {Observable, Subject, of, ReplaySubject} from 'rxjs';
@@ -17,6 +17,7 @@ import {map, tap} from 'rxjs/operators';
 import {findIndex, orderBy} from 'lodash';
 import {Progress} from '../entity/progress/progress';
 import {NotificationService} from './notification.service';
+import {FilteringParams} from "../util/filtering-params";
 
 
 const endpointUrl = `${environment.apiUrl}/workflow`;
@@ -38,7 +39,7 @@ export class WorkflowService {
   get workflows$(): Observable<Workflow[]> {
     if (this.isWorkflowsCacheEmpty()) {
       console.log('Initializing workflows');
-      this.requestWorkflowList().subscribe((workflows: Workflow[]) => this.workflowsSubject.next(workflows));
+      this.emitWorkflowsFromServer(new FilteringParams(10, 0, null));
     } else {
       console.log('Getting workflows from cache');
       this.emitWorkflowsFromCache();
@@ -47,10 +48,19 @@ export class WorkflowService {
     return this.workflowsSubject.asObservable();
   }
 
-  private requestWorkflowList(): Observable<Workflow[]> {
+  emitWorkflowsFromServer(filteringParams: FilteringParams): void {
+    this.requestWorkflowList(filteringParams).subscribe((workflows: Workflow[]) => this.workflowsSubject.next(workflows));
+  }
+
+  private emitWorkflowsFromCache(): void {
+    const cachedWorkflows: Workflow[] = Array.from(this.workflowsByIdCache.values());
+    this.workflowsSubject.next(orderBy(cachedWorkflows, [(w: Workflow) => w.data.start], ['desc']));
+  }
+
+  private requestWorkflowList(filteringParams: FilteringParams): Observable<Workflow[]> {
     const url = `${endpointUrl}/list`;
 
-    return this.http.get(url).pipe(
+    return this.http.get(url, { params: filteringParams.toHttpParams() }).pipe(
       map((data: any) => data.workflows ? data.workflows.map((item: any) => new Workflow(item)) : []),
       tap((workflows: Workflow[]) => workflows.forEach((workflow: Workflow) => this.workflowsByIdCache.set(workflow.data.workflowId, workflow)))
     );
@@ -92,19 +102,18 @@ export class WorkflowService {
     return new Observable<string>( observer => {
       this.http.delete(url)
         .subscribe(
-          resp => { this.workflowsByIdCache.delete(workflow.data.workflowId);  observer.complete(); },
-          (resp: HttpErrorResponse) => { observer.error(resp.error.message); }
+          resp => {
+            this.workflowsByIdCache.delete(workflow.data.workflowId);
+            this.emitWorkflowsFromCache();
+            observer.complete();
+            },
+          (resp: HttpErrorResponse) => observer.error(resp.error.message)
         );
     });
   }
 
   updateProgress(progress: Progress, workflow: Workflow): void {
     workflow.progress = progress;
-  }
-
-  private emitWorkflowsFromCache(): void {
-    const cachedWorkflows: Workflow[] = Array.from(this.workflowsByIdCache.values());
-    this.workflowsSubject.next(orderBy(cachedWorkflows, [(w: Workflow) => w.data.start], ['desc']));
   }
 
   private isWorkflowsCacheEmpty(): boolean {

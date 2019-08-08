@@ -1,5 +1,17 @@
+<div class="row">
+  <div class="col m-2">
+    <div class="form-group">
+      <input id="search" name="search" type="text" class="form-control" placeholder="Search..."
+             [ngClass]="{'loading': isSearchTriggered}"
+             [formControl]="searchBoxFormControl">
+    </div>
+  </div>
+</div>
+
 <wt-workflow-card *ngFor="let workflow of workflows"
                   [workflow]="workflow"
-                  (onDeleteWorkflow)="deleteWorkflowFromSidebar($event)"
+                  (onDeleteWorkflow)="deleteWorkflow($event)"
                   (click)="showWorkflowDetail(workflow)" >
 </wt-workflow-card>
+
+<div *ngIf="workflows.length == 0" class="alert alert-light text-center" role="alert">Nothing found</div>

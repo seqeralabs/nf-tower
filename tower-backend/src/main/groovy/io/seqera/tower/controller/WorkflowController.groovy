@@ -75,8 +75,14 @@ class WorkflowController {
     @Get("/list")
     @Transactional
     @Secured(['ROLE_USER'])
-    HttpResponse<ListWorklowResponse> list(Authentication authentication) {
-        List<Workflow> workflows = workflowService.listByOwner(userService.getFromAuthData(authentication))
+    HttpResponse<ListWorklowResponse> list(Authentication authentication, HttpParameters filterParams) {
+        Long max = filterParams.getFirst('max', Long.class, 10l)
+        Long offset = filterParams.getFirst('offset', Long.class, 0l)
+
+        String search = filterParams.getFirst('search', String.class, '')
+        String searchRegex = search ? search.contains('*') ? search.replaceAll(/\*/, '%') : "${search}%" : null
+
+        List<Workflow> workflows = workflowService.listByOwner(userService.getFromAuthData(authentication), max, offset, searchRegex)
 
         List<WorkflowGet> result = workflows.collect { Workflow workflow ->
             WorkflowGet.of(workflow)
@@ -106,7 +112,7 @@ class WorkflowController {
         String orderDir = filterParams.getFirst('order[0][dir]', String.class, 'asc')
 
         String search = filterParams.getFirst('search', String.class, '')
-        String searchRegex = search.contains('*') ? search.replaceAll(/\*/, '%') : "${search}%"
+        String searchRegex = search ? search.contains('*') ? search.replaceAll(/\*/, '%') : "${search}%" : null
 
         PagedResultList<Task> taskPagedResultList = taskService.findTasks(workflowId, max, offset, orderProperty, orderDir, searchRegex)
 

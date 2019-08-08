@@ -32,9 +32,12 @@ interface WorkflowService {
      * List all {@link Workflow} objects for the given owner {@link User}
      *
      * @param owner The owner {@link User} object
+     * @param max The max number of elements to obtain
+     * @param offset The offset number to obtain the elements from
+     * @param sqlRegex A SQL regex to match some properties with (optional)
      * @return The list of workflow objects associated to the specified user
      */
-    List<Workflow> listByOwner(User owner)
+    List<Workflow> listByOwner(User owner, Long max, Long offset, String sqlRegex)
 
     /**
      * Delete the specified {@link Workflow} object
