@@ -337,7 +337,7 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         then: 'the obtained tasks are as expected'
         obtainedTasks.taskId == expectedTaskIds
 
-        where: 'the pagination params are'
+        where: 'the search params are'
         search      | expectedTaskIds
         'hash%'     | [1l, 2l, 3l, 4l]
         'tag%'      | [1l, 2l, 3l, 4l]

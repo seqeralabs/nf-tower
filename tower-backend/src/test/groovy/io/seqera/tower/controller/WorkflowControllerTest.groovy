@@ -11,6 +11,10 @@
 
 package io.seqera.tower.controller
 
+import io.micronaut.http.uri.UriBuilder
+import io.seqera.tower.enums.TaskStatus
+import spock.lang.Unroll
+
 import javax.inject.Inject
 import java.time.Instant
 import java.time.OffsetDateTime
@@ -147,6 +151,60 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         response.body().workflows.workflow.workflowId == workflows.reverse().id*.toString()
     }
 
+    @Unroll
+    void "get a list of filtered workflows"() {
+        given: 'a user owner of the workflow'
+        User owner
+        User.withNewTransaction {
+            owner = new DomainCreator().generateAllowedUser()
+        }
+
+        and: "some workflows owned by the user and ordered by start date in descending order (recent first)"
+        DomainCreator domainCreator = new DomainCreator()
+        (1..4).collect { Integer i ->
+            domainCreator.createWorkflow(
+                    owner: owner,
+                    projectName: "project${i}", runName: "runName${i}", commitId: "commitId${i}",
+                    start: OffsetDateTime.now().minusSeconds(i)
+            )
+        }
+
+        and: 'some other workflows belonging to other users'
+        5.times {
+            domainCreator.createWorkflow()
+        }
+
+        and: 'build the filter URL'
+        URI uri = UriBuilder.of("/workflow/list")
+                            .queryParam('max', 10)
+                            .queryParam('offset', 0)
+                            .queryParam('search', search)
+                  .build()
+
+        and: "perform the request to obtain the workflows"
+        String accessToken = doJwtLogin(owner, client)
+        HttpResponse<ListWorklowResponse> response = client.toBlocking().exchange(
+                HttpRequest.GET(uri)
+                           .bearerAuth(accessToken),
+                ListWorklowResponse.class
+        )
+
+        expect: "the workflows data is properly obtained"
+        response.status == HttpStatus.OK
+        response.body().workflows.size() == expectedWorkflowCommitIds.size()
+        response.body().workflows.workflow.commitId == expectedWorkflowCommitIds
+
+        where: 'the search params are'
+        search      | expectedWorkflowCommitIds
+        'project%'  | ["commitId1", "commitId2", "commitId3", "commitId4"]
+        'runName%'  | ["commitId1", "commitId2", "commitId3", "commitId4"]
+        'PrOjEct%'  | ["commitId1", "commitId2", "commitId3", "commitId4"]
+        'rUnNAme%'  | ["commitId1", "commitId2", "commitId3", "commitId4"]
+        'project1'  | ["commitId1"]
+        'runName1'  | ["commitId1"]
+        '%a%'       | ["commitId1", "commitId2", "commitId3", "commitId4"]
+    }
+
     void "try to get a non-existing workflow"() {
         when: "perform the request to obtain a non-existing workflow"
         String accessToken = doJwtLogin(new DomainCreator().generateAllowedUser(), client)
@@ -186,6 +244,64 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         expect: "the tasks data is properly obtained"
         response.status == HttpStatus.OK
         response.body().tasks.size() == 3
+    }
+
+    @Unroll
+    void "get the list of filtered tasks associated with a workflow"() {
+        given: 'a task'
+        Task firstTask = new DomainCreator().createTask(taskId: 1, status: TaskStatus.SUBMITTED, hash: "Hash1", tag: "Tag1", process: "Process1")
+
+        and: 'extract its workflow'
+        Workflow workflow = firstTask.workflow
+
+        and: 'generate more tasks associated with the workflow'
+        [TaskStatus.RUNNING, TaskStatus.FAILED, TaskStatus.COMPLETED].eachWithIndex { status, i ->
+            Integer taskId = 2 + i
+            new DomainCreator().createTask(workflow: workflow, status: status, taskId: taskId, hash: "Hash${taskId}", tag: "Tag${taskId}", process: "Process${taskId}")
+        }
+
+        and: 'build the filter URL'
+        URI uri = UriBuilder.of("/workflow/${workflow.id}/tasks")
+                            .queryParam('length', 10)
+                            .queryParam('start', 0)
+                            .queryParam('order[0][column]', orderProperty) //These two params are not being sent. More research required
+                            .queryParam('order[0][dir]', orderDirection)
+                            .queryParam('search', search)
+                  .build()
+
+        and: "perform the request to obtain the tasks of the workflow"
+        String accessToken = doJwtLogin(new DomainCreator().generateAllowedUser(), client)
+        HttpResponse<TaskList> response = client.toBlocking().exchange(
+                HttpRequest.GET(uri)
+                        .bearerAuth(accessToken),
+                TaskList.class
+        )
+
+        expect: "the tasks data is properly obtained"
+        response.status == HttpStatus.OK
+        response.body().tasks.size() == expectedTaskIds.size()
+        response.body().tasks.task.taskId == expectedTaskIds
+
+        where: 'the search params are'
+        search      | expectedTaskIds  | orderProperty | orderDirection
+        'hash%'     | [1l, 2l, 3l, 4l] | 'hash'        | 'asc'
+        'tag%'      | [1l, 2l, 3l, 4l] | 'process'     | 'asc'
+        'process%'  | [1l, 2l, 3l, 4l] | 'tag'         | 'asc'
+//        '%a%'       | [4l, 3l, 2l, 1l] | 'hash'        | 'desc'
+
+        'hash1'     | [1l]             | 'hash'        | 'asc'
+        'HASH1'     | [1l]             | 'hash'        | 'asc'
+        'process2'  | [2l]             | 'hash'        | 'asc'
+        'PROCESS2'  | [2l]             | 'hash'        | 'asc'
+        'tag3'      | [3l]             | 'hash'        | 'asc'
+        'TAG3'      | [3l]             | 'hash'        | 'asc'
+
+        'submit%'   | [1l]             | 'hash'        | 'asc'
+        'SUBMITTED' | [1l]             | 'hash'        | 'asc'
+        'submitted' | [1l]             | 'hash'        | 'asc'
+        'run%'      | [2l]             | 'hash'        | 'asc'
+        'fail%'     | [3l]             | 'hash'        | 'asc'
+        'comp%'     | [4l]             | 'hash'        | 'asc'
     }
 
     void "try to get the list of tasks from a nonexistent workflow"() {

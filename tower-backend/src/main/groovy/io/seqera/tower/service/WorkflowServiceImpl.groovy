@@ -11,6 +11,8 @@
 
 package io.seqera.tower.service
 
+import grails.gorm.DetachedCriteria
+
 import javax.inject.Inject
 import javax.inject.Singleton
 import java.time.OffsetDateTime
@@ -42,8 +44,19 @@ class WorkflowServiceImpl implements WorkflowService {
     }
 
     @CompileDynamic
-    List<Workflow> listByOwner(User owner) {
-        Workflow.findAllByOwner(owner, [sort: 'start', order: 'desc'])
+    List<Workflow> listByOwner(User owner, Long max, Long offset, String sqlRegex) {
+        new DetachedCriteria<Workflow>(Workflow).build {
+            eq('owner', owner)
+
+            if (sqlRegex) {
+                or {
+                    ilike('projectName', sqlRegex)
+                    ilike('runName', sqlRegex)
+                }
+            }
+
+            order('start', 'desc')
+        }.list(max: max, offset: offset)
     }
 
     Workflow processTraceWorkflowRequest(TraceWorkflowRequest request, User owner) {
