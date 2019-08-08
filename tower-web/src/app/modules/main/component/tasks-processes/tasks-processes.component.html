@@ -2,20 +2,20 @@
   <div class="card-header">Processes</div>
   <div class="card-body">
 
-    <div class="row mb-3" *ngFor="let processProgress of processesProgress">
-      <div class="col-sm">
-        <div class="row mb-0 process-metrics">
+    <div class="row mb-3" *ngFor="let progress of processesProgress">
+      <div class="col-sm tw-task-progress" [title]="getTooltipText(progress)" data-toggle="tooltip" data-placement="top" data-html="true" >
+        <div class="row mb-0 process-metrics" >
           <div class="col-sm process-name">
-            {{processProgress.process}}
+            {{progress.process}}
           </div>
           <div class="col-sm progress-label">
-            {{processProgress.data.succeeded}} of {{processProgress.total}}
+            {{progress.data.succeeded}} of {{progress.total}}
           </div>
         </div>
-        <div class="progress">
+        <div class="progress" >
           <div class="progress-bar"
                *ngFor="let status of statusesTags"
-               [style.width]="computePercentageProcessTasks(processProgress, status)"
+               [style.width]="computePercentageProcessTasks(progress, status)"
                [ngClass]="status"
           >
           </div>
