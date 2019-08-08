@@ -15,6 +15,8 @@ import {HumanizeDuration, HumanizeDurationLanguage, ILanguage} from "humanize-du
 import {ProcessProgress} from "../../entity/progress/process-progress";
 import {getAllTaskStatusesKeys, TaskStatus, toProgressTag} from "../../entity/task/task-status.enum";
 
+declare let $: any;
+
 @Component({
   selector: 'wt-tasks-processes',
   templateUrl: './tasks-processes.component.html',
@@ -32,13 +34,30 @@ export class TasksProcessesComponent implements OnInit {
   }
 
   ngOnInit() {
+    // $('div.tw-task-progress').tooltip();  // this is not working
+    $(document).tooltip({ selector: '[data-toggle="tooltip"]'});
   }
 
-  computePercentageProcessTasks(processProgress: ProcessProgress, progressStatus: string): string {
-    const percentage: number = (processProgress.data[progressStatus] / processProgress.total) * 100;
+  computePercentageProcessTasks(progress: ProcessProgress, status: string): string {
+    const percentage: number = (progress.data[status] / progress.total) * 100;
 
     return `${percentage}%`;
   }
 
+  getTooltipText(progress: ProcessProgress): string {
+    let result = '';
+    for( const i in this.statusesTags ) {
+      const status = this.statusesTags[i];
+      const count=progress.data[status];
 
+      if( count>0 ) {
+        result += `${this.capitalise(status)}: <b>${count}</b></br>`
+      }
+    }
+    return result;
+  }
+
+  private capitalise(s: string): string {
+    return (s.length > 0) ? s[0].toUpperCase() + s.substr(1).toLowerCase() : s;
+  }
 }
