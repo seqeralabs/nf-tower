@@ -11,11 +11,8 @@
 
 package io.seqera.tower.service
 
-import spock.lang.Unroll
-
 import javax.inject.Inject
 import java.time.OffsetDateTime
-import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 
 import grails.gorm.transactions.Transactional
@@ -30,6 +27,7 @@ import io.seqera.tower.util.AbstractContainerBaseTest
 import io.seqera.tower.util.DomainCreator
 import io.seqera.tower.util.TracesJsonBank
 import io.seqera.tower.util.WorkflowTraceSnapshotStatus
+import spock.lang.Unroll
 
 @MicronautTest(application = Application.class)
 @Transactional
@@ -247,9 +245,9 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
 
         and: 'some workflows of the owner with increasing start dates and custom project and run name'
         List<Workflow> userWorkflows = []
-        ZonedDateTime now = ZonedDateTime.now()
+        def now = OffsetDateTime.now()
         nUserWorkflows.times {
-            userWorkflows << creator.createWorkflow(owner: owner, start: now.plusSeconds(it).toOffsetDateTime(), projectName: "project${it}", runName: "runName${it}")
+            userWorkflows << creator.createWorkflow(owner: owner, start: now.plusSeconds(it), projectName: "project${it}", runName: "runName${it}")
         }
 
         and: 'some other workflows'

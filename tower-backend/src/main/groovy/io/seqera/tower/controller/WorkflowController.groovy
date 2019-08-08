@@ -76,7 +76,7 @@ class WorkflowController {
     @Transactional
     @Secured(['ROLE_USER'])
     HttpResponse<ListWorklowResponse> list(Authentication authentication, HttpParameters filterParams) {
-        Long max = filterParams.getFirst('max', Long.class, 10l)
+        Long max = filterParams.getFirst('max', Long.class, 50l)
         Long offset = filterParams.getFirst('offset', Long.class, 0l)
 
         String search = filterParams.getFirst('search', String.class, '')
