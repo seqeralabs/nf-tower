@@ -12,7 +12,7 @@ import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core'
 import {Workflow} from "../../entity/workflow/workflow";
 import {interval, Subscription, timer} from "rxjs";
 import * as differenceInMilliseconds from "date-fns/difference_in_milliseconds";
-import {DurationUtil} from "../../util/duration-util";
+import {FormatterUtil} from "../../util/formatter-util";
 import {WorkflowService} from "../../service/workflow.service";
 
 @Component({

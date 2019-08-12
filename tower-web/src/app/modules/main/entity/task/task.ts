@@ -10,6 +10,7 @@
  */
 import {TaskData} from "./task-data";
 import {TaskStatus} from "./task-status.enum";
+import {FormatterUtil} from "../../util/formatter-util";
 
 export class Task {
 
@@ -28,5 +29,28 @@ export class Task {
   get statusTag(): string {
     return TaskStatus[this.data.status];
   }
+
+  /* Storage capacity values */
+  get humanizedMemory(): string { return FormatterUtil.humanizeStorageCapacity(this.data.memory) }
+  get humanizedVmem(): string { return FormatterUtil.humanizeStorageCapacity(this.data.vmem) }
+  get humanizedRss(): string { return FormatterUtil.humanizeStorageCapacity(this.data.rss) }
+  get humanizedPeakVmem(): string { return FormatterUtil.humanizeStorageCapacity(this.data.peakVmem) }
+  get humanizedPeakRss(): string { return FormatterUtil.humanizeStorageCapacity(this.data.peakRss) }
+  get humanizedRchar(): string { return FormatterUtil.humanizeStorageCapacity(this.data.rchar) }
+  get humanizedWchar(): string { return FormatterUtil.humanizeStorageCapacity(this.data.wchar) }
+  get humanizedSyscr(): string { return FormatterUtil.humanizeStorageCapacity(this.data.syscr) }
+  get humanizedSyscw(): string { return FormatterUtil.humanizeStorageCapacity(this.data.syscw) }
+  get humanizedReadBytes(): string { return FormatterUtil.humanizeStorageCapacity(this.data.readBytes) }
+  get humanizedWriteBytes(): string { return FormatterUtil.humanizeStorageCapacity(this.data.writeBytes) }
+
+  /* Duration values */
+  get humanizedTime(): string { return FormatterUtil.humanizeDuration(this.data.time) }
+  get humanizedDuration(): string { return FormatterUtil.humanizeDuration(this.data.duration) }
+  get humanizedRealtime(): string { return FormatterUtil.humanizeDuration(this.data.realtime) }
+
+  /* Date values */
+  get humanizedSubmit(): string { return FormatterUtil.formatDate(this.data.submit) }
+  get humanizedStart(): string { return FormatterUtil.formatDate(this.data.start) }
+  get humanizedComplete(): string { return FormatterUtil.formatDate(this.data.complete) }
 
 }

@@ -17,8 +17,8 @@ export interface TaskData {
   hash: string;
   name: string;
   exit: number;
-  submit: number;
-  start: number;
+  submit: Date;
+  start: Date;
   process: string;
   tag?: any;
   module: any[];
@@ -34,7 +34,7 @@ export interface TaskData {
   time?: any;
   env?: any;
   errorAction: string;
-  complete: number;
+  complete: Date;
   duration: number;
   realtime: number;
   pcpu: number;

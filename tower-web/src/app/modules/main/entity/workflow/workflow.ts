@@ -12,7 +12,7 @@ import {WorkflowData} from "./workflow-data";
 import {WorkflowStatus} from "./workflow-status.enum";
 import * as dateFormat from "date-fns/format";
 import {Progress} from "../progress/progress";
-import {DurationUtil} from "../../util/duration-util";
+import {FormatterUtil} from "../../util/formatter-util";
 
 export class Workflow {
 
@@ -56,7 +56,7 @@ export class Workflow {
   }
 
   get humanizedDuration(): string {
-    return DurationUtil.humanizeDuration(this.data.duration)
+    return FormatterUtil.humanizeDuration(this.data.duration)
   }
 
   get briefCommitId(): string {
@@ -67,8 +67,8 @@ export class Workflow {
     return JSON.stringify(this.data.params);
   }
 
-  getWorkflowStartDateFormatted(format: string): string {
-    return dateFormat(this.data.start, format);
+  get startDateFormatted(): string {
+    return FormatterUtil.formatDate(this.data.start);
   }
 
 }

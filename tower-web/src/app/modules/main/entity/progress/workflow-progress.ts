@@ -9,6 +9,7 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 import {ProgressState} from "./progress-state";
+import {FormatterUtil} from "../../util/formatter-util";
 
 export class WorkflowProgress {
 
@@ -19,45 +20,32 @@ export class WorkflowProgress {
   }
 
   get totalCpuHours(): string {
-    return (this.data.cpuTime / (1000 * 60 * 60)).toFixed(2);
+    return FormatterUtil.convertDurationToHours(this.data.cpuTime);
   }
 
+  /* Storage capacity values */
   get totalMemoryGb(): string {
-    return (this.data.memoryRss / 1024 / 1024 / 1024).toFixed(2);
+    return FormatterUtil.humanizeStorageCapacity(this.data.memoryRss, 'GB');
   }
-
   get totalDiskReadGb(): string {
-    return (this.data.readBytes / 1024 / 1024 / 1024).toFixed(2);
+    return FormatterUtil.humanizeStorageCapacity(this.data.readBytes, 'GB');
   }
-
   get totalDiskWriteGb(): string {
-    return (this.data.writeBytes / 1024 / 1024 / 1024).toFixed(2);
+    return FormatterUtil.humanizeStorageCapacity(this.data.writeBytes, 'GB');
   }
 
   get loadCpus(): number {
     return this.data.loadCpus;
   }
-
   get loadTasks(): number {
     return this.data.loadTasks;
   }
-
-  get loadMemory(): number {
-    return this.data.loadMemory;
-  }
-
   get peakLoadCpus(): number {
     return this.data.peakLoadCpus;
   }
-
   get peakLoadTasks(): number {
     return this.data.peakLoadTasks;
   }
-
-  get peakLoadMemory(): number {
-    return this.data.peakLoadMemory;
-  }
-
 }
 
 interface WorkflowProgressState extends ProgressState {
