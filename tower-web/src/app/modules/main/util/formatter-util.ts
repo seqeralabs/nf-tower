@@ -9,21 +9,40 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 import {HumanizeDuration, HumanizeDurationLanguage, ILanguage} from "humanize-duration-ts";
+import * as dateFormat from "date-fns/format";
+import * as filesize from "file-size"
 
-export abstract class DurationUtil {
+export abstract class FormatterUtil {
 
   private static durationHumanizer: HumanizeDuration;
 
-  public static initialize() {
-    console.log('Initializing duration util');
+  static initialize() {
+    console.log('Initializing humanizer util');
     const language: HumanizeDurationLanguage  = new HumanizeDurationLanguage();
     language.addLanguage('short', <ILanguage> {y: () => 'y', mo: () => 'mo', w: () => 'w', d: () => 'd', h: () => 'h', m: () => 'm', s: () => 's'});
     this.durationHumanizer = new HumanizeDuration(language);
   }
 
-  public static humanizeDuration(durationMillis: number): string {
+  static humanizeDuration(durationMillis: number): string {
     return this.durationHumanizer.humanize(durationMillis, {language: 'short', delimiter: ' '});
   }
 
+  static humanizeStorageCapacity(storageBytes: number, unit?: string): string {
+    const humanizedStorage: string = unit ? `${filesize(storageBytes).to(unit, 'jedec')} ${unit}` : filesize(storageBytes).human('jedec');
+
+    return humanizedStorage.replace('Bytes', 'B');
+  }
+
+  static formatDate(date: Date, format?: string): string {
+    if (!format) {
+      format = 'ddd MMM D YYYY hh:mm:ss'
+    }
+    return dateFormat(date, format);
+  }
+
+  static convertDurationToHours(durationMillis: number): string {
+    return (durationMillis / (1000 * 60 * 60)).toFixed(2);
+  }
+
 }
-DurationUtil.initialize();
+FormatterUtil.initialize();
