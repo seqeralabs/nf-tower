@@ -59,6 +59,8 @@ export class TasksTableComponent implements OnInit, OnChanges {
     this.dataTable = $('#tasks-table').DataTable({
       scrollX: true,
       serverSide: true,
+      pageLength: 50,
+      lengthChange: false,
       orderMulti: false,
       columns: [
         {"name":"taskId"},{"name":"process"},{"name":"tag"},{"name":"status"},{"name":"hash"},{"name":"cpus"},{"name":"pcpu"},{"name":"memory"},{"name":"pmem"},{"name":"vmem"},
