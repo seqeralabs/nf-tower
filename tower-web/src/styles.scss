@@ -136,3 +136,20 @@ pre {
   fill: black !important;
   color: black !important;
 }
+
+/* DataTables styles */
+.dataTables_filter {
+  float: left !important;
+}
+
+.dataTables_filter input {
+  width: 30rem;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #495057;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid #ced4da;
+  border-radius: .25rem;
+}
