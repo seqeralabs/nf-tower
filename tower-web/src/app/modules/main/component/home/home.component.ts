@@ -21,7 +21,7 @@ import {Subscription} from "rxjs";
 import {NotificationService} from "../../service/notification.service";
 import {SseHeartbeat} from "../../entity/sse/sse-heartbeat";
 import {FilteringParams} from "../../util/filtering-params";
-import {intersectionBy, concat, get} from "lodash";
+import {intersectionBy, differenceBy, concat, orderBy} from "lodash";
 
 @Component({
   selector: 'wt-home',
@@ -31,7 +31,7 @@ import {intersectionBy, concat, get} from "lodash";
 export class HomeComponent implements OnInit {
 
   user: User;
-  workflows: Workflow[];
+  workflows: Workflow[] = [];
   private liveEventsSubscription: Subscription;
 
   shouldLoadLandingPage: boolean;
@@ -68,28 +68,34 @@ export class HomeComponent implements OnInit {
   }
 
   private receiveWorkflows(emittedWorkflows: Workflow[]): void {
+    const newWorkflows: Workflow[] = differenceBy(emittedWorkflows, this.workflows, (w: Workflow) => w.data.workflowId);
+    const deletedWorkflows: Workflow[] = differenceBy(this.workflows, emittedWorkflows, (w: Workflow) => w.data.workflowId);
+    console.log('New and deleted workflows', newWorkflows, deletedWorkflows);
 
     //Paginating event: concat the newly received workflows to the current ones
     if (this.isNextPageLoadTriggered) {
-      this.offset += emittedWorkflows.length;
-
-      this.workflows = concat(this.workflows, emittedWorkflows);
+      this.offset += newWorkflows.length;
+      this.workflows = concat(this.workflows, newWorkflows);
     }
-    //Searching event or no search currently active (initialization event, live update event, delete event): replace the workflows with the newly received ones, from server (searching) or cache (live update, delete)
-    else if (this.isSearchTriggered || !this.isSearchActive) {
-      const nWorkflowsIncrement: number = emittedWorkflows.length - get(this.workflows, 'length', 0);
-      this.offset = this.offset + nWorkflowsIncrement;
-
+    //Searching event: replace the workflows with the newly received ones from server
+    else if (this.isSearchTriggered) {
+      this.offset = emittedWorkflows.length;
       this.workflows = emittedWorkflows;
 
     }
-    //Search is active: keep the filtered workflows, drop the ones no longer present (delete event) and ignore the new ones (live update event)
+    //Search is currently active: keep the filtered workflows, drop the ones no longer present (delete event) and ignore the new ones (live update event)
     else if (this.isSearchActive) {
-      const nWorkflowsIncrement: number = emittedWorkflows.length - this.workflows.length;
-      this.offset = (nWorkflowsIncrement < 0) ? this.offset + nWorkflowsIncrement : this.offset;
-
+      this.offset = this.offset - deletedWorkflows.length;
       this.workflows = intersectionBy(this.workflows, emittedWorkflows, (workflow: Workflow) => workflow.data.workflowId);
     }
+    //No search currently active (initialization event, live update event, delete event)
+    else {
+      this.offset = (this.workflows.length == 0)  ? emittedWorkflows.length :
+                    (deletedWorkflows.length > 0) ? this.offset - 1         :
+                    (newWorkflows.length > 0)     ? this.offset + 1         : this.offset;
+      this.workflows = emittedWorkflows;
+    }
+    this.workflows = orderBy(this.workflows, [(w: Workflow) => w.data.start], ['desc']);
 
     this.isSearchTriggered = false;
     this.isNextPageLoadTriggered = false;
