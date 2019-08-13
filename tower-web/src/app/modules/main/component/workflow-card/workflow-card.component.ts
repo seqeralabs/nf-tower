@@ -10,11 +10,6 @@
  */
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {Workflow} from "src/app/modules/main/entity/workflow/workflow";
-import {environment} from "src/environments/environment";
-import {HttpErrorResponse} from "@angular/common/http";
-import {HttpClient} from "@angular/common/http";
-import {NotificationService} from "src/app/modules/main/service/notification.service";
-import {WorkflowService} from "../../service/workflow.service";
 
 @Component({
   selector: 'wt-workflow-card',
@@ -33,7 +28,6 @@ export class WorkflowCardComponent implements OnInit {
   }
 
   ngOnInit() {
-
   }
 
   deleteWorkflow(workflow: Workflow, event: MouseEvent) {
