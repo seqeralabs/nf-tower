@@ -140,7 +140,7 @@ pre {
 }
 
 /* Task DataTable styles */
-#tasks-table {
+#tasks-table_wrapper {
   .scrollable {
     max-width: 200px;
     margin: 0;
@@ -173,6 +173,49 @@ pre {
     background-clip: padding-box;
     border: 1px solid #ced4da;
     border-radius: .25rem;
+  }
+
+  td.details-control:before {
+    display: inline-block;
+    height: 14px;
+    width: 14px;
+    margin-right: 7px;
+    color: white;
+    border: 2px solid white;
+    border-radius: 14px;
+    box-shadow: 0 0 3px #444;
+    box-sizing: content-box;
+    text-align: center;
+    text-indent: 0 !important;
+    font-family: 'Courier New',Courier,monospace;
+    line-height: 14px;
+    cursor: pointer;
+
+    content: '+';
+    background-color: #31b131;
+  }
+
+  tr.shown td.details-control:before {
+    content: '-';
+    background-color: #d33333;
+  }
+
+  .details-row {
+    display: inline-block;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+
+    li {
+      padding-bottom: 5px;
+      text-indent: 0;
+    }
+
+    .details-row-title {
+      display: inline-block;
+      min-width: 75px;
+      font-weight: bold;
+    }
   }
 
   .badge-pill {
