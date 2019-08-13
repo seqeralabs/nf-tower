@@ -31,7 +31,7 @@ import {intersectionBy, differenceBy, concat, orderBy} from "lodash";
 export class HomeComponent implements OnInit {
 
   user: User;
-  workflows: Workflow[] = [];
+  workflows: Workflow[];
   private liveEventsSubscription: Subscription;
 
   shouldLoadLandingPage: boolean;
@@ -68,6 +68,8 @@ export class HomeComponent implements OnInit {
   }
 
   private receiveWorkflows(emittedWorkflows: Workflow[]): void {
+    this.workflows = this.isWorkflowsInitiatied ? this.workflows : [];
+
     const newWorkflows: Workflow[] = differenceBy(emittedWorkflows, this.workflows, (w: Workflow) => w.data.workflowId);
     const deletedWorkflows: Workflow[] = differenceBy(this.workflows, emittedWorkflows, (w: Workflow) => w.data.workflowId);
     console.log('New and deleted workflows', newWorkflows, deletedWorkflows);
@@ -129,15 +131,19 @@ export class HomeComponent implements OnInit {
   }
 
   get shouldLoadSidebar(): boolean {
-    return (this.user && (this.isSearchActive || this.areWorkflowsInitiatied) && (this.isAtRoot || this.router.url.startsWith('/workflow')));
+    return (this.user && (this.isAtRoot || this.router.url.startsWith('/workflow')) && (this.isSearchActive || this.isSomeWorkflows));
   }
 
   get shouldLoadWelcomeMessage(): boolean {
-    return (this.user && (!this.isSearchActive || !this.areWorkflowsInitiatied) && this.isAtRoot);
+    return (this.user && this.isAtRoot && (!this.isSearchActive || !this.isSomeWorkflows) );
   }
 
-  private get areWorkflowsInitiatied() {
-    return (this.workflows && (this.workflows.length > 0));
+  private get isWorkflowsInitiatied(): boolean {
+    return (this.workflows != undefined);
+  }
+
+  private get isSomeWorkflows(): boolean {
+    return (this.isWorkflowsInitiatied && this.workflows.length > 0);
   }
 
   private get isSearchActive(): boolean {

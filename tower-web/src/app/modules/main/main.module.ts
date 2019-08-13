@@ -50,7 +50,7 @@ import {WorkflowErrorComponent} from "./component/workflow-error/workflow-error.
 const routes: Routes = [
   {path: '',                component: HomeComponent,
    children: [
-     {path: 'workflow/:id', component: WorkflowDetailComponent},
+     {path: 'workflow/:id', component: WorkflowDetailComponent, canActivate: [AuthGuard]},
      {path: 'profile',      component: UserProfileComponent, canActivate: [AuthGuard]},
      {path: 'tokens',       component: AccessTokenComponent, canActivate: [AuthGuard]},
      {path: 'welcome',      component: WelcomeComponent, canActivate: [AuthGuard]},
