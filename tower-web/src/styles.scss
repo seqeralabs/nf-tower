@@ -241,7 +241,7 @@ pre {
       background-color: $succeed-green;
     }
 
-    &.failed {
+    &.failed, &.aborted {
       background-color: $failed-red;
     }
 
