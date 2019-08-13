@@ -40,8 +40,8 @@ export class WorkflowLoadComponent implements OnInit, OnChanges {
 
   ngOnChanges(): void {
     console.log(`Gauge update loadCores=${this.workflowProgress.loadCpus}; maxCores=${this.workflowProgress.peakLoadCpus}; loadTasks=${this.workflowProgress.loadTasks} maxTasks=${this.workflowProgress.peakLoadTasks}`);
-    this.coreGaugeOptions = this.computeGaugeOptions(this.workflowProgress.peakLoadCpus);
-    this.taskGaugeOptions = this.computeGaugeOptions(this.workflowProgress.peakLoadTasks);
+    this.coreGaugeOptions = this.computeGaugeOptions(this.workflowProgress.loadCpus, this.workflowProgress.peakLoadCpus);
+    this.taskGaugeOptions = this.computeGaugeOptions(this.workflowProgress.loadTasks, this.workflowProgress.peakLoadTasks);
     this.coresGaugeSeries = this.computeGaugeBinarySeries(this.workflowProgress.loadCpus, this.workflowProgress.peakLoadCpus);
     this.tasksGaugeSeries = this.computeGaugeBinarySeries(this.workflowProgress.loadTasks, this.workflowProgress.peakLoadTasks);
   }
@@ -58,11 +58,17 @@ export class WorkflowLoadComponent implements OnInit, OnChanges {
     }
   }
 
-  private computeGaugeOptions(total: number): any {
-    return { donut: true, donutWidth: 10, startAngle: 270, total: total*2 };
+  private computeGaugeOptions(filledValue: number, totalValue: number): any {
+    //Avoid 50% fill bug when all values are 0
+    totalValue = (totalValue == 0 && filledValue == 0) ? 1 : totalValue;
+
+    return { donut: true, donutWidth: 10, startAngle: 270, total: totalValue*2 };
   }
 
   private computeGaugeBinarySeries(filledValue: number, totalValue: number): any[] {
+    //Avoid 50% fill bug when all values are 0
+    totalValue = (totalValue == 0 && filledValue == 0) ? 1 : totalValue;
+
     return [
       {
         className: 'ct-filled',

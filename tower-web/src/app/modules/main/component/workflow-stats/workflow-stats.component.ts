@@ -13,6 +13,7 @@ import {Workflow} from "../../entity/workflow/workflow";
 import {interval, Subscription, timer} from "rxjs";
 import * as differenceInMilliseconds from "date-fns/difference_in_milliseconds";
 import {DurationUtil} from "../../util/duration-util";
+import {WorkflowService} from "../../service/workflow.service";
 
 @Component({
   selector: 'wt-workflow-stats',
@@ -23,35 +24,29 @@ export class WorkflowStatsComponent implements OnInit, OnChanges {
 
   @Input()
   workflow: Workflow;
-  wallTime: string;
 
-  private wallTimeTimerSubscription: Subscription;
+  private durationTimerSubscription: Subscription;
 
-  constructor() {
-    this.wallTime = '0';
+  constructor(private workflowService: WorkflowService) {
   }
 
   ngOnInit() {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (!changes) {
-      return;
-    }
-
-    if (this.wallTimeTimerSubscription) {
-      this.wallTimeTimerSubscription.unsubscribe();
+    if (this.durationTimerSubscription) {
+      this.durationTimerSubscription.unsubscribe();
     }
 
     if (this.workflow.isCompleted) {
-      this.wallTime = this.workflow.humanizedDuration;
       return;
     }
 
-    this.wallTimeTimerSubscription = interval(1000).subscribe(() => {
+    this.durationTimerSubscription = interval(1000).subscribe(() => {
       const now: Date = new Date();
-      const difference: number = differenceInMilliseconds(now, this.workflow.data.start);
-      this.wallTime = DurationUtil.humanizeDuration(difference);
+
+      this.workflow.data.duration = differenceInMilliseconds(now, this.workflow.data.start);
+      this.workflowService.updateWorkflow(this.workflow);
     });
   }
 
