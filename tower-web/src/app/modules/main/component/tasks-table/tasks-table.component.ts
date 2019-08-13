@@ -65,13 +65,15 @@ export class TasksTableComponent implements OnInit, OnChanges {
       columns: [
         {name: "taskId"},{name: "process"},{name: "tag"},
         {name: "status", render: (data) => `<span class="badge badge-pill ${data.toLowerCase()}">${data}</span>`},
-        {name: "hash"},{name: "cpus"},{name: "pcpu"},{name: "memory"},{name: "pmem"},{name: "vmem"},
-        {name: "rss"},{name: "peakVmem"},{name: "peakRss"},{name: "time"},{name: "duration"},{name: "realtime"},
-        {name: "script", render: (data) => `<div class="scrollable">${data}</div>`},
-        {name: "exit"},{name: "submit"},
-        {name: "start"},{name: "complete"},{name: "rchar"},{name: "wchar"},{name: "syscr"},{name: "syscw"},{name: "readBytes"},{name: "writeBytes"},{name: "nativeId"},
-        {name: "name"},{name: "module"},{name: "container"},{name: "disk"},{name: "attempt"},{name: "scratch"},
-        {name: "workdir", render: (data) => `<div class="scrollable">${data}</div>`}],
+        {name: "hash", render: (data) => `<span class="inline code">${data}</span>`},
+        {name: "cpus"},{name: "pcpu"},{name: "memory"},{name: "pmem"},{name: "vmem"}, {name: "rss"},{name: "peakVmem"},
+        {name: "peakRss"},{name: "time"},{name: "duration"},{name: "realtime"},
+        {name: "script", render: (data) => `<div class="scrollable code">${data}</div>`},
+        {name: "exit"},{name: "submit"}, {name: "start"},{name: "complete"},{name: "rchar"},{name: "wchar"},
+        {name: "syscr"},{name: "syscw"},{name: "readBytes"},{name: "writeBytes"},{name: "nativeId"}, {name: "name"}, {name: "module"},
+        {name: "container", render: (data) => `<span class="inline code">${data}</span>`},
+        {name: "disk"}, {name: "attempt"},{name: "scratch"},
+        {name: "workdir", render: (data) => `<div class="scrollable code">${data}</div>`}],
       ajax: {
         url: this.workflowService.buildTasksGetUrl(this.workflowId),
         data: (data) => {
