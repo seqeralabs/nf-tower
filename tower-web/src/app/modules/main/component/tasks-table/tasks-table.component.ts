@@ -63,7 +63,8 @@ export class TasksTableComponent implements OnInit, OnChanges {
       lengthChange: false,
       orderMulti: false,
       columns: [
-        {name: "taskId"},{name: "process"},{name: "tag"},
+        {name: "taskId", className: 'details-control'},
+        {name: "process"},{name: "tag"},
         {name: "status", render: (data) => `<span class="badge badge-pill ${data.toLowerCase()}">${data}</span>`},
         {name: "hash", render: (data) => `<span class="inline code">${data}</span>`},
         {name: "cpus"},{name: "pcpu"},{name: "memory"},{name: "pmem"},{name: "vmem"}, {name: "rss"},{name: "peakVmem"},
@@ -106,6 +107,41 @@ export class TasksTableComponent implements OnInit, OnChanges {
         }
       }
     });
+    this.attachRowShowEvent();
+  }
+
+  private attachRowShowEvent(): void {
+    const tableBody = $('#tasks-table tbody');
+
+    tableBody.off('click', 'td.details-control');
+    tableBody.on('click', 'td.details-control',(event) => {
+      const tr = $(event.target).closest('tr');
+      const row = this.dataTable.row(tr);
+
+      if (row.child.isShown()) {
+        row.child.hide();
+        tr.removeClass('shown');
+      } else {
+        row.child(this.generateRowDataChildFormat(tr)).show();
+        tr.addClass('shown');
+      }
+    });
+  }
+
+  private generateRowDataChildFormat(row): string {
+    const script: string = this.dataTable.cell(row, 'script:name').data();
+    const workdir: string = this.dataTable.cell(row, 'workdir:name').data();
+
+    return `<ul class="details-row">
+        <li>
+            <span class="details-row-title">Script</span>
+            <span class="details-row-data code">${script}</span>
+        </li>
+        <li>
+            <span class="details-row-title">Workdir</span>
+            <span class="details-row-data code">${workdir}</span>
+        </li>
+    </ul>`;
   }
 
 }
