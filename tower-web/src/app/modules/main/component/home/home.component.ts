@@ -138,11 +138,11 @@ export class HomeComponent implements OnInit {
     return (this.user && this.isAtRoot && (!this.isSearchActive || !this.isSomeWorkflows) );
   }
 
-  private get isWorkflowsInitiatied(): boolean {
+  get isWorkflowsInitiatied(): boolean {
     return (this.workflows != undefined);
   }
 
-  private get isSomeWorkflows(): boolean {
+  get isSomeWorkflows(): boolean {
     return (this.isWorkflowsInitiatied && this.workflows.length > 0);
   }
 

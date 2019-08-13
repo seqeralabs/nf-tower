@@ -43,6 +43,7 @@ import { WorkflowUtilizationComponent } from './component/workflow-utilization/w
 import { ChartistModule } from "ng-chartist";
 import { WorkflowLoadComponent } from './component/workflow-load/workflow-load.component';
 import {WorkflowErrorComponent} from "./component/workflow-error/workflow-error.component";
+import { LoadingComponent } from './component/loading/loading.component';
 
 /*
  * Main application routing strategy
@@ -66,7 +67,7 @@ const routes: Routes = [
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
 export class MainRoutingModule { }
 
@@ -84,6 +85,7 @@ export class MainRoutingModule { }
     WorkflowMainTabsComponent, WorkflowGeneralComponent, WorkflowStatusComponent,
     WorkflowStatsComponent, WorkflowUtilizationComponent, WorkflowLoadComponent, WorkflowErrorComponent,
     WelcomeComponent,
+    LoadingComponent,
     LoginComponent,
     AuthComponent,
     LogoutComponent,
