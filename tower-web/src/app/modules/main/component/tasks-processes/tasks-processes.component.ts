@@ -9,11 +9,9 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
-import {Task} from '../../entity/task/task';
-import {groupBy, last, sumBy} from "lodash";
-import {HumanizeDuration, HumanizeDurationLanguage, ILanguage} from "humanize-duration-ts";
 import {ProcessProgress} from "../../entity/progress/process-progress";
-import {getAllTaskStatusesKeys, TaskStatus, toProgressTag} from "../../entity/task/task-status.enum";
+import {getAllTaskStatusesProgressStateTags} from "../../entity/task/task-status.enum";
+import {capitalize} from 'lodash';
 
 declare let $: any;
 
@@ -22,20 +20,30 @@ declare let $: any;
   templateUrl: './tasks-processes.component.html',
   styleUrls: ['./tasks-processes.component.scss']
 })
-export class TasksProcessesComponent implements OnInit {
+export class TasksProcessesComponent implements OnInit, OnChanges {
 
   @Input()
   processesProgress: ProcessProgress[];
 
   statusesTags: string[];
 
+  private tooltips: any[] = [];
+
   constructor() {
-    this.statusesTags = getAllTaskStatusesKeys().map((statusKey: number) => toProgressTag(statusKey));
+    this.statusesTags = getAllTaskStatusesProgressStateTags();
   }
 
   ngOnInit() {
-    // $('div.tw-task-progress').tooltip();  // this is not working
-    $(document).tooltip({ selector: '[data-toggle="tooltip"]'});
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    setTimeout(() => {
+      this.tooltips.forEach(tooltipElement => $(tooltipElement).tooltip('dispose'));
+
+      this.tooltips = $('[data-toggle="tooltip"]').get();
+      this.tooltips.forEach(tooltipElement => $(tooltipElement).tooltip({trigger: 'manual'}));
+    });
+
   }
 
   computePercentageProcessTasks(progress: ProcessProgress, status: string): string {
@@ -51,13 +59,24 @@ export class TasksProcessesComponent implements OnInit {
       const count=progress.data[status];
 
       if( count>0 ) {
-        result += `${this.capitalise(status)}: <b>${count}</b></br>`
+        result += `${capitalize(status)}: <b>${count}</b></br>`
       }
     }
     return result;
   }
 
-  private capitalise(s: string): string {
-    return (s.length > 0) ? s[0].toUpperCase() + s.substr(1).toLowerCase() : s;
+  onHoverProgressBar(event: MouseEvent) {
+    this.toggleProgressBarTooltip(event.target, true);
   }
+
+  onMouseOutProgressBar(event: MouseEvent) {
+    this.toggleProgressBarTooltip(event.target, false);
+  }
+
+  private toggleProgressBarTooltip(hoveredElement, showOrHide: boolean): void {
+    const parent = $(hoveredElement).parents('.tw-task-progress');
+    const progressBar = parent.find('.progress');
+    progressBar.tooltip(showOrHide ? 'show' : 'hide');
+  }
+
 }

@@ -9,14 +9,13 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 import { Injectable } from '@angular/core';
-import {HttpClient, HttpErrorResponse, HttpParams} from '@angular/common/http';
+import {HttpClient, HttpErrorResponse} from '@angular/common/http';
 import {Workflow} from '../entity/workflow/workflow';
 import {environment} from '../../../../environments/environment';
 import {Observable, Subject, of, ReplaySubject} from 'rxjs';
 import {map, tap} from 'rxjs/operators';
-import {findIndex, orderBy} from 'lodash';
+import {orderBy} from 'lodash';
 import {Progress} from '../entity/progress/progress';
-import {NotificationService} from './notification.service';
 import {FilteringParams} from "../util/filtering-params";
 
 

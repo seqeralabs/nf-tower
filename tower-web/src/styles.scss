@@ -224,25 +224,23 @@ pre {
     &.new {
       background-color: $pending-purple;
     }
-
     &.submitted {
       background-color: $submitted-orange;
     }
-
     &.running {
       background-color: $running-blue;
     }
-
     &.cached {
       background-color: $cached-grey;
     }
-
     &.completed {
       background-color: $succeed-green;
     }
-
-    &.failed, &.aborted {
+    &.failed {
       background-color: $failed-red;
+    }
+    &.aborted {
+      background-color: $aborted-red;
     }
 
   }

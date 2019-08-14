@@ -21,17 +21,6 @@ enum TaskStatus {
     FAILED,     // completed with error
     ABORTED     // execution aborted
 
-    String toProgressTag() {
-        if (this == NEW) {
-            return 'pending'
-        }
-        if (this == COMPLETED) {
-            return 'succeeded'
-        }
-
-        return name().toLowerCase()
-    }
-
     static Collection<TaskStatus> findStatusesByRegex(String sqlRegex) {
         String regex = sqlRegex.toUpperCase().replaceAll('%', /.*/)
 
