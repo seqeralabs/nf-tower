@@ -131,11 +131,11 @@ export class HomeComponent implements OnInit {
   }
 
   get shouldLoadSidebar(): boolean {
-    return (this.user && (this.isAtRoot || this.router.url.startsWith('/workflow')) && (this.isSearchActive || this.isSomeWorkflows));
+    return (this.user && (this.isAtRoot || this.router.url.startsWith('/workflow')) && (this.isSearchTriggered || this.isSearchActive || this.isSomeWorkflows));
   }
 
   get shouldLoadWelcomeMessage(): boolean {
-    return (this.user && this.isAtRoot && (!this.isSearchActive || !this.isSomeWorkflows) );
+    return (this.user && this.isAtRoot && (!this.isSearchTriggered || !this.isSearchActive || !this.isSomeWorkflows) );
   }
 
   get isWorkflowsInitiatied(): boolean {
@@ -171,7 +171,7 @@ export class HomeComponent implements OnInit {
       return;
     }
 
-    console.log('End reached');
+    console.log('Sidebar end reached');
     this.loadNewPage();
   }
 
