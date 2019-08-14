@@ -14,19 +14,23 @@ export enum TaskStatus {
 
 }
 
-export function toProgressTag(statusKey: number): string {
-  if (statusKey == TaskStatus.NEW) {
-    return 'pending'
-  }
-  if (statusKey == TaskStatus.COMPLETED) {
-    return 'succeeded'
-  }
-  return TaskStatus[statusKey].toLowerCase()
-}
-
-export function getAllTaskStatusesKeys(): TaskStatus[] {
+export function getAllTaskStatusesProgressStateTags(): string[] {
   return Object.keys(TaskStatus)
                .map(key => Number(key))
                .filter(key => !isNaN(key))
+               .map(key => toProgressTag(key))
+               .filter((key) => key != null)
+}
 
+function toProgressTag(statusKey: number): string {
+  if (statusKey == TaskStatus.ABORTED) {
+    return null;
+  }
+  if (statusKey == TaskStatus.NEW) {
+    return 'pending';
+  }
+  if (statusKey == TaskStatus.COMPLETED) {
+    return 'succeeded';
+  }
+  return TaskStatus[statusKey].toLowerCase();
 }

@@ -10,7 +10,7 @@
  */
 import {Component, Input, OnInit} from '@angular/core';
 import {chunk} from "lodash";
-import {getAllTaskStatusesKeys, toProgressTag} from "../../entity/task/task-status.enum";
+import {getAllTaskStatusesProgressStateTags} from "../../entity/task/task-status.enum";
 import {ProgressState} from "../../entity/progress/progress-state";
 
 @Component({
@@ -28,7 +28,7 @@ export class WorkflowStatusComponent implements OnInit {
   statusesRows: string[][];
 
   constructor() {
-    this.statusesTags = getAllTaskStatusesKeys().map((statusKey: number) => toProgressTag(statusKey));
+    this.statusesTags = getAllTaskStatusesProgressStateTags();
     this.statusesRows = chunk(this.statusesTags, 3)
   }
 

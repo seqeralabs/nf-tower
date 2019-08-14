@@ -3,7 +3,7 @@
   <div class="card-body">
 
     <div class="row mb-3" *ngFor="let progress of processesProgress">
-      <div class="col-sm tw-task-progress" [title]="getTooltipText(progress)" data-toggle="tooltip" data-placement="top" data-html="true" >
+      <div class="col-sm tw-task-progress" (mouseover)="onHoverProgressBar($event)" (mouseout)="onMouseOutProgressBar($event)">
         <div class="row mb-0 process-metrics" >
           <div class="col-sm process-name">
             {{progress.process}}
@@ -12,7 +12,7 @@
             {{progress.data.succeeded}} of {{progress.total}}
           </div>
         </div>
-        <div class="progress" >
+        <div class="progress" [title]="getTooltipText(progress)" data-toggle="tooltip" data-placement="top" data-html="true">
           <div class="progress-bar"
                *ngFor="let status of statusesTags"
                [style.width]="computePercentageProcessTasks(progress, status)"
