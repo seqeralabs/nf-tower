@@ -25,7 +25,7 @@
         </div>
       </div>
       <div class="tab-pane fade" id="parameters" role="tabpanel" aria-labelledby="params-tab">
-        <code class="text-dark">{{workflow.data.params ? workflow.params : 'No params'}}</code>
+        <wt-tree-list [workflow]="workflow" > </wt-tree-list>
       </div>
       <div class="tab-pane fade" id="configuration" role="tabpanel" aria-labelledby="configuration-tab">
         <code class="text-dark">{{workflow.data.configFiles ? workflow.data.configFiles : 'No config'}}</code>
