@@ -44,6 +44,7 @@ import { ChartistModule } from "ng-chartist";
 import { WorkflowLoadComponent } from './component/workflow-load/workflow-load.component';
 import {WorkflowErrorComponent} from "./component/workflow-error/workflow-error.component";
 import { LoadingComponent } from './component/loading/loading.component';
+import {TreeListComponent} from "./component/tree-list/TreeListComponent";
 
 /*
  * Main application routing strategy
@@ -96,7 +97,8 @@ export class MainRoutingModule { }
     TasksProcessesComponent,
     HomeComponent,
     NotificationComponent,
-    LandingComponent
+    LandingComponent,
+    TreeListComponent
   ],
   imports: [
     BrowserModule,
