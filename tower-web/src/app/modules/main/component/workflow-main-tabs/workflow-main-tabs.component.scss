@@ -1,15 +1,17 @@
+@import "~src/assets/variables";
+
 .tab-pane {
   min-height: 100px;
 }
 
-.command-line {
+.command-line-box {
   display: inline-block;
   width: 100%;
   min-height: 100px;
   white-space: pre-wrap;
-  border: 1px solid #ccc;
   padding: 10px 15px;
   border-radius: 5px;
-  background-color: #F0F2F4;
-  font-size: 0.9rem;
+  border: 1px solid rgba(0, 0, 0, 0.125);;
+  font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  background-color: rgba(0,0,0,.03);
 }
