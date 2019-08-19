@@ -34,7 +34,7 @@ export class HomeComponent implements OnInit {
   workflows: Workflow[];
   private liveEventsSubscription: Subscription;
 
-  shouldLoadLandingPage: boolean;
+  shouldShowLandingPage: boolean;
 
   searchingText: string;
   offset: number = 0;
@@ -54,7 +54,7 @@ export class HomeComponent implements OnInit {
       (user: User) => {
         this.user = user;
         if (!this.user) {
-          this.shouldLoadLandingPage = this.isAtRoot;
+          this.shouldShowLandingPage = this.isAtRoot;
           return;
         }
 
@@ -130,12 +130,20 @@ export class HomeComponent implements OnInit {
     return (this.router.url == '/');
   }
 
-  get shouldLoadSidebar(): boolean {
-    return (this.user && (this.isAtRoot || this.router.url.startsWith('/workflow')) && (this.isSearchTriggered || this.isSearchActive || this.isSomeWorkflows));
+  get shouldShowSidebar(): boolean {
+    return (this.user && this.isAtWorkflowRelatedScreen && (this.isSearchTriggered || this.isSearchActive || this.isSomeWorkflows));
   }
 
-  get shouldLoadWelcomeMessage(): boolean {
+  get shouldShowWelcomeMessage(): boolean {
     return (this.user && this.isAtRoot && (!this.isSearchTriggered || !this.isSearchActive || !this.isSomeWorkflows) );
+  }
+
+  get shouldShowLoadingScreen(): boolean {
+    return (this.isAtWorkflowRelatedScreen && !this.isWorkflowsInitiatied);
+  }
+
+  get isAtWorkflowRelatedScreen() {
+    return (this.isAtRoot || this.router.url.startsWith('/workflow'));
   }
 
   get isWorkflowsInitiatied(): boolean {
