@@ -23,11 +23,6 @@ code {
   background-color: #f8f9fa!important;
   padding: 4px 6px;
   border-radius: 2px;
-  font-size: larger;
-}
-
-pre {
-  font-size: larger;
 }
 
 #navbar {
@@ -222,6 +217,8 @@ pre {
   .badge-pill {
     color: #fff;
     border-radius: 0.3em;
+    padding-top: 0.3em;
+    padding-bottom: 0.4em;
 
     &.new {
       background-color: $pending-purple;
