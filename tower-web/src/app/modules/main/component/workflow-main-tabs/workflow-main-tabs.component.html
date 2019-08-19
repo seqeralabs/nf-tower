@@ -18,7 +18,11 @@
   <div class="card-body">
     <div class="tab-content">
       <div class="tab-pane fade show active" id="commandLine" role="tabpanel" aria-labelledby="processes-tab">
-        <code class="text-dark">{{workflow.data.commandLine}}</code>
+        <div class="command-line-box container d-flex h-100">
+          <div class="justify-content-center align-self-center">
+          {{workflow.data.commandLine}}
+          </div>
+        </div>
       </div>
       <div class="tab-pane fade" id="parameters" role="tabpanel" aria-labelledby="params-tab">
         <code class="text-dark">{{workflow.data.params ? workflow.params : 'No params'}}</code>
