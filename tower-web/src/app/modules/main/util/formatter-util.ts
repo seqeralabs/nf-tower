@@ -41,7 +41,7 @@ export abstract class FormatterUtil {
   }
 
   static convertDurationToHours(durationMillis: number): string {
-    return (durationMillis / (1000 * 60 * 60)).toFixed(2);
+    return (durationMillis / (1000 * 60 * 60)).toFixed(1);
   }
 
 }
