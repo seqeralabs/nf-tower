@@ -1,9 +1,9 @@
-<wt-landing *ngIf="shouldLoadLandingPage"></wt-landing>
+<wt-landing *ngIf="shouldShowLandingPage"></wt-landing>
 
-<wt-navbar *ngIf="!shouldLoadLandingPage"></wt-navbar>
-<div *ngIf="!shouldLoadLandingPage && isWorkflowsInitiatied" id="layout">
+<wt-navbar *ngIf="!shouldShowLandingPage"></wt-navbar>
+<div *ngIf="!shouldShowLandingPage && !shouldShowLoadingScreen" id="layout">
 
-  <div id="sidebar" *ngIf="shouldLoadSidebar" (scroll)="onSidebarScroll($event)">
+  <div id="sidebar" *ngIf="shouldShowSidebar" (scroll)="onSidebarScroll($event)">
     <wt-sidebar [workflows]="workflows" (onDeleteWorkflow)="deleteWorkflow($event)"
                 (onSearchingWorkflows)="searchWorkflows($event)">
     </wt-sidebar>
@@ -19,7 +19,7 @@
   <div id="central">
     <router-outlet></router-outlet>
 
-    <wt-welcome *ngIf="shouldLoadWelcomeMessage"></wt-welcome>
+    <wt-welcome *ngIf="shouldShowWelcomeMessage"></wt-welcome>
   </div>
 </div>
-<wt-loading [loadingText]="'Loading workflows'" *ngIf="!isWorkflowsInitiatied"></wt-loading>
+<wt-loading [loadingText]="'Loading'" *ngIf="shouldShowLoadingScreen"></wt-loading>
