@@ -118,13 +118,41 @@ export class TasksTableComponent implements OnInit, OnChanges {
           json.data = json.tasks ? json.tasks
             .map((item) => new Task(item))
             .map((task: Task) => [
-              task.data.taskId, task.data.process, task.data.tag, task.statusTag,
-              task.data.hash, task.data.cpus, task.data.pcpu, task.humanizedMemory, task.data.pmem, task.humanizedVmem,
-              task.humanizedRss, task.humanizedPeakVmem, task.humanizedPeakRss, task.humanizedTime, task.humanizedDuration,
-              task.humanizedRealtime, task.data.script, task.data.exit, task.humanizedSubmit, task.humanizedStart,
-              task.humanizedComplete, task.humanizedRchar, task.humanizedWchar, task.humanizedSyscr, task.humanizedSyscw,
-              task.humanizedReadBytes, task.humanizedWriteBytes, task.data.nativeId, task.data.name, task.data.module,
-              task.data.container, task.data.disk, task.data.attempt, task.data.scratch, task.data.workdir
+              task.data.taskId,
+              task.data.process,
+              task.data.tag,
+              task.statusTag,
+              task.data.hash,
+              task.data.cpus,
+              task.data.pcpu,
+              task.humanizedMemory,
+              task.data.pmem,
+              task.humanizedVmem,
+              task.humanizedRss,
+              task.humanizedPeakVmem,
+              task.humanizedPeakRss,
+              task.humanizedTime,
+              task.humanizedDuration,
+              task.humanizedRealtime,
+              task.data.script,
+              task.data.exit,
+              task.humanizedSubmit,
+              task.humanizedStart,
+              task.humanizedComplete,
+              task.humanizedRchar,
+              task.humanizedWchar,
+              task.humanizedSyscr,
+              task.humanizedSyscw,
+              task.humanizedReadBytes,
+              task.humanizedWriteBytes,
+              task.data.nativeId,
+              task.data.name,
+              task.data.module,
+              task.data.container,
+              task.data.disk,
+              task.data.attempt,
+              task.data.scratch,
+              task.data.workdir
             ]) : [];
 
           return JSON.stringify(json);
