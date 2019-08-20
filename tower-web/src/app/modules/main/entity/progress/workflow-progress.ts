@@ -25,13 +25,13 @@ export class WorkflowProgress {
 
   /* Storage capacity values */
   get totalMemoryGb(): string {
-    return FormatterUtil.humanizeStorageCapacity(this.data.memoryRss, 'GB');
+    return FormatterUtil.humanizeStorageCapacity(this.data.memoryRss, 2, 'GB');
   }
   get totalDiskReadGb(): string {
-    return FormatterUtil.humanizeStorageCapacity(this.data.readBytes, 'GB');
+    return FormatterUtil.humanizeStorageCapacity(this.data.readBytes, 2, 'GB');
   }
   get totalDiskWriteGb(): string {
-    return FormatterUtil.humanizeStorageCapacity(this.data.writeBytes, 'GB');
+    return FormatterUtil.humanizeStorageCapacity(this.data.writeBytes, 2, 'GB');
   }
 
   get loadCpus(): number {

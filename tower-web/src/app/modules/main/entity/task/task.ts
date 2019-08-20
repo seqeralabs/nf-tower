@@ -31,17 +31,17 @@ export class Task {
   }
 
   /* Storage capacity values */
-  get humanizedMemory(): string { return FormatterUtil.humanizeStorageCapacity(this.data.memory) }
-  get humanizedVmem(): string { return FormatterUtil.humanizeStorageCapacity(this.data.vmem) }
-  get humanizedRss(): string { return FormatterUtil.humanizeStorageCapacity(this.data.rss) }
-  get humanizedPeakVmem(): string { return FormatterUtil.humanizeStorageCapacity(this.data.peakVmem) }
-  get humanizedPeakRss(): string { return FormatterUtil.humanizeStorageCapacity(this.data.peakRss) }
-  get humanizedRchar(): string { return FormatterUtil.humanizeStorageCapacity(this.data.rchar) }
-  get humanizedWchar(): string { return FormatterUtil.humanizeStorageCapacity(this.data.wchar) }
-  get humanizedSyscr(): string { return FormatterUtil.humanizeStorageCapacity(this.data.syscr) }
-  get humanizedSyscw(): string { return FormatterUtil.humanizeStorageCapacity(this.data.syscw) }
-  get humanizedReadBytes(): string { return FormatterUtil.humanizeStorageCapacity(this.data.readBytes) }
-  get humanizedWriteBytes(): string { return FormatterUtil.humanizeStorageCapacity(this.data.writeBytes) }
+  get humanizedMemory(): string { return FormatterUtil.humanizeStorageCapacity(this.data.memory, 1) }
+  get humanizedVmem(): string { return FormatterUtil.humanizeStorageCapacity(this.data.vmem, 1) }
+  get humanizedRss(): string { return FormatterUtil.humanizeStorageCapacity(this.data.rss, 1) }
+  get humanizedPeakVmem(): string { return FormatterUtil.humanizeStorageCapacity(this.data.peakVmem, 1) }
+  get humanizedPeakRss(): string { return FormatterUtil.humanizeStorageCapacity(this.data.peakRss, 1) }
+  get humanizedRchar(): string { return FormatterUtil.humanizeStorageCapacity(this.data.rchar, 1) }
+  get humanizedWchar(): string { return FormatterUtil.humanizeStorageCapacity(this.data.wchar, 1) }
+  get humanizedSyscr(): string { return FormatterUtil.humanizeStorageCapacity(this.data.syscr, 1) }
+  get humanizedSyscw(): string { return FormatterUtil.humanizeStorageCapacity(this.data.syscw, 1) }
+  get humanizedReadBytes(): string { return FormatterUtil.humanizeStorageCapacity(this.data.readBytes, 1) }
+  get humanizedWriteBytes(): string { return FormatterUtil.humanizeStorageCapacity(this.data.writeBytes, 1) }
 
   /* Duration values */
   get humanizedTime(): string { return FormatterUtil.humanizeDuration(this.data.time) }
@@ -52,5 +52,14 @@ export class Task {
   get humanizedSubmit(): string { return FormatterUtil.formatDate(this.data.submit) }
   get humanizedStart(): string { return FormatterUtil.formatDate(this.data.start) }
   get humanizedComplete(): string { return FormatterUtil.formatDate(this.data.complete) }
+
+  /* Code values */
+  get humanizedExit(): string {
+    if (this.data.exit == 2147483647) {
+      return 'empty'
+    }
+
+    return `${this.data.exit}`;
+  }
 
 }

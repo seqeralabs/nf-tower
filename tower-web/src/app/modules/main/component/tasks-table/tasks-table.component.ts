@@ -93,7 +93,9 @@ export class TasksTableComponent implements OnInit, OnChanges {
         {name: "readBytes", orderable: false},
         {name: "writeBytes", orderable: false},
         {name: "volCtxt", orderable: false},
-        {name: "invCtxt", orderable: false}
+        {name: "invCtxt", orderable: false},
+        {name: "workdir", render: (data) => `<div class="scrollable code">${data}</div>`, orderable: false, visible: false},
+        {name: "script", render: (data) => `<div class="scrollable code">${data}</div>`, orderable: false, visible: false}
       ],
       ajax: {
         url: this.workflowService.buildTasksGetUrl(this.workflowId),
@@ -119,7 +121,7 @@ export class TasksTableComponent implements OnInit, OnChanges {
               task.data.tag,
               task.data.hash,
               task.statusTag,
-              task.data.exit,
+              task.humanizedExit,
               task.data.attempt,
               task.data.container,
               task.data.nativeId,
@@ -144,7 +146,9 @@ export class TasksTableComponent implements OnInit, OnChanges {
               task.humanizedReadBytes,
               task.humanizedWriteBytes,
               task.data.volCtxt,
-              task.data.invCtxt
+              task.data.invCtxt,
+              task.data.workdir,
+              task.data.script
             ]) : [];
 
           return JSON.stringify(json);
