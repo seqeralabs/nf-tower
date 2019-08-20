@@ -105,6 +105,9 @@ export class TasksTableComponent implements OnInit, OnChanges {
       ],
       ajax: {
         url: this.workflowService.buildTasksGetUrl(this.workflowId),
+        xhrFields: {
+          withCredentials: true
+        },
         data: (data) => {
           let filterParams: any = {
             start: data.start,

@@ -1,1 +1,5 @@
-<wt-loading [loadingText]="'Accessing'"></wt-loading>
+<wt-loading [loadingText]="'Authenticating'"></wt-loading>
+<form #authForm ngNoForm [action]="authEndpointUrl" method="POST">
+  <input type="hidden" name="username" id="username" [value]="email"/>
+  <input type="hidden" name="password" id="password" [value]="authToken"/>
+</form>

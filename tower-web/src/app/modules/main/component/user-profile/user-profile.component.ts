@@ -39,7 +39,11 @@ export class UserProfileComponent implements OnInit {
 
   ngOnInit() {
     this.authService.user$.subscribe(
-      (user: User) => this.userCopy = user.generateCopy()
+      (user: User) => {
+        if (user) {
+          this.userCopy = user.generateCopy();
+        }
+      }
     );
   }
 

@@ -45,13 +45,20 @@ import { WorkflowLoadComponent } from './component/workflow-load/workflow-load.c
 import {WorkflowErrorComponent} from "./component/workflow-error/workflow-error.component";
 import { LoadingComponent } from './component/loading/loading.component';
 import {TreeListComponent} from "./component/tree-list/TreeListComponent";
+<<<<<<< HEAD
 import {WorkflowStatusIconComponent} from "../../workflow-status-icon/workflow-status-icon.component";
+=======
+import { AccessComponent } from './component/access/access.component';
+>>>>>>> Refactor security strategy from JWT token to JWT cookie
 
 /*
  * Main application routing strategy
  */
 const routes: Routes = [
-  {path: '',                component: HomeComponent,
+  {path: 'auth',        component: AuthComponent},
+  {path: 'access',      component: AccessComponent},
+  {path: 'logout',      component: LogoutComponent},
+  {path: '',            component: HomeComponent,
    children: [
      {path: 'watch/:id', component: WorkflowDetailComponent, canActivate: [AuthGuard]},
      {path: 'profile',      component: UserProfileComponent, canActivate: [AuthGuard]},
@@ -60,10 +67,6 @@ const routes: Routes = [
      {path: 'login',        component: LoginComponent},
    ]
   },
-  {path: 'metrics/:id',  component: WorkflowMetricsComponent},
-  {path: 'auth',         component: AuthComponent},
-  {path: 'logout',       component: LogoutComponent},
-
   {path: '**', redirectTo: ''}
 ];
 
@@ -90,6 +93,7 @@ export class MainRoutingModule { }
     LoadingComponent,
     LoginComponent,
     AuthComponent,
+    AccessComponent,
     LogoutComponent,
     UserProfileComponent,
     AccessTokenComponent,

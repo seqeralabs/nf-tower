@@ -58,6 +58,7 @@ import org.grails.datastore.mapping.validation.ValidationException
  * Implements the `workflow` API
  */
 @Controller("/workflow")
+@Secured(['ROLE_USER'])
 @Slf4j
 class WorkflowController extends BaseController {
 
@@ -77,7 +78,6 @@ class WorkflowController extends BaseController {
 
     @Get("/list")
     @Transactional
-    @Secured(['ROLE_USER'])
     HttpResponse<ListWorklowResponse> list(Authentication authentication, HttpParameters filterParams) {
         Long max = filterParams.getFirst('max', Long.class, 50l)
         Long offset = filterParams.getFirst('offset', Long.class, 0l)
@@ -101,9 +101,18 @@ class WorkflowController extends BaseController {
      */
     @Get("/{workflowId}")
     @Transactional
+<<<<<<< HEAD
     @Secured(['ROLE_USER'])
+<<<<<<< HEAD
     HttpResponse<WorkflowGet> get(String workflowId) {
         Workflow workflow = workflowService.get(workflowId)
+=======
+    HttpResponse<WorkflowGet> get(String id) {
+=======
+    HttpResponse<WorkflowGet> get(Long id) {
+>>>>>>> Refactor security strategy from JWT token to JWT cookie
+        Workflow workflow = workflowService.get(id)
+>>>>>>> Refactor security strategy from JWT token to JWT cookie
 
         if (!workflow) {
             return HttpResponse.notFound()
@@ -140,8 +149,12 @@ class WorkflowController extends BaseController {
 
     @Get("/{workflowId}/tasks")
     @Transactional
+<<<<<<< HEAD
     @Secured(SecurityRule.IS_ANONYMOUS)
     HttpResponse<TaskList> tasks(String workflowId, HttpParameters filterParams) {
+=======
+    HttpResponse<TaskList> tasks(Long workflowId, HttpParameters filterParams) {
+>>>>>>> Refactor security strategy from JWT token to JWT cookie
         Long max = filterParams.getFirst('length', Long.class, 10l)
         Long offset = filterParams.getFirst('start', Long.class, 0l)
         String orderProperty = filterParams.getFirst('order[0][column]', String.class, 'taskId')
@@ -159,7 +172,6 @@ class WorkflowController extends BaseController {
     }
 
     @Transactional
-    @Secured(['ROLE_USER'])
     @Delete('/{workflowId}')
     HttpResponse delete(String workflowId) {
         try {
@@ -173,7 +185,6 @@ class WorkflowController extends BaseController {
     }
 
     @Transactional
-    @Secured(['ROLE_USER'])
     @Get('/{workflowId}/metrics')
     @CompileDynamic
     HttpResponse<GetWorkflowMetricsResponse> metrics(String workflowId) {
@@ -192,7 +203,6 @@ class WorkflowController extends BaseController {
     }
 
     @Transactional
-    @Secured(['ROLE_USER'])
     @Get('/{workflowId}/comments')
     @CompileDynamic
     HttpResponse<ListWorkflowCommentsResponse> listComments(String workflowId) {
@@ -211,7 +221,6 @@ class WorkflowController extends BaseController {
     }
 
     @Transactional
-    @Secured(['ROLE_USER'])
     @Post('/{workflowId}/comment/add')
     @CompileDynamic
     HttpResponse<AddWorkflowCommentResponse> addComment(Authentication authentication, String workflowId, AddWorkflowCommentRequest request) {
@@ -245,7 +254,6 @@ class WorkflowController extends BaseController {
     }
 
     @Transactional
-    @Secured(['ROLE_USER'])
     @Put('/{workflowId}/comment')
     @CompileDynamic
     HttpResponse<UpdateWorkflowCommentResponse> updateComment(Authentication authentication, String workflowId, UpdateWorkflowCommentRequest request) {
@@ -291,7 +299,6 @@ class WorkflowController extends BaseController {
     }
 
     @Transactional
-    @Secured(['ROLE_USER'])
     @Delete('/{workflowId}/comment')
     @CompileDynamic
     HttpResponse<DeleteWorkflowCommentResponse> deleteComment(Authentication authentication, String workflowId, DeleteWorkflowCommentRequest request) {

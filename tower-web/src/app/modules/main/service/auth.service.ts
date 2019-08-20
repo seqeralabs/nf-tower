@@ -21,6 +21,7 @@ import {Router} from "@angular/router";
 const authEndpointUrl: string = `${environment.apiUrl}/login`;
 const userEndpointUrl: string = `${environment.apiUrl}/user`;
 const gateEndpointUrl: string = `${environment.apiUrl}/gate`;
+const authCookieName: string = 'JWT';
 
 @Injectable({
   providedIn: 'root'
@@ -45,6 +46,9 @@ export class AuthService {
     return this.userSubject.value
   }
 
+  get authEndpointUrl(): string {
+    return authEndpointUrl;
+  }
 
   auth(email: string, authToken: string): Observable<User> {
     return this.http.post(authEndpointUrl, {username: email, password: authToken}).pipe(
@@ -53,8 +57,18 @@ export class AuthService {
     );
   }
 
+  retrieveUser(): Observable<User> {
+    return this.requestUserProfileInfo(null).pipe(
+      tap((user: User) => this.setAuthUser(user))
+    );
+  }
+
   private requestUserProfileInfo(authData: any): Observable<User> {
-    let userData: UserData = <UserData> {email: authData.username, jwtAccessToken: authData['access_token'], roles: authData.roles};
+    let userData: UserData = <UserData>{
+      email: authData.username,
+      jwtAccessToken: authData['access_token'],
+      roles: authData.roles
+    };
 
     return this.http.get(`${userEndpointUrl}/`, {headers: {'Authorization': `Bearer ${userData.jwtAccessToken}`}}).pipe(
       map((data: any) => {
@@ -100,17 +114,13 @@ export class AuthService {
 
   private logout(): void {
     this.removeUser();
+    this.deleteCookie(authCookieName);
     this.userSubject.next(null);
   }
 
-  private parseJwt(token: string): any {
-    let base64Url = token.split('.')[1];
-    let decodedBase64 = decodeURIComponent(atob(base64Url).split('')
-      .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-      .join(''));
-
-    return JSON.parse(decodedBase64);
-  };
+  private deleteCookie(cookieName: string) {
+    document.cookie = cookieName + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+  }
 
   private persistUser(user: User): void {
     localStorage.setItem('user', JSON.stringify(user.data));

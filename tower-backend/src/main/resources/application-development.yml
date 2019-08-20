@@ -2,6 +2,7 @@ tower:
   trustedEmails:
     - '*@seqera.io'
     - '*@salenda.es'
+  serverUrl: http://localhost:4200
 ---
 micronaut:
   server:
@@ -30,9 +31,6 @@ mail:
     starttls:
       enable: false
       required: false
----
-tower:
-  serverUrl: http://localhost:4200
 ---
 auth:
   mail:

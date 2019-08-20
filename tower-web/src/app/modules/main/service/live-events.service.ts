@@ -65,7 +65,6 @@ export class LiveEventsService {
 
       eventSource.addEventListener('open', () => {
         console.log('Connection established', new Date().toISOString());
-        this.updateStatus(true);
       });
 
       eventSource.addEventListener('message', (event: MessageEvent) => {

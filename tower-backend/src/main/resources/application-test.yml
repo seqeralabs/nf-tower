@@ -7,6 +7,13 @@ micronaut:
     watch:
       paths: src/main
       restart: true
+  security:
+    token:
+      jwt:
+        bearer:
+          enabled: true
+        cookie:
+          enabled: false
 ---
 dataSource:
   pooled: false

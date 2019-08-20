@@ -49,7 +49,7 @@ import io.seqera.tower.service.UserService
  *
  */
 @Controller("/trace")
-@Secured(SecurityRule.IS_ANONYMOUS)
+@Secured(['ROLE_USER'])
 @Slf4j
 class TraceController extends BaseController {
 
@@ -129,7 +129,6 @@ class TraceController extends BaseController {
     @Secured(['ROLE_USER'])
     HttpResponse<TraceTaskResponse> task(@Body TraceTaskRequest req, Authentication authentication) {
         log.info "Receiving task trace request [workflowId=${req.workflowId}; user=${authentication.name}]"
-
         HttpResponse<TraceTaskResponse> response
         if( !req.workflowId )
             HttpResponse.badRequest(TraceTaskResponse.ofError("Missing workflow ID"))
