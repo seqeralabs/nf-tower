@@ -75,7 +75,7 @@ export class TasksProcessesComponent implements OnInit, OnChanges {
 
   private toggleProgressBarTooltip(hoveredElement, showOrHide: boolean): void {
     const parent = $(hoveredElement).parents('.tw-task-progress');
-    const progressBar = parent.find('.progress');
+    const progressBar = parent.find('[data-toggle="tooltip"]');
     progressBar.tooltip(showOrHide ? 'show' : 'hide');
   }
 

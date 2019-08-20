@@ -12,12 +12,14 @@
             {{progress.data.succeeded}} of {{progress.total}}
           </div>
         </div>
-        <div class="progress" [title]="getTooltipText(progress)" data-toggle="tooltip" data-placement="top" data-html="true">
-          <div class="progress-bar"
-               *ngFor="let status of statusesTags"
-               [style.width]="computePercentageProcessTasks(progress, status)"
-               [ngClass]="status"
-          >
+        <div class="progress-wrapper" [title]="getTooltipText(progress)" data-toggle="tooltip" data-placement="top" data-html="true">
+          <div class="progress">
+            <div class="progress-bar"
+                 *ngFor="let status of statusesTags"
+                 [style.width]="computePercentageProcessTasks(progress, status)"
+                 [ngClass]="status"
+            >
+            </div>
           </div>
         </div>
       </div>
