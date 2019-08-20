@@ -69,35 +69,26 @@ export class HomeComponent implements OnInit {
 
   private receiveWorkflows(emittedWorkflows: Workflow[]): void {
     this.workflows = this.isWorkflowsInitiatied ? this.workflows : [];
-
     const newWorkflows: Workflow[] = differenceBy(emittedWorkflows, this.workflows, (w: Workflow) => w.data.workflowId);
-    const deletedWorkflows: Workflow[] = differenceBy(this.workflows, emittedWorkflows, (w: Workflow) => w.data.workflowId);
-    console.log('New and deleted workflows', newWorkflows, deletedWorkflows);
 
     //Paginating event: concat the newly received workflows to the current ones
     if (this.isNextPageLoadTriggered) {
-      this.offset += newWorkflows.length;
       this.workflows = concat(this.workflows, newWorkflows);
     }
     //Searching event: replace the workflows with the newly received ones from server
     else if (this.isSearchTriggered) {
-      this.offset = emittedWorkflows.length;
       this.workflows = emittedWorkflows;
-
     }
     //Search is currently active: keep the filtered workflows, drop the ones no longer present (delete event) and ignore the new ones (live update event)
     else if (this.isSearchActive) {
-      this.offset = this.offset - deletedWorkflows.length;
       this.workflows = intersectionBy(this.workflows, emittedWorkflows, (workflow: Workflow) => workflow.data.workflowId);
     }
     //No search currently active (initialization event, live update event, delete event)
     else {
-      this.offset = (this.workflows.length == 0)  ? emittedWorkflows.length :
-                    (deletedWorkflows.length > 0) ? this.offset - 1         :
-                    (newWorkflows.length > 0)     ? this.offset + 1         : this.offset;
       this.workflows = emittedWorkflows;
     }
     this.workflows = orderBy(this.workflows, [(w: Workflow) => w.data.start], ['desc']);
+    this.offset = this.workflows.length;
 
     this.isSearchTriggered = false;
     this.isNextPageLoadTriggered = false;
@@ -169,7 +160,7 @@ export class HomeComponent implements OnInit {
     this.searchingText = searchText;
     this.isSearchTriggered = true;
 
-    this.workflowService.emitWorkflowsFromServer(new FilteringParams(10, 0, searchText));
+    this.workflowService.emitWorkflowsFromServer(new FilteringParams(10, 0, searchText), true);
   }
 
   onSidebarScroll(event) {

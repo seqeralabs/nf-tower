@@ -40,28 +40,35 @@ export class WorkflowService {
       console.log('Initializing workflows');
       this.emitWorkflowsFromServer(new FilteringParams(10, 0, null));
     } else {
-      console.log('Getting workflows from cache');
+      console.log('Workflows already initialized');
       this.emitWorkflowsFromCache();
     }
 
     return this.workflowsSubject.asObservable();
   }
 
-  emitWorkflowsFromServer(filteringParams: FilteringParams): void {
-    this.requestWorkflowList(filteringParams).subscribe((workflows: Workflow[]) => this.workflowsSubject.next(workflows));
+  emitWorkflowsFromServer(filteringParams: FilteringParams, clearCache: boolean = false): void {
+    console.log('Emitting workflows from server [workflowsByIdCache, clearCache]', this.workflowsByIdCache, clearCache);
+    this.requestWorkflowList(filteringParams, clearCache).subscribe((workflows: Workflow[]) => this.workflowsSubject.next(workflows));
   }
 
   private emitWorkflowsFromCache(): void {
+    console.log('Emitting workflows from cache [workflowsByIdCache]', this.workflowsByIdCache);
     const cachedWorkflows: Workflow[] = Array.from(this.workflowsByIdCache.values());
-    this.workflowsSubject.next(orderBy(cachedWorkflows, [(w: Workflow) => w.data.start], ['desc']));
+    this.workflowsSubject.next(cachedWorkflows);
   }
 
-  private requestWorkflowList(filteringParams: FilteringParams): Observable<Workflow[]> {
+  private requestWorkflowList(filteringParams: FilteringParams, clearCache: boolean): Observable<Workflow[]> {
     const url = `${endpointUrl}/list`;
 
     return this.http.get(url, { params: filteringParams.toHttpParams() }).pipe(
       map((data: any) => data.workflows ? data.workflows.map((item: any) => new Workflow(item)) : []),
-      tap((workflows: Workflow[]) => workflows.forEach((workflow: Workflow) => this.workflowsByIdCache.set(workflow.data.workflowId, workflow)))
+      tap((workflows: Workflow[]) => {
+        if (clearCache) {
+          this.workflowsByIdCache.clear();
+        }
+        workflows.forEach((workflow: Workflow) => this.workflowsByIdCache.set(workflow.data.workflowId, workflow));
+      })
     );
   }
 
@@ -83,7 +90,12 @@ export class WorkflowService {
 
     return this.http.get(url).pipe(
       map((data: any[]) => new Workflow(data)),
-      tap((workflow: Workflow) => this.workflowsByIdCache.set(workflow.data.workflowId, workflow))
+      tap((workflow: Workflow) => {
+        const isAlreadyInCache: boolean = this.workflowsByIdCache.has(workflow.data.workflowId);
+        if (isAlreadyInCache) {
+          this.workflowsByIdCache.set(workflow.data.workflowId, workflow)
+        }
+      })
     );
   }
 
