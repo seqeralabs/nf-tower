@@ -44,9 +44,7 @@ export class WorkflowStatsComponent implements OnInit, OnChanges {
 
     this.durationTimerSubscription = interval(1000).subscribe(() => {
       const now: Date = new Date();
-
       this.workflow.data.duration = differenceInMilliseconds(now, this.workflow.data.start);
-      this.workflowService.updateWorkflow(this.workflow);
     });
   }
 
