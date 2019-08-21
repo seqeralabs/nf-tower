@@ -11,6 +11,8 @@
 
 package io.seqera.tower.util
 
+import io.seqera.tower.domain.WorkflowTag
+
 import java.time.Instant
 import java.time.OffsetDateTime
 
@@ -146,6 +148,26 @@ class DomainCreator {
         populateInstance(resource, fields)
     }
 
+    AccessToken createAccesToken(Map fields = [:]) {
+        AccessToken accessToken = new AccessToken()
+
+        fields.token =  fields.containsKey('token') ? fields.token : "accessToken${generateUniqueNamePart()}"
+        fields.name =  fields.containsKey('name') ? fields.name : 'default'
+        fields.dateCreated = fields.containsKey('dateCreated') ? fields.dateCreated : Instant.now()
+        fields.user = fields.containsKey('user') ? fields.user : createUser(acessTokens: accessToken)
+
+        createInstance(accessToken, fields)
+    }
+
+    WorkflowTag createWorkflowTag(Map fields = [:]) {
+        WorkflowTag workflowTag = new WorkflowTag()
+
+        fields.label =  fields.containsKey('label') ? fields.label : 'label'
+        fields.workflow =  fields.containsKey('workflow') ? fields.workflow : createWorkflow()
+
+        createInstance(workflowTag, fields)
+    }
+
     User createUser(Map fields = [:]) {
         User user = new User()
 
@@ -156,17 +178,6 @@ class DomainCreator {
         fields.accessTokens = fields.containsKey('accessTokens') ? fields.accessTokens : [new DomainCreator(save: false).createAccesToken(user: user)]
         
         createInstance(user, fields)
-    }
-
-    AccessToken createAccesToken(Map fields = [:]) {
-        AccessToken accessToken = new AccessToken()
-
-        fields.token =  fields.containsKey('token') ? fields.token : "accessToken${generateUniqueNamePart()}"
-        fields.name =  fields.containsKey('name') ? fields.name : 'default'
-        fields.dateCreated = fields.containsKey('dateCreated') ? fields.dateCreated : Instant.now()
-        fields.user = fields.containsKey('user') ? fields.user : createUser(acessTokens: accessToken)
-
-        createInstance(accessToken, fields)
     }
 
     User createUserWithRole(Map fields = [:], String authority) {

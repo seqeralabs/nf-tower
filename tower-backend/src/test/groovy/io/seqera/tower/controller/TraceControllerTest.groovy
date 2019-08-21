@@ -11,8 +11,6 @@
 
 package io.seqera.tower.controller
 
-import spock.lang.IgnoreRest
-
 import javax.inject.Inject
 
 import grails.gorm.transactions.Transactional
@@ -180,7 +178,6 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         }
     }
 
-    @IgnoreRest
     void "save traces simulated from a complete sequence and subscribe to the live events in the mean time"() {
         given: 'an allowed user'
         User user = new DomainCreator().generateAllowedUser()
