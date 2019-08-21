@@ -55,11 +55,7 @@ export class Task {
 
   /* Code values */
   get humanizedExit(): string {
-    if (this.data.exit == 2147483647) {
-      return 'empty'
-    }
-
-    return `${this.data.exit}`;
+    return this.data.exit == 2147483647 ? '' : `${this.data.exit}`;
   }
 
 }
