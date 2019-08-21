@@ -74,7 +74,7 @@ class WorkflowTagControllerTest extends AbstractContainerBaseTest {
                 CreateWorkflowTagResponse.class
         )
 
-        then: 'the tag has been created'
+        then: "the tag couldn't be created"
         HttpClientResponseException e = thrown(HttpClientResponseException)
         e.status == HttpStatus.BAD_REQUEST
         e.message == 'Trying to associate to nonexistent workflow'
@@ -100,10 +100,38 @@ class WorkflowTagControllerTest extends AbstractContainerBaseTest {
                 CreateWorkflowTagResponse.class
         )
 
-        then: 'the tag has been created'
+        then: "the tag couldn't be created"
         HttpClientResponseException e = thrown(HttpClientResponseException)
         e.status == HttpStatus.BAD_REQUEST
         e.message == 'Trying to associate to a not owned workflow'
+    }
+
+    void "try to create a new workflow tag with a blank label"() {
+        given: 'a user'
+        DomainCreator creator = new DomainCreator()
+        User user = creator.generateAllowedUser()
+
+        and: 'a workflow associated with the tag'
+        Workflow workflow = creator.createWorkflow(owner: user)
+
+        and: 'the tag to create'
+        WorkflowTag workflowTag = new WorkflowTag(label: '')
+
+        and: 'the request object'
+        CreateWorkflowTagRequest request = new CreateWorkflowTagRequest(workflowId: workflow.id, workflowTag: workflowTag)
+
+        when: "perform the request to create the tag"
+        String accessToken = doJwtLogin(user, client)
+        client.toBlocking().exchange(
+                HttpRequest.POST('/tag/create', request)
+                           .bearerAuth(accessToken),
+                CreateWorkflowTagResponse.class
+        )
+
+        then: "the tag couldn't be created"
+        HttpClientResponseException e = thrown(HttpClientResponseException)
+        e.status == HttpStatus.BAD_REQUEST
+        e.message == "Cannot create empty tag"
     }
 
 }

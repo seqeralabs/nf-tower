@@ -2,25 +2,22 @@ package io.seqera.tower.controller
 
 import grails.gorm.transactions.Transactional
 import groovy.util.logging.Slf4j
-import io.micronaut.http.HttpParameters
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
-import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Post
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.seqera.tower.domain.User
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.domain.WorkflowTag
-import io.seqera.tower.exchange.workflow.ListWorklowResponse
-import io.seqera.tower.exchange.workflow.WorkflowGet
 import io.seqera.tower.exchange.workflowTag.CreateWorkflowTagRequest
 import io.seqera.tower.exchange.workflowTag.CreateWorkflowTagResponse
 import io.seqera.tower.service.UserService
 import io.seqera.tower.service.WorkflowService
 import io.seqera.tower.service.WorkflowTagService
 import org.grails.datastore.mapping.validation.ValidationException
+import org.springframework.context.MessageSource
 
 import javax.inject.Inject
 
@@ -32,11 +29,15 @@ class WorkflowTagController {
     WorkflowService workflowService
     UserService userService
 
+    MessageSource messageSource
+
     @Inject
-    WorkflowController(WorkflowTagService workflowTagService, WorkflowService workflowService, UserService userService) {
+    WorkflowController(WorkflowTagService workflowTagService, WorkflowService workflowService, UserService userService, MessageSource messageSource) {
         this.workflowTagService = workflowTagService
         this.workflowService = workflowService
         this.userService = userService
+
+        this.messageSource = messageSource
     }
 
 
@@ -58,7 +59,8 @@ class WorkflowTagController {
             WorkflowTag workflowTag = workflowTagService.create(request.workflowTag, workflow)
             return HttpResponse.created(CreateWorkflowTagResponse.ofTag(workflowTag))
         } catch (ValidationException e) {
-            return HttpResponse.badRequest(CreateWorkflowTagResponse.ofError('Validation error creating workflow tag'))
+            String firstErrorMessage = messageSource.getMessage(e.getErrors().fieldError, Locale.ENGLISH)
+            return HttpResponse.badRequest(CreateWorkflowTagResponse.ofError(firstErrorMessage))
         } catch (Exception e) {
             log.error("Unexpected error creating workflow tag -- request=$request", e)
             return HttpResponse.badRequest(CreateWorkflowTagResponse.ofError('Unexpected error creating workflow tag'))
