@@ -8,10 +8,8 @@
  * This Source Code Form is "Incompatible With Secondary Licenses", as
  * defined by the Mozilla Public License, v. 2.0.
  */
-import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {Workflow} from "../../entity/workflow/workflow";
-
-declare let $: any;
 
 @Component({
   selector: 'wt-workflow-main-tabs',
@@ -25,26 +23,7 @@ export class WorkflowMainTabsComponent implements OnInit {
 
   constructor() { }
 
-  ngOnInit(): void {
-    console.log(`workflow=${this.workflow.data}`)
-  }
-
-
-  ngOnChanges(changes: SimpleChanges): void {
-    console.log(this.workflow.data.params)
-
-    const params = [ {
-      name: 'node1', id: 1,
-      children: [
-        { name: 'child1', id: 2 },
-        { name: 'child2', id: 3 }
-      ]
-    } ];
-    $(function() {
-      $('#params-tree').tree({
-        data: params
-      });
-    });
+  ngOnInit() {
   }
 
 }
