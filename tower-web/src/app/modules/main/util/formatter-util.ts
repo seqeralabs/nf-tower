@@ -28,13 +28,10 @@ export abstract class FormatterUtil {
   }
 
   static humanizeStorageCapacity(storageBytes: number, decimals: number = 2, unit?: string): string {
+    if( storageBytes == null || storageBytes == 0 )
+      return '';
     const filesizeHandler = filesize(storageBytes, {fixed: decimals});
-    // const humanizedStorage: string = unit ? `${filesize(storageBytes).to(unit, 'jedec')} ${unit}` : filesize(storageBytes).human('jedec');
     const humanizedStorage: string = unit ? `${filesizeHandler.to(unit, 'jedec')} ${unit}` : filesizeHandler.human('jedec');
-
-    if (humanizedStorage.startsWith('0.0')) {
-      return '0';
-    }
     return humanizedStorage.replace('Bytes', 'B');
   }
 
@@ -42,7 +39,7 @@ export abstract class FormatterUtil {
     const dateInstance: Date = new Date(date);
 
     if (dateInstance.getTime() == 0) {
-      return 'empty';
+      return '';
     }
 
     if (!format) {
