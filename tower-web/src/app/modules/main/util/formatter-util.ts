@@ -36,14 +36,12 @@ export abstract class FormatterUtil {
   }
 
   static formatDate(date: string | number | Date, format?: string): string {
-    const dateInstance: Date = new Date(date);
-
-    if (dateInstance.getTime() == 0) {
+    if (date==null || date==0) {
       return '';
     }
-
+    const dateInstance: Date = new Date(date);
     if (!format) {
-      format = 'ddd MMM D YYYY hh:mm:ss'
+      format = 'YYYY-MM-DD hh:mm:ss'
     }
     return dateFormat(dateInstance, format);
   }
