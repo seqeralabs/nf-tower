@@ -107,6 +107,9 @@ afterEvaluate {
     def f = file("src/main/resources/META-INF/build-info.properties")
     f.parentFile.mkdir()
     f.text = info
+
+    def app = file('src/main/groovy/io/seqera/tower/Application.groovy')
+    app.text = app.text.replaceAll(/version ?= ?".+",/, "version = \"${version}\",")
 }
 
 //Only for the main (not test) source set
