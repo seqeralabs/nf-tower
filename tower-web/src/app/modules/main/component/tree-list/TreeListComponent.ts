@@ -27,7 +27,8 @@ export class TreeListComponent implements OnInit, OnChanges {
   ngOnInit(): void { }
 
   ngOnChanges(changes: SimpleChanges): void {
-    this.listContent = this.render(this.workflow.data.params, 0);
+    const tree = this.render(this.workflow.data.params, 0);
+    this.listContent = tree ? tree : '(no parameters)';
   }
 
   private render(obj: any, level:number): string {
@@ -49,7 +50,7 @@ export class TreeListComponent implements OnInit, OnChanges {
       return html + '</ul>';
     }
 
-    return ` = <span class="list-value">${obj}</span>`
+    return obj!=null ? ` = <span class="list-value">${obj}</span>` : '';
   }
 
 }
