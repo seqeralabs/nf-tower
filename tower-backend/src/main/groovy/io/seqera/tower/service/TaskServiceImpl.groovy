@@ -86,7 +86,7 @@ class TaskServiceImpl implements TaskService {
 
     @CompileDynamic
     PagedResultList<Task> findTasks(Long workflowId, Long max, Long offset, String orderProperty, String orderDirection, String sqlRegex) {
-        Collection<TaskStatus> statusesToSearch = sqlRegex ? TaskStatus.findStatusesByRegex(sqlRegex) : null
+        def statusesToSearch = TaskStatus.findStatusesByRegex(sqlRegex)
 
         new DetachedCriteria<Task>(Task).build {
             workflow {
