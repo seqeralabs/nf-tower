@@ -66,7 +66,7 @@ export class TasksTableComponent implements OnInit, OnChanges {
         {name: "taskId", className: 'details-control', orderable: true},
         {name: "process", orderable: true},
         {name: "tag", orderable: true},
-        {name: "hash", render: (data) => `<span class="inline code">${data}</span>`, orderable: true},
+        {name: "hash", orderable: true},
         {name: "status", render: (data) => `<span class="badge badge-pill ${data.toLowerCase()}">${data}</span>`, orderable: true},
         {name: "exit", orderable: false},
         {name: "attempt", orderable: false},
@@ -94,8 +94,8 @@ export class TasksTableComponent implements OnInit, OnChanges {
         {name: "writeBytes", orderable: false},
         {name: "volCtxt", orderable: false},
         {name: "invCtxt", orderable: false},
-        {name: "workdir", render: (data) => `<div class="scrollable code">${data}</div>`, orderable: false, visible: false},
-        {name: "script", render: (data) => `<div class="scrollable code">${data}</div>`, orderable: false, visible: false}
+        {name: "workdir", visible: false},
+        {name: "script", visible: false}
       ],
       ajax: {
         url: this.workflowService.buildTasksGetUrl(this.workflowId),
