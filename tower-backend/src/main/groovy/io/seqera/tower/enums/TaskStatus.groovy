@@ -22,11 +22,10 @@ enum TaskStatus {
     ABORTED     // execution aborted
 
     static Collection<TaskStatus> findStatusesByRegex(String sqlRegex) {
+        if( !sqlRegex )
+            return Collections.<TaskStatus>emptyList()
         String regex = sqlRegex.toUpperCase().replaceAll('%', /.*/)
-
-        values().findAll {
-            it.name() ==~ regex
-        } ?: []
+        values().findAll { it.name() ==~ regex }
     }
 
 }
