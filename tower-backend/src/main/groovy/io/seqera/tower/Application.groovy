@@ -24,7 +24,7 @@ import io.swagger.v3.oas.annotations.info.License
 @OpenAPIDefinition(
     info = @Info(
             title = "Nextflow Tower",
-            version = "0.1",
+            version = "19.08.0",
             description = "Nextflow Tower service API",
             license = @License(name = "MPL 2.0", url = "https://www.mozilla.org/en-US/MPL/2.0/"),
             contact = @Contact(url = "http://seqera.io", name = "Paolo Di Tommaso", email = "p@seqera.io")
