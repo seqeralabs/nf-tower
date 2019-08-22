@@ -245,3 +245,21 @@ code {
   }
 }
 
+
+.tree-list {
+  ul {
+    padding-inline-start: 1.5em;
+  }
+
+  li {
+    list-style: none;
+  }
+
+  .list-label {
+    font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  }
+
+  .list-value {
+    font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  }
+}

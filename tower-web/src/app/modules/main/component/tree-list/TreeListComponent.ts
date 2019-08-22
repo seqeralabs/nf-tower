@@ -27,32 +27,29 @@ export class TreeListComponent implements OnInit, OnChanges {
   ngOnInit(): void { }
 
   ngOnChanges(changes: SimpleChanges): void {
-    this.listContent = this.render(this.workflow.data.params);
+    this.listContent = this.render(this.workflow.data.params, 0);
   }
 
-  private render(obj: any): string {
+  private render(obj: any, level:number): string {
     if( obj instanceof Object ) {
-      let html = '<ul>';
+      let html = level>0 ? ':' : '';
+      html += '<ul>';
       for( const key in obj ) {
-        html += `<li>${key}: ${this.render(obj[key])}</li>`;
+        html += `<li><span class="list-label">${key}</span>${this.render(obj[key], level+1)}</li>`;
       }
       return html + '</ul>';
     }
 
     if( obj instanceof Array ) {
-      let html = '<ul>';
+      let html = level>0 ? ':' : '';
+      html += '<ul>';
       for( const key in obj ) {
-        html += `<li>${this.render(obj[key])}</li>`;
+        html += `<li>${this.render(obj[key], level+1)}</li>`;
       }
       return html + '</ul>';
     }
 
-    if( typeof(obj) == 'string' ) {
-        return `"${obj}"`
-    }
-    else {
-      return obj;
-    }
+    return ` = <span class="list-value">${obj}</span>`
   }
 
 }
