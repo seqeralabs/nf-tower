@@ -13,7 +13,6 @@ plugins {
     id "com.github.node-gradle.node" version "1.3.0"
 }
 
-
 node {
     version = '10.15.3'
     npmVersion = '6.4.1'
@@ -26,4 +25,12 @@ task buildFrontend(type: NpmTask) {
 
 task runFrontend(type: NpmTask) {
   args = ['run', 'start']
+}
+
+/*
+ * update version number
+ */
+afterEvaluate {
+  def app = file('package.json')
+  println app.text.replaceAll(/"version": "\d+\.\d+(\.\d+)?",/, "\"version\": \"${version}\",")
 }
