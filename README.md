@@ -65,10 +65,24 @@ database server, such as MySql, Postgres, Oracle and many other.
 By default it uses a [H2](https://www.h2database.com) embedded database meant to be used only for 
 evaluation purpose. 
 
-The following environment variable can be used to configure a production database: 
 
+## Environment variables: 
+
+* TOWER_APP_NAME: Application name
+* TOWER_SERVER_URL: Server URL eg `https://tower.com`
+* TOWER_CONTACT_EMAIL: Sysadmin email contact eg `info@seqera.io`
+* TOWER_DB_CREATE: DB creation policy eg `none`
 - TOWER_DB_URL: Database JDBC connection URL eg. `jdbc:mysql://localhost:3307/tower`. 
 - TOWER_DB_DRIVER: Database JDBC driver class name e.g. `com.mysql.cj.jdbc.Driver`.
 - TOWER_DB_DIALECT: Database SQL Hibernate dialect `org.hibernate.dialect.MySQL55Dialect`.   
 - TOWER_DB_USER: Database user name.
 - TOWER_DB_PASSWORD: Database user password.
+* TOWER_SMTP_HOST: SMTP server host name
+* TOWER_SMTP_PORT: SMTP server port eg 587
+* TOWER_SMTP_AUTH: SMTP server authentication eg `true`
+* TOWER_SMTP_USER: SMTP server user name 
+* TOWER_SMTP_PASSWORD: SMTP server user password 
+* TOWER_LOG_LEVEL: Logging level
+* TOWER_LOG_MAX_SIZE: Log files max allowed size
+* TOWER_LOG_MAX_HISTORY: Max number of rolling log files
+
