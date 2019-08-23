@@ -24,7 +24,7 @@ export abstract class FormatterUtil {
   }
 
   static humanizeDuration(durationMillis: number): string {
-    return this.durationHumanizer.humanize(durationMillis, {language: 'short', delimiter: ' '});
+    return this.durationHumanizer.humanize(durationMillis, {language: 'short', delimiter: ' ', round: true});
   }
 
   static humanizeStorageCapacity(storageBytes: number, decimals: number = 2, unit?: string): string {
