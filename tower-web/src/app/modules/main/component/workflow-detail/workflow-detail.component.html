@@ -26,20 +26,24 @@
           <wt-workflow-main-tabs [workflow]="workflow"></wt-workflow-main-tabs>
         </div>
       </div>
+
+      <!-- general info + status boxes -->
       <div class="row mb-3">
-        <div class="col">
-          <wt-workflow-status [progressState]="workflow.progress.workflowProgress.data"></wt-workflow-status>
-        </div>
         <div class="col">
           <wt-workflow-general [workflow]="workflow"></wt-workflow-general>
         </div>
+        <div class="col">
+          <wt-workflow-status [progressState]="workflow.progress.workflowProgress.data"></wt-workflow-status>
+        </div>
       </div>
+
+      <!-- processes + aggregate stats -->
       <div class="row mb-3">
         <div class="col">
-          <wt-workflow-stats [workflow]="workflow"></wt-workflow-stats>
+          <wt-tasks-processes [processesProgress]="workflow.progress.processesProgress"></wt-tasks-processes>
         </div>
         <div class="col">
-          <wt-workflow-utilization [workflowProgress]="workflow.progress.workflowProgress"></wt-workflow-utilization>
+          <wt-workflow-stats [workflow]="workflow"></wt-workflow-stats>
         </div>
       </div>
       <div class="row mb-3">
@@ -47,7 +51,7 @@
           <wt-workflow-load [workflowProgress]="workflow.progress.workflowProgress"></wt-workflow-load>
         </div>
         <div class="col">
-          <wt-tasks-processes [processesProgress]="workflow.progress.processesProgress"></wt-tasks-processes>
+          <wt-workflow-utilization [workflowProgress]="workflow.progress.workflowProgress"></wt-workflow-utilization>
         </div>
       </div>
       <div class="row mb-3">
