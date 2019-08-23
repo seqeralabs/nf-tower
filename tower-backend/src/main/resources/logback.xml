@@ -25,9 +25,9 @@
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- daily rollover -->
             <fileNamePattern>tower.%d{yyyy-MM-dd}.log</fileNamePattern>
-            <!-- keep 30 days' worth of history capped at 3GB total size -->
-            <maxHistory>10</maxHistory>
-            <totalSizeCap>3GB</totalSizeCap>
+            <!-- keep 10 days' worth of history capped at 100MB total size -->
+            <maxHistory>${TOWER_LOG_MAX_HISTORY:-10}</maxHistory>
+            <totalSizeCap>${TOWER_LOG_MAX_SIZE:-100MB}</totalSizeCap>
         </rollingPolicy>
 
         <encoder>
