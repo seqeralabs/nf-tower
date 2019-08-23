@@ -20,7 +20,6 @@ import io.github.resilience4j.ratelimiter.RateLimiterConfig
 import io.github.resilience4j.ratelimiter.internal.AtomicRateLimiter
 import io.github.resilience4j.ratelimiter.internal.AtomicRateLimiter.AtomicRateLimiterMetrics
 import io.micronaut.cache.SyncCache
-import io.micronaut.context.annotation.ConfigurationProperties
 import io.micronaut.http.HttpHeaders
 import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpResponse
@@ -51,7 +50,6 @@ import org.reactivestreams.Publisher
  */
 @Slf4j
 @CompileStatic
-@ConfigurationProperties("rate-limiter")
 @Filter("/**")
 class RateLimiterFilter extends OncePerRequestHttpServerFilter implements FilterOrderProvider {
 
