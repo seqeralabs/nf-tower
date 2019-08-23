@@ -22,7 +22,7 @@ import io.micronaut.context.annotation.ConfigurationProperties
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
 @CompileStatic
-@ConfigurationProperties("rate-limiter")
+@ConfigurationProperties("tower.rate-limiter")
 class RateLimiterOptions {
 
     Duration timeoutDuration
