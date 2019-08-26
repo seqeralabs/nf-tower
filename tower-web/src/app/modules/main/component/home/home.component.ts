@@ -130,7 +130,7 @@ export class HomeComponent implements OnInit {
   }
 
   get shouldShowLoadingScreen(): boolean {
-    return (this.isAtWorkflowRelatedScreen && !this.isWorkflowsInitiatied);
+    return (!this.shouldShowLandingPage && this.isAtWorkflowRelatedScreen && !this.isWorkflowsInitiatied);
   }
 
   get isAtWorkflowRelatedScreen() {

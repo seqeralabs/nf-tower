@@ -1,5 +1,7 @@
 <wt-landing *ngIf="shouldShowLandingPage"></wt-landing>
 
+<wt-loading [loadingText]="'Loading'" *ngIf="shouldShowLoadingScreen"></wt-loading>
+
 <wt-navbar *ngIf="!shouldShowLandingPage"></wt-navbar>
 <div *ngIf="!shouldShowLandingPage && !shouldShowLoadingScreen" id="layout">
 
@@ -22,4 +24,3 @@
     <wt-welcome *ngIf="shouldShowWelcomeMessage"></wt-welcome>
   </div>
 </div>
-<wt-loading [loadingText]="'Loading'" *ngIf="shouldShowLoadingScreen"></wt-loading>
