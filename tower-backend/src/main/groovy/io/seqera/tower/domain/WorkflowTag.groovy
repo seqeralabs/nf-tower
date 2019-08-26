@@ -5,7 +5,7 @@ import grails.gorm.annotation.Entity
 import groovy.transform.CompileDynamic
 
 @Entity
-@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'tasks', 'owner'])
+@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'workflow', 'owner'])
 @CompileDynamic
 class WorkflowTag {
 

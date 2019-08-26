@@ -14,6 +14,8 @@ import io.seqera.tower.domain.Workflow
 import io.seqera.tower.domain.WorkflowTag
 import io.seqera.tower.exchange.workflowTag.CreateWorkflowTagRequest
 import io.seqera.tower.exchange.workflowTag.CreateWorkflowTagResponse
+import io.seqera.tower.exchange.workflowTag.UpdateWorkflowTagRequest
+import io.seqera.tower.exchange.workflowTag.UpdateWorkflowTagResponse
 import io.seqera.tower.util.AbstractContainerBaseTest
 import io.seqera.tower.util.DomainCreator
 
@@ -131,7 +133,89 @@ class WorkflowTagControllerTest extends AbstractContainerBaseTest {
         then: "the tag couldn't be created"
         HttpClientResponseException e = thrown(HttpClientResponseException)
         e.status == HttpStatus.BAD_REQUEST
-        e.message == "Cannot create empty tag"
+        e.message == "Cannot save empty tag"
+    }
+
+    void "update and existing workflow tag"() {
+        given: 'a user'
+        DomainCreator creator = new DomainCreator()
+        User user = creator.generateAllowedUser()
+
+        and: 'a workflow associated with the tag'
+        Workflow workflow = creator.createWorkflow(owner: user)
+
+        and: 'create the tag to be updated'
+        WorkflowTag workflowTag = creator.createWorkflowTag(workflow: workflow, label: 'oldLabel')
+
+        and: 'a version of the tag to be updated with'
+        WorkflowTag updatedWorkflowTag = new WorkflowTag(id: workflowTag.id, label: 'newLabel')
+
+        and: 'the request object'
+        UpdateWorkflowTagRequest request = new UpdateWorkflowTagRequest(updateWorkflowTag: updatedWorkflowTag)
+
+        when: "perform the request to update the tag"
+        String accessToken = doJwtLogin(user, client)
+        HttpResponse<UpdateWorkflowTagResponse> response = client.toBlocking().exchange(
+                HttpRequest.PUT('/tag/update', request)
+                        .bearerAuth(accessToken),
+                UpdateWorkflowTagResponse.class
+        )
+
+        then: 'the tag has been updated'
+        response.status == HttpStatus.OK
+        response.body().workflowTag.id
+        response.body().workflowTag.label == updatedWorkflowTag.label
+    }
+
+    void "try to update a workflow tag without providing tag id"() {
+        given: 'a user'
+        DomainCreator creator = new DomainCreator()
+        User user = creator.generateAllowedUser()
+
+        and: 'the tag to update'
+        WorkflowTag workflowTag = new WorkflowTag(id: null, label: 'label')
+
+        and: 'the request object'
+        UpdateWorkflowTagRequest request = new UpdateWorkflowTagRequest(updateWorkflowTag: workflowTag)
+
+        when: "perform the request to create the tag"
+        String accessToken = doJwtLogin(user, client)
+        client.toBlocking().exchange(
+                HttpRequest.PUT('/tag/update', request)
+                        .bearerAuth(accessToken),
+                UpdateWorkflowTagResponse.class
+        )
+
+        then: "the tag couldn't be created"
+        HttpClientResponseException e = thrown(HttpClientResponseException)
+        e.status == HttpStatus.BAD_REQUEST
+        e.message == 'Trying to update nonexistent workflow tag'
+    }
+
+    void "try to update a workflow tag for a workflow associated to other user"() {
+        given: 'create the tag to update'
+        DomainCreator creator = new DomainCreator()
+        WorkflowTag workflowTag = creator.createWorkflowTag(label: 'oldLabel')
+
+        and: 'a version of the tag to be updated with'
+        WorkflowTag updatedWorkflowTag = new WorkflowTag(id: workflowTag.id, label: 'newLabel')
+
+        and: 'the request object'
+        UpdateWorkflowTagRequest request = new UpdateWorkflowTagRequest(updateWorkflowTag: updatedWorkflowTag)
+
+        when: "perform the request to create the tag as another user"
+        User otherUser = creator.generateAllowedUser()
+        String accessToken = doJwtLogin(otherUser, client)
+        client.toBlocking().exchange(
+                HttpRequest.PUT('/tag/update', request)
+                        .bearerAuth(accessToken),
+                UpdateWorkflowTagResponse.class
+        )
+
+        then: "the tag couldn't be created"
+        HttpClientResponseException e = thrown(HttpClientResponseException)
+        e.status == HttpStatus.BAD_REQUEST
+        e.message == 'Trying to update a not owned tag'
     }
 
 }
