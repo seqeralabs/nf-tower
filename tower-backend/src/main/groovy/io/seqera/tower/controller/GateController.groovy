@@ -33,7 +33,7 @@ import io.seqera.tower.service.GateService
 
 @Slf4j
 @Controller("/gate")
-class GateController {
+class GateController extends BaseController {
 
     @Inject
     GateService gate

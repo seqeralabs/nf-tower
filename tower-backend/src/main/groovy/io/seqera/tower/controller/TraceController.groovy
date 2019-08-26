@@ -11,6 +11,9 @@
 
 package io.seqera.tower.controller
 
+import javax.inject.Inject
+import java.time.Duration
+
 import grails.gorm.transactions.Transactional
 import groovy.util.logging.Slf4j
 import io.micronaut.context.annotation.Value
@@ -41,10 +44,6 @@ import io.seqera.tower.service.ServerSentEventsService
 import io.seqera.tower.service.TraceService
 import io.seqera.tower.service.UserService
 import org.reactivestreams.Publisher
-
-import javax.inject.Inject
-import java.time.Duration
-
 /**
  * Implements the `trace` API
  *
@@ -52,7 +51,7 @@ import java.time.Duration
 @Controller("/trace")
 @Secured(SecurityRule.IS_ANONYMOUS)
 @Slf4j
-class TraceController {
+class TraceController extends BaseController {
 
 
     @Value('${sse.time.idle.workflow-detail:5m}')
@@ -223,4 +222,17 @@ class TraceController {
         return "user-${userId}"
     }
 
+
+
+//    @Override
+//    HttpResponse handle(HttpRequest request, JsonProcessingException e) {
+//        log.error """
+//            Unexpected error
+//            - request: ${request.uri}
+//            - params : ${request.parameters}
+//            - user   : ${request.userPrincipal.isPresent() ? request.userPrincipal.get() : '-'}
+//            - message: ${e.message ?: e.toString()}
+//            """, e
+//        return HttpResponse.badRequest("Oops.. something went wrong -- ${e.message?:e.toString()}")
+//    }
 }
