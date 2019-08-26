@@ -16,24 +16,29 @@ import {catchError} from "rxjs/operators";
 import {Router} from "@angular/router";
 import {NotificationService} from "../service/notification.service";
 
+const authorizationErrorCodes: number[] = [401, 403];
+
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor {
 
-  constructor(private authService: AuthService, private notificationService: NotificationService, private router: Router) {}
+  constructor(private authService: AuthService,
+              private notificationService: NotificationService,
+              private router: Router) {
+  }
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     return next.handle(request).pipe(
       catchError(error => {
-        const authorizationErrorCodes: number[] = [401, 403];
+        if (!authorizationErrorCodes.includes(error.status)) {
+          return;
+        }
+        console.log('Authorization error intercepted', error);
 
-        if (authorizationErrorCodes.includes(error.status)) {
-          console.log('Authorization error intercepted', error);
-          if (this.authService.isUserAuthenticated && error.status == 401) {
-            this.notificationService.showErrorNotification('Session expired');
-            this.router.navigate(['/logout'])
-          } else if (error.status == 403) {
-            this.notificationService.showErrorNotification('Forbidden access');
-          }
+        if (this.authService.isUserAuthenticated && error.status == 401) {
+          this.notificationService.showErrorNotification('Session expired');
+          window.location.replace('/logout');
+        } else if (error.status == 403) {
+          this.notificationService.showErrorNotification('Forbidden access');
         }
 
         return throwError(error);

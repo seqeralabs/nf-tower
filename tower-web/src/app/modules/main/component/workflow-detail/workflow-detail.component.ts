@@ -57,8 +57,8 @@ export class WorkflowDetailComponent implements OnInit, OnDestroy {
       (error: HttpErrorResponse) => {
         if (error.status === 404) {
           this.notificationService.showErrorNotification("Workflow doesn't exist");
+          this.router.navigate(['/']);
         }
-        this.router.navigate(['/']);
       }
     )
   }
