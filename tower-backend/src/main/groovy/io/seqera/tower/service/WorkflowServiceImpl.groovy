@@ -11,6 +11,9 @@
 
 package io.seqera.tower.service
 
+import grails.gorm.DetachedCriteria
+import io.seqera.tower.domain.WorkflowTag
+
 import javax.inject.Inject
 import javax.inject.Singleton
 import java.time.OffsetDateTime
@@ -128,6 +131,9 @@ class WorkflowServiceImpl implements WorkflowService {
         WorkflowProcess.where { workflow == workflowToDelete }.deleteAll()
         WorkflowMetrics.where { workflow == workflowToDelete }.deleteAll()
         WorkflowComment.where { workflow == workflowToDelete }.deleteAll()
+        workflowToDelete.tags?.each { WorkflowTag workflowTag ->
+            workflowTag.delete()
+        }
         workflowToDelete.tasks?.each { Task task ->
             task.delete()
         }

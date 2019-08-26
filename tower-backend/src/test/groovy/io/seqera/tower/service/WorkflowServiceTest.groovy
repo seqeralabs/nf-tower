@@ -303,19 +303,24 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
     }
 
     void 'delete a workflow'() {
-        given: 'a workflow with some metrics entries'
-        def creator = new DomainCreator()
-        def workflow = creator.createWorkflow()
-        creator.createWorkflowMetrics(workflow)
-        creator.createWorkflowMetrics(workflow)
+        given: 'a workflow with some metrics'
+        DomainCreator domainCreator = new DomainCreator()
+        Workflow workflow = domainCreator.createWorkflow()
+
+        and: 'some metrics associated with the workflow'
+        2.times { domainCreator.createWorkflowMetrics(workflow) }
+
+        and: 'some comments associated with the workflow'
+        2.times { domainCreator.createWorkflowComment(workflow: workflow) }
+
+        and: 'some tags associated with the workflow'
+        2.times { domainCreator.createWorkflowTag(workflow: workflow) }
 
         and:
         creator.createProcess(workflow: workflow, position: 0, name: 'foo')
         
         and: 'some tasks associated with the workflow'
-        (1..3).each {
-            creator.createTask(taskId: it, workflow: workflow)
-        }
+        3.times { domainCreator.createTask(taskId: it, workflow: workflow) }
 
         when: 'delete the workflow'
         Workflow.withNewTransaction {

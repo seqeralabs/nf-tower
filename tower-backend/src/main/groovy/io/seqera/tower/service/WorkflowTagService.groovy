@@ -7,6 +7,8 @@ interface WorkflowTagService {
 
     WorkflowTag get(Serializable id)
 
+    void delete(Serializable id)
+
     WorkflowTag create(WorkflowTag newWorkflowTag, Workflow associatedWorkflow)
 
     WorkflowTag update(WorkflowTag existingTag, WorkflowTag updatedTag)

@@ -41,6 +41,7 @@ class DomainCreator {
         Workflow.withNewTransaction {
             WorkflowProcess.deleteAll(WorkflowProcess.list())
             WorkflowComment.deleteAll(WorkflowComment.list())
+            WorkflowTag.deleteAll(WorkflowTag.list())
             WorkflowMetrics.deleteAll(WorkflowMetrics.list())
             Task.deleteAll(Task.list())
             Workflow.deleteAll(Workflow.list())
@@ -162,10 +163,22 @@ class DomainCreator {
     WorkflowTag createWorkflowTag(Map fields = [:]) {
         WorkflowTag workflowTag = new WorkflowTag()
 
-        fields.label =  fields.containsKey('label') ? fields.label : 'label'
+        fields.label =  fields.containsKey('label') ? fields.label : "label${generateUniqueNamePart()}"
         fields.workflow =  fields.containsKey('workflow') ? fields.workflow : createWorkflow()
 
         createInstance(workflowTag, fields)
+    }
+
+    WorkflowComment createWorkflowComment(Map fields = [:]) {
+        WorkflowComment workflowComment = new WorkflowComment()
+
+        fields.workflow =  fields.containsKey('workflow') ? fields.workflow : createWorkflow()
+        fields.author =  fields.containsKey('author') ? fields.author : createUser()
+        fields.text =  fields.containsKey('text') ? fields.text : 'The comment text'
+        fields.dateCreated =  fields.containsKey('dateCreated') ? fields.dateCreated : OffsetDateTime.now()
+        fields.lastUpdated =  fields.containsKey('lastUpdated') ? fields.lastUpdated : OffsetDateTime.now()
+
+        createInstance(workflowComment, fields)
     }
 
     User createUser(Map fields = [:]) {

@@ -27,7 +27,9 @@ class WorkflowTagServiceTest extends AbstractContainerBaseTest {
         WorkflowTag workflowTagToSave = new WorkflowTag(label: 'label')
 
         when: 'save the tag'
-        WorkflowTag savedWorkflowTag = workflowTagService.create(workflowTagToSave, workflow)
+        WorkflowTag savedWorkflowTag = WorkflowTag.withNewTransaction {
+            workflowTagService.create(workflowTagToSave, workflow)
+        }
 
         then: 'the tag has been properly saved'
         savedWorkflowTag.id
@@ -43,7 +45,9 @@ class WorkflowTagServiceTest extends AbstractContainerBaseTest {
         WorkflowTag workflowTagToSave = new WorkflowTag(label: 'a' * 11)
 
         when: 'save the tag'
-        workflowTagService.create(workflowTagToSave, workflow)
+        WorkflowTag.withNewTransaction {
+            workflowTagService.create(workflowTagToSave, workflow)
+        }
 
         then: 'a validation exception is thrown'
         ValidationException e = thrown(ValidationException)
@@ -64,10 +68,14 @@ class WorkflowTagServiceTest extends AbstractContainerBaseTest {
         WorkflowTag workflowTagToSaveDuplicated = new WorkflowTag(label: label)
 
         when: 'save the first tag'
-        workflowTagService.create(workflowTagToSave, workflow)
+        WorkflowTag.withNewTransaction {
+            workflowTagService.create(workflowTagToSave, workflow)
+        }
 
         and: 'try to save the second'
-        workflowTagService.create(workflowTagToSaveDuplicated, workflow)
+        WorkflowTag.withNewTransaction {
+            workflowTagService.create(workflowTagToSaveDuplicated, workflow)
+        }
 
         then: 'a validation exception is thrown'
         ValidationException e = thrown(ValidationException)
@@ -84,11 +92,53 @@ class WorkflowTagServiceTest extends AbstractContainerBaseTest {
         WorkflowTag workflowTagTemplate = new WorkflowTag(label: 'newLabel')
 
         when: 'update the tag'
-        WorkflowTag updatedWorkflowTag = workflowTagService.update(existingWorkflowTag, workflowTagTemplate)
+        WorkflowTag updatedWorkflowTag = WorkflowTag.withNewTransaction {
+            workflowTagService.update(existingWorkflowTag, workflowTagTemplate)
+        }
 
         then: 'the tag has been properly updated'
         updatedWorkflowTag.id == existingWorkflowTag.id
         updatedWorkflowTag.label == workflowTagTemplate.label
+    }
+
+    void "get an existing workflow tag by its id"() {
+        given: 'an existing workflow tag'
+        WorkflowTag existingWorkflowTag = new DomainCreator().createWorkflowTag(label: 'label')
+
+        when: 'get the workflow tag'
+        WorkflowTag obtainedWorkflowTag = workflowTagService.get(existingWorkflowTag.id)
+
+        then: 'the tag has been properly obtained'
+        obtainedWorkflowTag.id == existingWorkflowTag.id
+        obtainedWorkflowTag.label == obtainedWorkflowTag.label
+    }
+
+    void "try to get an nonexistent workflow tag by id"() {
+        when: 'try to get a workflow tag without providing id'
+        WorkflowTag obtainedWorkflowTag = workflowTagService.get(null)
+
+        then: 'the tag is null'
+        !obtainedWorkflowTag
+    }
+
+    void "delete an existing workflow tag"() {
+        given: 'an existing workflow tag'
+        WorkflowTag existingWorkflowTag = new DomainCreator().createWorkflowTag(label: 'label')
+
+        expect: 'the workflow tag is persisted in the database'
+        WorkflowTag.withNewTransaction {
+            WorkflowTag.get(existingWorkflowTag.id)
+        }
+
+        when: 'delete the workflow tag'
+        WorkflowTag.withNewTransaction {
+            workflowTagService.delete(existingWorkflowTag.id)
+        }
+
+        then: 'the tag is no longer present in the database'
+        WorkflowTag.withNewTransaction {
+            !WorkflowTag.get(existingWorkflowTag.id)
+        }
     }
 
 }
