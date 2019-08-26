@@ -33,7 +33,7 @@ import io.seqera.tower.service.UserService
 @Slf4j
 @Controller("/user")
 @Secured(SecurityRule.IS_AUTHENTICATED)
-class UserController {
+class UserController extends BaseController {
 
     UserService userService
 

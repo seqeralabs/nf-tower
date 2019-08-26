@@ -40,7 +40,7 @@ import io.seqera.tower.service.UserService
 @Transactional
 @CompileStatic
 @Secured(['ROLE_USER'])
-class TokenController {
+class TokenController  extends BaseController {
 
     @Inject UserService userService
 

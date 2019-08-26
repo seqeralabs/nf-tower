@@ -56,7 +56,7 @@ import org.grails.datastore.mapping.validation.ValidationException
  */
 @Controller("/workflow")
 @Slf4j
-class WorkflowController {
+class WorkflowController extends BaseController {
 
     WorkflowService workflowService
     TaskService taskService
