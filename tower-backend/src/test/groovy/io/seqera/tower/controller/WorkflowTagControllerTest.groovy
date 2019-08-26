@@ -148,7 +148,7 @@ class WorkflowTagControllerTest extends AbstractContainerBaseTest {
         WorkflowTag workflowTag = creator.createWorkflowTag(workflow: workflow, label: 'oldLabel')
 
         and: 'a version of the tag to be updated with'
-        WorkflowTag updatedWorkflowTag = new WorkflowTag(id: workflowTag.id, label: 'newLabel')
+        WorkflowTag updatedWorkflowTag = new WorkflowTag(label: 'newLabel')
 
         and: 'the request object'
         UpdateWorkflowTagRequest request = new UpdateWorkflowTagRequest(updateWorkflowTag: updatedWorkflowTag)
@@ -156,7 +156,7 @@ class WorkflowTagControllerTest extends AbstractContainerBaseTest {
         when: "perform the request to update the tag"
         String accessToken = doJwtLogin(user, client)
         HttpResponse<UpdateWorkflowTagResponse> response = client.toBlocking().exchange(
-                HttpRequest.PUT('/tag/update', request)
+                HttpRequest.PUT("/tag/${workflowTag.id}", request)
                         .bearerAuth(accessToken),
                 UpdateWorkflowTagResponse.class
         )
@@ -173,7 +173,7 @@ class WorkflowTagControllerTest extends AbstractContainerBaseTest {
         User user = creator.generateAllowedUser()
 
         and: 'the tag to update'
-        WorkflowTag workflowTag = new WorkflowTag(id: null, label: 'label')
+        WorkflowTag workflowTag = new WorkflowTag(label: 'label')
 
         and: 'the request object'
         UpdateWorkflowTagRequest request = new UpdateWorkflowTagRequest(updateWorkflowTag: workflowTag)
@@ -181,7 +181,7 @@ class WorkflowTagControllerTest extends AbstractContainerBaseTest {
         when: "perform the request to create the tag"
         String accessToken = doJwtLogin(user, client)
         client.toBlocking().exchange(
-                HttpRequest.PUT('/tag/update', request)
+                HttpRequest.PUT("/tag/null", request)
                         .bearerAuth(accessToken),
                 UpdateWorkflowTagResponse.class
         )
@@ -207,7 +207,7 @@ class WorkflowTagControllerTest extends AbstractContainerBaseTest {
         User otherUser = creator.generateAllowedUser()
         String accessToken = doJwtLogin(otherUser, client)
         client.toBlocking().exchange(
-                HttpRequest.PUT('/tag/update', request)
+                HttpRequest.PUT("/tag/${workflowTag.id}", request)
                         .bearerAuth(accessToken),
                 UpdateWorkflowTagResponse.class
         )
@@ -216,6 +216,68 @@ class WorkflowTagControllerTest extends AbstractContainerBaseTest {
         HttpClientResponseException e = thrown(HttpClientResponseException)
         e.status == HttpStatus.BAD_REQUEST
         e.message == 'Trying to update a not owned tag'
+    }
+
+    void "delete a workflow tag"() {
+        given: 'a user'
+        DomainCreator creator = new DomainCreator()
+        User user = creator.generateAllowedUser()
+
+        and: 'a workflow associated with the tag'
+        Workflow workflow = creator.createWorkflow(owner: user)
+
+        and: 'create the tag to be deleted'
+        WorkflowTag workflowTag = creator.createWorkflowTag(workflow: workflow)
+
+        when: "perform the request to delete the tag"
+        String accessToken = doJwtLogin(user, client)
+        HttpResponse response = client.toBlocking().exchange(
+                HttpRequest.DELETE("/tag/${workflowTag.id}")
+                        .bearerAuth(accessToken),
+                UpdateWorkflowTagResponse.class
+        )
+
+        then: 'the operation was successful'
+        response.status == HttpStatus.NO_CONTENT
+
+        and: 'the tag is no longer present in the database'
+        WorkflowTag.withNewTransaction { !WorkflowTag.get(workflowTag.id) }
+    }
+
+    void "try to delete a workflow tag for a workflow associated to other user"() {
+        given: 'create the tag to delete'
+        DomainCreator creator = new DomainCreator()
+        WorkflowTag workflowTag = creator.createWorkflowTag()
+
+        when: "perform the request to delete the tag as another user"
+        User otherUser = creator.generateAllowedUser()
+        String accessToken = doJwtLogin(otherUser, client)
+        client.toBlocking().exchange(
+                HttpRequest.DELETE("/tag/${workflowTag.id}")
+                        .bearerAuth(accessToken),
+                UpdateWorkflowTagResponse.class
+        )
+
+        then: 'the tag could not be deleted'
+        HttpClientResponseException e = thrown(HttpClientResponseException)
+        e.status == HttpStatus.BAD_REQUEST
+        e.message == 'Trying to delete a not owned tag'
+    }
+
+    void "try to delete a nonexistent workflow tag"() {
+        when: "perform the request to delete a nonexistent tag"
+        User otherUser = new DomainCreator().generateAllowedUser()
+        String accessToken = doJwtLogin(otherUser, client)
+        client.toBlocking().exchange(
+                HttpRequest.DELETE("/tag/null")
+                        .bearerAuth(accessToken),
+                UpdateWorkflowTagResponse.class
+        )
+
+        then: 'the tag could not be deleted'
+        HttpClientResponseException e = thrown(HttpClientResponseException)
+        e.status == HttpStatus.BAD_REQUEST
+        e.message == 'Trying to delete nonexistent tag'
     }
 
 }

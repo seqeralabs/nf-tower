@@ -5,6 +5,7 @@ import groovy.util.logging.Slf4j
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
+import io.micronaut.http.annotation.Delete
 import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Put
 import io.micronaut.security.annotation.Secured
@@ -12,6 +13,7 @@ import io.micronaut.security.authentication.Authentication
 import io.seqera.tower.domain.User
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.domain.WorkflowTag
+import io.seqera.tower.exchange.MessageResponse
 import io.seqera.tower.exchange.workflowTag.CreateWorkflowTagRequest
 import io.seqera.tower.exchange.workflowTag.CreateWorkflowTagResponse
 import io.seqera.tower.exchange.workflowTag.UpdateWorkflowTagRequest
@@ -25,6 +27,7 @@ import org.springframework.context.MessageSource
 import javax.inject.Inject
 
 @Controller("/tag")
+@Secured(['ROLE_USER'])
 @Slf4j
 class WorkflowTagController {
 
@@ -46,7 +49,6 @@ class WorkflowTagController {
 
     @Post("/create")
     @Transactional
-    @Secured(['ROLE_USER'])
     HttpResponse<CreateWorkflowTagResponse> create(@Body CreateWorkflowTagRequest request, Authentication authentication) {
         try {
             Workflow workflow = workflowService.get(request.workflowId as Serializable)
@@ -70,12 +72,11 @@ class WorkflowTagController {
         }
     }
 
-    @Put("/update")
+    @Put("/{tagId}")
     @Transactional
-    @Secured(['ROLE_USER'])
-    HttpResponse<UpdateWorkflowTagResponse> update(@Body UpdateWorkflowTagRequest request, Authentication authentication) {
+    HttpResponse<UpdateWorkflowTagResponse> update(Serializable tagId, @Body UpdateWorkflowTagRequest request, Authentication authentication) {
         try {
-            WorkflowTag existingWorkflowTag = workflowTagService.get(request.updateWorkflowTag.id)
+            WorkflowTag existingWorkflowTag = workflowTagService.get(tagId)
             if (!existingWorkflowTag) {
                 return HttpResponse.badRequest(UpdateWorkflowTagResponse.ofError('Trying to update nonexistent workflow tag'))
             }
@@ -96,5 +97,26 @@ class WorkflowTagController {
         }
     }
 
+    @Delete("/{tagId}")
+    @Transactional
+    HttpResponse delete(Serializable tagId, Authentication authentication) {
+        try {
+            WorkflowTag existingWorkflowTag = workflowTagService.get(tagId)
+            if (!existingWorkflowTag) {
+                return HttpResponse.badRequest(new MessageResponse('Trying to delete nonexistent tag'))
+            }
+
+            User currentUser = userService.getFromAuthData(authentication)
+            if (existingWorkflowTag.workflow.ownerId != currentUser.id) {
+                return HttpResponse.badRequest(new MessageResponse('Trying to delete a not owned tag'))
+            }
+
+            workflowTagService.delete(existingWorkflowTag.id)
+            return HttpResponse.noContent()
+        } catch (Exception e) {
+            log.error("Unexpected error deleting workflow tag -- id=$tagId", e)
+            return HttpResponse.badRequest(new MessageResponse('Unexpected error creating workflow tag'))
+        }
+    }
 
 }
