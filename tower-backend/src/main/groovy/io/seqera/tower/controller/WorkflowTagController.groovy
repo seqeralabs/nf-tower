@@ -6,6 +6,7 @@ import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Delete
+import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Put
 import io.micronaut.security.annotation.Secured
@@ -16,6 +17,7 @@ import io.seqera.tower.domain.WorkflowTag
 import io.seqera.tower.exchange.MessageResponse
 import io.seqera.tower.exchange.workflowTag.CreateWorkflowTagRequest
 import io.seqera.tower.exchange.workflowTag.CreateWorkflowTagResponse
+import io.seqera.tower.exchange.workflowTag.ListWorkflowTagResponse
 import io.seqera.tower.exchange.workflowTag.UpdateWorkflowTagRequest
 import io.seqera.tower.exchange.workflowTag.UpdateWorkflowTagResponse
 import io.seqera.tower.service.UserService
@@ -46,6 +48,27 @@ class WorkflowTagController {
         this.messageSource = messageSource
     }
 
+    @Get("/list/{workflowId}")
+    @Transactional
+    HttpResponse<ListWorkflowTagResponse> list(Serializable workflowId, Authentication authentication) {
+        try {
+            Workflow workflow = workflowService.get(workflowId as Serializable)
+            if (!workflow) {
+                return HttpResponse.badRequest(ListWorkflowTagResponse.ofError('Trying to get tags of a nonexistent workflow'))
+            }
+
+            User currentUser = userService.getFromAuthData(authentication)
+            if (workflow.ownerId != currentUser.id) {
+                return HttpResponse.badRequest(ListWorkflowTagResponse.ofError('Trying to get tags of a not owned workflow'))
+            }
+
+            List<WorkflowTag> workflowTags = workflowTagService.list(workflowId)
+            return HttpResponse.ok(ListWorkflowTagResponse.ofTags(workflowTags))
+        } catch (Exception e) {
+            log.error("Unexpected error getting workflow tags -- workflowId=$workflowId", e)
+            return HttpResponse.badRequest(ListWorkflowTagResponse.ofError('Unexpected error getting workflow tags'))
+        }
+    }
 
     @Post("/create")
     @Transactional
@@ -93,7 +116,7 @@ class WorkflowTagController {
             return HttpResponse.badRequest(UpdateWorkflowTagResponse.ofError(firstErrorMessage))
         } catch (Exception e) {
             log.error("Unexpected error creating workflow tag -- request=$request", e)
-            return HttpResponse.badRequest(UpdateWorkflowTagResponse.ofError('Unexpected error creating workflow tag'))
+            return HttpResponse.badRequest(UpdateWorkflowTagResponse.ofError('Unexpected error updating workflow tag'))
         }
     }
 
@@ -115,7 +138,7 @@ class WorkflowTagController {
             return HttpResponse.noContent()
         } catch (Exception e) {
             log.error("Unexpected error deleting workflow tag -- id=$tagId", e)
-            return HttpResponse.badRequest(new MessageResponse('Unexpected error creating workflow tag'))
+            return HttpResponse.badRequest(new MessageResponse('Unexpected error deleting workflow tag'))
         }
     }
 

@@ -5,6 +5,8 @@ import io.seqera.tower.domain.WorkflowTag
 
 interface WorkflowTagService {
 
+    List<WorkflowTag> list(Serializable workflowId)
+
     WorkflowTag get(Serializable id)
 
     void delete(Serializable id)

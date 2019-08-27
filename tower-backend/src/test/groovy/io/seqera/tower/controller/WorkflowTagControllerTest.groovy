@@ -14,6 +14,7 @@ import io.seqera.tower.domain.Workflow
 import io.seqera.tower.domain.WorkflowTag
 import io.seqera.tower.exchange.workflowTag.CreateWorkflowTagRequest
 import io.seqera.tower.exchange.workflowTag.CreateWorkflowTagResponse
+import io.seqera.tower.exchange.workflowTag.ListWorkflowTagResponse
 import io.seqera.tower.exchange.workflowTag.UpdateWorkflowTagRequest
 import io.seqera.tower.exchange.workflowTag.UpdateWorkflowTagResponse
 import io.seqera.tower.util.AbstractContainerBaseTest
@@ -28,6 +29,72 @@ class WorkflowTagControllerTest extends AbstractContainerBaseTest {
     @Inject
     @Client('/')
     RxHttpClient client
+
+    void "get the list of workflow tags of a workflow"() {
+        given: 'a user'
+        DomainCreator creator = new DomainCreator()
+        User user = creator.generateAllowedUser()
+
+        and: 'a workflow associated with the tags'
+        Workflow workflow = creator.createWorkflow(owner: user)
+
+        and: 'some tags'
+        List<WorkflowTag> workflowTags = (1..3).collect { creator.createWorkflowTag(workflow: workflow) }
+
+        when: "perform the request to obtain the tags"
+        String accessToken = doJwtLogin(user, client)
+        HttpResponse<CreateWorkflowTagResponse> response = client.toBlocking().exchange(
+                HttpRequest.GET("/tag/list/${workflow.id}")
+                           .bearerAuth(accessToken),
+                ListWorkflowTagResponse.class
+        )
+
+        then: 'the tags have been properly obtained'
+        response.status == HttpStatus.OK
+        response.body().workflowTags.id == workflowTags.id
+    }
+
+    void "try to get the list of tags of a workflow without providing workflow id"() {
+        given: 'a user'
+        DomainCreator creator = new DomainCreator()
+        User user = creator.generateAllowedUser()
+
+        when: "perform the request to obtain the tags of a nonexistent workflow"
+        String accessToken = doJwtLogin(user, client)
+        client.toBlocking().exchange(
+                HttpRequest.GET('/tag/list/1000')
+                        .bearerAuth(accessToken),
+                ListWorkflowTagResponse.class
+        )
+
+        then: "the tags couldn't be obtained"
+        HttpClientResponseException e = thrown(HttpClientResponseException)
+        e.status == HttpStatus.BAD_REQUEST
+        e.message == 'Trying to get tags of a nonexistent workflow'
+    }
+
+    void "try to get the list of tags of a workflow not owned by the user"() {
+        given: 'a workflow associated with the tags'
+        DomainCreator creator = new DomainCreator()
+        Workflow workflow = creator.createWorkflow()
+
+        and: 'some tags'
+        (1..3).collect { creator.createWorkflowTag(workflow: workflow) }
+
+        when: "perform the request to obtain the tags of other user"
+        User otherUser = creator.generateAllowedUser()
+        String accessToken = doJwtLogin(otherUser, client)
+        client.toBlocking().exchange(
+                HttpRequest.GET("/tag/list/${workflow.id}")
+                           .bearerAuth(accessToken),
+                ListWorkflowTagResponse.class
+        )
+
+        then: "the tags couldn't be obtained"
+        HttpClientResponseException e = thrown(HttpClientResponseException)
+        e.status == HttpStatus.BAD_REQUEST
+        e.message == 'Trying to get tags of a not owned workflow'
+    }
 
     void "create a new workflow tag"() {
         given: 'a user'

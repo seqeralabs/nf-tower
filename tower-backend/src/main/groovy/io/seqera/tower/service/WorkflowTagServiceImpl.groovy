@@ -10,6 +10,13 @@ import io.seqera.tower.domain.WorkflowTag
 abstract class WorkflowTagServiceImpl implements WorkflowTagService {
 
     @Override
+    List<WorkflowTag> list(Serializable workflowId) {
+        WorkflowTag.where {
+            workflow { id == workflowId }
+        }.list(sort: 'dateCreated')
+    }
+
+    @Override
     WorkflowTag create(WorkflowTag newTag, Workflow associatedWorkflow) {
         newTag.workflow = associatedWorkflow
         newTag.save(failOnError: true)

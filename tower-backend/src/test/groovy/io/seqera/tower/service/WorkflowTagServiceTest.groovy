@@ -163,4 +163,21 @@ class WorkflowTagServiceTest extends AbstractContainerBaseTest {
         }
     }
 
+    void "get a list of workflow tags"() {
+        given: 'some workflow tags belonging to a workflow'
+        DomainCreator creator = new DomainCreator()
+        Workflow aWorkflow = creator.createWorkflow()
+        List<WorkflowTag> expectedTags = (1..3).collect { creator.createWorkflowTag(workflow: aWorkflow, dateCreated: OffsetDateTime.now().minusMinutes(it)) }
+
+        and: 'some workflow tags belonging to other workflow'
+        Workflow otherWorkflow = creator.createWorkflow()
+        (1..3).collect { creator.createWorkflowTag(workflow: otherWorkflow) }
+
+        when: 'get the tags associated with the first workflow'
+        List<WorkflowTag> obtainedTags = workflowTagService.list(aWorkflow.id)
+
+        then: 'the tags are as expected and ordered by creation date (older first)'
+        obtainedTags.id == expectedTags.sort { it.dateCreated }.id
+    }
+
 }
