@@ -38,7 +38,7 @@ class WorkflowTagControllerTest extends AbstractContainerBaseTest {
         Workflow workflow = creator.createWorkflow(owner: user)
 
         and: 'the tag to create'
-        WorkflowTag workflowTag = new WorkflowTag(label: 'label')
+        WorkflowTag workflowTag = new WorkflowTag(text: 'label')
 
         and: 'the request object'
         CreateWorkflowTagRequest request = new CreateWorkflowTagRequest(workflowId: workflow.id, workflowTag: workflowTag)
@@ -54,7 +54,7 @@ class WorkflowTagControllerTest extends AbstractContainerBaseTest {
         then: 'the tag has been created'
         response.status == HttpStatus.CREATED
         response.body().workflowTag.id
-        response.body().workflowTag.label == workflowTag.label
+        response.body().workflowTag.text == workflowTag.text
     }
 
     void "try to create a new workflow tag without providing workflow id"() {
@@ -63,7 +63,7 @@ class WorkflowTagControllerTest extends AbstractContainerBaseTest {
         User user = creator.generateAllowedUser()
 
         and: 'the tag to create'
-        WorkflowTag workflowTag = new WorkflowTag(label: 'label')
+        WorkflowTag workflowTag = new WorkflowTag(text: 'label')
 
         and: 'the request object'
         CreateWorkflowTagRequest request = new CreateWorkflowTagRequest(workflowId: null, workflowTag: workflowTag)
@@ -85,7 +85,7 @@ class WorkflowTagControllerTest extends AbstractContainerBaseTest {
     void "try to create a new workflow tag for a workflow associated to other user"() {
         given: 'the tag to create'
         DomainCreator creator = new DomainCreator()
-        WorkflowTag workflowTag = new WorkflowTag(label: 'label')
+        WorkflowTag workflowTag = new WorkflowTag(text: 'label')
 
         and: 'a workflow associated with the tag'
         Workflow workflow = creator.createWorkflow()
@@ -108,7 +108,7 @@ class WorkflowTagControllerTest extends AbstractContainerBaseTest {
         e.message == 'Trying to associate to a not owned workflow'
     }
 
-    void "try to create a new workflow tag with a blank label"() {
+    void "try to create a new workflow tag with a blank text"() {
         given: 'a user'
         DomainCreator creator = new DomainCreator()
         User user = creator.generateAllowedUser()
@@ -117,7 +117,7 @@ class WorkflowTagControllerTest extends AbstractContainerBaseTest {
         Workflow workflow = creator.createWorkflow(owner: user)
 
         and: 'the tag to create'
-        WorkflowTag workflowTag = new WorkflowTag(label: '')
+        WorkflowTag workflowTag = new WorkflowTag(text: '')
 
         and: 'the request object'
         CreateWorkflowTagRequest request = new CreateWorkflowTagRequest(workflowId: workflow.id, workflowTag: workflowTag)
@@ -145,10 +145,10 @@ class WorkflowTagControllerTest extends AbstractContainerBaseTest {
         Workflow workflow = creator.createWorkflow(owner: user)
 
         and: 'create the tag to be updated'
-        WorkflowTag workflowTag = creator.createWorkflowTag(workflow: workflow, label: 'oldLabel')
+        WorkflowTag workflowTag = creator.createWorkflowTag(workflow: workflow, text: 'oldLabel')
 
         and: 'a version of the tag to be updated with'
-        WorkflowTag updatedWorkflowTag = new WorkflowTag(label: 'newLabel')
+        WorkflowTag updatedWorkflowTag = new WorkflowTag(text: 'newLabel')
 
         and: 'the request object'
         UpdateWorkflowTagRequest request = new UpdateWorkflowTagRequest(updateWorkflowTag: updatedWorkflowTag)
@@ -164,7 +164,7 @@ class WorkflowTagControllerTest extends AbstractContainerBaseTest {
         then: 'the tag has been updated'
         response.status == HttpStatus.OK
         response.body().workflowTag.id
-        response.body().workflowTag.label == updatedWorkflowTag.label
+        response.body().workflowTag.text == updatedWorkflowTag.text
     }
 
     void "try to update a workflow tag without providing tag id"() {
@@ -173,7 +173,7 @@ class WorkflowTagControllerTest extends AbstractContainerBaseTest {
         User user = creator.generateAllowedUser()
 
         and: 'the tag to update'
-        WorkflowTag workflowTag = new WorkflowTag(label: 'label')
+        WorkflowTag workflowTag = new WorkflowTag(text: 'label')
 
         and: 'the request object'
         UpdateWorkflowTagRequest request = new UpdateWorkflowTagRequest(updateWorkflowTag: workflowTag)
@@ -195,10 +195,10 @@ class WorkflowTagControllerTest extends AbstractContainerBaseTest {
     void "try to update a workflow tag for a workflow associated to other user"() {
         given: 'create the tag to update'
         DomainCreator creator = new DomainCreator()
-        WorkflowTag workflowTag = creator.createWorkflowTag(label: 'oldLabel')
+        WorkflowTag workflowTag = creator.createWorkflowTag(text: 'oldLabel')
 
         and: 'a version of the tag to be updated with'
-        WorkflowTag updatedWorkflowTag = new WorkflowTag(id: workflowTag.id, label: 'newLabel')
+        WorkflowTag updatedWorkflowTag = new WorkflowTag(id: workflowTag.id, text: 'newLabel')
 
         and: 'the request object'
         UpdateWorkflowTagRequest request = new UpdateWorkflowTagRequest(updateWorkflowTag: updatedWorkflowTag)

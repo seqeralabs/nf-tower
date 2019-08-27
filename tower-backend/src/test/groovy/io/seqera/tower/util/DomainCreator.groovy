@@ -163,7 +163,7 @@ class DomainCreator {
     WorkflowTag createWorkflowTag(Map fields = [:]) {
         WorkflowTag workflowTag = new WorkflowTag()
 
-        fields.label =  fields.containsKey('label') ? fields.label : "label${generateUniqueNamePart()}"
+        fields.text =  fields.containsKey('text') ? fields.text : "text${generateUniqueNamePart()}"
         fields.workflow =  fields.containsKey('workflow') ? fields.workflow : createWorkflow()
 
         createInstance(workflowTag, fields)

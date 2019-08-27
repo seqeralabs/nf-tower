@@ -24,7 +24,7 @@ class WorkflowTagServiceTest extends AbstractContainerBaseTest {
         Workflow workflow = new DomainCreator().createWorkflow()
 
         and: 'a new tag'
-        WorkflowTag workflowTagToSave = new WorkflowTag(label: 'label')
+        WorkflowTag workflowTagToSave = new WorkflowTag(text: 'label')
 
         when: 'save the tag'
         WorkflowTag savedWorkflowTag = WorkflowTag.withNewTransaction {
@@ -34,15 +34,15 @@ class WorkflowTagServiceTest extends AbstractContainerBaseTest {
         then: 'the tag has been properly saved'
         savedWorkflowTag.id
         savedWorkflowTag.workflowId == workflow.id
-        savedWorkflowTag.label == workflowTagToSave.label
+        savedWorkflowTag.text == workflowTagToSave.text
     }
 
-    void "try to create a new workflow tag which exceeds the label size"() {
+    void "try to create a new workflow tag which exceeds the text size"() {
         given: 'a workflow'
         Workflow workflow = new DomainCreator().createWorkflow()
 
-        and: 'a new tag with a long label'
-        WorkflowTag workflowTagToSave = new WorkflowTag(label: 'a' * 11)
+        and: 'a new tag with a long text'
+        WorkflowTag workflowTagToSave = new WorkflowTag(text: 'a' * 11)
 
         when: 'save the tag'
         WorkflowTag.withNewTransaction {
@@ -52,7 +52,7 @@ class WorkflowTagServiceTest extends AbstractContainerBaseTest {
         then: 'a validation exception is thrown'
         ValidationException e = thrown(ValidationException)
         e.errors.errorCount == 1
-        e.errors.fieldError.field == 'label'
+        e.errors.fieldError.field == 'text'
         e.errors.fieldError.code == 'maxSize.exceeded'
     }
 
@@ -60,12 +60,12 @@ class WorkflowTagServiceTest extends AbstractContainerBaseTest {
         given: 'a workflow'
         Workflow workflow = new DomainCreator().createWorkflow()
 
-        and: 'a new tag with a label'
-        String label = 'label'
-        WorkflowTag workflowTagToSave = new WorkflowTag(label: label)
+        and: 'a new tag with text'
+        String text = 'label'
+        WorkflowTag workflowTagToSave = new WorkflowTag(text: text)
 
-        and: 'another tag with the same label'
-        WorkflowTag workflowTagToSaveDuplicated = new WorkflowTag(label: label)
+        and: 'another tag with the same text'
+        WorkflowTag workflowTagToSaveDuplicated = new WorkflowTag(text: text)
 
         when: 'save the first tag'
         WorkflowTag.withNewTransaction {
@@ -80,16 +80,16 @@ class WorkflowTagServiceTest extends AbstractContainerBaseTest {
         then: 'a validation exception is thrown'
         ValidationException e = thrown(ValidationException)
         e.errors.errorCount == 1
-        e.errors.fieldError.field == 'label'
+        e.errors.fieldError.field == 'text'
         e.errors.fieldError.code == 'unique'
     }
 
     void "update an exsiting workflow tag"() {
         given: 'an existing workflow tag'
-        WorkflowTag existingWorkflowTag = new DomainCreator().createWorkflowTag(label: 'oldLabel')
+        WorkflowTag existingWorkflowTag = new DomainCreator().createWorkflowTag(text: 'oldLabel')
 
         and: 'a tag to update the existing one'
-        WorkflowTag workflowTagTemplate = new WorkflowTag(label: 'newLabel')
+        WorkflowTag workflowTagTemplate = new WorkflowTag(text: 'newLabel')
 
         when: 'update the tag'
         WorkflowTag updatedWorkflowTag = WorkflowTag.withNewTransaction {
@@ -98,19 +98,19 @@ class WorkflowTagServiceTest extends AbstractContainerBaseTest {
 
         then: 'the tag has been properly updated'
         updatedWorkflowTag.id == existingWorkflowTag.id
-        updatedWorkflowTag.label == workflowTagTemplate.label
+        updatedWorkflowTag.text == workflowTagTemplate.text
     }
 
     void "get an existing workflow tag by its id"() {
         given: 'an existing workflow tag'
-        WorkflowTag existingWorkflowTag = new DomainCreator().createWorkflowTag(label: 'label')
+        WorkflowTag existingWorkflowTag = new DomainCreator().createWorkflowTag(text: 'label')
 
         when: 'get the workflow tag'
         WorkflowTag obtainedWorkflowTag = workflowTagService.get(existingWorkflowTag.id)
 
         then: 'the tag has been properly obtained'
         obtainedWorkflowTag.id == existingWorkflowTag.id
-        obtainedWorkflowTag.label == obtainedWorkflowTag.label
+        obtainedWorkflowTag.text == obtainedWorkflowTag.text
     }
 
     void "try to get an nonexistent workflow tag by id"() {
@@ -123,7 +123,7 @@ class WorkflowTagServiceTest extends AbstractContainerBaseTest {
 
     void "delete an existing workflow tag"() {
         given: 'an existing workflow tag'
-        WorkflowTag existingWorkflowTag = new DomainCreator().createWorkflowTag(label: 'label')
+        WorkflowTag existingWorkflowTag = new DomainCreator().createWorkflowTag(text: 'label')
 
         expect: 'the workflow tag is persisted in the database'
         WorkflowTag.withNewTransaction {

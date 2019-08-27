@@ -5,8 +5,6 @@ import grails.gorm.transactions.Transactional
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.domain.WorkflowTag
 
-import javax.inject.Singleton
-
 @Transactional
 @Service(WorkflowTag)
 abstract class WorkflowTagServiceImpl implements WorkflowTagService {
@@ -19,7 +17,7 @@ abstract class WorkflowTagServiceImpl implements WorkflowTagService {
 
     @Override
     WorkflowTag update(WorkflowTag existingTag, WorkflowTag updatedTag) {
-        existingTag.label = updatedTag.label
+        existingTag.text = updatedTag.text
         existingTag.save(failOnError: true)
     }
 }

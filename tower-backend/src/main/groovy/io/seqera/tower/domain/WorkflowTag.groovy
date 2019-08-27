@@ -11,10 +11,10 @@ class WorkflowTag {
 
     static belongsTo = [workflow: Workflow]
 
-    String label
+    String text
 
     static constraints = {
-        label(blank: false, maxSize: 10, unique: 'workflow')
+        text(blank: false, maxSize: 10, unique: 'workflow')
     }
 
 }
