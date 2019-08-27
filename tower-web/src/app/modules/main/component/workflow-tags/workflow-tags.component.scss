@@ -1,11 +1,14 @@
 @import "~src/assets/variables";
 
+
 .badge.label {
   font-size: 1rem;
   background-color: $tag-lightGrey;
 
-  .label {
+  .text {
     cursor: text;
+    display: inline-block;
+    min-width: 1.3rem;
   }
 
   .close {
@@ -17,5 +20,9 @@
 
 .badge.new {
   font-size: 1.2rem;
+}
+
+.badge.invalid {
+  border: 2px solid red;
 }
 

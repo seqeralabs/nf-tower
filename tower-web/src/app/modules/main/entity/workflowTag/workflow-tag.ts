@@ -14,6 +14,8 @@ export class WorkflowTag {
 
   data: WorkflowTagData;
 
+  isValid: boolean = true;
+
   constructor(json?: any) {
     this.data = json ? this.data = <WorkflowTagData> json : <WorkflowTagData> {};
   }

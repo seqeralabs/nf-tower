@@ -4,6 +4,6 @@ import io.seqera.tower.domain.WorkflowTag
 
 class UpdateWorkflowTagRequest {
 
-    WorkflowTag updateWorkflowTag
+    WorkflowTag workflowTag
 
 }

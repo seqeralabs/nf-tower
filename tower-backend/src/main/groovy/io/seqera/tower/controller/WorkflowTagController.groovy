@@ -109,7 +109,7 @@ class WorkflowTagController {
                 return HttpResponse.badRequest(UpdateWorkflowTagResponse.ofError('Trying to update a not owned tag'))
             }
 
-            WorkflowTag workflowTag = workflowTagService.update(existingWorkflowTag, request.updateWorkflowTag)
+            WorkflowTag workflowTag = workflowTagService.update(existingWorkflowTag, request.workflowTag)
             return HttpResponse.ok(UpdateWorkflowTagResponse.ofTag(workflowTag))
         } catch (ValidationException e) {
             String firstErrorMessage = messageSource.getMessage(e.getErrors().fieldError, Locale.ENGLISH)

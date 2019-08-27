@@ -33,6 +33,14 @@ export class WorkflowTagService {
     );
   }
 
+  updateTag(workflowTag: WorkflowTag): Observable<any> {
+    const url = `${endpointUrl}/${workflowTag.data.id}`;
+
+    return this.http.put(url, {workflowTag: workflowTag.data}).pipe(
+      map((data: any) => data.workflowTag ? new WorkflowTag(data.workflowTag) : null),
+    );
+  }
+
   deleteTag(workflowTag: WorkflowTag): Observable<any> {
     const url = `${endpointUrl}/${workflowTag.data.id}`;
 

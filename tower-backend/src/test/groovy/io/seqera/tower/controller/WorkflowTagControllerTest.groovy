@@ -218,7 +218,7 @@ class WorkflowTagControllerTest extends AbstractContainerBaseTest {
         WorkflowTag updatedWorkflowTag = new WorkflowTag(text: 'newLabel')
 
         and: 'the request object'
-        UpdateWorkflowTagRequest request = new UpdateWorkflowTagRequest(updateWorkflowTag: updatedWorkflowTag)
+        UpdateWorkflowTagRequest request = new UpdateWorkflowTagRequest(workflowTag: updatedWorkflowTag)
 
         when: "perform the request to update the tag"
         String accessToken = doJwtLogin(user, client)
@@ -243,7 +243,7 @@ class WorkflowTagControllerTest extends AbstractContainerBaseTest {
         WorkflowTag workflowTag = new WorkflowTag(text: 'label')
 
         and: 'the request object'
-        UpdateWorkflowTagRequest request = new UpdateWorkflowTagRequest(updateWorkflowTag: workflowTag)
+        UpdateWorkflowTagRequest request = new UpdateWorkflowTagRequest(workflowTag: workflowTag)
 
         when: "perform the request to create the tag"
         String accessToken = doJwtLogin(user, client)
@@ -268,7 +268,7 @@ class WorkflowTagControllerTest extends AbstractContainerBaseTest {
         WorkflowTag updatedWorkflowTag = new WorkflowTag(id: workflowTag.id, text: 'newLabel')
 
         and: 'the request object'
-        UpdateWorkflowTagRequest request = new UpdateWorkflowTagRequest(updateWorkflowTag: updatedWorkflowTag)
+        UpdateWorkflowTagRequest request = new UpdateWorkflowTagRequest(workflowTag: updatedWorkflowTag)
 
         when: "perform the request to create the tag as another user"
         User otherUser = creator.generateAllowedUser()
