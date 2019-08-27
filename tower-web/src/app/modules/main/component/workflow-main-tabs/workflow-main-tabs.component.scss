@@ -1,5 +1,15 @@
 @import "~src/assets/variables";
 
+.nav-tabs {
+  .nav-link {
+    color: #555;
+  }
+  .nav-link.active {
+    font-weight: 600;
+    color: #212529;
+  }
+}
+
 .tab-pane {
   min-height: 100px;
 }
@@ -14,4 +24,16 @@
   border: 1px solid rgba(0, 0, 0, 0.125);;
   font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   background-color: rgba(0,0,0,.03);
+}
+
+pre.tab-config {
+  color: inherit;
+  font-size: inherit;
+}
+
+.tab-max-height {
+  padding: 1em;
+  max-height: 15rem;
+  overflow-x: auto;
+  overflow-y: auto;
 }
