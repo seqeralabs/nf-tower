@@ -1,10 +1,12 @@
 <div class="row">
   <div class="col">
     <span *ngFor="let tag of tags" class="badge badge-pill text-dark mr-2 label">
-      <span class="text">{{tag.label}}</span>
-      <span class="close">x</span>
+      <span class="text">{{tag.data.text}}</span>
+      <span class="close" (click)="deleteTag(tag)">x</span>
     </span>
-    <span class="badge badge-pill badge-primary new">+</span>
+    <button class="btn btn-primary btn-sm ml-1 new" type="button" (click)="createNewTag()" [disabled]="isEditingTag">
+      <span class="mdi mdi-plus-circle"></span>
+    </button>
   </div>
 </div>
 

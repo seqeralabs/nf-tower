@@ -7,7 +7,7 @@ import groovy.transform.CompileDynamic
 import java.time.OffsetDateTime
 
 @Entity
-@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'workflow', 'owner'])
+@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'workflow'])
 @CompileDynamic
 class WorkflowTag {
 

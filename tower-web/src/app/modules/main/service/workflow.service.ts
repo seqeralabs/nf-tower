@@ -14,7 +14,6 @@ import {Workflow} from '../entity/workflow/workflow';
 import {environment} from '../../../../environments/environment';
 import {Observable, Subject, of, ReplaySubject} from 'rxjs';
 import {map, tap} from 'rxjs/operators';
-import {orderBy} from 'lodash';
 import {Progress} from '../entity/progress/progress';
 import {FilteringParams} from "../util/filtering-params";
 
