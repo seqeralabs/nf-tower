@@ -69,6 +69,7 @@ class Workflow {
 
     //Multi-value properties encoded as JSON
     String configFiles
+    String configText
     String params
 
     WfManifest manifest
@@ -140,6 +141,7 @@ class Workflow {
 
         params(nullable: true)
         configFiles(nullable: true)
+        configText(nullable: true)
         containerEngine(nullable: true)
         exitStatus(nullable: true)
         duration(nullable: true)
@@ -159,6 +161,7 @@ class Workflow {
         errorReport(type: 'text')
         params(type: 'text')
         configFiles(type: 'text')
+        configText(type: 'text')
     }
 
 }
