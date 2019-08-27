@@ -8,6 +8,7 @@ import io.seqera.tower.domain.WorkflowTag
 import io.seqera.tower.util.AbstractContainerBaseTest
 import io.seqera.tower.util.DomainCreator
 import org.grails.datastore.mapping.validation.ValidationException
+import spock.lang.Unroll
 
 import javax.inject.Inject
 import java.time.OffsetDateTime
@@ -20,12 +21,13 @@ class WorkflowTagServiceTest extends AbstractContainerBaseTest {
     WorkflowTagService workflowTagService
 
 
-    void "create a new workflow tag"() {
+    @Unroll
+    void "create a new workflow tag with several valid text formats"() {
         given: 'a workflow'
         Workflow workflow = new DomainCreator().createWorkflow()
 
         and: 'a new tag'
-        WorkflowTag workflowTagToSave = new WorkflowTag(text: 'label', dateCreated: OffsetDateTime.now().minusSeconds(2))
+        WorkflowTag workflowTagToSave = new WorkflowTag(text: text, dateCreated: OffsetDateTime.now().minusSeconds(2))
 
         when: 'save the tag'
         WorkflowTag savedWorkflowTag = WorkflowTag.withNewTransaction {
@@ -37,6 +39,14 @@ class WorkflowTagServiceTest extends AbstractContainerBaseTest {
         savedWorkflowTag.workflowId == workflow.id
         savedWorkflowTag.text == workflowTagToSave.text
         savedWorkflowTag.dateCreated == workflowTagToSave.dateCreated
+
+        where: 'the text format is'
+        _ | text
+        _ | 'a' * 35
+        _ | 'label'
+        _ | 'label-label'
+        _ | 'label1'
+        _ | '1label'
     }
 
     void "create a new workflow tag without specifying the creation date explicitly"() {
@@ -58,12 +68,13 @@ class WorkflowTagServiceTest extends AbstractContainerBaseTest {
         savedWorkflowTag.dateCreated
     }
 
-    void "try to create a new workflow tag which exceeds the text size"() {
+    @Unroll
+    void "try to create a new workflow tag which exceeds the text size or pattern"() {
         given: 'a workflow'
         Workflow workflow = new DomainCreator().createWorkflow()
 
         and: 'a new tag with a long text'
-        WorkflowTag workflowTagToSave = new WorkflowTag(text: 'a' * 11)
+        WorkflowTag workflowTagToSave = new WorkflowTag(text: text)
 
         when: 'save the tag'
         WorkflowTag.withNewTransaction {
@@ -74,7 +85,16 @@ class WorkflowTagServiceTest extends AbstractContainerBaseTest {
         ValidationException e = thrown(ValidationException)
         e.errors.errorCount == 1
         e.errors.fieldError.field == 'text'
-        e.errors.fieldError.code == 'maxSize.exceeded'
+        e.errors.fieldError.code == code
+
+        where: 'the text format is'
+        text          | code
+        'a' * 36      | 'maxSize.exceeded'
+        'label,label' | 'matches.invalid'
+        'Label'       | 'matches.invalid'
+        'label--'     | 'matches.invalid'
+        '-label'      | 'matches.invalid'
+        ' label '      | 'matches.invalid'
     }
 
     void "try to create a duplicated tag for the same workflow"() {
@@ -107,10 +127,10 @@ class WorkflowTagServiceTest extends AbstractContainerBaseTest {
 
     void "update an exsiting workflow tag"() {
         given: 'an existing workflow tag'
-        WorkflowTag existingWorkflowTag = new DomainCreator().createWorkflowTag(text: 'oldLabel')
+        WorkflowTag existingWorkflowTag = new DomainCreator().createWorkflowTag(text: 'old-label')
 
         and: 'a tag to update the existing one'
-        WorkflowTag workflowTagTemplate = new WorkflowTag(text: 'newLabel')
+        WorkflowTag workflowTagTemplate = new WorkflowTag(text: 'new-label')
 
         when: 'update the tag'
         WorkflowTag updatedWorkflowTag = WorkflowTag.withNewTransaction {

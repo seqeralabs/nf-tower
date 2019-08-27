@@ -212,10 +212,10 @@ class WorkflowTagControllerTest extends AbstractContainerBaseTest {
         Workflow workflow = creator.createWorkflow(owner: user)
 
         and: 'create the tag to be updated'
-        WorkflowTag workflowTag = creator.createWorkflowTag(workflow: workflow, text: 'oldLabel')
+        WorkflowTag workflowTag = creator.createWorkflowTag(workflow: workflow, text: 'old-label')
 
         and: 'a version of the tag to be updated with'
-        WorkflowTag updatedWorkflowTag = new WorkflowTag(text: 'newLabel')
+        WorkflowTag updatedWorkflowTag = new WorkflowTag(text: 'new-label')
 
         and: 'the request object'
         UpdateWorkflowTagRequest request = new UpdateWorkflowTagRequest(workflowTag: updatedWorkflowTag)
@@ -262,10 +262,10 @@ class WorkflowTagControllerTest extends AbstractContainerBaseTest {
     void "try to update a workflow tag for a workflow associated to other user"() {
         given: 'create the tag to update'
         DomainCreator creator = new DomainCreator()
-        WorkflowTag workflowTag = creator.createWorkflowTag(text: 'oldLabel')
+        WorkflowTag workflowTag = creator.createWorkflowTag(text: 'old-label')
 
         and: 'a version of the tag to be updated with'
-        WorkflowTag updatedWorkflowTag = new WorkflowTag(id: workflowTag.id, text: 'newLabel')
+        WorkflowTag updatedWorkflowTag = new WorkflowTag(id: workflowTag.id, text: 'new-label')
 
         and: 'the request object'
         UpdateWorkflowTagRequest request = new UpdateWorkflowTagRequest(workflowTag: updatedWorkflowTag)

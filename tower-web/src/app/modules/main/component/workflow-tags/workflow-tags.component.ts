@@ -1,4 +1,14 @@
-import {Component, Input, OnInit} from '@angular/core';
+/*
+ * Copyright (c) 2019, Seqera Labs.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ * This Source Code Form is "Incompatible With Secondary Licenses", as
+ * defined by the Mozilla Public License, v. 2.0.
+ */
+import {Component, Input, OnChanges, OnInit} from '@angular/core';
 import {WorkflowTag} from "../../entity/workflowTag/workflow-tag";
 import {WorkflowTagService} from "../../service/workflow-tag.service";
 import {HttpErrorResponse} from "@angular/common/http";
@@ -12,7 +22,7 @@ import {debounceTime} from "rxjs/operators";
   templateUrl: './workflow-tags.component.html',
   styleUrls: ['./workflow-tags.component.scss']
 })
-export class WorkflowTagsComponent implements OnInit {
+export class WorkflowTagsComponent implements OnInit, OnChanges {
 
   @Input()
   workflowId: number | string;
@@ -26,9 +36,13 @@ export class WorkflowTagsComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.workflowTagService.getTagList(this.workflowId).subscribe((tags: WorkflowTag[]) => this.tags = tags);
     this.subscribeToTextEditionSubject();
   }
+
+  ngOnChanges(): void {
+    this.workflowTagService.getTagList(this.workflowId).subscribe((tags: WorkflowTag[]) => this.tags = tags);
+  }
+
 
   private subscribeToTextEditionSubject() {
     this.textEditionSubject.pipe(

@@ -4,8 +4,8 @@
       <span class="text" contenteditable (input)="editTagText(tag, $event.target.textContent)">{{tag.data.text}}</span>
       <span class="close" (click)="deleteTag(tag)">x</span>
     </span>
-    <button class="btn btn-primary btn-sm ml-1 new" type="button" (click)="createNewTag()">
-      <span class="mdi mdi-plus-circle"></span>
+    <button class="btn btn-secondary btn-sm ml-1 new" type="button" (click)="createNewTag()">
+      <span class="mdi mdi-tag-plus"></span>
     </button>
   </div>
 </div>

@@ -17,7 +17,7 @@ class WorkflowTag {
     OffsetDateTime dateCreated
 
     static constraints = {
-        text(blank: false, maxSize: 10, unique: 'workflow')
+        text(blank: false, maxSize: 35, matches: /^[\p{Lower}\d](-?[\p{Lower}\d])*/, unique: 'workflow')
     }
 
 }
