@@ -10,6 +10,7 @@ import io.seqera.tower.util.DomainCreator
 import org.grails.datastore.mapping.validation.ValidationException
 
 import javax.inject.Inject
+import java.time.OffsetDateTime
 
 @MicronautTest(application = Application.class)
 @Transactional
@@ -24,7 +25,7 @@ class WorkflowTagServiceTest extends AbstractContainerBaseTest {
         Workflow workflow = new DomainCreator().createWorkflow()
 
         and: 'a new tag'
-        WorkflowTag workflowTagToSave = new WorkflowTag(text: 'label')
+        WorkflowTag workflowTagToSave = new WorkflowTag(text: 'label', dateCreated: OffsetDateTime.now().minusSeconds(2))
 
         when: 'save the tag'
         WorkflowTag savedWorkflowTag = WorkflowTag.withNewTransaction {
@@ -35,6 +36,26 @@ class WorkflowTagServiceTest extends AbstractContainerBaseTest {
         savedWorkflowTag.id
         savedWorkflowTag.workflowId == workflow.id
         savedWorkflowTag.text == workflowTagToSave.text
+        savedWorkflowTag.dateCreated == workflowTagToSave.dateCreated
+    }
+
+    void "create a new workflow tag without specifying the creation date explicitly"() {
+        given: 'a workflow'
+        Workflow workflow = new DomainCreator().createWorkflow()
+
+        and: 'a new tag with text but without creation date'
+        WorkflowTag workflowTagToSave = new WorkflowTag(text: 'label')
+
+        when: 'save the tag'
+        WorkflowTag savedWorkflowTag = WorkflowTag.withNewTransaction {
+            workflowTagService.create(workflowTagToSave, workflow)
+        }
+
+        then: 'the tag has been properly saved and has associated offset date'
+        savedWorkflowTag.id
+        savedWorkflowTag.workflowId == workflow.id
+        savedWorkflowTag.text == workflowTagToSave.text
+        savedWorkflowTag.dateCreated
     }
 
     void "try to create a new workflow tag which exceeds the text size"() {
@@ -99,6 +120,7 @@ class WorkflowTagServiceTest extends AbstractContainerBaseTest {
         then: 'the tag has been properly updated'
         updatedWorkflowTag.id == existingWorkflowTag.id
         updatedWorkflowTag.text == workflowTagTemplate.text
+        updatedWorkflowTag.dateCreated == existingWorkflowTag.dateCreated
     }
 
     void "get an existing workflow tag by its id"() {

@@ -164,6 +164,7 @@ class DomainCreator {
         WorkflowTag workflowTag = new WorkflowTag()
 
         fields.text =  fields.containsKey('text') ? fields.text : "text${generateUniqueNamePart()}"
+        fields.dateCreated =  fields.containsKey('dateCreated') ? fields.dateCreated : OffsetDateTime.now()
         fields.workflow =  fields.containsKey('workflow') ? fields.workflow : createWorkflow()
 
         createInstance(workflowTag, fields)
