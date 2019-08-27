@@ -45,6 +45,7 @@ import { WorkflowLoadComponent } from './component/workflow-load/workflow-load.c
 import {WorkflowErrorComponent} from "./component/workflow-error/workflow-error.component";
 import { LoadingComponent } from './component/loading/loading.component';
 import {TreeListComponent} from "./component/tree-list/TreeListComponent";
+import { WorkflowTagsComponent } from './component/workflow-tags/workflow-tags.component';
 
 /*
  * Main application routing strategy
@@ -85,6 +86,7 @@ export class MainRoutingModule { }
     WorkflowDetailComponent,
     WorkflowMainTabsComponent, WorkflowGeneralComponent, WorkflowStatusComponent,
     WorkflowStatsComponent, WorkflowUtilizationComponent, WorkflowLoadComponent, WorkflowErrorComponent,
+    WorkflowTagsComponent,
     WelcomeComponent,
     LoadingComponent,
     LoginComponent,

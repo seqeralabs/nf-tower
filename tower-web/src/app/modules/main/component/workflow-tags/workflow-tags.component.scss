@@ -1,0 +1,22 @@
+@import "~src/assets/variables";
+
+.badge.label {
+  font-size: 1rem;
+  background-color: $tag-lightGrey;
+
+  .label {
+    cursor: text;
+  }
+
+  .close {
+    font-size: inherit;
+    padding-left: 10px;
+    cursor: pointer;
+  }
+}
+
+.badge.new {
+  font-size: 1rem;
+  cursor: pointer;
+}
+

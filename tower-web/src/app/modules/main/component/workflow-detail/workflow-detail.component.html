@@ -1,5 +1,6 @@
 <div *ngIf="workflow" class="tw-workflow">
   <div class="card" [ngClass]="{'running': workflow.isRunning, 'succeed': workflow.isSuccessful, 'failed': workflow.isFailed, 'partialFailed': workflow.isPartialFailed}">
+
     <div class="card-header">
       <div class="row">
         <div class="col">
@@ -14,7 +15,9 @@
           </span>
         </div>
       </div>
+      <wt-workflow-tags></wt-workflow-tags>
     </div>
+
     <div class="card-body">
       <div class="row mb-4" *ngIf="workflow.isFailed">
         <div class="col">
