@@ -1,9 +1,7 @@
 import {environment} from "../../../../environments/environment";
 import {Injectable} from "@angular/core";
-import {FilteringParams} from "../util/filtering-params";
-import {Observable, ReplaySubject} from "rxjs";
-import {Workflow} from "../entity/workflow/workflow";
-import {map, tap} from "rxjs/operators";
+import {Observable} from "rxjs";
+import {map} from "rxjs/operators";
 import {HttpClient} from "@angular/common/http";
 import {WorkflowTag} from "../entity/workflowTag/workflow-tag";
 

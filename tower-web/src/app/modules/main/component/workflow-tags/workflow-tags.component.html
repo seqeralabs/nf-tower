@@ -1,4 +1,4 @@
-<div class="row">
+<div class="row mt-2">
   <div class="col">
     <span *ngFor="let tag of tags" class="badge badge-pill text-dark mr-2 label" [ngClass]="{'invalid': !tag.isValid}">
       <span class="text" contenteditable (input)="editTagText(tag, $event.target.textContent)">{{tag.data.text}}</span>
