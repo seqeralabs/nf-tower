@@ -38,7 +38,7 @@ class TaskServiceImpl implements TaskService {
     List<Task> processTaskTraceRequest(TraceTaskRequest request) {
         Workflow existingWorkflow = Workflow.get(request.workflowId)
         if (!existingWorkflow) {
-            throw new NonExistingWorkflowException("Can't find workflow associated with the task")
+            throw new NonExistingWorkflowException("Can't find task for workflow ID: ${request.workflowId   }")
         }
 
         request.tasks.collect { Task task -> saveTask(task, existingWorkflow) }

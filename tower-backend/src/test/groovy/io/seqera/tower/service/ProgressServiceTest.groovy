@@ -18,7 +18,6 @@ import grails.gorm.transactions.Transactional
 import groovy.json.JsonSlurper
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.tower.Application
-import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.enums.TaskStatus
 import io.seqera.tower.exchange.progress.ProcessProgress
@@ -38,8 +37,14 @@ class ProgressServiceTest extends AbstractContainerBaseTest {
     @Inject TransactionService tx
 
     void "compute simple progress" () {
+        given:
+        def creator = new DomainCreator()
+
         String process1 = 'process1'
-        Task task1 = new DomainCreator().createTask(
+        Workflow wf = creator.createWorkflow()
+        creator.createProcess(workflow: wf, name:process1, position:0)
+        creator.createTask(
+                workflow: wf,
                 status: TaskStatus.COMPLETED,
                 process: process1,
                 cpus: 1,
@@ -54,7 +59,7 @@ class ProgressServiceTest extends AbstractContainerBaseTest {
         )
 
         when: "compute the progress of the workflow"
-        def progress = progressService.fetchWorkflowProgress(task1.workflow)
+        def progress = progressService.fetchWorkflowProgress(wf)
         then:
         with(progress.workflowProgress) {
             pending==0
@@ -96,33 +101,94 @@ class ProgressServiceTest extends AbstractContainerBaseTest {
         }
     }
 
+
+    void "compute return process with no tasks" () {
+        given:
+        def creator = new DomainCreator()
+
+        Workflow wf = creator.createWorkflow()
+        creator.createProcess(workflow: wf, name:'p1', position:0)
+        creator.createProcess(workflow: wf, name:'p2', position:1)
+
+        when: "compute the progress of the workflow"
+        def progress = progressService.fetchWorkflowProgress(wf)
+        then:
+        with(progress.workflowProgress) {
+            pending==0
+            running==0
+            submitted==0
+            succeeded==0
+            failed==0
+            cached==0
+            totalCpus == 0
+            cpuTime == 0
+            cpuLoad == 0
+            memoryRss == 0
+            memoryReq == 0
+            readBytes == 0
+            writeBytes == 0
+            volCtxSwitch == 0
+            invCtxSwitch == 0
+            cpuEfficiency == 0
+            memoryEfficiency == 0
+        }
+
+        progress.processesProgress.size() ==2
+        and:
+        with(progress.processesProgress[0])  {
+            process == 'p1'
+            pending==0
+            running==0
+            submitted==0
+            succeeded==0
+            failed==0
+            cached==0
+        }
+        and:
+        with(progress.processesProgress[1])  {
+            process == 'p2'
+            pending==0
+            running==0
+            submitted==0
+            succeeded==0
+            failed==0
+            cached==0
+        }
+    }
+
     void "compute the progress info of a workflow"() {
         given: 'create a pending task of a process and associated with a workflow (with some stats)'
-        DomainCreator domainCreator = new DomainCreator()
+        DomainCreator creator = new DomainCreator()
+        Workflow workflow = creator.createWorkflow()
+
         String process1 = 'process1'
-        Task task1 = domainCreator.createTask(status: TaskStatus.NEW, process: process1, cpus: 1, realtime: 2, peakRss: 1, rchar: 1, wchar: 1, pcpu: 10, memory: 2)
-        Workflow workflow = task1.workflow
+        String process2 = 'process2'
+        creator.createProcess(name:process1, position: 0, workflow: workflow)
+        creator.createProcess(name:process2, position: 1, workflow: workflow)
+
+        and:
+        creator.createTask(workflow: workflow, status: TaskStatus.NEW, process: process1, cpus: 1, realtime: 2, peakRss: 1, rchar: 1, wchar: 1, pcpu: 10, memory: 2)
 
         and: 'a task for the previous process in each status (with some stats each one)'
-        domainCreator.createTask(status: TaskStatus.SUBMITTED, workflow: workflow, process: process1, cpus: 1, realtime: 2, peakRss: 1, rchar: 1, wchar: 1, pcpu: 10, memory: 2)
-        domainCreator.createTask(status: TaskStatus.CACHED, workflow: workflow, process: process1, cpus: 1, realtime: 2, peakRss: 1, rchar: 1, wchar: 1, pcpu: 10, memory: 2)
-        domainCreator.createTask(status: TaskStatus.RUNNING, workflow: workflow, process: process1, cpus: 1, realtime: 2, peakRss: 1, rchar: 1, wchar: 1, pcpu: 10, memory: 2)
-        domainCreator.createTask(status: TaskStatus.FAILED, workflow: workflow, process: process1, cpus: 1, realtime: 2, peakRss: 1, rchar: 1, wchar: 1, pcpu: 10, memory: 2)
-        domainCreator.createTask(status: TaskStatus.COMPLETED, workflow: workflow, process: process1, cpus: 1, realtime: 2, peakRss: 1, rchar: 1, wchar: 1, pcpu: 10, memory: 2)
+        creator.createTask(status: TaskStatus.SUBMITTED, workflow: workflow, process: process1, cpus: 1, realtime: 2, peakRss: 1, rchar: 1, wchar: 1, pcpu: 10, memory: 2)
+        creator.createTask(status: TaskStatus.CACHED, workflow: workflow, process: process1, cpus: 1, realtime: 2, peakRss: 1, rchar: 1, wchar: 1, pcpu: 10, memory: 2)
+        creator.createTask(status: TaskStatus.RUNNING, workflow: workflow, process: process1, cpus: 1, realtime: 2, peakRss: 1, rchar: 1, wchar: 1, pcpu: 10, memory: 2)
+        creator.createTask(status: TaskStatus.FAILED, workflow: workflow, process: process1, cpus: 1, realtime: 2, peakRss: 1, rchar: 1, wchar: 1, pcpu: 10, memory: 2)
+        creator.createTask(status: TaskStatus.COMPLETED, workflow: workflow, process: process1, cpus: 1, realtime: 2, peakRss: 1, rchar: 1, wchar: 1, pcpu: 10, memory: 2)
 
         and: 'a pending task of another process (without stats)'
-        String process2 = 'process2'
-        domainCreator.createTask(status: TaskStatus.NEW, workflow: workflow, process: process2)
+
+        creator.createTask(status: TaskStatus.NEW, workflow: workflow, process: process2)
 
         and: 'a task for the previous process in each status (with some stats each one)'
-        domainCreator.createTask(status: TaskStatus.SUBMITTED, workflow: workflow, process: process2, cpus: 1, realtime: 2, peakRss: 1, rchar: 1, wchar: 1, pcpu: 10, memory: 2, volCtxt: 10, invCtxt: 30)
-        domainCreator.createTask(status: TaskStatus.CACHED, workflow: workflow, process: process2, cpus: 1, realtime: 2, peakRss: 1, rchar: 1, wchar: 1, pcpu: 10, memory: 2, volCtxt: 10, invCtxt: 30)
-        domainCreator.createTask(status: TaskStatus.RUNNING, workflow: workflow, process: process2, cpus: 1, realtime: 2, peakRss: 1, rchar: 1, wchar: 1, pcpu: 10, memory: 2, volCtxt: 10, invCtxt: 30)
-        domainCreator.createTask(status: TaskStatus.FAILED, workflow: workflow, process: process2, cpus: 1, realtime: 2, peakRss: 1, rchar: 1, wchar: 1, pcpu: 10, memory: 2, volCtxt: 10, invCtxt: 30)
+        creator.createTask(status: TaskStatus.SUBMITTED, workflow: workflow, process: process2, cpus: 1, realtime: 2, peakRss: 1, rchar: 1, wchar: 1, pcpu: 10, memory: 2, volCtxt: 10, invCtxt: 30)
+        creator.createTask(status: TaskStatus.CACHED, workflow: workflow, process: process2, cpus: 1, realtime: 2, peakRss: 1, rchar: 1, wchar: 1, pcpu: 10, memory: 2, volCtxt: 10, invCtxt: 30)
+        creator.createTask(status: TaskStatus.RUNNING, workflow: workflow, process: process2, cpus: 1, realtime: 2, peakRss: 1, rchar: 1, wchar: 1, pcpu: 10, memory: 2, volCtxt: 10, invCtxt: 30)
+        creator.createTask(status: TaskStatus.FAILED, workflow: workflow, process: process2, cpus: 1, realtime: 2, peakRss: 1, rchar: 1, wchar: 1, pcpu: 10, memory: 2, volCtxt: 10, invCtxt: 30)
 
         and: 'two more completed tasks (with some stats each one)'
-        domainCreator.createTask(status: TaskStatus.COMPLETED, workflow: workflow, process: process2, cpus: 1, realtime: 2, peakRss: 1, rchar: 1, wchar: 1, pcpu: 10, memory: 2, volCtxt: 10, invCtxt: 30)
-        domainCreator.createTask(status: TaskStatus.COMPLETED, workflow: workflow, process: process2, cpus: 1, realtime: 2, peakRss: 1, rchar: 1, wchar: 1, pcpu: 10, memory: 2, volCtxt: 10, invCtxt: 30)
+        creator.createTask(status: TaskStatus.COMPLETED, workflow: workflow, process: process2, cpus: 1, realtime: 2, peakRss: 1, rchar: 1, wchar: 1, pcpu: 10, memory: 2, volCtxt: 10, invCtxt: 30)
+        creator.createTask(status: TaskStatus.COMPLETED, workflow: workflow, process: process2, cpus: 1, realtime: 2, peakRss: 1, rchar: 1, wchar: 1, pcpu: 10, memory: 2, volCtxt: 10, invCtxt: 30)
 
         when: "compute the progress of the workflow"
         ProgressData progress = progressService.fetchWorkflowProgress(workflow)
@@ -201,7 +267,9 @@ class ProgressServiceTest extends AbstractContainerBaseTest {
         def creator = new DomainCreator()
         def workflow = new DomainCreator().createWorkflow()
 
-        def task1 = creator.createTask(
+        creator.createProcess(workflow: workflow, name: 'p1', position: 0)
+
+        creator.createTask(
                 workflow: workflow,
                 status: TaskStatus.RUNNING,
                 process: 'p1',

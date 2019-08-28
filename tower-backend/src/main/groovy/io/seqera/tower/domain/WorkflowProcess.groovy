@@ -9,22 +9,24 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 
-package io.seqera.tower.exchange.trace
+package io.seqera.tower.domain
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import grails.gorm.annotation.Entity
+import groovy.transform.CompileDynamic
 
-import groovy.transform.ToString
-import io.seqera.tower.domain.WorkflowMetrics
-import io.seqera.tower.domain.Workflow
 /**
- * Model a Trace workflow request
+ * Model a workflow process
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
-@ToString
-class TraceWorkflowRequest {
+@Entity
+@CompileDynamic
+@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'workflow'])
+class WorkflowProcess {
+    Long id
+    String name
+    Integer position
 
-    Workflow workflow
-    List<WorkflowMetrics> metrics
-    List<String> processNames
-
+    static belongsTo = [workflow: Workflow]
 }

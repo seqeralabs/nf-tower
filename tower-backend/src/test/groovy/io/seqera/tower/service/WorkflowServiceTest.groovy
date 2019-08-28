@@ -21,6 +21,7 @@ import io.seqera.tower.Application
 import io.seqera.tower.domain.User
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.domain.WorkflowComment
+import io.seqera.tower.domain.WorkflowProcess
 import io.seqera.tower.exceptions.NonExistingWorkflowException
 import io.seqera.tower.exchange.trace.TraceWorkflowRequest
 import io.seqera.tower.util.AbstractContainerBaseTest
@@ -56,9 +57,8 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         workflow.checkIsStarted()
         workflow.submit
         !workflow.complete
-        Workflow.withNewTransaction {
-            Workflow.count() == 1
-        }
+        Workflow.withNewTransaction { Workflow.count() } == 1
+        WorkflowProcess.withNewTransaction { WorkflowProcess.count() } == 3
     }
 
     void "start a workflow given a started trace, then complete the workflow given a succeeded trace"() {
@@ -169,10 +169,7 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         User owner = new DomainCreator().createUser()
 
         when: "unmarshall the JSON to a workflow"
-        Workflow workflowStarted1
-        Workflow.withNewTransaction {
-            workflowStarted1 = workflowService.processTraceWorkflowRequest(workflowStarted1TraceJson, owner)
-        }
+        Workflow workflowStarted1 = Workflow.withNewTransaction { workflowService.processTraceWorkflowRequest(workflowStarted1TraceJson, owner) }
 
         then: "the workflow has been correctly saved"
         workflowStarted1.id
@@ -307,14 +304,17 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
 
     void 'delete a workflow'() {
         given: 'a workflow with some metrics entries'
-        DomainCreator domainCreator = new DomainCreator()
-        Workflow workflow = domainCreator.createWorkflow()
-        domainCreator.createWorkflowMetrics(workflow)
-        domainCreator.createWorkflowMetrics(workflow)
+        def creator = new DomainCreator()
+        def workflow = creator.createWorkflow()
+        creator.createWorkflowMetrics(workflow)
+        creator.createWorkflowMetrics(workflow)
 
+        and:
+        creator.createProcess(workflow: workflow, position: 0, name: 'foo')
+        
         and: 'some tasks associated with the workflow'
         (1..3).each {
-            domainCreator.createTask(taskId: it, workflow: workflow)
+            creator.createTask(taskId: it, workflow: workflow)
         }
 
         when: 'delete the workflow'
@@ -323,9 +323,7 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         }
 
         then: 'the workflow is no longer in the database'
-        Workflow.withNewTransaction {
-            Workflow.count() == 0
-        }
+        Workflow.withNewTransaction { Workflow.count() } == 0
     }
 
     def 'should find comments' () {

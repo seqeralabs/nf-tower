@@ -49,5 +49,6 @@
 
     },
     "workflowId": null
-  }
+  },
+  "processNames": [ "foo", "bar", "baz" ]
 }

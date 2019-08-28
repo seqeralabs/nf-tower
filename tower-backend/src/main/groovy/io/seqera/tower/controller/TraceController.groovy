@@ -136,6 +136,9 @@ class TraceController extends BaseController {
     @Secured(['ROLE_USER'])
     HttpResponse<TraceTaskResponse> task(@Body TraceTaskRequest request) {
         HttpResponse<TraceTaskResponse> response
+        if( !request.workflowId )
+            HttpResponse.badRequest(TraceTaskResponse.ofError("Missing workflow ID"))
+
         try {
             log.info("Receiving task trace: ${request.inspect()}")
             List<Task> tasks = traceService.processTaskTrace(request)
