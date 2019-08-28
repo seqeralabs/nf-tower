@@ -37,3 +37,15 @@ pre.tab-config {
   overflow-x: auto;
   overflow-y: auto;
 }
+
+@media (min-width: 1400px) {
+  .container {
+    max-width: 1000px;
+  }
+}
+
+@media (min-width: 1650px) {
+  .container {
+    max-width: 1140px;
+  }
+}
