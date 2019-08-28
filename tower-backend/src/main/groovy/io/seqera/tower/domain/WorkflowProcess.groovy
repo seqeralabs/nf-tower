@@ -29,4 +29,8 @@ class WorkflowProcess {
     Integer position
 
     static belongsTo = [workflow: Workflow]
+
+    static constraints = {
+        name(unique: 'workflow')
+    }
 }
