@@ -62,8 +62,9 @@ export class TasksTableComponent implements OnInit, OnChanges {
       pageLength: 50,
       lengthChange: false,
       orderMulti: false,
+      rowId: (rowData) => `tr-${rowData[0]}`,
       columns: [
-        {name: "taskId", className: 'details-control', orderable: true},
+        {name: "taskId", orderable: true},
         {name: "process", orderable: false},
         {name: "tag", orderable: false},
         {name: "hash", orderable: false},
@@ -169,17 +170,26 @@ export class TasksTableComponent implements OnInit, OnChanges {
   private attachRowShowEvent(): void {
     const tableBody = $('#tasks-table tbody');
 
-    tableBody.off('click', 'td.details-control');
-    tableBody.on('click', 'td.details-control',(event) => {
-      const tr = $(event.target).closest('tr');
-      const row = this.dataTable.row(tr);
+    tableBody.off('click', 'tr');
+    tableBody.on('click', 'tr',(event) => {
+      const targetTr = $(event.target).closest('tr');
+      const targetRow = this.dataTable.row(targetTr);
 
-      if (row.child.isShown()) {
-        row.child.hide();
-        tr.removeClass('shown');
-      } else {
-        row.child(this.generateRowDataChildFormat(tr)).show();
-        tr.addClass('shown');
+      const isRowBeingShown: boolean = targetRow.child.isShown();
+
+      this.dataTable.rows().ids().each(rowId => {
+        const tr = $(`#${rowId}`);
+        const row = this.dataTable.row(`#${rowId}`);
+        if (row.child.isShown()) {
+          row.child.hide();
+          tr.removeClass('shown');
+        }
+      });
+
+      if (!isRowBeingShown) {
+        console.log('Row not shown');
+        targetRow.child(this.generateRowDataChildFormat(targetTr)).show();
+        targetTr.addClass('shown');
       }
     });
   }
