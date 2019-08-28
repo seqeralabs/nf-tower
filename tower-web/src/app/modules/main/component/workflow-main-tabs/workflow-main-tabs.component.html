@@ -18,20 +18,24 @@
   <div class="card-body">
     <div class="tab-content">
       <div class="tab-pane fade show active" id="commandLine" role="tabpanel" aria-labelledby="processes-tab">
-        <div class="command-line-box container d-flex h-100">
+        <div class="container d-flex h-100 command-line-box">
           <div class="justify-content-center align-self-center tab-max-height" style="padding: 0">
           {{workflow.data.commandLine}}
           </div>
         </div>
       </div>
       <div class="tab-pane fade" id="parameters" role="tabpanel" aria-labelledby="params-tab">
-        <div class="tab-max-height">
-        <wt-tree-list [workflow]="workflow" > </wt-tree-list>
+        <div class="container">
+          <div class="tab-max-height">
+            <wt-tree-list [workflow]="workflow" > </wt-tree-list>
+          </div>
         </div>
       </div>
       <div class="tab-pane fade" id="configuration" role="tabpanel" aria-labelledby="configuration-tab">
-        <div class="tab-config tab-max-height">
-        <pre class="tab-config">{{workflow.data.configText ? workflow.data.configText : 'n/a'}}</pre>
+        <div class="container">
+          <div class="tab-config tab-max-height">
+            <pre class="tab-config">{{workflow.data.configText ? workflow.data.configText : 'n/a'}}</pre>
+          </div>
         </div>
       </div>
       <div class="tab-pane fade" id="notes" role="tabpanel" aria-labelledby="notes-tab">
