@@ -11,12 +11,11 @@
 
 package io.seqera.tower.service
 
-import grails.gorm.DetachedCriteria
-
 import javax.inject.Inject
 import javax.inject.Singleton
 import java.time.OffsetDateTime
 
+import grails.gorm.DetachedCriteria
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
 import io.seqera.tower.domain.Task
@@ -24,6 +23,7 @@ import io.seqera.tower.domain.User
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.domain.WorkflowComment
 import io.seqera.tower.domain.WorkflowMetrics
+import io.seqera.tower.domain.WorkflowProcess
 import io.seqera.tower.exceptions.NonExistingWorkflowException
 import io.seqera.tower.exchange.trace.TraceWorkflowRequest
 
@@ -60,7 +60,21 @@ class WorkflowServiceImpl implements WorkflowService {
     }
 
     Workflow processTraceWorkflowRequest(TraceWorkflowRequest request, User owner) {
-        request.workflow.checkIsStarted() ? saveWorkflow(request.workflow, owner) : updateWorkflow(request.workflow, request.metrics)
+        if( request.workflow.checkIsStarted() ) {
+            def ret = saveWorkflow(request.workflow, owner)
+
+            // save the process names
+            for( int i=0; i<request.processNames?.size(); i++ ) {
+                final name = request.processNames[i]
+                final p = new WorkflowProcess(name: name, position: i, workflow: ret)
+                p.save()
+            }
+
+            return ret
+        }
+        else {
+            updateWorkflow(request.workflow, request.metrics)
+        }
     }
 
     private Workflow saveWorkflow(Workflow workflow, User owner) {
@@ -111,6 +125,7 @@ class WorkflowServiceImpl implements WorkflowService {
     }
 
     void delete(Workflow workflowToDelete) {
+        WorkflowProcess.where { workflow == workflowToDelete }.deleteAll()
         WorkflowMetrics.where { workflow == workflowToDelete }.deleteAll()
         WorkflowComment.where { workflow == workflowToDelete }.deleteAll()
         workflowToDelete.tasks?.each { Task task ->

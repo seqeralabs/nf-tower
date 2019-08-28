@@ -198,9 +198,7 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         nextflowSimulator.simulate(1)
 
         then: 'the workflow has been created'
-        Workflow.withNewTransaction {
-            Workflow.count() == 1
-        }
+        Workflow.withNewTransaction { Workflow.count() } == 1
 
         when: 'subscribe to the live events for the workflow detail endpoint'
         TestSubscriber detailSubscriber = sseClient.eventStream("/trace/live/workflowDetail/${nextflowSimulator.workflowId}", TraceSseResponse.class).test()
@@ -212,9 +210,7 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         nextflowSimulator.simulate(1)
 
         then: 'the tasks have been created'
-        Task.withNewTransaction {
-            Task.count() == 6
-        }
+        Task.withNewTransaction { Task.count() } == 6
 
         and: 'the task progress event has been sent'
         //For some reason the event isn't received here although it's working properly in the browser

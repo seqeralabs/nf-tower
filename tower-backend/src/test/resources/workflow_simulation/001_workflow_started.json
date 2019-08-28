@@ -49,5 +49,6 @@
             
         },
         "workflowId": null
-    }
+    },
+    "processNames": ["stress_1cpu"]
 }

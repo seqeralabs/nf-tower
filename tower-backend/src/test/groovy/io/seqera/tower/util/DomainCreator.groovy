@@ -23,6 +23,7 @@ import io.seqera.tower.domain.UserRole
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.domain.WorkflowComment
 import io.seqera.tower.domain.WorkflowMetrics
+import io.seqera.tower.domain.WorkflowProcess
 import io.seqera.tower.enums.TaskStatus
 import org.grails.datastore.mapping.validation.ValidationException
 import org.hibernate.Session
@@ -36,6 +37,7 @@ class DomainCreator {
 
     static void cleanupDatabase() {
         Workflow.withNewTransaction {
+            WorkflowProcess.deleteAll(WorkflowProcess.list())
             WorkflowComment.deleteAll(WorkflowComment.list())
             WorkflowMetrics.deleteAll(WorkflowMetrics.list())
             Task.deleteAll(Task.list())
@@ -91,6 +93,14 @@ class DomainCreator {
         fields.scriptName = fields.containsKey('scriptName') ? fields.scriptName : "main.nf"
 
         createInstance(workflow, fields)
+    }
+
+    WorkflowProcess createProcess(Map fields = [:]) {
+        WorkflowProcess process = new WorkflowProcess()
+        fields.workflow = fields.containsKey('workflow') ? fields.workflow : createWorkflow()
+        fields.name = fields.containsKey('name') ? fields.name : "process_${generateUniqueNamePart()}"
+        fields.index = fields.containsKey('index') ? fields.index : generateUniqueNumber()
+        createInstance(process, fields)
     }
 
     Task createTask(Map fields = [:]) {

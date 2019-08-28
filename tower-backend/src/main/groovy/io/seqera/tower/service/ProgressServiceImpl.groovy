@@ -63,6 +63,7 @@ class ProgressServiceImpl implements ProgressService {
             workflow.save()
     }
 
+    @CompileDynamic
     ProgressData fetchWorkflowProgress(Workflow workflow) {
         final result = computeWorkflowProgress(workflow.id)
         updatePeaks(workflow, result.workflowProgress)
@@ -72,7 +73,7 @@ class ProgressServiceImpl implements ProgressService {
     ProgressData computeWorkflowProgress(Long workflowId) {
         List<List<Object>> tasks = Task.executeQuery("""\
             select
-               t.process,
+               p.name,
                t.status,
                count(*),
                sum(t.cpus) as totalCpus,
@@ -82,16 +83,19 @@ class ProgressServiceImpl implements ProgressService {
                sum(t.memory) as memoryReq,
                sum(t.rchar) as diskReads,
                sum(t.wchar) as diskWrites,
-               sum(t.volCtxt) as volCtxt, 
+               sum(t.volCtxt) as volCtxt,
                sum(t.invCtxt) as invCtxt
-               
-             from Task t
-             where t.workflow.id = :workflowId
-             group by t.process, t.status""", [workflowId: workflowId])
+
+             from WorkflowProcess p
+               left join Task t on p.workflow = t.workflow and p.name = t.process
+             where
+               p.workflow.id = :workflowId
+             group by p.name, t.status
+             order by p.position """, [workflowId: workflowId])
 
         // aggregate tasks by name and status
         final workflowProgress = new WorkflowProgress()
-        final aggregate = new HashMap<String,ProcessProgress>(20)
+        final aggregate = new LinkedHashMap<String,ProcessProgress>(20)
         for( List cols : tasks ) {
             final row = new ProgressRow(cols)
             // aggregate by process name
