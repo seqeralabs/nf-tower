@@ -27,11 +27,10 @@ export class WelcomeComponent implements OnInit {
 
   ngOnInit() {
     this.user = this.auth.currentUser
-    const parsedUrl = new URL(window.location.href);
-    const baseUrl = parsedUrl.origin;
-    console.log(baseUrl);
-    if( !baseUrl.endsWith('/tower.seqera.io') ) {
-      this.nextflowRunCommand += baseUrl + '/api'
+    const url = new URL(window.location.href);
+    const base = url.origin;
+    if( !base.endsWith('://tower.nf') ) {
+      this.nextflowRunCommand += base + '/api'
     }
   }
 
