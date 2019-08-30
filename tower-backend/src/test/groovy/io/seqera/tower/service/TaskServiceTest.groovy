@@ -95,8 +95,8 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         }
 
         when: "unmarshall the started task trace"
-        Task.withNewTransaction {
-            tasks = taskService.processTaskTraceRequest(taskStartedTrace)
+        tasks = Task.withNewTransaction {
+             taskService.processTaskTraceRequest(taskStartedTrace)
         }
         Task taskStarted = tasks[0]
 
