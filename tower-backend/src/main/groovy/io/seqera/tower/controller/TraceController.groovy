@@ -138,14 +138,14 @@ class TraceController extends BaseController {
             HttpResponse.badRequest(TraceTaskResponse.ofError("Missing workflow ID"))
 
         try {
-            log.info("Receiving task trace: ${request.inspect()}")
+            log.info("Receiving task trace for workflow ID=${request.workflowId}")
             List<Task> tasks = traceService.processTaskTrace(request)
-            log.info("Processed task trace (${tasks.taskId} ${tasks.status*.name()})")
 
             final workflow = tasks.first().workflow
             response = HttpResponse.created(TraceTaskResponse.ofSuccess(workflow.id.toString()))
             publishUpdatedProgressEvent(workflow)
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             log.error("Failed to handle trace trace=$request", e)
             response = HttpResponse.badRequest(TraceTaskResponse.ofError(e.message))
         }

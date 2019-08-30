@@ -94,17 +94,17 @@ class WorkflowServiceImpl implements WorkflowService {
     private Workflow updateWorkflow(Workflow workflow, List<WorkflowMetrics> metrics) {
         Workflow existingWorkflow = Workflow.get(workflow.id)
         if (!existingWorkflow) {
-            throw new NonExistingWorkflowException("Can't update a non-existing workflow")
+            throw new NonExistingWorkflowException("Can't find workflow record with ID=${workflow.id}")
         }
 
-        updateChangeableFields(existingWorkflow, workflow)
+        updateMutableFields(existingWorkflow, workflow)
         associateMetrics(existingWorkflow, metrics)
 
         existingWorkflow.save()
         existingWorkflow
     }
 
-    private void updateChangeableFields(Workflow workflowToUpdate, Workflow originalWorkflow) {
+    private void updateMutableFields(Workflow workflowToUpdate, Workflow originalWorkflow) {
         workflowToUpdate.resume = originalWorkflow.resume
         workflowToUpdate.success = originalWorkflow.success
         workflowToUpdate.complete = originalWorkflow.complete

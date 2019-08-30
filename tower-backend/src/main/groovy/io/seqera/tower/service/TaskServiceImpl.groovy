@@ -49,39 +49,57 @@ class TaskServiceImpl implements TaskService {
 
         Task existingTask = Task.findByWorkflowAndTaskId(existingWorkflow, task.taskId)
         if (existingTask) {
-            updateChangeableFields(task, existingTask)
-            task = existingTask
-        } else {
+            updateMutableFields(existingTask, task)
+            existingTask.save()
+            return existingTask
+        }
+        else {
             task.workflow = existingWorkflow
+            task.save()
+            return task
         }
 
-        task.save()
-        return task
     }
 
-    private void updateChangeableFields(Task originalTask, Task taskToUpdate) {
+    private void updateMutableFields(Task taskToUpdate, Task originalTask) {
         taskToUpdate.status = originalTask.status
+
+        taskToUpdate.submit = originalTask.submit
         taskToUpdate.start = originalTask.start
         taskToUpdate.complete = originalTask.complete
-        taskToUpdate.duration = originalTask.duration
 
+        taskToUpdate.module = originalTask.module
+        taskToUpdate.container = originalTask.container
+        taskToUpdate.attempt = originalTask.attempt
+        taskToUpdate.script = originalTask.script
+        taskToUpdate.scratch = originalTask.scratch
+        taskToUpdate.workdir = originalTask.workdir
+        taskToUpdate.queue = originalTask.queue
+        taskToUpdate.cpus = originalTask.cpus
+        taskToUpdate.memory = originalTask.memory
+        taskToUpdate.disk = originalTask.disk
+        taskToUpdate.time = originalTask.time
+        taskToUpdate.env = originalTask.env
+
+        taskToUpdate.errorAction = originalTask.errorAction
+        taskToUpdate.exitStatus = originalTask.exitStatus
+        taskToUpdate.duration = originalTask.duration
         taskToUpdate.realtime = originalTask.realtime
+        taskToUpdate.nativeId = originalTask.nativeId
         taskToUpdate.pcpu = originalTask.pcpu
+        taskToUpdate.pmem = originalTask.pmem
+        taskToUpdate.rss = originalTask.rss
+        taskToUpdate.vmem = originalTask.vmem
+        taskToUpdate.peakRss = originalTask.peakRss
+        taskToUpdate.peakVmem = originalTask.peakVmem
         taskToUpdate.rchar = originalTask.rchar
         taskToUpdate.wchar = originalTask.wchar
         taskToUpdate.syscr = originalTask.syscr
         taskToUpdate.syscw = originalTask.syscw
         taskToUpdate.readBytes = originalTask.readBytes
         taskToUpdate.writeBytes = originalTask.writeBytes
-        taskToUpdate.pmem = originalTask.pmem
-        taskToUpdate.vmem = originalTask.vmem
-        taskToUpdate.rss = originalTask.rss
-        taskToUpdate.peakVmem = originalTask.peakVmem
-        taskToUpdate.peakRss = originalTask.peakRss
         taskToUpdate.volCtxt = originalTask.volCtxt
         taskToUpdate.invCtxt = originalTask.invCtxt
-
-        taskToUpdate.errorAction = originalTask.errorAction
     }
 
     @CompileDynamic

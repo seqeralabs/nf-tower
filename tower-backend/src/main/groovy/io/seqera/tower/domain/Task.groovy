@@ -20,11 +20,13 @@ import com.fasterxml.jackson.annotation.JsonSetter
 import com.fasterxml.jackson.databind.ObjectMapper
 import grails.gorm.annotation.Entity
 import groovy.transform.CompileDynamic
+import groovy.transform.ToString
 import io.seqera.tower.enums.TaskStatus
 /**
  * Workflow task info
  * see https://www.nextflow.io/docs/latest/tracing.html#execution-report
  */
+@ToString(includeNames = true)
 @Entity
 @JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'workflow', 'workflowId'])
 @CompileDynamic
@@ -53,7 +55,6 @@ class Task {
      * Multi-value field encoded as JSON
      */
     String module
-
     String container
     Integer attempt
     String script

@@ -19,10 +19,10 @@ import io.seqera.tower.domain.Task
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
-@ToString
+@ToString(includeNames = true)
 class TraceTaskRequest {
 
-    List<Task> tasks
     String workflowId
+    List<Task> tasks
 
 }
