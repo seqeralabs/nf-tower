@@ -90,7 +90,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
 
         then: "the workflow data is properly obtained"
         response.status == HttpStatus.OK
-        response.body().workflow.workflowId == workflow.id.toString()
+        response.body().workflow.id.size()>0
         response.body().workflow.stats
         response.body().workflow.nextflow
         response.body().workflow.manifest
@@ -148,7 +148,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         response.body().workflows.size() == workflows.size()
 
         and: 'the workflows are ordered by start date in descending order'
-        response.body().workflows.workflow.workflowId == workflows.reverse().id*.toString()
+        response.body().workflows.workflow.id == workflows.reverse().id*.toString()
     }
 
     @Unroll

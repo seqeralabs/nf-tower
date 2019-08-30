@@ -92,7 +92,7 @@ class WorkflowServiceImpl implements WorkflowService {
 
     @CompileDynamic
     private Workflow updateWorkflow(Workflow workflow, List<WorkflowMetrics> metrics) {
-        Workflow existingWorkflow = Workflow.get(workflow.workflowId)
+        Workflow existingWorkflow = Workflow.get(workflow.id)
         if (!existingWorkflow) {
             throw new NonExistingWorkflowException("Can't update a non-existing workflow")
         }

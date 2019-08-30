@@ -75,7 +75,7 @@ export class SidebarComponent implements OnInit, OnDestroy, OnChanges {
       return;
     }
 
-    if (this.workflowToDelete && this.workflowToDelete.data.workflowId == this.currentId) {
+    if (this.workflowToDelete && this.workflowToDelete.id == this.currentId) {
       this.workflowToDelete = null;
       this.goToFirstWorkflow()
     }
@@ -108,7 +108,7 @@ export class SidebarComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   showWorkflowDetail(workflow: Workflow): void {
-    this.router.navigate([`/workflow/${workflow.data.workflowId}`])
+    this.router.navigate([`/workflow/${workflow.id}`])
   }
 
   deleteWorkflow(workflow: Workflow): void {

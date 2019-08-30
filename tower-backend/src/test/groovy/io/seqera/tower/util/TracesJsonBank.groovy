@@ -49,7 +49,7 @@ class TracesJsonBank {
         File jsonFile = workflowDir.listFiles().find { it.name.endsWith(fileNamePart) }
         log.debug "Test json file: $jsonFile"
         TraceWorkflowRequest workflowTrace = DomainHelper.mapper.readValue(jsonFile, TraceWorkflowRequest.class)
-        workflowTrace.workflow.workflowId = workflowId
+        workflowTrace.workflow.id = workflowId
 
         workflowTrace
     }

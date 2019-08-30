@@ -92,7 +92,7 @@ class TraceController extends BaseController {
             Workflow workflow = traceService.processWorkflowTrace(request, user)
             log.info("Processed workflow trace ${workflow.id}")
 
-            response = HttpResponse.created(TraceWorkflowResponse.ofSuccess(workflow.id.toString()))
+            response = HttpResponse.created(TraceWorkflowResponse.ofSuccess(workflow.id))
 
             publishWorkflowEvent(workflow, user)
         } catch (Exception e) {

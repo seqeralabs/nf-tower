@@ -69,7 +69,7 @@ export class HomeComponent implements OnInit {
 
   private receiveWorkflows(emittedWorkflows: Workflow[]): void {
     this.workflows = this.isWorkflowsInitiatied ? this.workflows : [];
-    const newWorkflows: Workflow[] = differenceBy(emittedWorkflows, this.workflows, (w: Workflow) => w.data.workflowId);
+    const newWorkflows: Workflow[] = differenceBy(emittedWorkflows, this.workflows, (w: Workflow) => w.id);
 
     //Paginating event: concat the newly received workflows to the current ones
     if (this.isNextPageLoadTriggered) {
@@ -81,7 +81,7 @@ export class HomeComponent implements OnInit {
     }
     //Search is currently active: keep the filtered workflows, drop the ones no longer present (delete event) and ignore the new ones (live update event)
     else if (this.isSearchActive) {
-      this.workflows = intersectionBy(this.workflows, emittedWorkflows, (workflow: Workflow) => workflow.data.workflowId);
+      this.workflows = intersectionBy(this.workflows, emittedWorkflows, (workflow: Workflow) => workflow.id);
     }
     //No search currently active (initialization event, live update event, delete event)
     else {

@@ -27,6 +27,10 @@ export class Workflow {
     }
   }
 
+  get id(): string {
+    return this.data.id;
+  }
+
   get isRunning(): boolean {
     return (this.computeStatus() === WorkflowStatus.RUNNING);
   }
