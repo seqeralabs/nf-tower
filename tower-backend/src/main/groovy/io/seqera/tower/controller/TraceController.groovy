@@ -88,14 +88,12 @@ class TraceController extends BaseController {
         HttpResponse<TraceWorkflowResponse> response
         try {
             User user = userService.getFromAuthData(authentication)
-            log.info("Receiving workflow trace: ${request.inspect()}")
+            log.info("Receiving workflow trace for workflows ID=${request.workflow.id}")
             Workflow workflow = traceService.processWorkflowTrace(request, user)
-            log.info("Processed workflow trace ${workflow.id}")
-
             response = HttpResponse.created(TraceWorkflowResponse.ofSuccess(workflow.id))
-
             publishWorkflowEvent(workflow, user)
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             log.error("Failed to handle workflow trace=$request", e)
             response = HttpResponse.badRequest(TraceWorkflowResponse.ofError(e.message))
         }

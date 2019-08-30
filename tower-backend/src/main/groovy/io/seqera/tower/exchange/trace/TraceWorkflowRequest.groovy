@@ -20,7 +20,7 @@ import io.seqera.tower.domain.Workflow
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
-@ToString
+@ToString(includeNames = true)
 class TraceWorkflowRequest {
 
     Workflow workflow
