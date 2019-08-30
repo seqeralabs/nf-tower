@@ -75,4 +75,8 @@ export class Workflow {
     return FormatterUtil.formatDate(this.data.start);
   }
 
+  get exitStatus(): string {
+    return this.data.exitStatus != null ? this.data.exitStatus.toString() : '-';
+  }
+
 }
