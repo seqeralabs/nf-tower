@@ -24,6 +24,8 @@ export abstract class FormatterUtil {
   }
 
   static humanizeDuration(durationMillis: number): string {
+    if (durationMillis==null || durationMillis==0)
+      return '';
     return this.durationHumanizer.humanize(durationMillis, {language: 'short', delimiter: ' ', round: true});
   }
 
@@ -36,13 +38,13 @@ export abstract class FormatterUtil {
   }
 
   static formatDate(date: string | number | Date, format?: string): string {
-    if (date==null || date==0) {
+    if (date==null || date==0)
       return '';
-    }
+
     const dateInstance: Date = new Date(date);
-    if (!format) {
+    if (!format)
       format = 'YYYY-MM-DD hh:mm:ss'
-    }
+
     return dateFormat(dateInstance, format);
   }
 
