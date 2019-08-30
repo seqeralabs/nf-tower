@@ -108,7 +108,7 @@ export class SidebarComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   showWorkflowDetail(workflow: Workflow): void {
-    this.router.navigate([`/workflow/${workflow.id}`])
+    this.router.navigate([`/watch/${workflow.id}`])
   }
 
   deleteWorkflow(workflow: Workflow): void {

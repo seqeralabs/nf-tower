@@ -23,8 +23,6 @@ export class AuthGuard implements CanActivate {
               private router: Router) {}
 
   canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
-    let url: string = state.url;
-
     return this.checkLogin();
   }
 
@@ -38,5 +36,5 @@ export class AuthGuard implements CanActivate {
     this.router.navigate(['/']);
     return false;
   }
-  
+
 }

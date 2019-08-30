@@ -52,7 +52,7 @@ import {TreeListComponent} from "./component/tree-list/TreeListComponent";
 const routes: Routes = [
   {path: '',                component: HomeComponent,
    children: [
-     {path: 'workflow/:id', component: WorkflowDetailComponent, canActivate: [AuthGuard]},
+     {path: 'watch/:id', component: WorkflowDetailComponent, canActivate: [AuthGuard]},
      {path: 'profile',      component: UserProfileComponent, canActivate: [AuthGuard]},
      {path: 'tokens',       component: AccessTokenComponent, canActivate: [AuthGuard]},
      {path: 'welcome',      component: WelcomeComponent, canActivate: [AuthGuard]},
