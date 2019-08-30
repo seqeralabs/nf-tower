@@ -134,7 +134,7 @@ export class HomeComponent implements OnInit {
   }
 
   get isAtWorkflowRelatedScreen() {
-    return (this.isAtRoot || this.router.url.startsWith('/workflow'));
+    return (this.isAtRoot || this.router.url.startsWith('/watch'));
   }
 
   get isWorkflowsInitiatied(): boolean {
