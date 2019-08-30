@@ -152,7 +152,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
     }
 
     @Unroll
-    void "get a list of filtered workflows"() {
+    void "get a list of filtered workflows with search=#search"() {
         given: 'a user owner of the workflow'
         User owner
         User.withNewTransaction {
@@ -160,12 +160,13 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         }
 
         and: "some workflows owned by the user and ordered by start date in descending order (recent first)"
+        final now = OffsetDateTime.now()
         DomainCreator domainCreator = new DomainCreator()
         (1..4).collect { Integer i ->
             domainCreator.createWorkflow(
                     owner: owner,
                     projectName: "project${i}", runName: "runName${i}", commitId: "commitId${i}",
-                    start: OffsetDateTime.now().minusSeconds(i)
+                    start: now.minusSeconds(i)
             )
         }
 
@@ -191,18 +192,18 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
 
         expect: "the workflows data is properly obtained"
         response.status == HttpStatus.OK
-        response.body().workflows.size() == expectedWorkflowCommitIds.size()
-        response.body().workflows.workflow.commitId == expectedWorkflowCommitIds
+        response.body().workflows.size() == expectedWorkflowRunNames.size()
+        response.body().workflows.workflow.runName == expectedWorkflowRunNames
 
         where: 'the search params are'
-        search      | expectedWorkflowCommitIds
-        'project%'  | ["commitId1", "commitId2", "commitId3", "commitId4"]
-        'runName%'  | ["commitId1", "commitId2", "commitId3", "commitId4"]
-        'PrOjEct%'  | ["commitId1", "commitId2", "commitId3", "commitId4"]
-        'rUnNAme%'  | ["commitId1", "commitId2", "commitId3", "commitId4"]
-        'project1'  | ["commitId1"]
-        'runName1'  | ["commitId1"]
-        '%a%'       | ["commitId1", "commitId2", "commitId3", "commitId4"]
+        search      | expectedWorkflowRunNames
+        'project%'  | ["runName1", "runName2", "runName3", "runName4"]
+        'runName%'  | ["runName1", "runName2", "runName3", "runName4"]
+        'PrOjEct%'  | ["runName1", "runName2", "runName3", "runName4"]
+        'rUnNAme%'  | ["runName1", "runName2", "runName3", "runName4"]
+        'project1'  | ["runName1"]
+        'runName1'  | ["runName1"]
+        '%a%'       | ["runName1", "runName2", "runName3", "runName4"]
     }
 
     void "try to get a non-existing workflow"() {

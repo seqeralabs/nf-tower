@@ -32,6 +32,7 @@ class Workflow {
 
     static final private ObjectMapper mapper = new ObjectMapper().findAndRegisterModules()
 
+    String id
     static hasMany = [tasks: Task]
     static belongsTo = [owner: User]
 
@@ -158,6 +159,7 @@ class Workflow {
     }
 
     static mapping = {
+        id generator: 'io.seqera.tower.domain.HashSequenceGenerator'
         errorReport(type: 'text')
         params(type: 'text')
         configFiles(type: 'text')

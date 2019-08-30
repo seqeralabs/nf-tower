@@ -38,6 +38,16 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
     WorkflowService workflowService
 
 
+    void 'should create workflow' () {
+        given:
+        def creator = new DomainCreator()
+
+        when:
+        def wf = creator.createWorkflow()
+        then:
+        wf.id == 'vN8KBbqR'
+    }
+
     void "start a workflow given a started trace"() {
         given: "a workflow JSON started trace"
         TraceWorkflowRequest workflowStartedTraceJson = TracesJsonBank.extractWorkflowJsonTrace('success', null, WorkflowTraceSnapshotStatus.STARTED)
@@ -219,7 +229,7 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
 
     void "try to complete a workflow given a succeeded trace for a non existing workflow"() {
         given: "a workflow JSON started trace"
-        TraceWorkflowRequest workflowSucceededTraceJson = TracesJsonBank.extractWorkflowJsonTrace('success', 123, WorkflowTraceSnapshotStatus.SUCCEEDED)
+        TraceWorkflowRequest workflowSucceededTraceJson = TracesJsonBank.extractWorkflowJsonTrace('success', '123', WorkflowTraceSnapshotStatus.SUCCEEDED)
 
         and: 'a user owner for the workflow'
         User owner = new DomainCreator().createUser()

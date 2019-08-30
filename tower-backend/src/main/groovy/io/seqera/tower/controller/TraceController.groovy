@@ -167,7 +167,7 @@ class TraceController extends BaseController {
     }
 
     @Get("/live/workflowDetail/{workflowId}")
-    Publisher<Event<TraceSseResponse>> liveWorkflowDetail(Long workflowId) {
+    Publisher<Event<TraceSseResponse>> liveWorkflowDetail(String workflowId) {
         String workflowDetailFlowableKey = getWorkflowDetailFlowableKey(workflowId)
 
         log.info("Subscribing to live events of workflow: ${workflowDetailFlowableKey}")
@@ -187,7 +187,7 @@ class TraceController extends BaseController {
         workflowDetailFlowable
     }
 
-    private static String getWorkflowDetailFlowableKey(def workflowId) {
+    private static String getWorkflowDetailFlowableKey(String workflowId) {
         return "workflow-${workflowId}"
     }
 

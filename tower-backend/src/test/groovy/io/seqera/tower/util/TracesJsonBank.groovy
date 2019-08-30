@@ -42,7 +42,7 @@ class TracesJsonBank {
         new File(RESOURCES_DIR_PATH, "workflow_${workflowLabel}")
     }
 
-    static TraceWorkflowRequest extractWorkflowJsonTrace(String workflowLabel, Long workflowId, WorkflowTraceSnapshotStatus workflowStatus) {
+    static TraceWorkflowRequest extractWorkflowJsonTrace(String workflowLabel, String workflowId, WorkflowTraceSnapshotStatus workflowStatus) {
         File workflowDir = getWorkflowDir(workflowLabel)
 
         String fileNamePart = "workflow_${workflowStatus.name().toLowerCase()}.json"
@@ -54,7 +54,7 @@ class TracesJsonBank {
         workflowTrace
     }
 
-    static TraceTaskRequest extractTaskJsonTrace(String workflowLabel, Long taskId, Long workflowId, TaskTraceSnapshotStatus taskStatus) {
+    static TraceTaskRequest extractTaskJsonTrace(String workflowLabel, Long taskId, String workflowId, TaskTraceSnapshotStatus taskStatus) {
         File workflowDir = getWorkflowDir(workflowLabel)
 
         String fileNamePart = "task_${taskId}_${taskStatus.name().toLowerCase()}.json"
@@ -97,7 +97,7 @@ class NextflowSimulator {
     String workflowLabel
     BlockingHttpClient client
     Long sleepBetweenRequests
-    Long workflowId
+    String workflowId
 
     private List<TraceTaskRequest> tasksRequestSequence
 
@@ -106,7 +106,7 @@ class NextflowSimulator {
         if (!workflowId) {
             TraceWorkflowRequest workflowStarted = TracesJsonBank.extractWorkflowJsonTrace(workflowLabel, null, WorkflowTraceSnapshotStatus.STARTED)
             HttpResponse<TraceWorkflowResponse> workflowResponse = client.exchange(buildRequest(WORKFLOW_TRACE_ENDPOINT, workflowStarted), TraceWorkflowResponse.class)
-            workflowId = workflowResponse.body().workflowId.toLong()
+            workflowId = workflowResponse.body().workflowId
 
             if ((nRequests != null) && (--nRequests == 0)) {
                 return

@@ -70,7 +70,7 @@ class ProgressServiceImpl implements ProgressService {
         return result
     }
 
-    ProgressData computeWorkflowProgress(Long workflowId) {
+    ProgressData computeWorkflowProgress(String workflowId) {
         List<List<Object>> tasks = Task.executeQuery("""\
             select
                p.name,
