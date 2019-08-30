@@ -79,9 +79,8 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         User owner = new DomainCreator().createUser()
 
         when: "unmarshall the JSON to a workflow"
-        Workflow workflowStarted
-        Workflow.withNewTransaction {
-            workflowStarted = workflowService.processTraceWorkflowRequest(workflowStartedTraceJson, owner)
+        Workflow workflowStarted = Workflow.withNewTransaction {
+            workflowService.processTraceWorkflowRequest(workflowStartedTraceJson, owner)
         }
 
         then: "the workflow has been correctly saved"
@@ -93,9 +92,8 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
 
         when: "given a workflow succeeded trace, unmarshall the succeeded JSON to a workflow"
         TraceWorkflowRequest workflowSucceededTraceJson = TracesJsonBank.extractWorkflowJsonTrace('success', workflowStarted.id, WorkflowTraceSnapshotStatus.SUCCEEDED)
-        Workflow workflowSucceeded
-        Workflow.withNewTransaction {
-            workflowSucceeded = workflowService.processTraceWorkflowRequest(workflowSucceededTraceJson, owner)
+        Workflow workflowSucceeded = Workflow.withNewTransaction {
+            workflowService.processTraceWorkflowRequest(workflowSucceededTraceJson, owner)
         }
 
         then: "the workflow has been completed"
@@ -187,22 +185,17 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         workflowStarted1.checkIsStarted()
         workflowStarted1.submit
         !workflowStarted1.complete
-        Workflow.withNewTransaction {
-            Workflow.count() == 1
-        }
+        Workflow.withNewTransaction { Workflow.count() } == 1
 
         when: "given a workflow started trace with the same workflowId, unmarshall the started JSON to a second workflow"
-        TraceWorkflowRequest workflowStarted2TraceJson = TracesJsonBank.extractWorkflowJsonTrace('success', workflowStarted1.id, WorkflowTraceSnapshotStatus.STARTED)
-        Workflow workflowStarted2
-        Workflow.withNewTransaction {
-            workflowStarted2 = workflowService.processTraceWorkflowRequest(workflowStarted2TraceJson, owner)
+        TraceWorkflowRequest workflowStarted2TraceJson = TracesJsonBank.extractWorkflowJsonTrace('success', null, WorkflowTraceSnapshotStatus.STARTED)
+        Workflow workflowStarted2 = Workflow.withNewTransaction {
+            workflowService.processTraceWorkflowRequest(workflowStarted2TraceJson, owner)
         }
 
         then: "the second workflow is treated as a new one, and sessionId/runName combination cannot be repeated"
         workflowStarted2.errors.getFieldError('runName').code == 'unique'
-        Workflow.withNewTransaction {
-            Workflow.count() == 1
-        }
+        Workflow.withNewTransaction { Workflow.count() } == 1 
     }
 
     void "try to start a workflow given a started trace without sessionId"() {

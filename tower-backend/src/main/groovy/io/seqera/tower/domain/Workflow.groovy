@@ -81,11 +81,7 @@ class Workflow {
     Long peakLoadTasks
     Long peakLoadMemory
 
-    String workflowId
-
     static embedded = ['manifest', 'nextflow', 'stats']
-
-    static transients = ['workflowId']
 
     boolean checkIsStarted() {
         computeStatus() == WorkflowStatus.STARTED
@@ -114,12 +110,6 @@ class Workflow {
     @JsonSetter('params')
     void deserializeParamsJson(Map paramsMap) {
         params = paramsMap ? mapper.writeValueAsString(paramsMap) : null
-    }
-
-
-    @JsonGetter('workflowId')
-    String serializeWorkflowId() {
-        id?.toString() ?: workflowId
     }
 
     @JsonGetter('configFiles')

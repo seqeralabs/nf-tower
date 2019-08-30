@@ -67,7 +67,7 @@ export class WorkflowService {
         if (clearCache) {
           this.workflowsByIdCache.clear();
         }
-        workflows.forEach((workflow: Workflow) => this.workflowsByIdCache.set(workflow.data.workflowId, workflow));
+        workflows.forEach((workflow: Workflow) => this.workflowsByIdCache.set(workflow.id, workflow));
       })
     );
   }
@@ -91,9 +91,9 @@ export class WorkflowService {
     return this.http.get(url).pipe(
       map((data: any[]) => new Workflow(data)),
       tap((workflow: Workflow) => {
-        const isAlreadyInCache: boolean = this.workflowsByIdCache.has(workflow.data.workflowId);
+        const isAlreadyInCache: boolean = this.workflowsByIdCache.has(workflow.id);
         if (isAlreadyInCache) {
-          this.workflowsByIdCache.set(workflow.data.workflowId, workflow)
+          this.workflowsByIdCache.set(workflow.id, workflow)
         }
       })
     );
@@ -104,17 +104,17 @@ export class WorkflowService {
   }
 
   updateWorkflow(newWorkflow: Workflow): void {
-    this.workflowsByIdCache.set(newWorkflow.data.workflowId, newWorkflow);
+    this.workflowsByIdCache.set(newWorkflow.id, newWorkflow);
     this.emitWorkflowsFromCache();
   }
 
   deleteWorkflow(workflow: Workflow): Observable<string> {
-    const url = `${environment.apiUrl}/workflow/${workflow.data.workflowId}`;
+    const url = `${environment.apiUrl}/workflow/${workflow.id}`;
     return new Observable<string>( observer => {
       this.http.delete(url)
         .subscribe(
           resp => {
-            this.workflowsByIdCache.delete(workflow.data.workflowId);
+            this.workflowsByIdCache.delete(workflow.id);
             this.emitWorkflowsFromCache();
             observer.complete();
             },

@@ -28,7 +28,7 @@ export class ServerSentEventsWorkflowService {
   constructor() { }
 
   connectToWorkflowDetailLive(workflow: Workflow): Observable<Workflow | Progress | SseHeartbeat | SseError> {
-    const workflowDetailUrl: string = `${endpointUrl}/workflowDetail/${workflow.data.workflowId}`;
+    const workflowDetailUrl: string = `${endpointUrl}/workflowDetail/${workflow.id}`;
 
     return this.connect(workflowDetailUrl);
   }

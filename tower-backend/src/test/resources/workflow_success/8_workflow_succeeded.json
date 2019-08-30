@@ -66,7 +66,7 @@
     "params": {
 
     },
-    "workflowId": "12345"
+    "id": "12345"
   },
   "metrics": [
     {
