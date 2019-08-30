@@ -15,7 +15,7 @@ import {WorkflowStatus} from "./workflow-status.enum";
 
 export interface WorkflowData {
 
-  workflowId: string | number;
+  workflowId: string;
 
   runName: string;
   sessionId: string;

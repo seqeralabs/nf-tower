@@ -26,7 +26,7 @@ interface WorkflowService {
      * @param id The workflow primary key
      * @return The {@link Workflow} for the specified key of {@code null} if not match is found
      */
-    Workflow get(Serializable id)
+    Workflow get(String id)
 
     /**
      * List all {@link Workflow} objects for the given owner {@link User}
@@ -46,7 +46,7 @@ interface WorkflowService {
      */
     void delete(Workflow workflow)
 
-    void deleteById(Serializable workflowId)
+    void deleteById(String workflowId)
 
     Workflow processTraceWorkflowRequest(TraceWorkflowRequest request, User owner)
 

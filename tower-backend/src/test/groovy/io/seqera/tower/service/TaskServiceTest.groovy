@@ -362,7 +362,7 @@ class TaskServiceTest extends AbstractContainerBaseTest {
     @Unroll
     void "try to find some tasks for a nonexistent workflow"() {
         when: 'search for the tasks associated with a nonexistent workflow'
-        PagedResultList<Task> obtainedTasks = taskService.findTasks(100l, 10l, 0l, 'taskId', 'asc', null)
+        PagedResultList<Task> obtainedTasks = taskService.findTasks('100', 10l, 0l, 'taskId', 'asc', null)
 
         then: 'there are no tasks'
         obtainedTasks.totalCount == 0

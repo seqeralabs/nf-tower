@@ -39,7 +39,7 @@ class WorkflowServiceImpl implements WorkflowService {
     }
 
     @CompileDynamic
-    Workflow get(Serializable id) {
+    Workflow get(String id) {
         Workflow.findById(id, [fetch: [tasksProgress: 'join', processesProgress: 'join']])
     }
 
@@ -135,7 +135,7 @@ class WorkflowServiceImpl implements WorkflowService {
         workflowToDelete.delete()
     }
 
-    void deleteById(Serializable workflowId) {
+    void deleteById(String workflowId) {
         delete( get(workflowId) )
     }
 

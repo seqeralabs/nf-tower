@@ -15,6 +15,7 @@ import java.time.Instant
 import java.time.OffsetDateTime
 
 import io.seqera.tower.domain.AccessToken
+import io.seqera.tower.domain.HashSequenceGenerator
 import io.seqera.tower.domain.ResourceData
 import io.seqera.tower.domain.Role
 import io.seqera.tower.domain.Task
@@ -58,6 +59,7 @@ class DomainCreator {
                     tables.each {
                         session.createSQLQuery("truncate table $it").executeUpdate()
                     }
+                    session.createSQLQuery("insert into ${HashSequenceGenerator.SEQUENCE_NAME} values ( 1 )".toString()).executeUpdate()
                 }
                 finally {
                     session.createSQLQuery("SET FOREIGN_KEY_CHECKS=1;").executeUpdate()

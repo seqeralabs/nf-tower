@@ -93,7 +93,7 @@ class WorkflowController extends BaseController {
     @Get("/{id}")
     @Transactional
     @Secured(['ROLE_USER'])
-    HttpResponse<WorkflowGet> get(Long id) {
+    HttpResponse<WorkflowGet> get(String id) {
         Workflow workflow = workflowService.get(id)
 
         if (!workflow) {
@@ -105,7 +105,7 @@ class WorkflowController extends BaseController {
     @Get("/{workflowId}/tasks")
     @Transactional
     @Secured(SecurityRule.IS_ANONYMOUS)
-    HttpResponse<TaskList> tasks(Long workflowId, HttpParameters filterParams) {
+    HttpResponse<TaskList> tasks(String workflowId, HttpParameters filterParams) {
         Long max = filterParams.getFirst('length', Long.class, 10l)
         Long offset = filterParams.getFirst('start', Long.class, 0l)
         String orderProperty = filterParams.getFirst('order[0][column]', String.class, 'taskId')
@@ -125,7 +125,7 @@ class WorkflowController extends BaseController {
     @Transactional
     @Secured(['ROLE_USER'])
     @Delete('/{workflowId}')
-    HttpResponse delete(Serializable workflowId) {
+    HttpResponse delete(String workflowId) {
         try {
             workflowService.deleteById(workflowId)
             HttpResponse.status(HttpStatus.NO_CONTENT)
@@ -140,7 +140,7 @@ class WorkflowController extends BaseController {
     @Secured(['ROLE_USER'])
     @Get('/{workflowId}/metrics')
     @CompileDynamic
-    HttpResponse<GetWorkflowMetricsResponse> metrics(Serializable workflowId) {
+    HttpResponse<GetWorkflowMetricsResponse> metrics(String workflowId) {
         try {
             final workflow = workflowService.get(workflowId)
             if (!workflow)
@@ -159,7 +159,7 @@ class WorkflowController extends BaseController {
     @Secured(['ROLE_USER'])
     @Get('/{workflowId}/comments')
     @CompileDynamic
-    HttpResponse<ListWorkflowCommentsResponse> listComments(Serializable workflowId) {
+    HttpResponse<ListWorkflowCommentsResponse> listComments(String workflowId) {
         try {
             final workflow = workflowService.get(workflowId)
             if (!workflow)
@@ -178,7 +178,7 @@ class WorkflowController extends BaseController {
     @Secured(['ROLE_USER'])
     @Post('/{workflowId}/comment/add')
     @CompileDynamic
-    HttpResponse<AddWorkflowCommentResponse> addComment(Authentication authentication, Serializable workflowId, AddWorkflowCommentRequest request) {
+    HttpResponse<AddWorkflowCommentResponse> addComment(Authentication authentication, String workflowId, AddWorkflowCommentRequest request) {
         try {
             final user = userService.getFromAuthData(authentication)
             final workflow = workflowService.get(workflowId)
@@ -212,7 +212,7 @@ class WorkflowController extends BaseController {
     @Secured(['ROLE_USER'])
     @Put('/{workflowId}/comment')
     @CompileDynamic
-    HttpResponse<UpdateWorkflowCommentResponse> updateComment(Authentication authentication, Long workflowId, UpdateWorkflowCommentRequest request) {
+    HttpResponse<UpdateWorkflowCommentResponse> updateComment(Authentication authentication, String workflowId, UpdateWorkflowCommentRequest request) {
         try {
             final user = userService.getFromAuthData(authentication)
 
@@ -258,7 +258,7 @@ class WorkflowController extends BaseController {
     @Secured(['ROLE_USER'])
     @Delete('/{workflowId}/comment')
     @CompileDynamic
-    HttpResponse<DeleteWorkflowCommentResponse> deleteComment(Authentication authentication, Long workflowId, DeleteWorkflowCommentRequest request) {
+    HttpResponse<DeleteWorkflowCommentResponse> deleteComment(Authentication authentication, String workflowId, DeleteWorkflowCommentRequest request) {
         try {
             final user = userService.getFromAuthData(authentication)
 
