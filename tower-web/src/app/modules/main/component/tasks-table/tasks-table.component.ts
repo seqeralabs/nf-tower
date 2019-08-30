@@ -59,7 +59,7 @@ export class TasksTableComponent implements OnInit, OnChanges {
     this.dataTable = $('#tasks-table').DataTable({
       scrollX: true,
       serverSide: true,
-      pageLength: 50,
+      pageLength: 30,
       lengthChange: false,
       orderMulti: false,
       rowId: (rowData) => `tr-${rowData[0]}`,
