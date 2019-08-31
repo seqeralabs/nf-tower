@@ -55,7 +55,6 @@ class User {
         organization(nullable: true)
         description(nullable: true)
         avatar(nullable: true, url: true)
-        trusted(nullable: true)
         lastAccess(nullable: true)
     }
 

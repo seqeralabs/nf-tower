@@ -12,9 +12,6 @@
 package io.seqera.tower.service
 
 import javax.inject.Inject
-import javax.mail.Message
-import javax.mail.internet.InternetAddress
-import javax.mail.internet.MimeMultipart
 import javax.validation.ValidationException
 import java.time.Instant
 
@@ -25,12 +22,12 @@ import io.micronaut.test.annotation.MicronautTest
 import io.seqera.mail.MailerConfig
 import io.seqera.tower.Application
 import io.seqera.tower.domain.AccessToken
+import io.seqera.tower.domain.Mail
 import io.seqera.tower.domain.User
 import io.seqera.tower.domain.UserRole
 import io.seqera.tower.exchange.gate.AccessGateResponse
 import io.seqera.tower.util.AbstractContainerBaseTest
 import io.seqera.tower.util.DomainCreator
-import org.subethamail.wiser.Wiser
 /**
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
@@ -50,17 +47,6 @@ class GateServiceTest extends AbstractContainerBaseTest {
 
     @Value('${tower.contact-email}')
     String contactEmail
-
-    Wiser smtpServer
-
-    void setup() {
-        smtpServer = new Wiser(mailerConfig.smtp.port)
-        smtpServer.start()
-    }
-
-    void cleanup() {
-        smtpServer.stop()
-    }
 
     void "a new user is created on first time access"() {
         given: "an email"
@@ -93,9 +79,8 @@ class GateServiceTest extends AbstractContainerBaseTest {
         UserRole.list().first().role.authority == 'ROLE_USER'
 
         and: "the new user registration has been notified to webmaster"
-        smtpServer.messages.size() == 1
-        Message message = smtpServer.messages.first().mimeMessage
-        message.allRecipients.contains(new InternetAddress(contactEmail))
+        Mail.withNewTransaction { Mail.count() } == 1
+        Mail.withNewTransaction { Mail.list()[0].to } == contactEmail
     }
 
     void "a new user is created as trusted" () {
@@ -121,9 +106,8 @@ class GateServiceTest extends AbstractContainerBaseTest {
         resp.state == AccessGateResponse.State.LOGIN_ALLOWED
 
         and: "the new user registration has been notified to webmaster"
-        smtpServer.messages.size() == 1
-        Message message = smtpServer.messages.first().mimeMessage
-        message.allRecipients.contains(new InternetAddress(EMAIL))
+        Mail.withNewTransaction { Mail.count() } == 1
+        Mail.withNewTransaction { Mail.list()[0].to } == EMAIL
     }
 
     void "a trusted user try to access"() {
@@ -151,11 +135,12 @@ class GateServiceTest extends AbstractContainerBaseTest {
         resp.user.authTime > authTime
 
         and: 'the resp email has been sent'
-        smtpServer.messages.size() == 1
-        Message message = smtpServer.messages.first().mimeMessage
-        message.allRecipients.contains(new InternetAddress(user.email))
-        message.subject == 'Nextflow Tower Sign in'
-        (message.content as MimeMultipart).getBodyPart(0).content.getBodyPart(0).content.contains("Hi $userName,")
+        Mail.withNewTransaction { Mail.count() } == 1
+        def mail = Mail.withNewTransaction { Mail.list()[0] }
+        mail.to == user.email
+        mail.subject == 'Nextflow Tower Sign in'
+        mail.body.contains("Hi $userName,")
+
     }
 
     def 'a not trusted user repeat the access' () {
@@ -174,7 +159,7 @@ class GateServiceTest extends AbstractContainerBaseTest {
         tx.withNewTransaction { User.count() } == 1
 
         and: 'no email was sent'
-        smtpServer.messages.size() == 0
+        tx.withNewTransaction { Mail.count() } == 0
     }
 
     void "register a new user and then a user with a similar email"() {
@@ -218,5 +203,71 @@ class GateServiceTest extends AbstractContainerBaseTest {
             User.count() == 0
         }
     }
+
+    def 'should build auth email' () {
+        given:
+        def RECIPIENT = 'alice@domain.com'
+        def user = new User(email: RECIPIENT, userName:'Mr Foo', authToken: 'xyz')
+        def mailer = Mock(MailService)
+        def service = new GateServiceImpl()
+        service.mailService = mailer
+        service.appName = 'Nextflow Tower'
+        service.serverUrl = 'http://localhost:1234'
+
+        when:
+        def mail = service.buildAccessEmail(user)
+
+        then:
+        mail.subject == 'Nextflow Tower Sign in'
+        mail.to == RECIPIENT
+        mail.attachments.size() == 1
+        mail.attachments[0].resource == '/io/seqera/tower/service/tower-logo.png'
+        mail.attachments[0].contentId == '<tower-logo>'
+        mail.attachments[0].disposition == 'inline'
+
+
+        // text email
+        mail.text.startsWith('Hi Mr Foo,')
+        mail.text.contains('http://localhost:1234/auth?email=alice%40domain.com&authToken=xyz')
+        mail.text.contains('This email was sent by Nextflow Tower\nhttp://localhost')
+        // html email
+        mail.body.contains('Hi Mr Foo,')
+        mail.body.contains('http://localhost:1234/auth?email=alice%40domain.com&authToken=xyz')
+    }
+
+    def 'should build a new user email' () {
+        given:
+        def email = 'alice@domain.com'
+        def user = new User(email: email, userName:'xyz', id: 123)
+        def mailer = Mock(MailService)
+        def service = new GateServiceImpl()
+        service.mailService = mailer
+        service.appName = 'Nextflow Tower'
+        service.serverUrl = 'http://localhost:1234'
+        service.contactEmail = 'admin@host.com'
+
+        when:
+        def mail = service.buildNewUserEmail(user)
+
+        then:
+        mail.subject == 'New user registration'
+        mail.to == 'admin@host.com'
+        mail.attachments.size() == 1
+        mail.attachments[0].resource == '/io/seqera/tower/service/tower-logo.png'
+        mail.attachments[0].contentId == '<tower-logo>'
+        mail.attachments[0].disposition == 'inline'
+
+        // text email
+        mail.text.startsWith('Hi,')
+        mail.text.contains("- user id: 123")
+        mail.text.contains("- user name: xyz")
+        mail.text.contains("- user email: alice@domain.com")
+        // html email
+        mail.body.contains('Hi,')
+        mail.body.contains("<li>user id: 123")
+        mail.body.contains("<li>user name: xyz")
+        mail.body.contains("<li>user email: alice@domain.com")
+    }
+
 
 }

@@ -16,6 +16,7 @@ import java.time.OffsetDateTime
 
 import io.seqera.tower.domain.AccessToken
 import io.seqera.tower.domain.HashSequenceGenerator
+import io.seqera.tower.domain.Mail
 import io.seqera.tower.domain.ResourceData
 import io.seqera.tower.domain.Role
 import io.seqera.tower.domain.Task
@@ -38,6 +39,7 @@ class DomainCreator {
 
     static void cleanupDatabase() {
         Workflow.withNewTransaction {
+            Mail.deleteAll(Mail.list())
             WorkflowProcess.deleteAll(WorkflowProcess.list())
             WorkflowComment.deleteAll(WorkflowComment.list())
             WorkflowMetrics.deleteAll(WorkflowMetrics.list())

@@ -9,24 +9,24 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 
-package io.seqera.mail
+package io.seqera.tower.domain
 
 import java.nio.file.Files
 import java.nio.file.Path
+import java.time.OffsetDateTime
 
-import groovy.transform.CompileStatic
-import groovy.transform.EqualsAndHashCode
+import grails.gorm.annotation.Entity
+import groovy.transform.CompileDynamic
 import groovy.transform.ToString
 import io.seqera.util.CheckHelper
-
 /**
  * Helper class modeling mail parameters
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
-@CompileStatic
+@Entity
 @ToString(includeNames = true)
-@EqualsAndHashCode
+@CompileDynamic
 class Mail {
 
     String from
@@ -45,9 +45,39 @@ class Mail {
 
     String text
 
-    List<Attachment> attachments
+    List<MailAttachment> attachments
 
     String type
+
+    boolean sent
+
+    OffsetDateTime dateCreated
+
+    OffsetDateTime lastUpdated
+
+    String lastError
+
+    static mapping = {
+        from(column: 'from_')
+        to(column: 'to_')
+        cc(column: 'cc_')
+        bcc(column: 'bcc_')
+        body(column: 'body_', type: 'text')
+        text(column: 'text_', type: 'text')
+        type(column: 'type_')
+    }
+
+    static constraints = {
+        from(nullable: true, maxSize: 100)
+        to(nullable: true, maxSize: 100)
+        cc(nullable: true, maxSize: 100)
+        bcc(nullable: true, maxSize: 100)
+        subject(nullable: true, maxSize: 512)
+        charset(nullable: true)
+        text(nullable: true)
+        type(nullable: true)
+        lastError(nullable: true, lastError: 1024)
+    }
 
     /**
      * Creates a {@link Mail} object given a {@link Mail} object
@@ -178,20 +208,19 @@ class Mail {
      */
     void attach( item ) {
 
-        if( this.attachments == null )
-            this.attachments = []
-
-        if( item instanceof Attachment ) {
-            this.attachments << (Attachment)item
+        if( item instanceof MailAttachment ) {
+            this.addToAttachments((MailAttachment)item)
         }
         else if( item instanceof Collection ) {
-            this.attachments.addAll( item.collect{ new Attachment(it) } )
+            for( def it : ((Collection)item) )
+                this.addToAttachments(new MailAttachment(it))
         }
         else if( item instanceof Object[] ) {
-            this.attachments.addAll( item.collect{ new Attachment(it) } )
+            for( def it : ((Object[])item) )
+                this.addToAttachments(new MailAttachment(it))
         }
         else if( item ) {
-            this.attachments << new Attachment(item)
+            this.addToAttachments(new MailAttachment(item))
         }
     }
 
@@ -199,7 +228,7 @@ class Mail {
      * Add an email attachment headers
      *
      * @param headers
-     *      Attachment optional content directives. The following parameters are accepted:
+     *      MailAttachment optional content directives. The following parameters are accepted:
      *      - contentId:  Set the "Content-ID" header field of this body part
      *      - fileName:  Set the filename associated with this body part, if possible
      *      - description: Set the "Content-Description" header field for this body part
@@ -208,12 +237,12 @@ class Mail {
      * @param item
      */
     void attach( Map headers, item ) {
-        CheckHelper.checkParams('attach', headers, Attachment.ATTACH_HEADERS)
+        CheckHelper.checkParams('attach', headers, MailAttachment.ATTACH_HEADERS)
 
         if( this.attachments == null )
             this.attachments = []
 
-        this.attachments << new Attachment(headers, item)
+        this.attachments << new MailAttachment(headers, item)
     }
 
 }

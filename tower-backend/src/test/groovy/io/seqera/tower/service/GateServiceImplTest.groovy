@@ -15,7 +15,6 @@ import javax.inject.Inject
 
 import io.micronaut.context.ApplicationContext
 import io.micronaut.test.annotation.MicronautTest
-import io.seqera.mail.Attachment
 import io.seqera.tower.domain.User
 import spock.lang.Specification
 /**
@@ -77,70 +76,12 @@ class GateServiceImplTest extends Specification {
         def attach = service.getLogoAttachment()
         then:
         attach.resource == '/io/seqera/tower/service/tower-logo.png'
-        attach.params.contentId == '<tower-logo>'
-        attach.params.disposition == 'inline'
+        attach.contentId == '<tower-logo>'
+        attach.disposition == 'inline'
         then:
         this.class.getResource(attach.resource) != null
     }
 
-
-    def 'should build auth email' () {
-        given:
-        def ATTACH = new Attachment(new File('LOGO'))
-        def RECIPIENT = 'alice@domain.com'
-        def user = new User(email: RECIPIENT, userName:'Mr Foo', authToken: 'xyz')
-        def mailer = Mock(MailService)
-        def service = new GateServiceImpl()
-        service.mailService = mailer
-        service.appName = 'Nextflow Tower'
-        service.serverUrl = 'http://localhost:1234'
-
-        when:
-        def mail = service.buildAccessEmail(user)
-
-        then:
-        mail.subject == 'Nextflow Tower Sign in'
-        mail.to == RECIPIENT
-        mail.attachments == [ATTACH]
-        // text email
-        mail.text.startsWith('Hi Mr Foo,')
-        mail.text.contains('http://localhost:1234/auth?email=alice%40domain.com&authToken=xyz')
-        mail.text.contains('This email was sent by Nextflow Tower\nhttp://localhost')
-        // html email
-        mail.body.contains('Hi Mr Foo,')
-        mail.body.contains('http://localhost:1234/auth?email=alice%40domain.com&authToken=xyz')
-    }
-
-    def 'should build a new user email' () {
-        given:
-        def ATTACH = new Attachment(new File('LOGO'))
-        def email = 'alice@domain.com'
-        def user = new User(email: email, userName:'xyz', id: 123)
-        def mailer = Mock(MailService)
-        def service = new GateServiceImpl()
-        service.mailService = mailer
-        service.appName = 'Nextflow Tower'
-        service.serverUrl = 'http://localhost:1234'
-        service.contactEmail = 'admin@host.com'
-
-        when:
-        def mail = service.buildNewUserEmail(user)
-
-        then:
-        mail.subject == 'New user registration'
-        mail.to == 'admin@host.com'
-        mail.attachments == [ATTACH]
-        // text email
-        mail.text.startsWith('Hi,')
-        mail.text.contains("- user id: 123")
-        mail.text.contains("- user name: xyz")
-        mail.text.contains("- user email: alice@domain.com")
-        // html email
-        mail.body.contains('Hi,')
-        mail.body.contains("<li>user id: 123")
-        mail.body.contains("<li>user name: xyz")
-        mail.body.contains("<li>user email: alice@domain.com")
-    }
 
 
     def 'should encode url' () {

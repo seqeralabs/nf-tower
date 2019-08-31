@@ -11,6 +11,7 @@
 
 package io.seqera.tower.events
 
+import javax.inject.Inject
 import javax.inject.Singleton
 
 import groovy.transform.CompileStatic
@@ -20,6 +21,8 @@ import io.micronaut.context.event.StartupEvent
 import io.micronaut.runtime.context.scope.refresh.RefreshEvent
 import io.micronaut.runtime.event.annotation.EventListener
 import io.micronaut.security.event.LoginSuccessfulEvent
+import io.seqera.mail.MailSpooler
+
 /**
  * Object listening for application events
  * 
@@ -30,14 +33,19 @@ import io.micronaut.security.event.LoginSuccessfulEvent
 @CompileStatic
 class ApplicationListener {
 
+    @Inject
+    MailSpooler mailSpooler
+
     @EventListener
     void onStartup(StartupEvent event) {
         log.info "Application started up"
+        mailSpooler.start()
     }
 
     @EventListener
     void onShutdown(ShutdownEvent event) {
         log.info "Application shutting down"
+        mailSpooler.stop()
     }
 
     @EventListener

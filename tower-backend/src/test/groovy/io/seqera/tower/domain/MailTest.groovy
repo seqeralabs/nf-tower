@@ -9,15 +9,18 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 
-package io.seqera.mail
+package io.seqera.tower.domain
 
 import java.nio.file.Paths
 
+import io.micronaut.test.annotation.MicronautTest
+import io.seqera.tower.Application
 import spock.lang.Specification
 /**
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
+@MicronautTest(application = Application.class)
 class MailTest extends Specification {
 
     void 'should capture mail params' () {
@@ -48,7 +51,7 @@ class MailTest extends Specification {
         mail.subject ==  'Hi there'
         mail.charset == 'utf-8'
         mail.body == 'Hello world'
-        mail.attachments == [new Attachment('foo.png'), new Attachment('this.txt'), new Attachment('that.txt')]
+        mail.attachments == [new MailAttachment('foo.png'), new MailAttachment('this.txt'), new MailAttachment('that.txt')]
     }
 
 
@@ -60,43 +63,43 @@ class MailTest extends Specification {
         mail = new Mail()
         mail.attach('/some/file.txt')
         then:
-        mail.attachments == [new Attachment('/some/file.txt')]
+        mail.attachments == [new MailAttachment('/some/file.txt')]
 
         when:
         mail = new Mail()
         mail.attach(new File('x.txt'))
         then:
-        mail.attachments == [new Attachment('x.txt')]
+        mail.attachments == [new MailAttachment('x.txt')]
 
         when:
         mail = new Mail()
         mail.attach(Paths.get('x.txt'))
         then:
-        mail.attachments == [new Attachment('x.txt')]
+        mail.attachments == [new MailAttachment('x.txt')]
 
         when:
         mail = new Mail()
         mail.attach("file.${1}")
         then:
-        mail.attachments == [new Attachment('file.1')]
+        mail.attachments == [new MailAttachment('file.1')]
 
         when:
         mail = new Mail()
         mail.attach(['foo.txt','bar.txt'])
         then:
-        mail.attachments == [new Attachment('foo.txt'), new Attachment('bar.txt')]
+        mail.attachments == [new MailAttachment('foo.txt'), new MailAttachment('bar.txt')]
 
         when:
         mail = new Mail()
         mail.attach 'pic.png', contentId: 'my-img'
         then:
-        mail.attachments == [new Attachment('pic.png', contentId:'my-img')]
+        mail.attachments == [new MailAttachment('pic.png', contentId:'my-img')]
 
         when:
         mail = new Mail()
-        mail.attach( new Attachment('/file.txt') )
+        mail.attach( new MailAttachment('/file.txt') )
         then:
-        mail.attachments ==  [new Attachment('/file.txt')]
+        mail.attachments ==  [new MailAttachment('/file.txt')]
         when:
         mail = new Mail()
         mail.attach(new Object())
@@ -132,6 +135,6 @@ class MailTest extends Specification {
         mail.type == 'text/html'
         mail.body == 'Hello world'
         mail.text == 'Pura vida'
-        mail.attachments == [new Attachment('/some/file')]
+        mail.attachments == [new MailAttachment('/some/file')]
     }
 }

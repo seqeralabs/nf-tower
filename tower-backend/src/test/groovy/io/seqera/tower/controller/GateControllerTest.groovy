@@ -12,7 +12,6 @@
 package io.seqera.tower.controller
 
 import javax.inject.Inject
-import javax.mail.internet.InternetAddress
 
 import grails.gorm.transactions.Transactional
 import io.micronaut.context.annotation.Value
@@ -23,14 +22,13 @@ import io.micronaut.http.client.RxHttpClient
 import io.micronaut.http.client.annotation.Client
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.test.annotation.MicronautTest
-import io.seqera.mail.MailerConfig
 import io.seqera.tower.Application
+import io.seqera.tower.domain.Mail
 import io.seqera.tower.domain.User
 import io.seqera.tower.exchange.gate.AccessGateRequest
 import io.seqera.tower.exchange.gate.AccessGateResponse
 import io.seqera.tower.util.AbstractContainerBaseTest
 import io.seqera.tower.util.DomainCreator
-import org.subethamail.wiser.Wiser
 /**
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
@@ -43,22 +41,8 @@ class GateControllerTest extends AbstractContainerBaseTest {
     @Client('/')
     RxHttpClient client
 
-    @Inject
-    MailerConfig mailerConfig
-
     @Value('${tower.contact-email}')
     String contactEmail
-
-    Wiser smtpServer
-
-    void setup() {
-        smtpServer = new Wiser(mailerConfig.smtp.port)
-        smtpServer.start()
-    }
-
-    void cleanup() {
-        smtpServer.stop()
-    }
 
 
     void "register a user given an email"() {
@@ -79,8 +63,8 @@ class GateControllerTest extends AbstractContainerBaseTest {
         !registeredUser.authToken
 
         and: "the access link was sent to the user"
-        smtpServer.messages.size() == 1
-        smtpServer.messages.first().mimeMessage.allRecipients.contains(new InternetAddress(contactEmail))
+        Mail.withNewTransaction { Mail.count() } == 1
+        Mail.withNewTransaction { Mail.list().first().to } == contactEmail
     }
 
     void "register a user, then register the same user again"() {
@@ -102,7 +86,7 @@ class GateControllerTest extends AbstractContainerBaseTest {
         !registeredUser.authToken
 
         and: "no mail was sent"
-        smtpServer.messages.size() == 0
+        Mail.withNewTransaction { Mail.count() } == 0
 
     }
 
@@ -126,8 +110,8 @@ class GateControllerTest extends AbstractContainerBaseTest {
         registeredUser.authTime
 
         and:
-        smtpServer.messages.size() == 1
-        smtpServer.messages.first().mimeMessage.allRecipients.contains(new InternetAddress(EMAIL))
+        Mail.withNewTransaction { Mail.count() } == 1
+        Mail.withNewTransaction { Mail.list().first().to } == EMAIL
 
     }
 
