@@ -16,12 +16,10 @@ import java.nio.file.Path
 import grails.gorm.annotation.Entity
 import groovy.transform.CompileDynamic
 import groovy.transform.EqualsAndHashCode
-import groovy.transform.ToString
 /**
  * Model a mail attachment
  */
 @Entity
-@ToString(includeNames = true)
 @EqualsAndHashCode
 @CompileDynamic
 class MailAttachment {
@@ -32,6 +30,8 @@ class MailAttachment {
             fileName: String,
             description: String
     ]
+
+    static belongsTo = [mail: Mail]
 
     /**
      * The attachment file
