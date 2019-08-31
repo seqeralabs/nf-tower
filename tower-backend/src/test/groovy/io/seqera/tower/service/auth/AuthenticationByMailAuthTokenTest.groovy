@@ -22,7 +22,6 @@ import io.micronaut.test.annotation.MockBean
 import io.seqera.util.TokenHelper
 import io.seqera.tower.domain.User
 import io.seqera.tower.service.MailService
-import io.seqera.tower.service.MailServiceImpl
 import io.seqera.tower.service.UserService
 import io.seqera.tower.service.UserServiceImpl
 import spock.lang.Specification
@@ -104,7 +103,7 @@ class AuthenticationByMailAuthTokenTest extends Specification {
     }
 
 
-    @MockBean(MailServiceImpl)
+    @MockBean(MailService)
     MailService mockMailService() {
         GroovyMock(MailService)
     }

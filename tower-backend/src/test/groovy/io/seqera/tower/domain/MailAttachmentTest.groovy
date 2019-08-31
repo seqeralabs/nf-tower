@@ -9,7 +9,8 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 
-package io.seqera.mail
+package io.seqera.tower.domain
+
 
 import spock.lang.Specification
 
@@ -17,11 +18,11 @@ import spock.lang.Specification
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
-class AttachmentTest extends Specification {
+class MailAttachmentTest extends Specification {
 
     void 'should create resource attachment' () {
         when:
-        Attachment attach = Attachment.resource('foo/bar', contentId: 'the-cid')
+        MailAttachment attach = MailAttachment.resource('foo/bar', contentId: 'the-cid')
 
         then:
         attach.file == null
@@ -32,10 +33,10 @@ class AttachmentTest extends Specification {
 
     void 'should crate attachment'  () {
         given:
-        Attachment attach
+        MailAttachment attach
 
         when:
-        attach = new Attachment('/some/path/foo.png')
+        attach = new MailAttachment('/some/path/foo.png')
         then:
         attach.file == new File('/some/path/foo.png')
         attach.fileName == 'foo.png'
@@ -44,7 +45,7 @@ class AttachmentTest extends Specification {
         attach.disposition == null
 
         when:
-        attach = new Attachment('/some/path/foo.png', contentId: 'id-1', description: 'Hola', fileName: 'bar.png', disposition: 'inline')
+        attach = new MailAttachment('/some/path/foo.png', contentId: 'id-1', description: 'Hola', fileName: 'bar.png', disposition: 'inline')
         then:
         attach.file == new File('/some/path/foo.png')
         attach.fileName == 'bar.png'
@@ -53,7 +54,7 @@ class AttachmentTest extends Specification {
         attach.disposition == 'inline'
 
         when:
-        attach = Attachment.resource('jar:/some/path/foo.png', contentId: '<foo>')
+        attach = MailAttachment.resource('jar:/some/path/foo.png', contentId: '<foo>')
         then:
         attach.file == null
         attach.resource == 'jar:/some/path/foo.png'
@@ -61,7 +62,7 @@ class AttachmentTest extends Specification {
         attach.contentId == '<foo>'
 
         when:
-        attach = Attachment.resource([:], 'jar:foo.png')
+        attach = MailAttachment.resource([:], 'jar:foo.png')
         then:
         attach.file == null
         attach.resource == 'jar:foo.png'

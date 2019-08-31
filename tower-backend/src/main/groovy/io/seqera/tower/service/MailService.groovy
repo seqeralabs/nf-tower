@@ -11,14 +11,41 @@
 
 package io.seqera.tower.service
 
-import io.seqera.mail.Mail
+import javax.inject.Inject
+import java.time.OffsetDateTime
 
+import grails.gorm.services.Query
+import grails.gorm.services.Service
+import io.seqera.mail.MailSpooler
+import io.seqera.mail.MailerConfig
+import io.seqera.tower.domain.Mail
 /**
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
-interface MailService {
+@Service(Mail)
+abstract class MailService {
 
-    void sendMail(Mail mail)
+    @Inject
+    MailSpooler spooler
+
+    @Inject
+    MailerConfig config
+
+    void sendMail(Mail mail) {
+        assert mail, 'Mail object cannot be null'
+        if( !mail.from )
+            mail.from(config.from)
+
+        mail.save(failOnError: true)
+        spooler.newMail()
+    }
+
+
+    @Query("from $Mail as m where m.sent != true order by lastUpdated")
+    abstract List<Mail> findPendingMails()
+
+    @Query("delete $Mail as m where m.sent = true and lastUpdated < $minDate")
+    abstract Integer deleteEmailSendOlderThan(OffsetDateTime minDate)
 
 }

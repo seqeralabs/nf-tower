@@ -20,8 +20,8 @@ import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import io.micronaut.context.annotation.Value
-import io.seqera.mail.Attachment
-import io.seqera.mail.Mail
+import io.seqera.tower.domain.MailAttachment
+import io.seqera.tower.domain.Mail
 import io.seqera.tower.domain.User
 import io.seqera.tower.exchange.gate.AccessGateResponse
 /**
@@ -115,10 +115,10 @@ class GateServiceImpl implements GateService {
 
     /**
      * Load the HTML email logo attachment
-     * @return A {@link io.seqera.mail.Attachment} object representing the image logo to be included in the HTML email
+     * @return A {@link MailAttachment} object representing the image logo to be included in the HTML email
      */
-    protected Attachment getLogoAttachment() {
-        Attachment.resource('/io/seqera/tower/service/tower-logo.png', contentId: '<tower-logo>', disposition: 'inline')
+    protected MailAttachment getLogoAttachment() {
+        MailAttachment.resource('/io/seqera/tower/service/tower-logo.png', contentId: '<tower-logo>', disposition: 'inline')
     }
 
     protected String getTemplateFile(String classpathResource, Map binding) {

@@ -9,20 +9,22 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 
-package io.seqera.mail
+package io.seqera.tower.domain
 
 import java.nio.file.Path
 
-import groovy.transform.CompileStatic
+import grails.gorm.annotation.Entity
+import groovy.transform.CompileDynamic
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
 /**
  * Model a mail attachment
  */
-@CompileStatic
+@Entity
 @ToString(includeNames = true)
 @EqualsAndHashCode
-class Attachment {
+@CompileDynamic
+class MailAttachment {
 
     public static final Map ATTACH_HEADERS = [
             contentId: String,
@@ -34,32 +36,58 @@ class Attachment {
     /**
      * The attachment file
      */
-    private File file
+    File file
 
     /**
      * The attachment as classpath resource
      */
-    private String resource
+    String resource
 
-    /**
-     * Attachment content parameters
-     */
-    private Map params
+    String contentId
 
-    static Attachment resource(Map params, String path) {
-        def result = new Attachment()
+    String description
+
+    String disposition
+
+    String fileName
+
+    static constraints = {
+        file(nullable: true)
+        contentId(nullable: true, maxSize: 50)
+        description(nullable: true, maxSize: 515)
+        disposition(nullable: true, maxSize: 50)
+        fileName(nullable: true, maxSize: 255)
+    }
+
+    static MailAttachment resource(Map params, String path) {
+        def result = new MailAttachment(params)
         result.@resource = path
-        result.@params = params != null ? params : [:]
         return result
     }
 
-    protected Attachment() {}
+    protected MailAttachment() {}
 
-    Attachment( attach ) {
+    MailAttachment(attach ) {
         this([:], attach)
     }
 
-    Attachment( Map params, attach ) {
+    MailAttachment(Map params ) {
+        if( params.contentId )
+            this.contentId = params.contentId
+
+        if( params.description )
+            this.description = params.description
+
+        if( params.disposition )
+            this.disposition = params.disposition
+
+        if( params.fileName )
+            this.fileName = params.fileName
+    }
+
+    MailAttachment(Map params, attach ) {
+        this(params)
+
         if( attach instanceof File ) {
             this.file = attach
         }
@@ -72,22 +100,15 @@ class Attachment {
         else if( attach != null )
             throw new IllegalArgumentException("Invalid attachment argument: $attach [${attach.getClass()}]")
 
-        this.params = params != null ? params : [:]
     }
 
     File getFile() { file }
 
     String getResource() { resource }
 
-    String getContentId() { params.contentId }
-
-    String getDescription() { params.description }
-
-    String getDisposition() { params.disposition }
-
     String getFileName() {
-        if( params.fileName )
-            return params.fileName
+        if( fileName )
+            return fileName
 
         if( file )
             return file.getName()

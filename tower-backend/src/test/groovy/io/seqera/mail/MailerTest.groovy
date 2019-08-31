@@ -11,14 +11,15 @@
 
 package io.seqera.mail
 
+
 import javax.mail.Message
+import javax.mail.Transport
 import javax.mail.internet.InternetAddress
 import javax.mail.internet.MimeMessage
 import javax.mail.internet.MimeMultipart
-import java.nio.file.Files
-import java.nio.file.Path
 
 import groovy.util.logging.Slf4j
+import io.seqera.tower.domain.Mail
 import org.subethamail.wiser.Wiser
 import spock.lang.Specification
 import spock.lang.Timeout
@@ -116,6 +117,78 @@ class MailerTest extends Specification {
         server?.stop()
     }
 
+    def 'should send mail list' () {
+        given:
+        Integer PORT = 3025
+        String USER = 'foo'
+        String PASSWORD = 'secret'
+        Wiser server = new Wiser(PORT)
+        server.start()
+
+        MailerConfig config = new MailerConfig(smtp: [host: 'localhost', port: PORT, user: USER, password: PASSWORD])
+        Mailer mailer = new Mailer(config: config)
+
+        def list = [
+                Mail.of(to:'foo1@gmail.com', from:'bar1@gmail.com', subject: 'Hi 1', body: 'Hello 1'),
+                Mail.of(from:'bar2@gmail.com', subject: 'Hi 2', body: 'Hello 2'),
+                Mail.of(to:'foo3@gmail.com', from:'bar3@gmail.com', subject: 'Hi 3', body: 'Hello 3'),
+        ]
+
+        when:
+
+        List<Mail> sentList = []
+        List<Mail> failedList = []
+        List<Exception> errorList = []
+        def increment = { Mail m -> sentList.add(m) }
+        def handleErr = { Mail m, Exception e -> failedList.add(m); errorList.add(e) }
+        mailer.sendAll(list, [onSuccess:increment, onError: handleErr])
+
+        then:
+        sentList.size() == 2
+        sentList[0].subject == 'Hi 1'
+        sentList[1].subject == 'Hi 3'
+        and:
+        failedList.size() == 1
+        failedList[0].subject == 'Hi 2'
+        and:
+        errorList.size() == 1
+        errorList[0] instanceof NullPointerException
+        and:
+        server.messages.size() == 2
+        server.messages[0].mimeMessage.subject == 'Hi 1'
+        server.messages[1].mimeMessage.subject == 'Hi 3'
+
+        cleanup:
+        server?.stop()
+    }
+
+    def 'should not open transport connection' () {
+        given:
+        Mailer mailer = Spy(Mailer)
+        def trasp = Mock(Transport)
+        def actions = [onSuccess: null]
+        def m1 = Mail.of(to:'foo')
+        def m2 = Mail.of(to:'bar')
+
+        when:
+        mailer.sendAll([], [:])
+        then:
+        0 * mailer.getTransport0() >> null
+        0 * mailer.createMessageAndSend0(_) >> null
+
+        when:
+        mailer.sendAll([m1,m2], actions)
+        then:
+        1 * mailer.getTransport0() >> trasp
+        and:
+        1 * trasp.connect(_, _, _, _) >> null
+        and:
+        1 * mailer.createMessageAndSend0(trasp, m1, actions) >> null
+        1 * mailer.createMessageAndSend0(trasp, m2, actions) >> null
+        and:
+        1 * trasp.close()
+    }
+
     def "sending mails using javamail (overrides 'to' address by config)"() {
         given:
         Integer PORT = 3025
@@ -151,47 +224,6 @@ class MailerTest extends Specification {
         (message.content as MimeMultipart).contentType.startsWith('multipart/related')
 
         cleanup:
-        server?.stop()
-    }
-
-    void "sending mails using java with attachment"() {
-        given:
-        Integer PORT = 3025
-        String USER = 'foo'
-        String PASSWORD = 'secret'
-        Wiser server = new Wiser(PORT)
-        server.start()
-
-        MailerConfig config = new MailerConfig(smtp:[host: '127.0.0.1', port: PORT, user: USER, password: PASSWORD])
-        Mailer mailer = new Mailer(config: config)
-
-        String TO = "receiver@gmail.com"
-        String FROM = 'paolo@nextflow.io'
-        String SUBJECT = "Sending test"
-        String CONTENT = "This content should be sent by the user."
-        Path ATTACH = Files.createTempFile('test', null)
-        ATTACH.text = 'This is the file attachment content'
-
-        when:
-        Map mail = [
-                from: FROM,
-                to: TO,
-                subject: SUBJECT,
-                body: CONTENT,
-                attach: ATTACH
-        ]
-        mailer.send(mail)
-
-        then:
-        server.messages.size() == 1
-        Message message = server.messages.first().mimeMessage
-        message.from == [new InternetAddress(FROM)]
-        message.allRecipients.contains(new InternetAddress(TO))
-        message.subject == SUBJECT
-        (message.content as MimeMultipart).count == 2
-
-        cleanup:
-        if( ATTACH ) Files.delete(ATTACH)
         server?.stop()
     }
 
@@ -306,7 +338,12 @@ class MailerTest extends Specification {
         }
 
         then:
-        1 * mailer.send(Mail.of([to: 'paolo@dot.com', from:'yo@dot.com', subject: 'This is a test', body: 'Hello there'])) >> null
+        1 * mailer.send(_ as Mail) >> { Mail it ->
+                        assert it.to == 'paolo@dot.com'
+                        assert it.from == 'yo@dot.com'
+                        assert it.subject == 'This is a test'
+                        assert it.body == 'Hello there'
+        }
     }
 
 
@@ -339,7 +376,11 @@ class MailerTest extends Specification {
         }
 
         then:
-        1 * mailer.send(Mail.of([to: 'you@dot.com', subject: 'foo', body: BODY])) >> null
+        1 * mailer.send(_ as Mail) >> { Mail it ->
+            assert it.to == 'you@dot.com'
+            assert it.subject == 'foo'
+            assert it.body == BODY 
+        }
 
     }
 
