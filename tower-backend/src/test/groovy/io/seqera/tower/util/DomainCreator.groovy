@@ -113,7 +113,7 @@ class DomainCreator {
         fields.workflow = fields.containsKey('workflow') ? fields.workflow : createWorkflow()
         fields.taskId = fields.containsKey('taskId') ? fields.taskId : generateUniqueNumber()
         fields.name = fields.containsKey('name') ? fields.name : "taskName_${generateUniqueNamePart()}"
-        fields.hash = fields.containsKey('hash') ? fields.hash : "taskHash_${generateUniqueNamePart()}"
+        fields.hash = fields.containsKey('hash') ? fields.hash : "hash_${generateUniqueNamePart()}"
         fields.status = fields.containsKey('status') ? fields.status : TaskStatus.SUBMITTED
         fields.submit = fields.containsKey('submit') ? fields.submit : OffsetDateTime.now()
 
