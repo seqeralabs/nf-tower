@@ -51,7 +51,10 @@ class MailTest extends Specification {
         mail.subject ==  'Hi there'
         mail.charset == 'utf-8'
         mail.body == 'Hello world'
-        mail.attachments == [new MailAttachment('foo.png'), new MailAttachment('this.txt'), new MailAttachment('that.txt')]
+        mail.attachments.size()==3
+        mail.attachments[0].file == new File('foo.png')
+        mail.attachments[1].file == new File('this.txt')
+        mail.attachments[2].file == new File('that.txt')
     }
 
 
@@ -63,43 +66,46 @@ class MailTest extends Specification {
         mail = new Mail()
         mail.attach('/some/file.txt')
         then:
-        mail.attachments == [new MailAttachment('/some/file.txt')]
+        mail.attachments.size()==1
+        mail.attachments[0].file == new File('/some/file.txt')
 
         when:
         mail = new Mail()
         mail.attach(new File('x.txt'))
         then:
-        mail.attachments == [new MailAttachment('x.txt')]
+        mail.attachments.size()==1
+        mail.attachments[0].file == new File('x.txt')
 
         when:
         mail = new Mail()
         mail.attach(Paths.get('x.txt'))
         then:
-        mail.attachments == [new MailAttachment('x.txt')]
+        mail.attachments.size()==1
+        mail.attachments[0].file == Paths.get('x.txt').toFile()
 
         when:
         mail = new Mail()
         mail.attach("file.${1}")
         then:
-        mail.attachments == [new MailAttachment('file.1')]
+        mail.attachments.size()==1
+        mail.attachments[0].file == new File('file.1')
 
         when:
         mail = new Mail()
         mail.attach(['foo.txt','bar.txt'])
         then:
-        mail.attachments == [new MailAttachment('foo.txt'), new MailAttachment('bar.txt')]
+        mail.attachments.size()==2
+        mail.attachments[0].file == new File('foo.txt')
+        mail.attachments[1].file == new File('bar.txt')
 
         when:
         mail = new Mail()
         mail.attach 'pic.png', contentId: 'my-img'
         then:
-        mail.attachments == [new MailAttachment('pic.png', contentId:'my-img')]
+        mail.attachments.size()==1
+        mail.attachments[0].file == new File('pic.png')
+        mail.attachments[0].contentId == 'my-img'
 
-        when:
-        mail = new Mail()
-        mail.attach( new MailAttachment('/file.txt') )
-        then:
-        mail.attachments ==  [new MailAttachment('/file.txt')]
         when:
         mail = new Mail()
         mail.attach(new Object())
@@ -135,6 +141,7 @@ class MailTest extends Specification {
         mail.type == 'text/html'
         mail.body == 'Hello world'
         mail.text == 'Pura vida'
-        mail.attachments == [new MailAttachment('/some/file')]
+        mail.attachments.size()
+        mail.attachments[0].file == new File('/some/file')
     }
 }

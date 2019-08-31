@@ -29,6 +29,8 @@ import io.seqera.util.CheckHelper
 @CompileDynamic
 class Mail {
 
+    static hasMany = [attachments: MailAttachment]
+
     String from
 
     String to
@@ -44,8 +46,6 @@ class Mail {
     String body
 
     String text
-
-    List<MailAttachment> attachments
 
     String type
 
