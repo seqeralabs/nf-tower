@@ -11,7 +11,6 @@
 import {Manifest} from "./manifest";
 import {Nextflow} from "./nextflow";
 import {Stats} from "./stats";
-import {WorkflowStatus} from "./workflow-status.enum";
 
 export interface WorkflowData {
 
