@@ -64,7 +64,22 @@ export class Workflow {
   }
 
   get briefCommitId(): string {
-    return this.data.commitId.substring(0, 6)
+    return this.data.commitId ? this.data.commitId.substring(0, 6) : null
+  }
+
+  get humanizedRevision(): string {
+    let result = this.data.revision;
+    if( result == null )
+      return 'n/a';
+    if( this.briefCommitId )
+      result += ` (${this.briefCommitId})`;
+    return result
+  }
+
+  get humanizedContainer(): string {
+    if( !this.data.container || !this.data.containerEngine )
+      return 'n/a';
+    return `${this.data.container} (${this.data.containerEngine})`;
   }
 
   get params(): string {
