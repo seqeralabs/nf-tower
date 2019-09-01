@@ -88,13 +88,13 @@ class TraceController extends BaseController {
         HttpResponse<TraceWorkflowResponse> response
         try {
             User user = userService.getFromAuthData(authentication)
-            log.info("Receiving workflow trace for workflows ID=${request.workflow.id}")
+            log.info("Receiving workflow trace for workflows ID=${request.workflow?.id}")
             Workflow workflow = traceService.processWorkflowTrace(request, user)
             response = HttpResponse.created(TraceWorkflowResponse.ofSuccess(workflow.id))
             publishWorkflowEvent(workflow, user)
         }
         catch (Exception e) {
-            log.error("Failed to handle workflow trace=$request", e)
+            log.error("Failed to handle workflow trace=${request.workflow?.id}", e)
             response = HttpResponse.badRequest(TraceWorkflowResponse.ofError(e.message))
         }
 
@@ -223,17 +223,4 @@ class TraceController extends BaseController {
         return "user-${userId}"
     }
 
-
-
-//    @Override
-//    HttpResponse handle(HttpRequest request, JsonProcessingException e) {
-//        log.error """
-//            Unexpected error
-//            - request: ${request.uri}
-//            - params : ${request.parameters}
-//            - user   : ${request.userPrincipal.isPresent() ? request.userPrincipal.get() : '-'}
-//            - message: ${e.message ?: e.toString()}
-//            """, e
-//        return HttpResponse.badRequest("Oops.. something went wrong -- ${e.message?:e.toString()}")
-//    }
 }

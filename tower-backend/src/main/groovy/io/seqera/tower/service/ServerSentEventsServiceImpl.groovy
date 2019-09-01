@@ -33,7 +33,6 @@ class ServerSentEventsServiceImpl implements ServerSentEventsService {
 
     void createFlowable(String key, Duration idleTimeout) {
         log.info("Creating flowable: ${key}")
-
         flowableByKeyCache[key] = PublishProcessor.create()
         scheduleFlowableIdleTimeout(key, idleTimeout)
     }
