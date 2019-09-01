@@ -134,8 +134,13 @@ class Workflow {
         complete(nullable: true)
 
         params(nullable: true)
+        commitId(nullable: true)
         configFiles(nullable: true)
         configText(nullable: true)
+        repository(nullable: true)
+        scriptId(nullable: true)
+        revision(nullable: true)
+        container(nullable: true)
         containerEngine(nullable: true)
         exitStatus(nullable: true)
         duration(nullable: true)

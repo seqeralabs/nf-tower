@@ -16,7 +16,7 @@
         <p>
           <span class="mdi mdi-source-commit"></span>
           <span class="pl-3">
-          {{workflow.data.revision}} ({{workflow.briefCommitId}})
+          {{workflow.humanizedRevision}}
             </span>
         </p>
       </div>
@@ -56,7 +56,7 @@
         <p>
           <span class="mdi mdi-docker"></span>
           <span class="pl-3">
-          {{workflow.data.container}} ({{workflow.data.containerEngine ? workflow.data.containerEngine : 'unknown'}})
+          {{workflow.humanizedContainer}}
           </span>
         </p>
       </div>
