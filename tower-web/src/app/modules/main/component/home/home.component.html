@@ -24,3 +24,27 @@
     <wt-welcome *ngIf="shouldShowWelcomeMessage"></wt-welcome>
   </div>
 </div>
+
+<footer class="footer" *ngIf="!shouldShowLandingPage">
+  <div class="container d-flex flex-justify-between mt-5 pt-3 pb-4 border-top border-gray-light text-muted">
+    <ul class="list-style-none d-flex flex-wrap ">
+      <li class="mr-3">© 2019 <a href="https://www.seqera.io" target="_blank">Seqera Labs</a></li>
+      <li class="mr-3"><a href="https://github.com/site/terms">Terms</a></li>
+      <li class="mr-3"><a href="mailto:hello@tower.nf">Contact</a></li>
+      <li><a href="https://help.github.com">Help</a></li>
+    </ul>
+
+    <div title="Nextflow Tower logo" class="d-none d-lg-block mx-lg-4" >
+      <img src="assets/nf-tower-black.svg" alt="Nextflow Tower Logo" >
+    </div>
+
+    <ul class="list-style-none d-flex flex-wrap ">
+      <li class="mr-3">Version {{version}}_{{commitId}}</li>
+      <li class="mr-3"><a href="https://www.seqera.io/#section-training">Training</a></li>
+      <li class="mr-3"><a href="https://www.seqera.io/blog/">Blog</a></li>
+      <li class="mr-3"><a href="https://www.seqera.io/jobs/">Careers</a></li>
+      <li><a href="#">About</a></li>
+
+    </ul>
+  </div>
+</footer>

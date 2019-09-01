@@ -268,3 +268,26 @@ code {
     font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   }
 }
+
+footer {
+  font-size: smaller;
+
+  a {
+    color: inherit;
+  }
+
+  .list-style-none {
+    list-style: none!important;
+  }
+
+  .flex-justify-between {
+    justify-content: space-between!important;
+  }
+
+  img {
+    height: 28px;
+    position: relative;
+    top: -7px;
+    opacity: 0.6;
+  }
+}

@@ -11,6 +11,7 @@
 
 plugins {
     id "com.github.node-gradle.node" version "1.3.0"
+    id 'com.palantir.git-version' version '0.11.0'
 }
 
 node {
@@ -33,4 +34,8 @@ task runFrontend(type: NpmTask) {
 afterEvaluate {
   def app = file('package.json')
   app.text = app.text.replaceAll(/"version": "\d+\.\d+(\.\d+)?",/, "\"version\": \"${version}\",")
+  file('src/environments').listFiles().each { file ->
+    file.text = file.text.replaceAll(/version: ".+"/, "version: \"${version}\"")
+    file.text = file.text.replaceAll(/commitId: ".+"/, "commitId: \"${gitVersion()}\"")
+  }
 }

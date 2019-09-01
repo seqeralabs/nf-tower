@@ -22,6 +22,7 @@ import {NotificationService} from "../../service/notification.service";
 import {SseHeartbeat} from "../../entity/sse/sse-heartbeat";
 import {FilteringParams} from "../../util/filtering-params";
 import {intersectionBy, differenceBy, concat, orderBy} from "lodash";
+import {environment} from "../../../../../environments/environment";
 
 @Component({
   selector: 'wt-home',
@@ -40,6 +41,8 @@ export class HomeComponent implements OnInit {
   offset: number = 0;
   isSearchTriggered: boolean;
   isNextPageLoadTriggered: boolean;
+  version: string;
+  commitId: string;
 
   constructor(private authService: AuthService,
               private workflowService: WorkflowService,
@@ -50,6 +53,9 @@ export class HomeComponent implements OnInit {
 
 
   ngOnInit() {
+    this.version = environment.version;
+    this.commitId = environment.commitId;
+
     this.authService.user$.subscribe(
       (user: User) => {
         this.user = user;
@@ -62,7 +68,6 @@ export class HomeComponent implements OnInit {
           this.receiveWorkflows(workflows);
           this.subscribeToWorkflowListLiveEvents();
         });
-
       }
     )
   }
