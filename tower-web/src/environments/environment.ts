@@ -4,7 +4,9 @@
 
 export const environment = {
   production: false,
-  apiUrl: "http://localhost:8080"
+  apiUrl: "http://localhost:8080",
+  version: "19.08.0",
+  commitId: "541adda.dirty"
 };
 
 /*
