@@ -94,7 +94,8 @@ class MailSpoolerImpl implements MailSpooler {
         final mailer = new Mailer() .setConfig(mailerConfig)
 
         final found = mailService.findPendingMails()
-        log.debug "Pending mail to send: ${found.size()}"
+        if( found )
+            log.debug "Pending mail to send: ${found.size()}"
 
         int errors=0
         final actions = new HashMap(2)
