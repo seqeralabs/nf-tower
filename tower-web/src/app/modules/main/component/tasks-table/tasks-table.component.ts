@@ -65,7 +65,7 @@ export class TasksTableComponent implements OnInit, OnChanges {
       orderMulti: false,
       rowId: (rowData) => `tr-${rowData[0]}`,
       columns: [
-        {name: "taskId", orderable: true},
+        {name: "taskId", className: 'details-control', orderable: true},
         {name: "process", orderable: false},
         {name: "tag", orderable: false},
         {name: "hash", orderable: false},
@@ -171,8 +171,8 @@ export class TasksTableComponent implements OnInit, OnChanges {
   private attachRowShowEvent(): void {
     const tableBody = $('#tasks-table tbody');
 
-    tableBody.off('click', 'tr');
-    tableBody.on('click', 'tr',(event) => {
+    tableBody.off('click', 'td.details-control');
+    tableBody.on('click', 'td.details-control',(event) => {
       const targetTr = $(event.target).closest('tr');
       const targetRow = this.dataTable.row(targetTr);
 
@@ -200,32 +200,8 @@ export class TasksTableComponent implements OnInit, OnChanges {
   }
 
   private col(row, col:string) {
-    let result = this.dataTable.cell(row, col+':name').data()
+    let result = this.dataTable.cell(row, col+':name').data();
     return this.str(result)
-  }
-
-  private renderTable(row, cols: any[]) {
-    let result = `<table class="table table-sm table-hover tasks-table">
-                  <tbody>
-                  <thead>
-                    <tr>
-                      <th scope="col" class="c1" >&nbsp;</th>
-                      <th scope="col" class="c2" >&nbsp;</th>
-                      <th scope="col">&nbsp;</th>
-                    </tr>
-                  </thead>
-                `;
-
-    for( let index in cols ) {
-      let entry = cols[index];
-      result += `<tr>
-                    <th scope="row">${entry.name}</th>
-                    <td>${this.col(row, entry.name)}</td>
-                    <td>${entry.description}</td>
-                  </tr>`
-    }
-
-    return result += '</tbody></table>'
   }
 
   private generateRowDataChildFormat(row): string {
@@ -296,6 +272,30 @@ export class TasksTableComponent implements OnInit, OnChanges {
               ${this.renderTable(row, res_used)}    
             </div>
           </div>`;
+  }
+
+  private renderTable(row, cols: any[]) {
+    let result = `<table class="table table-sm table-hover details-table">
+                  <tbody>
+                  <thead>
+                    <tr>
+                      <th scope="col" class="c1" >&nbsp;</th>
+                      <th scope="col" class="c2" >&nbsp;</th>
+                      <th scope="col">&nbsp;</th>
+                    </tr>
+                  </thead>
+                `;
+
+    for( let index in cols ) {
+      let entry = cols[index];
+      result += `<tr>
+                    <th scope="row">${entry.name}</th>
+                    <td>${this.col(row, entry.name)}</td>
+                    <td><div class="scrollable">${entry.description}</div></td>
+                  </tr>`
+    }
+
+    return result += '</tbody></table>'
   }
 
 }

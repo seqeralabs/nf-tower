@@ -137,12 +137,6 @@ code {
 
 /* Task DataTable styles */
 #tasks-table_wrapper {
-  .scrollable {
-    max-width: 200px;
-    margin: 0;
-    padding: 0;
-    overflow-x: auto;
-  }
 
   .code {
     font-family: SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
@@ -171,8 +165,8 @@ code {
     border-radius: .25rem;
   }
 
-  tr {
-    cursor: pointer;
+  .dataTables_scrollBody {
+    overflow-y: hidden !important;
   }
 
   td.details-control:before {
@@ -190,14 +184,30 @@ code {
     font-family: 'Courier New',Courier,monospace;
     line-height: 15px;
     cursor: pointer;
-
-    content: '+';
+    content: url("~src/assets/menu-down.svg");
     background-color: #31b131;
   }
 
   tr.shown td.details-control:before {
-    content: '-';
+    content: url("~src/assets/menu-up.svg");
     background-color: #d33333;
+  }
+
+  .details-table {
+    table-layout: fixed;
+    width: 900px;
+
+    td {
+      width: 300px;
+      word-wrap: break-word;
+    }
+
+    div.scrollable {
+      max-width: 300px;
+      margin: 0;
+      padding: 0;
+      overflow-x: auto;
+    }
   }
 
   .details-row {
