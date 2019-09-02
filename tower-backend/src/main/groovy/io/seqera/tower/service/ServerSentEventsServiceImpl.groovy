@@ -28,8 +28,23 @@ import java.util.concurrent.TimeoutException
 @Slf4j
 class ServerSentEventsServiceImpl implements ServerSentEventsService {
 
-    private Map<String, PublishProcessor<Event>> flowableByKeyCache = new ConcurrentHashMap()
+    private final Map<String, PublishProcessor<Event>> flowableByKeyCache = new ConcurrentHashMap()
 
+
+    Flowable getOrCreate(String key) {
+        log.info("Creating flowable: ${key}")
+        if( flowableByKeyCache.containsKey(key) )
+            return flowableByKeyCache.get(key)
+
+        synchronized (flowableByKeyCache) {
+            if( flowableByKeyCache.containsKey(key) )
+                return flowableByKeyCache.get(key)
+            def result = PublishProcessor.<Event>create()
+            // TODO create timeout
+            flowableByKeyCache.put(key, result)
+            return result
+        }
+    }
 
     void createFlowable(String key, Duration idleTimeout) {
         log.info("Creating flowable: ${key}")
@@ -61,6 +76,13 @@ class ServerSentEventsServiceImpl implements ServerSentEventsService {
         PublishProcessor hotFlowable = (PublishProcessor) getFlowable(key)
 
         hotFlowable.onNext(event)
+    }
+
+    void tryPublish(String key, Closure<Event> payload) {
+        Flowable flowable = flowableByKeyCache.get(key)
+        if( flowable ) {
+            flowable.onNext(payload.call())
+        }
     }
 
     void completeFlowable(String key) {

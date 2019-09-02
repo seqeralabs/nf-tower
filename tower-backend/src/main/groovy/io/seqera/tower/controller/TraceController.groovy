@@ -31,7 +31,6 @@ import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.User
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.enums.SseErrorType
-import io.seqera.tower.exceptions.NonExistingFlowableException
 import io.seqera.tower.exchange.progress.ProgressData
 import io.seqera.tower.exchange.trace.TraceTaskRequest
 import io.seqera.tower.exchange.trace.TraceTaskResponse
@@ -102,29 +101,14 @@ class TraceController extends BaseController {
     }
 
     private void publishWorkflowEvent(Workflow workflow, User user) {
-        String workflowDetailFlowableKey = getWorkflowDetailFlowableKey(workflow.id)
-        String workflowListFlowableKey = getWorkflowListFlowableKey(user.id)
+        final workflowListFlowableKey = getWorkflowListFlowableKey(user.id)
 
-        if (workflow.checkIsStarted()) {
-            serverSentEventsService.createFlowable(workflowDetailFlowableKey, idleWorkflowDetailFlowableTimeout)
-        } else {
-
-            WorkflowGet workflowGet = progressService.buildWorkflowGet(workflow)
-            try {
-                serverSentEventsService.publishEvent(workflowDetailFlowableKey, Event.of(TraceSseResponse.ofWorkflow(workflowGet)))
-            } catch (NonExistingFlowableException e) {
-                log.error("No flowable found while trying to publish workflow data: ${workflowDetailFlowableKey}")
-            }
-
-        }
-
-        try {
-            serverSentEventsService.publishEvent(workflowListFlowableKey, Event.of(TraceSseResponse.ofWorkflow(WorkflowGet.of(workflow))))
-        } catch (NonExistingFlowableException e) {
-            log.error("No flowable found while trying to publish workflow data: ${workflowListFlowableKey}")
+        serverSentEventsService.tryPublish(workflowListFlowableKey) {
+            Event.of(TraceSseResponse.ofWorkflow(WorkflowGet.of(workflow)))
         }
 
         if (!workflow.checkIsStarted()) {
+            final workflowDetailFlowableKey = getWorkflowDetailFlowableKey(workflow.id)
             serverSentEventsService.completeFlowable(workflowDetailFlowableKey)
         }
     }
@@ -143,7 +127,7 @@ class TraceController extends BaseController {
 
             final workflow = tasks.first().workflow
             response = HttpResponse.created(TraceTaskResponse.ofSuccess(workflow.id.toString()))
-            publishUpdatedProgressEvent(workflow)
+            publishProgressEvent(workflow)
         }
         catch (Exception e) {
             log.error("Failed to handle trace trace=$request", e)
@@ -153,14 +137,12 @@ class TraceController extends BaseController {
         response
     }
 
-    private void publishUpdatedProgressEvent(Workflow workflow) {
+    private void publishProgressEvent(Workflow workflow) {
         String workflowDetailFlowableKey = getWorkflowDetailFlowableKey(workflow.id)
 
-        try {
+        serverSentEventsService.tryPublish(workflowDetailFlowableKey) {
             ProgressData progress = progressService.fetchWorkflowProgress(workflow)
-            serverSentEventsService.publishEvent(workflowDetailFlowableKey, Event.of(TraceSseResponse.ofProgress(progress)))
-        } catch (NonExistingFlowableException e) {
-            log.error("No flowable found while trying to publish task data: ${workflowDetailFlowableKey}")
+            Event.of(TraceSseResponse.ofProgress(progress))
         }
     }
 
@@ -171,18 +153,19 @@ class TraceController extends BaseController {
         log.info("Subscribing to live events of workflow: ${workflowDetailFlowableKey}")
         Flowable<Event<TraceSseResponse>> workflowDetailFlowable
         try {
-            workflowDetailFlowable = serverSentEventsService.getThrottledFlowable(workflowDetailFlowableKey, throttleWorkflowDetailFlowableTime)
-        } catch (NonExistingFlowableException e) {
-            String message = "No live events emitter: ${workflowDetailFlowableKey}"
-            log.info(message)
-            workflowDetailFlowable = Flowable.just(Event.of(TraceSseResponse.ofError(SseErrorType.NONEXISTENT, message)))
-        } catch (Exception e) {
+            workflowDetailFlowable = serverSentEventsService.getOrCreate(workflowDetailFlowableKey)
+        }
+        catch (Exception e) {
             String message = "Unexpected error while obtaining event emitter: ${workflowDetailFlowableKey}"
             log.error("${message} | ${e.message}", e)
             workflowDetailFlowable = Flowable.just(Event.of(TraceSseResponse.ofError(SseErrorType.UNEXPECTED, message)))
         }
 
-        workflowDetailFlowable
+        return workflowDetailFlowable.doOnSubscribe({
+            log.info("*** Subscribed flowable: ${workflowDetailFlowableKey}")
+        }).doOnCancel({
+            log.info("*** Cancelled flowable: ${workflowDetailFlowableKey}")
+        })
     }
 
     private static String getWorkflowDetailFlowableKey(String workflowId) {
@@ -196,14 +179,9 @@ class TraceController extends BaseController {
         log.info("Subscribing to live events of user: ${workflowListFlowableKey}")
         Flowable<Event<TraceSseResponse>> workflowListFlowable
         try {
-            workflowListFlowable = serverSentEventsService.getThrottledFlowable(workflowListFlowableKey, throttleWorkflowListFlowableTime)
-        } catch (NonExistingFlowableException e) {
-            String message = "No live events emitter. Generating one: ${workflowListFlowableKey}"
-            log.info(message)
-
-            serverSentEventsService.createFlowable(workflowListFlowableKey, idleWorkflowListFlowableTimeout)
-            workflowListFlowable = serverSentEventsService.getThrottledFlowable(workflowListFlowableKey, throttleWorkflowListFlowableTime)
-        } catch (Exception e) {
+            workflowListFlowable = serverSentEventsService.getOrCreate(workflowListFlowableKey)
+        }
+        catch (Exception e) {
             String message = "Unexpected error while obtaining event emitter: ${workflowListFlowableKey}"
             log.error("${message} | ${e.message}", e)
 
@@ -217,6 +195,12 @@ class TraceController extends BaseController {
 
         return workflowListFlowable.mergeWith(heartbeatWorkflowListFlowable)
                                    .takeUntil(workflowListFlowable.takeLast(1))
+                                   .doOnSubscribe({
+                                       log.info("+++ Subscribed flowable: ${workflowListFlowableKey}")
+                                   })
+                                   .doOnCancel({
+                                       log.info("+++ Cancelled flowable: ${workflowListFlowableKey}")
+                                   })
     }
 
     private static String getWorkflowListFlowableKey(def userId) {
