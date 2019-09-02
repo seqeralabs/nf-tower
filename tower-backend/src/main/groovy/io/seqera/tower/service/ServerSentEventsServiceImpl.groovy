@@ -93,6 +93,15 @@ class ServerSentEventsServiceImpl implements ServerSentEventsService {
         flowableByKeyCache.remove(key)
     }
 
+    void tryComplete(String key) {
+        log.info("Completing flowable: ${key}")
+        final flowable = flowableByKeyCache.get(key)
+        if( flowable ) {
+            flowable.onComplete()
+            flowableByKeyCache.remove(key)
+        }
+    }
+
     private Flowable getFlowable(String key) throws NonExistingFlowableException {
         Flowable hotFlowable = flowableByKeyCache[key]
 

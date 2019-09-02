@@ -32,5 +32,6 @@ interface ServerSentEventsService {
 
     void completeFlowable(String key)
 
+    void tryComplete(String key)
 
 }

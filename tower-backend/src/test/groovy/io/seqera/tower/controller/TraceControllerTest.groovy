@@ -11,8 +11,6 @@
 
 package io.seqera.tower.controller
 
-import spock.lang.IgnoreRest
-
 import javax.inject.Inject
 
 import grails.gorm.transactions.Transactional
@@ -32,6 +30,8 @@ import io.seqera.tower.domain.User
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.enums.SseErrorType
 import io.seqera.tower.enums.TraceProcessingStatus
+import io.seqera.tower.exchange.trace.TraceAliveRequest
+import io.seqera.tower.exchange.trace.TraceAliveResponse
 import io.seqera.tower.exchange.trace.TraceTaskRequest
 import io.seqera.tower.exchange.trace.TraceTaskResponse
 import io.seqera.tower.exchange.trace.TraceWorkflowRequest
@@ -44,7 +44,9 @@ import io.seqera.tower.util.NextflowSimulator
 import io.seqera.tower.util.TaskTraceSnapshotStatus
 import io.seqera.tower.util.TracesJsonBank
 import io.seqera.tower.util.WorkflowTraceSnapshotStatus
+import spock.lang.Timeout
 
+@Timeout(10)
 @MicronautTest(application = Application.class)
 @Transactional
 class TraceControllerTest extends AbstractContainerBaseTest {
@@ -61,6 +63,22 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         request.basicAuth(AuthenticationByApiToken.ID, user.accessTokens.first().token)
     }
 
+    void 'should handle an alive request' () {
+        given: 'an allowed user'
+        User user = new DomainCreator().generateAllowedUser()
+
+        and: 'a workflow'
+        Workflow workflow = new DomainCreator().createWorkflow()
+
+        when: 'send a save request'
+        MutableHttpRequest request = HttpRequest.POST('/trace/alive', new TraceAliveRequest(workflowId: workflow.id))
+        request = appendBasicAuth(user, request)
+
+        HttpResponse<TraceAliveResponse> response = client.toBlocking().exchange( request, TraceAliveResponse )
+        
+        then:
+        response.status == HttpStatus.OK
+    }
 
     void "save a new workflow given a start trace"() {
         given: 'an allowed user'
@@ -180,7 +198,6 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         }
     }
 
-    @IgnoreRest
     void "save traces simulated from a complete sequence and subscribe to the live events in the mean time"() {
         given: 'an allowed user'
         User user = new DomainCreator().generateAllowedUser()

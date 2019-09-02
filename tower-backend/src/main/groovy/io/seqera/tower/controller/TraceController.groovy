@@ -13,6 +13,8 @@ package io.seqera.tower.controller
 
 import javax.inject.Inject
 import java.time.Duration
+import java.time.Instant
+import java.util.concurrent.ConcurrentHashMap
 
 import grails.gorm.transactions.Transactional
 import groovy.util.logging.Slf4j
@@ -32,6 +34,8 @@ import io.seqera.tower.domain.User
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.enums.SseErrorType
 import io.seqera.tower.exchange.progress.ProgressData
+import io.seqera.tower.exchange.trace.TraceAliveRequest
+import io.seqera.tower.exchange.trace.TraceAliveResponse
 import io.seqera.tower.exchange.trace.TraceTaskRequest
 import io.seqera.tower.exchange.trace.TraceTaskResponse
 import io.seqera.tower.exchange.trace.TraceWorkflowRequest
@@ -71,6 +75,8 @@ class TraceController extends BaseController {
     UserService userService
     ServerSentEventsService serverSentEventsService
 
+    private Map<String, Instant> running = new ConcurrentHashMap<>(50);
+
     @Inject
     TraceController(TraceService traceService, ProgressService progressService, UserService userService, ServerSentEventsService serverSentEventsService) {
         this.traceService = traceService
@@ -79,6 +85,12 @@ class TraceController extends BaseController {
         this.serverSentEventsService = serverSentEventsService
     }
 
+    protected void updateRunningWorkflow(Workflow workflow) {
+        if( workflow.checkIsStarted() )
+            running.put(workflow.id, Instant.now())
+        else
+            running.remove(workflow.id)
+    }
 
     @Post("/workflow")
     @Transactional
@@ -90,6 +102,7 @@ class TraceController extends BaseController {
             log.info("Receiving workflow trace for workflows ID=${request.workflow?.id}")
             Workflow workflow = traceService.processWorkflowTrace(request, user)
             response = HttpResponse.created(TraceWorkflowResponse.ofSuccess(workflow.id))
+            updateRunningWorkflow(workflow)
             publishWorkflowEvent(workflow, user)
         }
         catch (Exception e) {
@@ -98,6 +111,25 @@ class TraceController extends BaseController {
         }
 
         response
+    }
+
+    @Post("/alive")
+    @Transactional
+    @Secured(['ROLE_USER'])
+    HttpResponse<TraceAliveResponse> alive(@Body TraceAliveRequest req) {
+        log.info "Trace alive message for workflowId=$req.workflowId"
+        
+        Workflow wf = Workflow.get(req.workflowId)
+        if( !wf ) {
+            final msg = "Cannot find workflowId=$req.workflowId"
+            log.warn(msg)
+            return HttpResponse.badRequest(new TraceAliveResponse(message:msg))
+        }
+
+        // TODO use this to generate the heartbeat for the flowable
+        updateRunningWorkflow(wf)
+
+        HttpResponse.ok(new TraceAliveResponse(message: 'OK'))
     }
 
     private void publishWorkflowEvent(Workflow workflow, User user) {
@@ -109,7 +141,7 @@ class TraceController extends BaseController {
 
         if (!workflow.checkIsStarted()) {
             final workflowDetailFlowableKey = getWorkflowDetailFlowableKey(workflow.id)
-            serverSentEventsService.completeFlowable(workflowDetailFlowableKey)
+            serverSentEventsService.tryComplete(workflowDetailFlowableKey)
         }
     }
 
@@ -126,6 +158,7 @@ class TraceController extends BaseController {
             List<Task> tasks = traceService.processTaskTrace(request)
 
             final workflow = tasks.first().workflow
+            updateRunningWorkflow(workflow)
             response = HttpResponse.created(TraceTaskResponse.ofSuccess(workflow.id.toString()))
             publishProgressEvent(workflow)
         }
