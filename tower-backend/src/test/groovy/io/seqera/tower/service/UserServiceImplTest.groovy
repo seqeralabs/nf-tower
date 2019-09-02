@@ -36,7 +36,9 @@ class UserServiceImplTest extends Specification {
         'foo'       | '......foo@bar.com'
         ''          | '......@bar.com'
         'x-y-z'     | 'x...y..z--@bar.com'
+        'a2345678901234567890' | 'a23456789012345678901234567890@bar.com'
     }
+
 
     def 'validate trusted email ' () {
 

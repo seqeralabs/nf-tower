@@ -97,7 +97,11 @@ class UserServiceImpl implements UserService {
 
         if( result.endsWith('-') )
             result = result.substring(0,result.size()-1)
-        result
+
+        if( result.size() > 20 )
+            result = result.substring(0,20)
+
+        return result
     }
 
     @CompileDynamic
