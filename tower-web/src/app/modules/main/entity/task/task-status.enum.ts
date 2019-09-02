@@ -18,19 +18,21 @@ export function getAllTaskStatusesProgressStateTags(): string[] {
   return Object.keys(TaskStatus)
                .map(key => Number(key))
                .filter(key => !isNaN(key))
-               .map(key => toProgressTag(key))
+               .map(key => convertTaskStatusToProgressTag(key))
                .filter((key) => key != null)
 }
 
-function toProgressTag(statusKey: number): string {
-  if (statusKey == TaskStatus.ABORTED) {
+export function convertTaskStatusToProgressTag(status: number | string): string {
+  status = (typeof status == "string") ? TaskStatus[status] : status;
+
+  if (status == TaskStatus.ABORTED) {
     return null;
   }
-  if (statusKey == TaskStatus.NEW) {
+  if (status == TaskStatus.NEW) {
     return 'pending';
   }
-  if (statusKey == TaskStatus.COMPLETED) {
+  if (status == TaskStatus.COMPLETED) {
     return 'succeeded';
   }
-  return TaskStatus[statusKey].toLowerCase();
+  return TaskStatus[status].toLowerCase();
 }

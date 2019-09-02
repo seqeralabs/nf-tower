@@ -12,6 +12,7 @@ import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core'
 import {Task} from "../../entity/task/task";
 import {Progress} from "../../entity/progress/progress";
 import {WorkflowService} from "../../service/workflow.service";
+import {convertTaskStatusToProgressTag} from "../../entity/task/task-status.enum";
 
 declare var $: any;
 
@@ -68,7 +69,7 @@ export class TasksTableComponent implements OnInit, OnChanges {
         {name: "process", orderable: false},
         {name: "tag", orderable: false},
         {name: "hash", orderable: false},
-        {name: "status", orderable: false, render: (data) => `<span class="badge badge-pill ${data.toLowerCase()}">${data}</span>`},
+        {name: "status", orderable: false, render: (status) => `<span class="badge badge-pill ${status.toLowerCase()}">${convertTaskStatusToProgressTag(status).toUpperCase()}</span>`},
         {name: "exit", orderable: false},
         {name: "container", orderable: false },
         {name: "nativeId", orderable: false},

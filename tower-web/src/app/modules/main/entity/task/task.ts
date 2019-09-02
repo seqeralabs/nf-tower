@@ -9,7 +9,7 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 import {TaskData} from "./task-data";
-import {TaskStatus} from "./task-status.enum";
+import {convertTaskStatusToProgressTag, TaskStatus} from "./task-status.enum";
 import {FormatterUtil} from "../../util/formatter-util";
 
 export class Task {

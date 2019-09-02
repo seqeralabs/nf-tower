@@ -19,7 +19,7 @@ hibernate:
   dialect: "${DB_DIALECT:org.hibernate.dialect.MySQL55Dialect}"
 ---
 mail:
-  from: info@seqera.io
+  from: noreply@salenda.net
   to: qa@salenda.es
   smtp:
     host: smtp.salenda.es
