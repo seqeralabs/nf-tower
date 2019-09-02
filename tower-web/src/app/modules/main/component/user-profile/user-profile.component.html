@@ -9,17 +9,19 @@
     </div>
     <div class="form-group">
       <label for="userName">User name</label>
-      <input id="userName" name="userName" type="text" class="form-control" required pattern="^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$" [(ngModel)]="userCopy.data.userName">
+      <input id="userName" name="userName" type="text" class="form-control" required pattern="^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$" maxlength="39" [(ngModel)]="userCopy.data.userName">
       <div class="invalid-feedback" >Should only include lowercase alphanumeric and dash characters</div>
     </div>
     <div class="form-row">
       <div class="form-group col">
         <label for="firstName">First name</label>
-        <input id="firstName" name="firstName" type="text" class="form-control" [(ngModel)]="userCopy.data.firstName">
+        <input id="firstName" name="firstName" type="text" class="form-control" maxlength="100" [(ngModel)]="userCopy.data.firstName">
+        <div class="invalid-feedback">Max 100 characters long</div>
       </div>
       <div class="form-group col">
         <label for="lastName">Last name</label>
-        <input id="lastName" name="lastName" type="text" class="form-control" [(ngModel)]="userCopy.data.lastName">
+        <input id="lastName" name="lastName" type="text" class="form-control" maxlength="100" [(ngModel)]="userCopy.data.lastName">
+        <div class="invalid-feedback">Max 100 characters long</div>
       </div>
     </div>
     <div class="form-group">
@@ -29,14 +31,14 @@
     </div>
     <div class="form-group">
       <label for="organization">Organization</label>
-      <input id="organization" name="organization" type="text" class="form-control" maxlength="10" [(ngModel)]="userCopy.data.organization">
-      <div class="invalid-feedback">Max 10 characters long</div>
+      <input id="organization" name="organization" type="text" class="form-control" maxlength="100" [(ngModel)]="userCopy.data.organization">
+      <div class="invalid-feedback">Max 100 characters long</div>
     </div>
     <div class="form-group">
       <label for="description">Description</label>
-      <textarea id="description" name="description" type="text" class="form-control" maxlength="10" [(ngModel)]="userCopy.data.description">
+      <textarea id="description" name="description" type="text" class="form-control" maxlength="1000" [(ngModel)]="userCopy.data.description">
       </textarea>
-      <div class="invalid-feedback">Max 10 characters long</div>
+      <div class="invalid-feedback">Max 1000 characters long</div>
     </div>
 
     <div class="row">

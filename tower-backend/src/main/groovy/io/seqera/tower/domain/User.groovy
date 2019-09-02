@@ -45,15 +45,15 @@ class User {
     static hasMany = [workflows: Workflow, accessTokens: AccessToken]
 
     static constraints = {
-        email(email: true, unique: true)
-        userName(unique: true, blank:false, matches: USERNAME_REGEX)
+        email(email: true, unique: true, maxSize: 255)
+        userName(unique: true, blank:false, matches: USERNAME_REGEX, maxSize: 40)
         authToken(unique: true, nullable: true)
         authTime(nullable: true)
 
-        firstName(nullable: true)
-        lastName(nullable: true)
-        organization(nullable: true)
-        description(nullable: true)
+        firstName(nullable: true, maxSize: 100)
+        lastName(nullable: true, maxSize: 100)
+        organization(nullable: true, maxSize: 100)
+        description(nullable: true, maxSize: 1000)
         avatar(nullable: true, url: true)
         lastAccess(nullable: true)
     }
