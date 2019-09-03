@@ -12,7 +12,6 @@
 package io.seqera.tower.controller
 
 import javax.inject.Inject
-import java.time.Duration
 
 import grails.gorm.transactions.Transactional
 import groovy.util.logging.Slf4j

@@ -26,17 +26,15 @@ class ServerSentEventsController {
 
     @Value('${sse.time.idle.workflow:5m}')
     Duration idleWorkflowFlowableTimeout
-    @Value('${sse.time.throttle.workflow:1s}')
-    Duration throttleWorkflowFlowableTime
 
     @Value('${sse.time.idle.user:5m}')
     Duration idleUserFlowableTimeout
-    @Value('${sse.time.throttle.user:1h}')
-    Duration throttleUserFlowableTime
+
     @Value('${sse.time.heartbeat.user:1m}')
     Duration heartbeatUserFlowableInterval
 
     UserService userService
+
     ServerSentEventsService serverSentEventsService
 
     @Inject
