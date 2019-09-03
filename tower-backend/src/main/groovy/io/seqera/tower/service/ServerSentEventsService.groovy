@@ -18,20 +18,12 @@ import java.time.Duration
 
 interface ServerSentEventsService {
 
-    Flowable getOrCreate(String key, Duration idleTimeout)
-
-    void createFlowable(String key, Duration idleTimeout)
-
-    void publishEvent(String key, Event data)
+    Flowable getOrCreate(String key, Duration idleTimeout, Duration throttleTime)
 
     void tryPublish(String key, Closure<Event> payload)
 
-    @Deprecated Flowable getThrottledFlowable(String key, Duration throttleTime)
+    void tryComplete(String key)
 
     Flowable generateHeartbeatFlowable(Duration interval, Closure<Event> heartbeatGenerator)
-
-    void completeFlowable(String key)
-
-    void tryComplete(String key)
 
 }

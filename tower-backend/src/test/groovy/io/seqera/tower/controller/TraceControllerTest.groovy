@@ -206,7 +206,7 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         NextflowSimulator nextflowSimulator = new NextflowSimulator(user: user, workflowLabel: 'simulation', client: client.toBlocking(), sleepBetweenRequests: 0)
 
         when: 'subscribe to the live events for the workflow list endpoint'
-        TestSubscriber listSubscriber = sseClient.eventStream("/trace/live/workflowList/${user.id}", TraceSseResponse.class).test()
+        TestSubscriber listSubscriber = sseClient.eventStream("/trace/live/user/${user.id}", TraceSseResponse.class).test()
 
         then: 'the list flowable has just been created (is active)'
         listSubscriber.assertNotComplete()
@@ -218,7 +218,7 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         Workflow.withNewTransaction { Workflow.count() } == 1
 
         when: 'subscribe to the live events for the workflow detail endpoint'
-        TestSubscriber detailSubscriber = sseClient.eventStream("/trace/live/workflowDetail/${nextflowSimulator.workflowId}", TraceSseResponse.class).test()
+        TestSubscriber detailSubscriber = sseClient.eventStream("/trace/live/workflow/${nextflowSimulator.workflowId}", TraceSseResponse.class).test()
 
         then: 'the detail flowable is active'
         detailSubscriber.assertNotComplete()
@@ -233,13 +233,6 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         //For some reason the event isn't received here although it's working properly in the browser
 //        detailSubscriber.awaitCount(1)
 //        detailSubscriber.assertValueCount(1)
-
-        when: 'keep the simulation going'
-        nextflowSimulator.simulate()
-
-        then: 'try to resubscribe to the workflow live updates once completed'
-        TraceSseResponse sseResponse = sseClient.eventStream("/trace/live/workflowDetail/${nextflowSimulator.workflowId}", TraceSseResponse.class).blockingFirst().data
-        sseResponse.error.type == SseErrorType.NONEXISTENT
     }
 
 }

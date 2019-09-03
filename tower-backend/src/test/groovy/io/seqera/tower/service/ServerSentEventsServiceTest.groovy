@@ -31,15 +31,18 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
     ServerSentEventsServiceImpl serverSentEventsService
 
 
-    void "create a flowable and retrieve it"() {
+    void "create a flowable given that it doesn't exist another one with the same key"() {
         given: 'a key for the flowable'
         String key = '1'
 
-        when: 'create the flowable given a key'
-        serverSentEventsService.createFlowable(key, Duration.ofMinutes(1))
+        when: 'create the flowable with the key'
+        Flowable flowable = serverSentEventsService.getOrCreate(key, Duration.ofMinutes(1), null)
 
-        then: 'the flowable can be retrieved'
-        serverSentEventsService.getThrottledFlowable(key, Duration.ofMinutes(0))
+        and: 'get the same flowable'
+        Flowable flowable2 = serverSentEventsService.getOrCreate(key, Duration.ofMinutes(1), null)
+
+        then: 'both flowables are the same'
+        flowable == flowable2
     }
 
     void "create a flowable and publish some data for it"() {
@@ -47,14 +50,16 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
         String key = '2'
 
         and: 'create the flowable'
-        serverSentEventsService.createFlowable(key, Duration.ofMinutes(1))
+        Flowable flowable = serverSentEventsService.getOrCreate(key, Duration.ofMinutes(1), null)
 
         and: 'subscribe to the flowable in order to retrieve the data'
-        TestSubscriber subscriber = serverSentEventsService.getThrottledFlowable(key, Duration.ofMinutes(0)).test()
+        TestSubscriber subscriber = flowable.test()
 
         when: 'publish some data for it'
         Event event = Event.of([text: 'Data published'])
-        serverSentEventsService.publishEvent(key, event)
+        serverSentEventsService.tryPublish(key) {
+            event
+        }
 
         then: 'the subscriber has obtained the data correctly'
         subscriber.assertValueCount(1)
@@ -66,22 +71,22 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
         String key = '3'
 
         and: 'create the flowable'
-        serverSentEventsService.createFlowable(key, Duration.ofMinutes(1))
+        Flowable flowable = serverSentEventsService.getOrCreate(key, Duration.ofMinutes(1), null)
 
         and: 'subscribe to the flowable in order to retrieve the data'
-        TestSubscriber subscriber = serverSentEventsService.getThrottledFlowable(key, Duration.ofMinutes(0)).test()
+        TestSubscriber subscriber = flowable.test()
 
         when: 'complete the flowable'
-        serverSentEventsService.completeFlowable(key)
+        serverSentEventsService.tryComplete(key)
 
         then: 'the flowable has been completed'
         subscriber.assertComplete()
 
         when: 'try to get the flowable again'
-        serverSentEventsService.getThrottledFlowable(key, Duration.ofMinutes(0))
+        Flowable flowable2 = serverSentEventsService.getOrCreate(key, Duration.ofMinutes(0), null)
 
-        then: 'the flowable is no longer present'
-        thrown(NonExistingFlowableException)
+        then: 'the flowable is new'
+        flowable != flowable2
     }
 
     void "create a flowable and throttle the events"() {
@@ -92,16 +97,20 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
         Duration throttleTime = Duration.ofMillis(500)
 
         and: 'create the flowable'
-        serverSentEventsService.createFlowable(key, Duration.ofMinutes(1))
+        Flowable flowable = serverSentEventsService.getOrCreate(key, Duration.ofMinutes(1), throttleTime)
 
         and: 'subscribe to the flowable in order to retrieve data'
-        TestSubscriber subscriber = serverSentEventsService.getThrottledFlowable(key, throttleTime).test()
+        TestSubscriber subscriber = flowable.test()
 
         when: 'publish some data for it'
-        serverSentEventsService.publishEvent(key, Event.of([text: 'Data published 1']))
+        serverSentEventsService.tryPublish(key) {
+            Event.of([text: 'Data published 1'])
+        }
 
         and: 'publish more data right after the previous one'
-        serverSentEventsService.publishEvent(key, Event.of([text: 'Data published 2']))
+        serverSentEventsService.tryPublish(key) {
+            Event.of([text: 'Data published 2'])
+        }
 
         then: 'the subscriber has obtained only the first published data'
         subscriber.assertValueCount(1)
@@ -123,10 +132,10 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
         Duration idleTimeout = Duration.ofMillis(300)
 
         and: 'create the flowable'
-        serverSentEventsService.createFlowable(key, idleTimeout)
+        Flowable flowable = serverSentEventsService.getOrCreate(key, idleTimeout, null)
 
         and: 'subscribe to the flowable in order to retrieve data'
-        TestSubscriber subscriber = serverSentEventsService.getThrottledFlowable(key, Duration.ofMinutes(0)).test()
+        TestSubscriber subscriber = flowable.test()
 
         when: 'sleep until the timeout plus a prudential time to make sure it was reached'
         sleep(idleTimeout.toMillis() + 100)
@@ -135,7 +144,22 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
         subscriber.assertComplete()
     }
 
-    void "create a heartbeat flowable and receive the herartbeat events"() {
+    void "try to publish data for a nonexistent flowable"() {
+        given: 'a closure to check if the payload callback was called'
+        boolean executed = false
+        Closure payload = {
+            executed = true
+            Event.of([text: 'Data published 1'])
+        }
+
+        when: 'publish data for a nonexistent flowable'
+        serverSentEventsService.tryPublish('nonExistent', payload)
+
+        then: 'data was not published'
+        !executed
+    }
+
+    void "create a heartbeat flowable and receive the heartneat events"() {
         given: 'a heartbeat interval'
         Duration interval = Duration.ofMillis(250)
 

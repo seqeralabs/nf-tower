@@ -199,7 +199,7 @@ class TraceController extends BaseController {
         log.info("Subscribing to live events of workflow: ${workflowFlowableKey}")
         Flowable<Event<TraceSseResponse>> workflowFlowable
         try {
-            workflowFlowable = serverSentEventsService.getOrCreate(workflowFlowableKey, idleWorkflowFlowableTimeout)
+            workflowFlowable = serverSentEventsService.getOrCreate(workflowFlowableKey, idleWorkflowFlowableTimeout, null)
         }
         catch (Exception e) {
             String message = "Unexpected error while obtaining event emitter: ${workflowFlowableKey}"
@@ -217,7 +217,7 @@ class TraceController extends BaseController {
         log.info("Subscribing to live events of user: ${userFlowableKey}")
         Flowable<Event<TraceSseResponse>> userFlowable
         try {
-            userFlowable = serverSentEventsService.getOrCreate(userFlowableKey, idleUserFlowableTimeout)
+            userFlowable = serverSentEventsService.getOrCreate(userFlowableKey, idleUserFlowableTimeout, null)
         }
         catch (Exception e) {
             String message = "Unexpected error while obtaining event emitter: ${userFlowableKey}"

@@ -32,7 +32,7 @@ class ServerSentEventsServiceImpl implements ServerSentEventsService {
     private final Map<String, PublishProcessor<Event>> flowableByKeyCache = new ConcurrentHashMap()
 
 
-    Flowable getOrCreate(String key, Duration idleTimeout) {
+    Flowable getOrCreate(String key, Duration idleTimeout, Duration throttleTime) {
         synchronized (flowableByKeyCache) {
             if(flowableByKeyCache.containsKey(key)) {
                 log.info("Getting flowable: ${key}")
@@ -40,23 +40,20 @@ class ServerSentEventsServiceImpl implements ServerSentEventsService {
             }
 
             log.info("Creating flowable: ${key}")
-            PublishProcessor<Event> flowable = PublishProcessor.<Event>create()
+            Flowable<Event> flowable = PublishProcessor.<Event>create()
             flowableByKeyCache[key] = flowable
 
             scheduleFlowableIdleTimeout(key, idleTimeout)
+            if (throttleTime) {
+                flowable = flowable.throttleLatest(throttleTime.toMillis(), TimeUnit.MILLISECONDS, true)
+            }
 
             return flowable
         }
     }
 
-    void createFlowable(String key, Duration idleTimeout) {
-        log.info("Creating flowable: ${key}")
-        flowableByKeyCache[key] = PublishProcessor.create()
-        scheduleFlowableIdleTimeout(key, idleTimeout)
-    }
-
     private void scheduleFlowableIdleTimeout(String key, Duration idleTimeout) {
-        Flowable flowable = getFlowable(key)
+        Flowable flowable = flowableByKeyCache[key]
 
         Flowable timeoutFlowable = flowable.timeout(idleTimeout.toMillis(), TimeUnit.MILLISECONDS)
         timeoutFlowable.subscribe(
@@ -66,7 +63,7 @@ class ServerSentEventsServiceImpl implements ServerSentEventsService {
             { Throwable t ->
                 if (t instanceof TimeoutException) {
                     log.info("Idle timeout reached for flowable: ${key}")
-                    completeFlowable(key)
+                    tryComplete(key)
                 } else {
                     log.info("Unexpected error happened for id: ${key} | ${t.message}")
                 }
@@ -74,26 +71,12 @@ class ServerSentEventsServiceImpl implements ServerSentEventsService {
         )
     }
 
-    void publishEvent(String key, Event event) throws NonExistingFlowableException {
-        log.info("Publishing event for flowable: ${key}")
-        PublishProcessor hotFlowable = (PublishProcessor) getFlowable(key)
-
-        hotFlowable.onNext(event)
-    }
-
     void tryPublish(String key, Closure<Event> payload) {
-        Flowable flowable = flowableByKeyCache.get(key)
+        Flowable flowable = flowableByKeyCache[key]
         if (flowable) {
+            log.info("Publishing event for flowable: ${key}")
             flowable.onNext(payload.call())
         }
-    }
-
-    void completeFlowable(String key) {
-        log.info("Completing flowable: ${key}")
-        PublishProcessor hotFlowable = (PublishProcessor) getFlowable(key)
-
-        hotFlowable.onComplete()
-        flowableByKeyCache.remove(key)
     }
 
     void tryComplete(String key) {
@@ -103,22 +86,6 @@ class ServerSentEventsServiceImpl implements ServerSentEventsService {
             flowable.onComplete()
             flowableByKeyCache.remove(key)
         }
-    }
-
-    private Flowable getFlowable(String key) throws NonExistingFlowableException {
-        Flowable hotFlowable = flowableByKeyCache[key]
-
-        if (!hotFlowable) {
-            throw new NonExistingFlowableException("No flowable exists for id: ${key}")
-        }
-
-        hotFlowable
-    }
-
-    Flowable getThrottledFlowable(String key, Duration throttleTime) throws NonExistingFlowableException {
-        Flowable flowable = getFlowable(key)
-
-        flowable.throttleLatest(throttleTime.toMillis(), TimeUnit.MILLISECONDS, true)
     }
 
     Flowable generateHeartbeatFlowable(Duration interval, Closure<Event> heartbeatEventGenerator) {

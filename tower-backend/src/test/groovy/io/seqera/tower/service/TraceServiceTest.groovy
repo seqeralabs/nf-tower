@@ -124,20 +124,6 @@ class TraceServiceTest extends AbstractContainerBaseTest {
         processedTask.workflowId
     }
 
-    @Ignore
-    void "process a task trace to try to submit a task without submit time"() {
-        given: "mock the task JSON processor to return a task without submit time"
-        Task task = new DomainCreator(failOnError: false).createTask(submit: null)
-        taskService.processTaskTraceRequest(_) >> [task]
-
-        when: "process the task (we don't mind about the given JSON because the processor is mocked)"
-        traceService.processTaskTrace(null)
-
-        then: "the result indicates a successful processing"
-        Exception e = thrown(ValidationException)
-        e.message == "Can't save a task without submit"
-    }
-
     void "process a task task trace to try to submit a task without taskId"() {
         given: "mock the task JSON processor to return a task without taskId"
         Workflow workflow = new DomainCreator().createWorkflow()
