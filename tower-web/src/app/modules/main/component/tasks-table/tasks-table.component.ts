@@ -199,7 +199,7 @@ export class TasksTableComponent implements OnInit, OnChanges {
   }
 
   private str(x): string {
-    return x == null || x == '' ? '-' : x.toString()
+    return x == null || x == '' ? '-' : x.toString().trim()
   }
 
   private col(row, col:string) {
@@ -207,14 +207,15 @@ export class TasksTableComponent implements OnInit, OnChanges {
     return this.str(result)
   }
 
-  private generateRowDataChildFormat(row): string {
-    const taskName: string = this.dataTable.cell(row, 'name:name').data();
-    const script: string = this.dataTable.cell(row, 'script:name').data();
-    const workdir: string = this.dataTable.cell(row, 'workdir:name').data();
-    const status = this.dataTable.cell(row, 'status:name').data();
-    const exitCode = this.dataTable.cell(row, 'exit:name').data();
-    const attempt = this.dataTable.cell(row, 'attempt:name').data();
-    const action = this.dataTable.cell(row, 'errorAction:name').data();
+  private generateRowDataChildFormat(data): string {
+    const taskName: string = this.col(data, 'name');
+    const script: string = this.col(data,'script');
+    const workdir: string = this.col(data, 'workdir');
+    const status = this.col(data, 'status');
+    const exitCode = this.col(data, 'exit');
+    const attempt = this.col(data, 'attempt');
+    const action = this.col(data, 'errorAction');
+    const env = this.col(data, 'env');
 
     let res_requested = [
       {name: 'container', description: 'Container image name used to execute the task'},
@@ -257,22 +258,22 @@ export class TasksTableComponent implements OnInit, OnChanges {
               <p class="card-text"><pre>${script}</pre></p>
 
               <h5 class="card-title">Status</h5>
-              <p class="card-text"><pre>Exit: ${this.str(exitCode)} (${status}) Attempts: ${attempt} ${action ? '(action: '+action+')' :''}</pre></p>
+              <p class="card-text"><pre>Exit: ${this.str(exitCode)} (${status}) Attempts: ${attempt} ${action!='-' ? '(action: '+action+')' :''}</pre></p>
 
               <h5 class="card-title">Work directory</h5>
               <p class="card-text"><pre>${workdir}</pre></p>
 
               <h5 class="card-title">Environment</h5>
-              <p class="card-text"><pre>${taskName}</pre></p>
+              <p class="card-text"><pre>${this.col(data,'env')}</pre></p>
+
+              <h5 class="card-title">Execution time</h5>
+              ${this.renderTable(data, res_time)}
 
               <h5 class="card-title">Resources requested</h5>
-              ${this.renderTable(row, res_requested)}
-
-              <h5 class="card-title">Time</h5>
-              ${this.renderTable(row, res_time)}
+              ${this.renderTable(data, res_requested)}
               
-              <h5 class="card-title">Resources used</h5>
-              ${this.renderTable(row, res_used)}    
+              <h5 class="card-title">Resources usage</h5>
+              ${this.renderTable(data, res_used)}    
             </div>
           </div>`;
   }
@@ -282,9 +283,9 @@ export class TasksTableComponent implements OnInit, OnChanges {
                   <tbody>
                   <thead>
                     <tr>
-                      <th scope="col" class="c1" >&nbsp;</th>
-                      <th scope="col" class="c2" >&nbsp;</th>
-                      <th scope="col">&nbsp;</th>
+                      <th scope="col" class="c1" >Label</th>
+                      <th scope="col" class="c2" >Value</th>
+                      <th scope="col">Description</th>
                     </tr>
                   </thead>
                 `;
