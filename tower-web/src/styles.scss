@@ -136,7 +136,14 @@ code {
 }
 
 /* Task DataTable styles */
-#tasks-table_wrapper {
+#tasks-table-wrapper {
+
+  @media (min-width: 1400px) {
+    max-width: 1000px;
+  }
+  @media (min-width: 1650px) {
+    max-width: 1140px;
+  }
 
   .code {
     font-family: SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
@@ -175,15 +182,26 @@ code {
 
   .details-table {
     table-layout: fixed;
-    width: 900px;
 
-    td {
-      width: 300px;
-      word-wrap: break-word;
+    @media (min-width: 1400px) {
+      max-width: 1000px;
+    }
+    @media (min-width: 1650px) {
+      max-width: 1140px;
+    }
+
+    th:nth-child(1) {
+      width: 20%;
+    }
+    th:nth-child(2) {
+      width: 20%;
+    }
+    th:nth-child(3) {
+      width: 60%;
     }
 
     div.scrollable {
-      max-width: 300px;
+      max-width: 100%;
       margin: 0;
       padding: 0;
       overflow-x: auto;
