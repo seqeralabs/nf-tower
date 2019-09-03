@@ -65,7 +65,7 @@ export class TasksTableComponent implements OnInit, OnChanges {
       orderMulti: false,
       rowId: (rowData) => `tr-${rowData[0]}`,
       columns: [
-        {name: "taskId", className: 'details-control', orderable: true},
+        {name: "taskId", className: 'details-control', orderable: true, render: (taskId) => `<span class="mdi mdi-menu-right"></span>&nbsp&nbsp${taskId}`},
         {name: "process", orderable: false},
         {name: "tag", orderable: false},
         {name: "hash", orderable: false},
@@ -183,14 +183,17 @@ export class TasksTableComponent implements OnInit, OnChanges {
         const row = this.dataTable.row(`#${rowId}`);
         if (row.child.isShown()) {
           row.child.hide();
-          tr.removeClass('shown');
+          tr.find('td.details-control span')
+            .removeClass('mdi-menu-down')
+            .addClass('mdi-menu-right');
         }
       });
 
       if (!isRowBeingShown) {
-        console.log('Row not shown');
         targetRow.child(this.generateRowDataChildFormat(targetTr)).show();
-        targetTr.addClass('shown');
+        targetTr.find('td.details-control span')
+                 .removeClass('mdi-menu-right')
+                 .addClass('mdi-menu-down');
       }
     });
   }
