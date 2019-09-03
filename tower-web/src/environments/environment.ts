@@ -6,7 +6,7 @@ export const environment = {
   production: false,
   apiUrl: "http://localhost:8080",
   version: "19.08.0",
-  commitId: "9df1706.dirty"
+  commitId: "1690600.dirty"
 };
 
 /*
