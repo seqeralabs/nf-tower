@@ -18,7 +18,7 @@ import java.time.Duration
 
 interface ServerSentEventsService {
 
-    Flowable getOrCreate(String key)
+    Flowable getOrCreate(String key, Duration idleTimeout)
 
     void createFlowable(String key, Duration idleTimeout)
 

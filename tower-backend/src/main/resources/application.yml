@@ -75,13 +75,13 @@ mail:
 sse:
   time:
     idle:
-      workflow-detail: 5m
-      workflow-list: 3600s
+      workflow: 90s
+      user: 1h
     throttle:
-      workflow-detail: 1s
-      workflow-list: 0s
+      workflow: 1s
+      user: 0s
     heartbeat:
-      workflow-list: 1m
+      user: 1m
 ---
 endpoints:
   bean:

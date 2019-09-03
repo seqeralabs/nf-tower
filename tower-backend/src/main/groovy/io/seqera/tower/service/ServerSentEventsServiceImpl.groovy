@@ -19,30 +19,33 @@ import io.reactivex.functions.Consumer
 import io.reactivex.processors.PublishProcessor
 import io.seqera.tower.exceptions.NonExistingFlowableException
 
+import javax.inject.Singleton
 import java.time.Duration
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 
-@Prototype
+@Singleton
 @Slf4j
 class ServerSentEventsServiceImpl implements ServerSentEventsService {
 
     private final Map<String, PublishProcessor<Event>> flowableByKeyCache = new ConcurrentHashMap()
 
 
-    Flowable getOrCreate(String key) {
-        log.info("Creating flowable: ${key}")
-        if( flowableByKeyCache.containsKey(key) )
-            return flowableByKeyCache.get(key)
-
+    Flowable getOrCreate(String key, Duration idleTimeout) {
         synchronized (flowableByKeyCache) {
-            if( flowableByKeyCache.containsKey(key) )
-                return flowableByKeyCache.get(key)
-            def result = PublishProcessor.<Event>create()
-            // TODO create timeout
-            flowableByKeyCache.put(key, result)
-            return result
+            if(flowableByKeyCache.containsKey(key)) {
+                log.info("Getting flowable: ${key}")
+                return flowableByKeyCache[key]
+            }
+
+            log.info("Creating flowable: ${key}")
+            PublishProcessor<Event> flowable = PublishProcessor.<Event>create()
+            flowableByKeyCache[key] = flowable
+
+            scheduleFlowableIdleTimeout(key, idleTimeout)
+
+            return flowable
         }
     }
 
@@ -57,17 +60,17 @@ class ServerSentEventsServiceImpl implements ServerSentEventsService {
 
         Flowable timeoutFlowable = flowable.timeout(idleTimeout.toMillis(), TimeUnit.MILLISECONDS)
         timeoutFlowable.subscribe(
-                {
-                    log.info("Data published for flowable: ${key}")
-                } as Consumer,
-                { Throwable t ->
-                    if (t instanceof TimeoutException) {
-                        log.info("Idle timeout reached for flowable: ${key}")
-                        completeFlowable(key)
-                    } else {
-                        log.info("Unexpected error happened for id: ${key} | ${t.message}")
-                    }
-                } as Consumer
+            {
+                log.info("Data published for flowable: ${key}")
+            } as Consumer,
+            { Throwable t ->
+                if (t instanceof TimeoutException) {
+                    log.info("Idle timeout reached for flowable: ${key}")
+                    completeFlowable(key)
+                } else {
+                    log.info("Unexpected error happened for id: ${key} | ${t.message}")
+                }
+            } as Consumer
         )
     }
 
@@ -80,7 +83,7 @@ class ServerSentEventsServiceImpl implements ServerSentEventsService {
 
     void tryPublish(String key, Closure<Event> payload) {
         Flowable flowable = flowableByKeyCache.get(key)
-        if( flowable ) {
+        if (flowable) {
             flowable.onNext(payload.call())
         }
     }
@@ -94,9 +97,9 @@ class ServerSentEventsServiceImpl implements ServerSentEventsService {
     }
 
     void tryComplete(String key) {
-        log.info("Completing flowable: ${key}")
-        final flowable = flowableByKeyCache.get(key)
-        if( flowable ) {
+        PublishProcessor flowable = flowableByKeyCache[key]
+        if (flowable) {
+            log.info("Completing flowable: ${key}")
             flowable.onComplete()
             flowableByKeyCache.remove(key)
         }
