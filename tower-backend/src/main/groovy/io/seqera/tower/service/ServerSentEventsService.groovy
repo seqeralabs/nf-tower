@@ -18,6 +18,8 @@ import java.time.Duration
 
 interface ServerSentEventsService {
 
+    String getKeyForEntity(Class aClass, def id)
+
     Flowable getOrCreate(String key, Duration idleTimeout, Duration throttleTime)
 
     void tryPublish(String key, Closure<Event> payload)

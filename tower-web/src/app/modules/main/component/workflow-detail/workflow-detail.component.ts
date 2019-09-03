@@ -20,6 +20,7 @@ import {Subscription} from "rxjs";
 import {SseError} from "../../entity/sse/sse-error";
 import {SseErrorType} from "../../entity/sse/sse-error-type";
 import {Progress} from "../../entity/progress/progress";
+import {SseHeartbeat} from "../../entity/sse/sse-heartbeat";
 
 @Component({
   selector: 'wt-workflow-detail',
@@ -72,10 +73,7 @@ export class WorkflowDetailComponent implements OnInit, OnDestroy {
 
   private subscribeToWorkflowDetailLiveEvents(workflow: Workflow): void {
     this.liveEventsSubscription = this.serverSentEventsWorkflowService.connectToWorkflowDetailLive(workflow).subscribe(
-      (data: Workflow | Progress) => {
-        console.log('Live workflow details event received', data);
-        this.reactToEvent(data);
-      },
+      (data: Workflow | Progress) => this.reactToEvent(data),
       (error: SseError) => {
         console.log('Live workflow details event received', error);
         this.reactToErrorEvent(error);
@@ -90,12 +88,16 @@ export class WorkflowDetailComponent implements OnInit, OnDestroy {
     }
   }
 
-  private reactToEvent(data: Workflow | Progress): void {
+  private reactToEvent(data: Workflow | Progress | SseHeartbeat): void {
     if (data instanceof Workflow) {
+      console.log('Live workflow details event received', data);
       this.reactToWorkflowEvent(data);
       this.unsubscribeFromWorkflowLiveEvents();
     } else if (data instanceof Progress) {
+      console.log('Live workflow details event received', data);
       this.reactToProgressEvent(data);
+    } else if (data instanceof SseHeartbeat) {
+      console.log('Heartbeat event received', data);
     }
   }
 

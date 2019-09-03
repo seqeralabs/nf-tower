@@ -32,6 +32,10 @@ class ServerSentEventsServiceImpl implements ServerSentEventsService {
     private final Map<String, PublishProcessor<Event>> flowableByKeyCache = new ConcurrentHashMap()
 
 
+    String getKeyForEntity(Class entityClass, def entityId) {
+        "${entityClass.simpleName}-${entityId}"
+    }
+
     Flowable getOrCreate(String key, Duration idleTimeout, Duration throttleTime) {
         synchronized (flowableByKeyCache) {
             if(flowableByKeyCache.containsKey(key)) {

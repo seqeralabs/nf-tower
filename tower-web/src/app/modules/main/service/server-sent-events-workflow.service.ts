@@ -18,7 +18,7 @@ import {User} from "../entity/user/user";
 import {SseHeartbeat} from "../entity/sse/sse-heartbeat";
 import {Progress} from "../entity/progress/progress";
 
-const endpointUrl: string = `${environment.apiUrl}/trace/live`;
+const endpointUrl: string = `${environment.apiUrl}/sse`;
 
 @Injectable({
   providedIn: 'root'
