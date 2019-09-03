@@ -156,6 +156,10 @@ code {
     border-radius: .25rem
   }
 
+  .card-body {
+    pre { margin-left: 1em; }
+  }
+
   .dataTables_filter {
     float: left !important;
   }
@@ -181,6 +185,7 @@ code {
   }
 
   .details-table {
+    margin-left: 1em;
     table-layout: fixed;
 
     @media (min-width: 1400px) {
@@ -255,6 +260,7 @@ code {
     }
 
   }
+
 }
 
 
