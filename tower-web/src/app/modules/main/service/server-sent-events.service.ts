@@ -18,23 +18,24 @@ import {User} from "../entity/user/user";
 import {SseHeartbeat} from "../entity/sse/sse-heartbeat";
 import {Progress} from "../entity/progress/progress";
 
-const endpointUrl: string = `${environment.apiUrl}/trace/live`;
+const endpointUrl: string = `${environment.apiUrl}/sse`;
 
 @Injectable({
   providedIn: 'root'
 })
-export class ServerSentEventsWorkflowService {
+export class ServerSentEventsService {
 
-  constructor() { }
+  constructor() {
+  }
 
-  connectToWorkflowDetailLive(workflow: Workflow): Observable<Workflow | Progress | SseHeartbeat | SseError> {
-    const workflowDetailUrl: string = `${endpointUrl}/workflowDetail/${workflow.id}`;
+  connectToWorkflowLiveStream(workflow: Workflow): Observable<Workflow | Progress | SseHeartbeat | SseError> {
+    const workflowDetailUrl: string = `${endpointUrl}/workflow/${workflow.id}`;
 
     return this.connect(workflowDetailUrl);
   }
 
-  connectToWorkflowListLive(user: User): Observable<Workflow | Progress | SseHeartbeat | SseError> {
-    const workflowListUrl: string = `${endpointUrl}/workflowList/${user.data.id}`;
+  connectToUserLiveStream(user: User): Observable<Workflow | Progress | SseHeartbeat | SseError> {
+    const workflowListUrl: string = `${endpointUrl}/user/${user.data.id}`;
 
     return this.connect(workflowListUrl);
   }

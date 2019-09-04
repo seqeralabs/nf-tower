@@ -13,6 +13,6 @@ package io.seqera.tower.enums
 
 enum SseErrorType {
 
-    NONEXISTENT, BAD_PROCESSING, UNEXPECTED
+    NONEXISTENT, BAD_PROCESSING, TIMEOUT, UNEXPECTED
 
 }

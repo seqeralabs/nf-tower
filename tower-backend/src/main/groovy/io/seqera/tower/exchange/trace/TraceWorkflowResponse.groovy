@@ -13,6 +13,7 @@ package io.seqera.tower.exchange.trace
 
 import groovy.transform.ToString
 import io.seqera.tower.enums.TraceProcessingStatus
+import io.seqera.tower.exchange.BaseResponse
 
 /**
  * Model a Trace workflow response
@@ -20,7 +21,7 @@ import io.seqera.tower.enums.TraceProcessingStatus
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
 @ToString
-class TraceWorkflowResponse {
+class TraceWorkflowResponse implements BaseResponse {
 
     TraceProcessingStatus status
     String message

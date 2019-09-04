@@ -50,10 +50,10 @@ auth:
 sse:
   time:
     idle:
-      workflow-detail: 1m
-      workflow-list: 1m
+      workflow: 1m
+      user: 1m
     throttle:
-      workflow-detail: 0s
-      workflow-list: 0s
+      workflow: 0s
+      user: 0s
     heartbeat:
-      workflow-list: 1m
+      user: 1m
