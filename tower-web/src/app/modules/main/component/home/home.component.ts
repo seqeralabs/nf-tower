@@ -104,10 +104,10 @@ export class HomeComponent implements OnInit {
       return;
     }
 
-    this.liveEventsSubscription = this.serverSentEventsWorkflowService.connectToWorkflowListLive(this.user).subscribe(
+    this.liveEventsSubscription = this.serverSentEventsWorkflowService.connectToUserLiveStream(this.user).subscribe(
       (data: Workflow | SseHeartbeat) => this.reactToEvent(data),
       (error: SseError) => {
-        console.log('Live workflow error event received', error);
+        console.log('Live user error event received', error);
         this.notificationService.showErrorNotification(error.message, false);
       }
     );

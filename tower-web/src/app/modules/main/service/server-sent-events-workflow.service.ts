@@ -27,13 +27,13 @@ export class ServerSentEventsWorkflowService {
 
   constructor() { }
 
-  connectToWorkflowDetailLive(workflow: Workflow): Observable<Workflow | Progress | SseHeartbeat | SseError> {
+  connectToWorkflowLiveStream(workflow: Workflow): Observable<Workflow | Progress | SseHeartbeat | SseError> {
     const workflowDetailUrl: string = `${endpointUrl}/workflow/${workflow.id}`;
 
     return this.connect(workflowDetailUrl);
   }
 
-  connectToWorkflowListLive(user: User): Observable<Workflow | Progress | SseHeartbeat | SseError> {
+  connectToUserLiveStream(user: User): Observable<Workflow | Progress | SseHeartbeat | SseError> {
     const workflowListUrl: string = `${endpointUrl}/user/${user.data.id}`;
 
     return this.connect(workflowListUrl);

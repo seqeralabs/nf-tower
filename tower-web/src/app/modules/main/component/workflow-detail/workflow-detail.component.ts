@@ -72,7 +72,7 @@ export class WorkflowDetailComponent implements OnInit, OnDestroy {
   }
 
   private subscribeToWorkflowDetailLiveEvents(workflow: Workflow): void {
-    this.liveEventsSubscription = this.serverSentEventsWorkflowService.connectToWorkflowDetailLive(workflow).subscribe(
+    this.liveEventsSubscription = this.serverSentEventsWorkflowService.connectToWorkflowLiveStream(workflow).subscribe(
       (data: Workflow | Progress) => this.reactToEvent(data),
       (error: SseError) => {
         console.log('Live workflow event received', error);
