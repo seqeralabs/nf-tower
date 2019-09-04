@@ -11,6 +11,9 @@
 
 package io.seqera.tower.service
 
+import javax.inject.Inject
+import java.time.Duration
+
 import grails.gorm.transactions.Transactional
 import io.micronaut.http.sse.Event
 import io.micronaut.test.annotation.MicronautTest
@@ -19,9 +22,6 @@ import io.reactivex.subscribers.TestSubscriber
 import io.seqera.tower.Application
 import io.seqera.tower.util.AbstractContainerBaseTest
 import spock.lang.Unroll
-
-import javax.inject.Inject
-import java.time.Duration
 
 @MicronautTest(application = Application.class)
 @Transactional
@@ -36,10 +36,10 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
         String key = '1'
 
         when: 'create the flowable with the key'
-        Flowable flowable = serverSentEventsService.getOrCreatePublisher(key, Duration.ofMinutes(1), null, null)
+        Flowable flowable = serverSentEventsService.getOrCreatePublisher(key, Duration.ofMinutes(1), null)
 
         and: 'get the same flowable'
-        Flowable flowable2 = serverSentEventsService.getOrCreatePublisher(key, Duration.ofMinutes(1), null, null)
+        Flowable flowable2 = serverSentEventsService.getOrCreatePublisher(key, Duration.ofMinutes(1), null)
 
         then: 'both flowables are the same'
         flowable == flowable2
@@ -50,7 +50,7 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
         String key = '2'
 
         and: 'create the flowable'
-        Flowable flowable = serverSentEventsService.getOrCreatePublisher(key, Duration.ofMinutes(1), null, null)
+        Flowable flowable = serverSentEventsService.getOrCreatePublisher(key, Duration.ofMinutes(1), null)
 
         and: 'subscribe to the flowable in order to retrieve the data'
         TestSubscriber subscriber = flowable.test()
@@ -71,7 +71,7 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
         String key = '3'
 
         and: 'create the flowable'
-        Flowable flowable = serverSentEventsService.getOrCreatePublisher(key, Duration.ofMinutes(1), null, null)
+        Flowable flowable = serverSentEventsService.getOrCreatePublisher(key, Duration.ofMinutes(1), null)
 
         and: 'subscribe to the flowable in order to retrieve the data'
         TestSubscriber subscriber = flowable.test()
@@ -83,46 +83,12 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
         subscriber.assertComplete()
 
         when: 'try to get the flowable again'
-        Flowable flowable2 = serverSentEventsService.getOrCreatePublisher(key, Duration.ofMinutes(0), null, null)
+        Flowable flowable2 = serverSentEventsService.getOrCreatePublisher(key, Duration.ofMinutes(0), null)
 
         then: 'the flowable is new'
         flowable != flowable2
     }
 
-    void "create a flowable and throttle the events"() {
-        given: 'a key for the flowable'
-        String key = '4'
-
-        and: 'set a short throttle time'
-        Duration throttleTime = Duration.ofMillis(500)
-
-        and: 'create the flowable'
-        Flowable flowable = serverSentEventsService.getOrCreatePublisher(key, Duration.ofMinutes(1), null, throttleTime)
-
-        and: 'subscribe to the flowable in order to retrieve data'
-        TestSubscriber subscriber = flowable.test()
-
-        when: 'publish some data for it'
-        serverSentEventsService.tryPublish(key) {
-            Event.of([text: 'Data published 1'])
-        }
-
-        and: 'publish more data right after the previous one'
-        serverSentEventsService.tryPublish(key) {
-            Event.of([text: 'Data published 2'])
-        }
-
-        then: 'the subscriber has obtained only the first published data'
-        subscriber.assertValueCount(1)
-        subscriber.events.first()[0].data.text == 'Data published 1'
-
-        when: 'make sure the throttle time has been surpassed'
-        sleep(throttleTime.toMillis() + 100)
-
-        then: 'the subscriber has obtained the last published data'
-        subscriber.assertValueCount(2)
-        subscriber.events.first()[1].data.text == 'Data published 2'
-    }
 
     @Unroll
     void "create a flowable and leave it idle until the timeout expires"() {
@@ -133,7 +99,7 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
         Duration idleTimeout = Duration.ofMillis(300)
 
         and: 'create the flowable'
-        Flowable flowable = serverSentEventsService.getOrCreatePublisher(key, idleTimeout, lastEmission, null)
+        Flowable flowable = serverSentEventsService.getOrCreatePublisher(key, idleTimeout, lastEmission)
 
         and: 'subscribe to the flowable in order to retrieve data'
         TestSubscriber subscriber = flowable.test()
