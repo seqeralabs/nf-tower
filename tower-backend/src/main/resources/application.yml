@@ -76,7 +76,7 @@ sse:
   time:
     idle:
       workflow: 90s
-      user: 30s
+      user: 30m
     throttle:
       workflow: 1s
       user: 0s

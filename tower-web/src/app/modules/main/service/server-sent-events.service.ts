@@ -25,7 +25,8 @@ const endpointUrl: string = `${environment.apiUrl}/sse`;
 })
 export class ServerSentEventsService {
 
-  constructor() { }
+  constructor() {
+  }
 
   connectToWorkflowLiveStream(workflow: Workflow): Observable<Workflow | Progress | SseHeartbeat | SseError> {
     const workflowDetailUrl: string = `${endpointUrl}/workflow/${workflow.id}`;

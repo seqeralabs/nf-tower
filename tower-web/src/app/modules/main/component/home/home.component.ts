@@ -21,8 +21,9 @@ import {Subscription} from "rxjs";
 import {NotificationService} from "../../service/notification.service";
 import {SseHeartbeat} from "../../entity/sse/sse-heartbeat";
 import {FilteringParams} from "../../util/filtering-params";
-import {intersectionBy, differenceBy, concat, orderBy} from "lodash";
+import {concat, differenceBy, intersectionBy, orderBy} from "lodash";
 import {environment} from "../../../../../environments/environment";
+import {SseErrorType} from "../../entity/sse/sse-error-type";
 
 @Component({
   selector: 'wt-home',
@@ -66,7 +67,7 @@ export class HomeComponent implements OnInit {
 
         this.workflowService.workflows$.subscribe((workflows: Workflow[]) => {
           this.receiveWorkflows(workflows);
-          this.subscribeToWorkflowListLiveEvents();
+          this.subscribeToUserLiveEvents();
         });
       }
     )
@@ -99,26 +100,31 @@ export class HomeComponent implements OnInit {
     this.isNextPageLoadTriggered = false;
   }
 
-  private subscribeToWorkflowListLiveEvents(): void {
+  private subscribeToUserLiveEvents(): void {
     if (this.liveEventsSubscription) {
       return;
     }
 
     this.liveEventsSubscription = this.serverSentEventsWorkflowService.connectToUserLiveStream(this.user).subscribe(
-      (data: Workflow | SseHeartbeat) => this.reactToEvent(data),
-      (error: SseError) => {
-        console.log('Live user error event received', error);
-        this.notificationService.showErrorNotification(error.message, false);
-      }
+      (data: Workflow | SseHeartbeat) => this.reactToDataEvent(data),
+      (error: SseError) => this.reactToErrorEvent(error)
     );
   }
 
-  private reactToEvent(data: Workflow | SseHeartbeat) {
+  private reactToDataEvent(data: Workflow | SseHeartbeat) {
     if (data instanceof Workflow) {
       console.log('Live user event received', data);
       this.workflowService.updateWorkflow(data);
     } else if (data instanceof SseHeartbeat) {
       console.log('Heartbeat event received', data);
+    }
+  }
+
+  private reactToErrorEvent(error: SseError) {
+    console.log('Live user error event received', error);
+    if (error.type == SseErrorType.TIMEOUT) {
+      this.liveEventsSubscription = null;
+      this.subscribeToUserLiveEvents();
     }
   }
 

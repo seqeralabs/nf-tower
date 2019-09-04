@@ -36,7 +36,7 @@ class ServerSentEventsServiceImpl implements ServerSentEventsService {
         "${entityClass.simpleName}-${entityId}"
     }
 
-    Flowable getOrCreate(String key, Duration idleTimeout, Duration throttleTime) {
+    Flowable getOrCreate(String key, Duration idleTimeout, Closure<Event> idleTimeoutLastEvent, Duration throttleTime) {
         synchronized (flowableByKeyCache) {
             if(flowableByKeyCache.containsKey(key)) {
                 log.info("Getting flowable: ${key}")
@@ -47,7 +47,7 @@ class ServerSentEventsServiceImpl implements ServerSentEventsService {
             Flowable<Event> flowable = PublishProcessor.<Event>create()
             flowableByKeyCache[key] = flowable
 
-            scheduleFlowableIdleTimeout(key, idleTimeout)
+            scheduleFlowableIdleTimeout(key, idleTimeout, idleTimeoutLastEvent)
             if (throttleTime) {
                 flowable = flowable.throttleLatest(throttleTime.toMillis(), TimeUnit.MILLISECONDS, true)
             }
@@ -56,7 +56,7 @@ class ServerSentEventsServiceImpl implements ServerSentEventsService {
         }
     }
 
-    private void scheduleFlowableIdleTimeout(String key, Duration idleTimeout) {
+    private void scheduleFlowableIdleTimeout(String key, Duration idleTimeout, Closure<Event> idleTimeoutLastEventPayload) {
         Flowable flowable = flowableByKeyCache[key]
 
         Flowable timeoutFlowable = flowable.timeout(idleTimeout.toMillis(), TimeUnit.MILLISECONDS)
@@ -67,6 +67,9 @@ class ServerSentEventsServiceImpl implements ServerSentEventsService {
             { Throwable t ->
                 if (t instanceof TimeoutException) {
                     log.info("Idle timeout reached for flowable: ${key}")
+                    if (idleTimeoutLastEventPayload) {
+                        tryPublish(key, idleTimeoutLastEventPayload)
+                    }
                     tryComplete(key)
                 } else {
                     log.info("Unexpected error happened for id: ${key} | ${t.message}")

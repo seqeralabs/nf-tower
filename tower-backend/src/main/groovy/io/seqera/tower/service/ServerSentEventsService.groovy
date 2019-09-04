@@ -20,7 +20,7 @@ interface ServerSentEventsService {
 
     String getKeyForEntity(Class aClass, def id)
 
-    Flowable getOrCreate(String key, Duration idleTimeout, Duration throttleTime)
+    Flowable getOrCreate(String key, Duration idleTimeout, Closure<Event> idleTimeoutLastEvent, Duration throttleTime)
 
     void tryPublish(String key, Closure<Event> payload)
 

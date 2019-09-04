@@ -11,11 +11,10 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Workflow} from "../../entity/workflow/workflow";
 import {WorkflowService} from "../../service/workflow.service";
-import {ActivatedRoute, Router, ParamMap} from "@angular/router";
+import {ActivatedRoute, ParamMap, Router} from "@angular/router";
 import {HttpErrorResponse} from "@angular/common/http";
 import {NotificationService} from "../../service/notification.service";
 import {ServerSentEventsService} from "../../service/server-sent-events.service";
-import {Task} from "../../entity/task/task";
 import {Subscription} from "rxjs";
 import {SseError} from "../../entity/sse/sse-error";
 import {SseErrorType} from "../../entity/sse/sse-error-type";
@@ -67,17 +66,14 @@ export class WorkflowDetailComponent implements OnInit, OnDestroy {
   private reactToWorkflowReceived(workflow: Workflow): void {
     this.workflow = workflow;
     if (this.workflow.isRunning) {
-      this.subscribeToWorkflowDetailLiveEvents(workflow);
+      this.subscribeToWorkflowLiveEvents(workflow);
     }
   }
 
-  private subscribeToWorkflowDetailLiveEvents(workflow: Workflow): void {
+  private subscribeToWorkflowLiveEvents(workflow: Workflow): void {
     this.liveEventsSubscription = this.serverSentEventsWorkflowService.connectToWorkflowLiveStream(workflow).subscribe(
       (data: Workflow | Progress) => this.reactToEvent(data),
-      (error: SseError) => {
-        console.log('Live workflow event received', error);
-        this.reactToErrorEvent(error);
-      }
+      (error: SseError) => this.reactToErrorEvent(error)
     );
   }
 
@@ -111,7 +107,10 @@ export class WorkflowDetailComponent implements OnInit, OnDestroy {
   }
 
   private reactToErrorEvent(error: SseError): void {
-    this.notificationService.showErrorNotification(error.message);
+    console.log('Live workflow error event received', error);
+    if (error.type == SseErrorType.TIMEOUT) {
+      this.notificationService.showErrorNotification('Live connection timed out');
+    }
   }
 
 }

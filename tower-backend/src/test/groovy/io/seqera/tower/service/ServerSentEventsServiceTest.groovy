@@ -19,6 +19,7 @@ import io.reactivex.subscribers.TestSubscriber
 import io.seqera.tower.Application
 import io.seqera.tower.exceptions.NonExistingFlowableException
 import io.seqera.tower.util.AbstractContainerBaseTest
+import spock.lang.Unroll
 
 import javax.inject.Inject
 import java.time.Duration
@@ -36,10 +37,10 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
         String key = '1'
 
         when: 'create the flowable with the key'
-        Flowable flowable = serverSentEventsService.getOrCreate(key, Duration.ofMinutes(1), null)
+        Flowable flowable = serverSentEventsService.getOrCreate(key, Duration.ofMinutes(1), null, null)
 
         and: 'get the same flowable'
-        Flowable flowable2 = serverSentEventsService.getOrCreate(key, Duration.ofMinutes(1), null)
+        Flowable flowable2 = serverSentEventsService.getOrCreate(key, Duration.ofMinutes(1), null, null)
 
         then: 'both flowables are the same'
         flowable == flowable2
@@ -50,7 +51,7 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
         String key = '2'
 
         and: 'create the flowable'
-        Flowable flowable = serverSentEventsService.getOrCreate(key, Duration.ofMinutes(1), null)
+        Flowable flowable = serverSentEventsService.getOrCreate(key, Duration.ofMinutes(1), null, null)
 
         and: 'subscribe to the flowable in order to retrieve the data'
         TestSubscriber subscriber = flowable.test()
@@ -71,7 +72,7 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
         String key = '3'
 
         and: 'create the flowable'
-        Flowable flowable = serverSentEventsService.getOrCreate(key, Duration.ofMinutes(1), null)
+        Flowable flowable = serverSentEventsService.getOrCreate(key, Duration.ofMinutes(1), null, null)
 
         and: 'subscribe to the flowable in order to retrieve the data'
         TestSubscriber subscriber = flowable.test()
@@ -83,7 +84,7 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
         subscriber.assertComplete()
 
         when: 'try to get the flowable again'
-        Flowable flowable2 = serverSentEventsService.getOrCreate(key, Duration.ofMinutes(0), null)
+        Flowable flowable2 = serverSentEventsService.getOrCreate(key, Duration.ofMinutes(0), null, null)
 
         then: 'the flowable is new'
         flowable != flowable2
@@ -97,7 +98,7 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
         Duration throttleTime = Duration.ofMillis(500)
 
         and: 'create the flowable'
-        Flowable flowable = serverSentEventsService.getOrCreate(key, Duration.ofMinutes(1), throttleTime)
+        Flowable flowable = serverSentEventsService.getOrCreate(key, Duration.ofMinutes(1), null, throttleTime)
 
         and: 'subscribe to the flowable in order to retrieve data'
         TestSubscriber subscriber = flowable.test()
@@ -124,7 +125,8 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
         subscriber.events.first()[1].data.text == 'Data published 2'
     }
 
-    void "create a flowable and leave it idle until the timeout strikes"() {
+    @Unroll
+    void "create a flowable and leave it idle until the timeout expires"() {
         given: 'a key for the flowable'
         String key = '5'
 
@@ -132,7 +134,7 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
         Duration idleTimeout = Duration.ofMillis(300)
 
         and: 'create the flowable'
-        Flowable flowable = serverSentEventsService.getOrCreate(key, idleTimeout, null)
+        Flowable flowable = serverSentEventsService.getOrCreate(key, idleTimeout, lastEmission, null)
 
         and: 'subscribe to the flowable in order to retrieve data'
         TestSubscriber subscriber = flowable.test()
@@ -140,8 +142,17 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
         when: 'sleep until the timeout plus a prudential time to make sure it was reached'
         sleep(idleTimeout.toMillis() + 100)
 
-        then: 'the flowable has been completed'
+        then: 'check that a last emission was sent just before completing'
+        subscriber.assertValueCount(lastEmission ? 1 : 0)
+        subscriber.events?.getAt(0)?.getAt(0)?.data?.text == (lastEmission ? 'Timeout' : null)
+
+        and: 'the flowable has been completed'
         subscriber.assertComplete()
+
+        where: 'a last emission is sent or not'
+        _ | lastEmission
+        _ | null
+        _ | { Event.of([text: 'Timeout']) }
     }
 
     void "try to publish data for a nonexistent flowable"() {
@@ -159,7 +170,7 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
         !executed
     }
 
-    void "create a heartbeat flowable and receive the heartneat events"() {
+    void "create a heartbeat flowable and receive the heartbeat events"() {
         given: 'a heartbeat interval'
         Duration interval = Duration.ofMillis(250)
 

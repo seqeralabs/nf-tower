@@ -7,11 +7,7 @@ import io.micronaut.http.annotation.Get
 import io.micronaut.http.sse.Event
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.rules.SecurityRule
-import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
-import io.reactivex.processors.PublishProcessor
-import io.reactivex.subjects.PublishSubject
-import io.reactivex.subjects.Subject
 import io.seqera.tower.domain.User
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.enums.SseErrorType
@@ -55,7 +51,8 @@ class ServerSentEventsController {
         log.info("Subscribing to live events of workflow: ${workflowFlowableKey}")
         Flowable<Event<TraceSseResponse>> workflowFlowable
         try {
-            workflowFlowable = serverSentEventsService.getOrCreate(workflowFlowableKey, idleWorkflowFlowableTimeout, null)
+            workflowFlowable = serverSentEventsService.getOrCreate(workflowFlowableKey, idleWorkflowFlowableTimeout,
+                     { Event.of(TraceSseResponse.ofError(SseErrorType.TIMEOUT, "Expired [${workflowFlowableKey}]")) }, null)
         }
         catch (Exception e) {
             String message = "Unexpected error while obtaining event emitter: ${workflowFlowableKey}"
@@ -73,7 +70,8 @@ class ServerSentEventsController {
         log.info("Subscribing to live events of user: ${userFlowableKey}")
         Flowable<Event<TraceSseResponse>> userFlowable
         try {
-            userFlowable = serverSentEventsService.getOrCreate(userFlowableKey, idleUserFlowableTimeout, null)
+            userFlowable = serverSentEventsService.getOrCreate(userFlowableKey, idleUserFlowableTimeout,
+                    { Event.of(TraceSseResponse.ofError(SseErrorType.TIMEOUT, "Expired [${userFlowableKey}]")) }, null)
         }
         catch (Exception e) {
             String message = "Unexpected error while obtaining event emitter: ${userFlowableKey}"
@@ -87,17 +85,8 @@ class ServerSentEventsController {
             Event.of(TraceSseResponse.ofHeartbeat("Server heartbeat [${userFlowableKey}]"))
         })
 
-        Subject<String> completeFlag = PublishSubject.create()
-        Flowable lastEmission = userFlowable.takeLast(1)
-                                            .map({ Event.of(TraceSseResponse.ofError(SseErrorType.BAD_PROCESSING, 'Expired')) })
-                                            .doOnComplete({
-                                                log.info("Last emission sent")
-                                                completeFlag.onNext('Complete')
-                                            })
-
         return userFlowable.mergeWith(heartbeatUserFlowable)
-                           .mergeWith(lastEmission)
-                           .takeUntil(completeFlag.toFlowable(BackpressureStrategy.BUFFER) as Flowable)
+                           .takeUntil(userFlowable.takeLast(1))
     }
 
 }
