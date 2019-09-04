@@ -23,7 +23,7 @@ const endpointUrl: string = `${environment.apiUrl}/sse`;
 @Injectable({
   providedIn: 'root'
 })
-export class ServerSentEventsWorkflowService {
+export class ServerSentEventsService {
 
   constructor() { }
 

@@ -14,7 +14,7 @@ import {WorkflowService} from "../../service/workflow.service";
 import {ActivatedRoute, Router, ParamMap} from "@angular/router";
 import {HttpErrorResponse} from "@angular/common/http";
 import {NotificationService} from "../../service/notification.service";
-import {ServerSentEventsWorkflowService} from "../../service/server-sent-events-workflow.service";
+import {ServerSentEventsService} from "../../service/server-sent-events.service";
 import {Task} from "../../entity/task/task";
 import {Subscription} from "rxjs";
 import {SseError} from "../../entity/sse/sse-error";
@@ -33,7 +33,7 @@ export class WorkflowDetailComponent implements OnInit, OnDestroy {
   private liveEventsSubscription: Subscription;
 
   constructor(private workflowService: WorkflowService,
-              private serverSentEventsWorkflowService: ServerSentEventsWorkflowService,
+              private serverSentEventsWorkflowService: ServerSentEventsService,
               private notificationService: NotificationService,
               private route: ActivatedRoute,
               private router: Router) { }

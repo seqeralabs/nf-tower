@@ -15,7 +15,7 @@ import {AuthService} from "../../service/auth.service";
 import {Router} from "@angular/router";
 import {Workflow} from "../../entity/workflow/workflow";
 import {WorkflowService} from "../../service/workflow.service";
-import {ServerSentEventsWorkflowService} from "../../service/server-sent-events-workflow.service";
+import {ServerSentEventsService} from "../../service/server-sent-events.service";
 import {SseError} from "../../entity/sse/sse-error";
 import {Subscription} from "rxjs";
 import {NotificationService} from "../../service/notification.service";
@@ -46,7 +46,7 @@ export class HomeComponent implements OnInit {
 
   constructor(private authService: AuthService,
               private workflowService: WorkflowService,
-              private serverSentEventsWorkflowService: ServerSentEventsWorkflowService,
+              private serverSentEventsWorkflowService: ServerSentEventsService,
               private notificationService: NotificationService,
               private router: Router) {
   }

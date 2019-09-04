@@ -7,7 +7,11 @@ import io.micronaut.http.annotation.Get
 import io.micronaut.http.sse.Event
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.rules.SecurityRule
+import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
+import io.reactivex.processors.PublishProcessor
+import io.reactivex.subjects.PublishSubject
+import io.reactivex.subjects.Subject
 import io.seqera.tower.domain.User
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.enums.SseErrorType
@@ -83,8 +87,17 @@ class ServerSentEventsController {
             Event.of(TraceSseResponse.ofHeartbeat("Server heartbeat [${userFlowableKey}]"))
         })
 
+        Subject<String> completeFlag = PublishSubject.create()
+        Flowable lastEmission = userFlowable.takeLast(1)
+                                            .map({ Event.of(TraceSseResponse.ofError(SseErrorType.BAD_PROCESSING, 'Expired')) })
+                                            .doOnComplete({
+                                                log.info("Last emission sent")
+                                                completeFlag.onNext('Complete')
+                                            })
+
         return userFlowable.mergeWith(heartbeatUserFlowable)
-                           .takeUntil(userFlowable.takeLast(1))
+                           .mergeWith(lastEmission)
+                           .takeUntil(completeFlag.toFlowable(BackpressureStrategy.BUFFER) as Flowable)
     }
 
 }
