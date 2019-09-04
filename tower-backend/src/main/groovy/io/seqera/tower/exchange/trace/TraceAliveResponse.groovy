@@ -8,8 +8,15 @@
  * This Source Code Form is "Incompatible With Secondary Licenses", as
  * defined by the Mozilla Public License, v. 2.0.
  */
-export enum SseErrorType {
 
-  NONEXISTENT, BAD_PROCESSING, TIMEOUT, UNEXPECTED
+package io.seqera.tower.exchange.trace
 
+import io.seqera.tower.exchange.BaseResponse
+
+/**
+ *
+ * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
+ */
+class TraceAliveResponse implements BaseResponse {
+    String message
 }

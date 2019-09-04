@@ -11,8 +11,6 @@
 
 package io.seqera.tower.controller
 
-import spock.lang.IgnoreRest
-
 import javax.inject.Inject
 
 import grails.gorm.transactions.Transactional
@@ -32,6 +30,8 @@ import io.seqera.tower.domain.User
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.enums.SseErrorType
 import io.seqera.tower.enums.TraceProcessingStatus
+import io.seqera.tower.exchange.trace.TraceAliveRequest
+import io.seqera.tower.exchange.trace.TraceAliveResponse
 import io.seqera.tower.exchange.trace.TraceTaskRequest
 import io.seqera.tower.exchange.trace.TraceTaskResponse
 import io.seqera.tower.exchange.trace.TraceWorkflowRequest
@@ -44,7 +44,9 @@ import io.seqera.tower.util.NextflowSimulator
 import io.seqera.tower.util.TaskTraceSnapshotStatus
 import io.seqera.tower.util.TracesJsonBank
 import io.seqera.tower.util.WorkflowTraceSnapshotStatus
+import spock.lang.Timeout
 
+@Timeout(10)
 @MicronautTest(application = Application.class)
 @Transactional
 class TraceControllerTest extends AbstractContainerBaseTest {
@@ -61,6 +63,22 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         request.basicAuth(AuthenticationByApiToken.ID, user.accessTokens.first().token)
     }
 
+    void 'should handle an alive request' () {
+        given: 'an allowed user'
+        User user = new DomainCreator().generateAllowedUser()
+
+        and: 'a workflow'
+        Workflow workflow = new DomainCreator().createWorkflow()
+
+        when: 'send a save request'
+        MutableHttpRequest request = HttpRequest.POST('/trace/alive', new TraceAliveRequest(workflowId: workflow.id))
+        request = appendBasicAuth(user, request)
+
+        HttpResponse<TraceAliveResponse> response = client.toBlocking().exchange( request, TraceAliveResponse )
+        
+        then:
+        response.status == HttpStatus.OK
+    }
 
     void "save a new workflow given a start trace"() {
         given: 'an allowed user'
@@ -180,7 +198,6 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         }
     }
 
-    @IgnoreRest
     void "save traces simulated from a complete sequence and subscribe to the live events in the mean time"() {
         given: 'an allowed user'
         User user = new DomainCreator().generateAllowedUser()
@@ -189,7 +206,7 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         NextflowSimulator nextflowSimulator = new NextflowSimulator(user: user, workflowLabel: 'simulation', client: client.toBlocking(), sleepBetweenRequests: 0)
 
         when: 'subscribe to the live events for the workflow list endpoint'
-        TestSubscriber listSubscriber = sseClient.eventStream("/trace/live/workflowList/${user.id}", TraceSseResponse.class).test()
+        TestSubscriber listSubscriber = sseClient.eventStream("/sse/user/${user.id}", TraceSseResponse.class).test()
 
         then: 'the list flowable has just been created (is active)'
         listSubscriber.assertNotComplete()
@@ -201,7 +218,7 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         Workflow.withNewTransaction { Workflow.count() } == 1
 
         when: 'subscribe to the live events for the workflow detail endpoint'
-        TestSubscriber detailSubscriber = sseClient.eventStream("/trace/live/workflowDetail/${nextflowSimulator.workflowId}", TraceSseResponse.class).test()
+        TestSubscriber detailSubscriber = sseClient.eventStream("/sse/workflow/${nextflowSimulator.workflowId}", TraceSseResponse.class).test()
 
         then: 'the detail flowable is active'
         detailSubscriber.assertNotComplete()
@@ -216,13 +233,6 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         //For some reason the event isn't received here although it's working properly in the browser
 //        detailSubscriber.awaitCount(1)
 //        detailSubscriber.assertValueCount(1)
-
-        when: 'keep the simulation going'
-        nextflowSimulator.simulate()
-
-        then: 'try to resubscribe to the workflow live updates once completed'
-        TraceSseResponse sseResponse = sseClient.eventStream("/trace/live/workflowDetail/${nextflowSimulator.workflowId}", TraceSseResponse.class).blockingFirst().data
-        sseResponse.error.type == SseErrorType.NONEXISTENT
     }
 
 }

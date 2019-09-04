@@ -15,14 +15,15 @@ import {AuthService} from "../../service/auth.service";
 import {Router} from "@angular/router";
 import {Workflow} from "../../entity/workflow/workflow";
 import {WorkflowService} from "../../service/workflow.service";
-import {ServerSentEventsWorkflowService} from "../../service/server-sent-events-workflow.service";
+import {ServerSentEventsService} from "../../service/server-sent-events.service";
 import {SseError} from "../../entity/sse/sse-error";
 import {Subscription} from "rxjs";
 import {NotificationService} from "../../service/notification.service";
 import {SseHeartbeat} from "../../entity/sse/sse-heartbeat";
 import {FilteringParams} from "../../util/filtering-params";
-import {intersectionBy, differenceBy, concat, orderBy} from "lodash";
+import {concat, differenceBy, intersectionBy, orderBy} from "lodash";
 import {environment} from "../../../../../environments/environment";
+import {SseErrorType} from "../../entity/sse/sse-error-type";
 
 @Component({
   selector: 'wt-home',
@@ -46,7 +47,7 @@ export class HomeComponent implements OnInit {
 
   constructor(private authService: AuthService,
               private workflowService: WorkflowService,
-              private serverSentEventsWorkflowService: ServerSentEventsWorkflowService,
+              private serverSentEventsWorkflowService: ServerSentEventsService,
               private notificationService: NotificationService,
               private router: Router) {
   }
@@ -66,7 +67,7 @@ export class HomeComponent implements OnInit {
 
         this.workflowService.workflows$.subscribe((workflows: Workflow[]) => {
           this.receiveWorkflows(workflows);
-          this.subscribeToWorkflowListLiveEvents();
+          this.subscribeToUserLiveEvents();
         });
       }
     )
@@ -99,26 +100,31 @@ export class HomeComponent implements OnInit {
     this.isNextPageLoadTriggered = false;
   }
 
-  private subscribeToWorkflowListLiveEvents(): void {
+  private subscribeToUserLiveEvents(): void {
     if (this.liveEventsSubscription) {
       return;
     }
 
-    this.liveEventsSubscription = this.serverSentEventsWorkflowService.connectToWorkflowListLive(this.user).subscribe(
-      (data: Workflow | SseHeartbeat) => this.reactToEvent(data),
-      (error: SseError) => {
-        console.log('Live workflow list error event received', error);
-        this.notificationService.showErrorNotification(error.message, false);
-      }
+    this.liveEventsSubscription = this.serverSentEventsWorkflowService.connectToUserLiveStream(this.user).subscribe(
+      (data: Workflow | SseHeartbeat) => this.reactToDataEvent(data),
+      (error: SseError) => this.reactToErrorEvent(error)
     );
   }
 
-  private reactToEvent(data: Workflow | SseHeartbeat) {
+  private reactToDataEvent(data: Workflow | SseHeartbeat) {
     if (data instanceof Workflow) {
-      console.log('Live workflow list event received', data);
+      console.log('Live user event received', data);
       this.workflowService.updateWorkflow(data);
     } else if (data instanceof SseHeartbeat) {
       console.log('Heartbeat event received', data);
+    }
+  }
+
+  private reactToErrorEvent(error: SseError) {
+    console.log('Live user error event received', error);
+    if (error.type == SseErrorType.TIMEOUT) {
+      this.liveEventsSubscription = null;
+      this.subscribeToUserLiveEvents();
     }
   }
 

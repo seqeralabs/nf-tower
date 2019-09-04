@@ -11,22 +11,28 @@
 
 package io.seqera.tower.service
 
+import java.time.Duration
+
 import io.micronaut.http.sse.Event
 import io.reactivex.Flowable
-
-import java.time.Duration
+import io.reactivex.processors.PublishProcessor
 
 interface ServerSentEventsService {
 
-    void createFlowable(String key, Duration idleTimeout)
+    Flowable getOrCreateUserPublisher(Serializable userId)
 
-    void publishEvent(String key, Event data)
+    Flowable getOrCreateWorkflowPublisher(Serializable workflowId)
 
-    Flowable getThrottledFlowable(String key, Duration throttleTime)
+    String getKeyForEntity(Class aClass, def id)
+
+    Flowable getOrCreatePublisher(String key, Duration idleTimeout, Closure<Event> idleTimeoutLastEvent, Duration throttleTime)
+
+    void tryPublish(String key, Closure<Event> payload)
+
+    void tryComplete(String key)
 
     Flowable generateHeartbeatFlowable(Duration interval, Closure<Event> heartbeatGenerator)
 
-    void completeFlowable(String key)
-
+    Flowable getOrCreateHeartbeatForPublisher(PublishProcessor<Event> publisher, Closure<Event> heartbeatGenerator)
 
 }
