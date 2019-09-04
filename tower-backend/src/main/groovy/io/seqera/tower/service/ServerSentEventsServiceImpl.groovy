@@ -11,25 +11,31 @@
 
 package io.seqera.tower.service
 
-import groovy.util.logging.Slf4j
-import io.micronaut.context.annotation.Prototype
-import io.micronaut.http.sse.Event
-import io.reactivex.Flowable
-import io.reactivex.functions.Consumer
-import io.reactivex.processors.PublishProcessor
-import io.seqera.tower.exceptions.NonExistingFlowableException
-
 import javax.inject.Singleton
 import java.time.Duration
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 
+import groovy.util.logging.Slf4j
+import io.micronaut.context.annotation.Value
+import io.micronaut.http.sse.Event
+import io.reactivex.Flowable
+import io.reactivex.functions.Consumer
+import io.reactivex.processors.PublishProcessor
+import io.seqera.tower.exchange.trace.sse.TraceSseResponse
+
 @Singleton
 @Slf4j
 class ServerSentEventsServiceImpl implements ServerSentEventsService {
 
-    private final Map<String, PublishProcessor<Event>> flowableByKeyCache = new ConcurrentHashMap()
+    private final Map<String, PublishProcessor<Event>> flowableByKeyCache = new ConcurrentHashMap(20)
+
+    private final Map<PublishProcessor<Event>, Flowable> heartbeats = new ConcurrentHashMap<>(20)
+
+
+    @Value('${sse.time.heartbeat.user:1m}')
+    Duration heartbeatUserFlowableInterval
 
 
     String getKeyForEntity(Class entityClass, def entityId) {
@@ -92,12 +98,45 @@ class ServerSentEventsServiceImpl implements ServerSentEventsService {
             log.info("Completing flowable: ${key}")
             flowable.onComplete()
             flowableByKeyCache.remove(key)
+            heartbeats.remove(flowable)
         }
     }
 
     Flowable generateHeartbeatFlowable(Duration interval, Closure<Event> heartbeatEventGenerator) {
         Flowable.interval(interval.toMillis(), TimeUnit.MILLISECONDS)
                 .map(heartbeatEventGenerator)
+    }
+
+    protected String getPublisherKey(PublishProcessor<Event> p) {
+        for( Map.Entry entry : flowableByKeyCache ){
+            if( entry.value == p )
+                return entry.key
+        }
+        return null
+    }
+
+    Flowable getHeartbeatForPublisher(PublishProcessor<Event> publisher) {
+        final publisherKey=getPublisherKey(publisher)
+
+        if( heartbeats.containsKey(publisher) )
+            return heartbeats.get(publisher)
+
+        synchronized (heartbeats) {
+            if( heartbeats.containsKey(publisher) )
+                return heartbeats.get(publisher)
+
+            Flowable flowable = generateHeartbeatFlowable(heartbeatUserFlowableInterval, {
+                log.info("Server heartbeat ${it} generated for flowable: ${publisherKey}")
+                Event.of(TraceSseResponse.ofHeartbeat("Server heartbeat [${publisherKey}]"))
+            })
+
+            final result = publisher
+                    .mergeWith(flowable)
+                    .takeUntil(publisher.takeLast(1))
+
+            heartbeats.put(publisher, result)
+            return result
+        }
     }
 
 }

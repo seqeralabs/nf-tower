@@ -85,10 +85,9 @@ class TraceController extends BaseController {
         }
 
         if (!workflow.checkIsStarted()) {
-            WorkflowGet workflowWithProgress = progressService.buildWorkflowGet(workflow)
-
             String workflowFlowableKey = serverSentEventsService.getKeyForEntity(Workflow, workflow.id)
             serverSentEventsService.tryPublish(workflowFlowableKey) {
+                final workflowWithProgress = progressService.buildWorkflowGet(workflow)
                 Event.of(TraceSseResponse.ofWorkflow(workflowWithProgress))
             }
             serverSentEventsService.tryComplete(workflowFlowableKey)

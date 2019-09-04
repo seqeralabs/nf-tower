@@ -8,6 +8,7 @@ import io.micronaut.http.sse.Event
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.rules.SecurityRule
 import io.reactivex.Flowable
+import io.reactivex.processors.PublishProcessor
 import io.seqera.tower.domain.User
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.enums.SseErrorType
@@ -29,9 +30,6 @@ class ServerSentEventsController {
 
     @Value('${sse.time.idle.user:5m}')
     Duration idleUserFlowableTimeout
-
-    @Value('${sse.time.heartbeat.user:1m}')
-    Duration heartbeatUserFlowableInterval
 
     UserService userService
 
@@ -65,12 +63,12 @@ class ServerSentEventsController {
 
     @Get("/user/{userId}")
     Publisher<Event<TraceSseResponse>> liveUser(Long userId) {
-        String userFlowableKey = serverSentEventsService.getKeyForEntity(User, userId)
+        final userFlowableKey = serverSentEventsService.getKeyForEntity(User, userId)
 
         log.info("Subscribing to live events of user: ${userFlowableKey}")
-        Flowable<Event<TraceSseResponse>> userFlowable
+        PublishProcessor<Event> userFlowable
         try {
-            userFlowable = serverSentEventsService.getOrCreate(userFlowableKey, idleUserFlowableTimeout,
+            userFlowable = (PublishProcessor<Event>)serverSentEventsService.getOrCreate(userFlowableKey, idleUserFlowableTimeout,
                     { Event.of(TraceSseResponse.ofError(SseErrorType.TIMEOUT, "Expired [${userFlowableKey}]")) }, null)
         }
         catch (Exception e) {
@@ -80,13 +78,7 @@ class ServerSentEventsController {
             return Flowable.just(Event.of(TraceSseResponse.ofError(SseErrorType.UNEXPECTED, message)))
         }
 
-        Flowable heartbeatUserFlowable = serverSentEventsService.generateHeartbeatFlowable(heartbeatUserFlowableInterval, {
-            log.info("Server heartbeat ${it} generated for flowable: ${userFlowableKey}")
-            Event.of(TraceSseResponse.ofHeartbeat("Server heartbeat [${userFlowableKey}]"))
-        })
-
-        return userFlowable.mergeWith(heartbeatUserFlowable)
-                           .takeUntil(userFlowable.takeLast(1))
+        return serverSentEventsService.getHeartbeatForPublisher(userFlowable)
     }
 
 }

@@ -11,10 +11,11 @@
 
 package io.seqera.tower.service
 
+import java.time.Duration
+
 import io.micronaut.http.sse.Event
 import io.reactivex.Flowable
-
-import java.time.Duration
+import io.reactivex.processors.PublishProcessor
 
 interface ServerSentEventsService {
 
@@ -27,5 +28,7 @@ interface ServerSentEventsService {
     void tryComplete(String key)
 
     Flowable generateHeartbeatFlowable(Duration interval, Closure<Event> heartbeatGenerator)
+
+    Flowable getHeartbeatForPublisher(PublishProcessor<Event> publisher)
 
 }
