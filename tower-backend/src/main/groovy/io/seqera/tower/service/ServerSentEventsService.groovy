@@ -19,9 +19,13 @@ import io.reactivex.processors.PublishProcessor
 
 interface ServerSentEventsService {
 
+    Flowable getOrCreateUserPublisher(Serializable userId)
+
+    Flowable getOrCreateWorkflowPublisher(Serializable workflowId)
+
     String getKeyForEntity(Class aClass, def id)
 
-    Flowable getOrCreate(String key, Duration idleTimeout, Closure<Event> idleTimeoutLastEvent, Duration throttleTime)
+    Flowable getOrCreatePublisher(String key, Duration idleTimeout, Closure<Event> idleTimeoutLastEvent, Duration throttleTime)
 
     void tryPublish(String key, Closure<Event> payload)
 
@@ -29,6 +33,6 @@ interface ServerSentEventsService {
 
     Flowable generateHeartbeatFlowable(Duration interval, Closure<Event> heartbeatGenerator)
 
-    Flowable getHeartbeatForPublisher(PublishProcessor<Event> publisher)
+    Flowable getOrCreateHeartbeatForPublisher(PublishProcessor<Event> publisher, Closure<Event> heartbeatGenerator)
 
 }

@@ -5,7 +5,7 @@
 export const environment = {
   production: false ,
   version: "19.08.0",
-  commitId: "1545387.dirty"
+  commitId: "584c6df.dirty"
 };
 
 /*

@@ -2,5 +2,5 @@ export const environment = {
   production: true,
   apiUrl: "/api",
   version: "19.08.0",
-  commitId: "1545387.dirty"
+  commitId: "584c6df.dirty"
 };

@@ -17,7 +17,6 @@ import io.micronaut.test.annotation.MicronautTest
 import io.reactivex.Flowable
 import io.reactivex.subscribers.TestSubscriber
 import io.seqera.tower.Application
-import io.seqera.tower.exceptions.NonExistingFlowableException
 import io.seqera.tower.util.AbstractContainerBaseTest
 import spock.lang.Unroll
 
@@ -37,10 +36,10 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
         String key = '1'
 
         when: 'create the flowable with the key'
-        Flowable flowable = serverSentEventsService.getOrCreate(key, Duration.ofMinutes(1), null, null)
+        Flowable flowable = serverSentEventsService.getOrCreatePublisher(key, Duration.ofMinutes(1), null, null)
 
         and: 'get the same flowable'
-        Flowable flowable2 = serverSentEventsService.getOrCreate(key, Duration.ofMinutes(1), null, null)
+        Flowable flowable2 = serverSentEventsService.getOrCreatePublisher(key, Duration.ofMinutes(1), null, null)
 
         then: 'both flowables are the same'
         flowable == flowable2
@@ -51,7 +50,7 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
         String key = '2'
 
         and: 'create the flowable'
-        Flowable flowable = serverSentEventsService.getOrCreate(key, Duration.ofMinutes(1), null, null)
+        Flowable flowable = serverSentEventsService.getOrCreatePublisher(key, Duration.ofMinutes(1), null, null)
 
         and: 'subscribe to the flowable in order to retrieve the data'
         TestSubscriber subscriber = flowable.test()
@@ -72,7 +71,7 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
         String key = '3'
 
         and: 'create the flowable'
-        Flowable flowable = serverSentEventsService.getOrCreate(key, Duration.ofMinutes(1), null, null)
+        Flowable flowable = serverSentEventsService.getOrCreatePublisher(key, Duration.ofMinutes(1), null, null)
 
         and: 'subscribe to the flowable in order to retrieve the data'
         TestSubscriber subscriber = flowable.test()
@@ -84,7 +83,7 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
         subscriber.assertComplete()
 
         when: 'try to get the flowable again'
-        Flowable flowable2 = serverSentEventsService.getOrCreate(key, Duration.ofMinutes(0), null, null)
+        Flowable flowable2 = serverSentEventsService.getOrCreatePublisher(key, Duration.ofMinutes(0), null, null)
 
         then: 'the flowable is new'
         flowable != flowable2
@@ -98,7 +97,7 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
         Duration throttleTime = Duration.ofMillis(500)
 
         and: 'create the flowable'
-        Flowable flowable = serverSentEventsService.getOrCreate(key, Duration.ofMinutes(1), null, throttleTime)
+        Flowable flowable = serverSentEventsService.getOrCreatePublisher(key, Duration.ofMinutes(1), null, throttleTime)
 
         and: 'subscribe to the flowable in order to retrieve data'
         TestSubscriber subscriber = flowable.test()
@@ -134,7 +133,7 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
         Duration idleTimeout = Duration.ofMillis(300)
 
         and: 'create the flowable'
-        Flowable flowable = serverSentEventsService.getOrCreate(key, idleTimeout, lastEmission, null)
+        Flowable flowable = serverSentEventsService.getOrCreatePublisher(key, idleTimeout, lastEmission, null)
 
         and: 'subscribe to the flowable in order to retrieve data'
         TestSubscriber subscriber = flowable.test()
