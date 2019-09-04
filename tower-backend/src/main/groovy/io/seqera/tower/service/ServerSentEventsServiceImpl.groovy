@@ -11,6 +11,7 @@
 
 package io.seqera.tower.service
 
+import groovy.transform.CompileStatic
 import io.reactivex.disposables.Disposable
 import io.reactivex.flowables.ConnectableFlowable
 import io.seqera.tower.domain.User
@@ -33,6 +34,7 @@ import io.seqera.tower.exchange.trace.sse.TraceSseResponse
 
 @Singleton
 @Slf4j
+@CompileStatic
 class ServerSentEventsServiceImpl implements ServerSentEventsService {
 
     private final Map<String, PublishProcessor<Event>> publisherByKeyCache = new ConcurrentHashMap(20)
@@ -49,7 +51,7 @@ class ServerSentEventsServiceImpl implements ServerSentEventsService {
     Flowable<Event> getOrCreateUserPublisher(Serializable userId) {
         String userFlowableKey = getKeyForEntity(User, userId)
 
-        getOrCreatePublisher(userFlowableKey, idleUserFlowableTimeout, { Event.of(TraceSseResponse.ofError(SseErrorType.TIMEOUT, "Expired [${userFlowableKey}]")) }, null)
+        getOrCreatePublisher(userFlowableKey, idleUserFlowableTimeout, { Event.of(TraceSseResponse.ofError(SseErrorType.TIMEOUT, "Expired [${userFlowableKey}]")) })
         Flowable<Event> userFlowableWithHeartbeat = getOrCreateHeartbeatForPublisher(publisherByKeyCache[userFlowableKey]) {
             log.info("Server heartbeat ${it} generated for flowable: ${userFlowableKey}")
             Event.of(TraceSseResponse.ofHeartbeat("Server heartbeat [${userFlowableKey}]"))
@@ -59,16 +61,16 @@ class ServerSentEventsServiceImpl implements ServerSentEventsService {
     }
 
     Flowable getOrCreateWorkflowPublisher(Serializable workflowId) {
-        String workflowFlowableKey = getKeyForEntity(Workflow, workflowId)
-
-        getOrCreatePublisher(workflowFlowableKey, idleWorkflowFlowableTimeout, { Event.of(TraceSseResponse.ofError(SseErrorType.TIMEOUT, "Expired [${workflowFlowableKey}]")) }, null)
+        final workflowFlowableKey = getKeyForEntity(Workflow, workflowId)
+        final timeout = { Event.of(TraceSseResponse.ofError(SseErrorType.TIMEOUT, "Expired [${workflowFlowableKey}]")) }
+        getOrCreatePublisher(workflowFlowableKey, idleWorkflowFlowableTimeout, timeout)
     }
 
     String getKeyForEntity(Class entityClass, def entityId) {
         "${entityClass.simpleName}-${entityId}"
     }
 
-    Flowable<Event> getOrCreatePublisher(String key, Duration idleTimeout, Closure<Event> idleTimeoutLastEvent, Duration throttleTime) {
+    Flowable<Event> getOrCreatePublisher(String key, Duration idleTimeout, Closure<Event> idleTimeoutLastEvent) {
         synchronized (publisherByKeyCache) {
             if(publisherByKeyCache.containsKey(key)) {
                 log.info("Getting flowable: ${key}")
@@ -80,9 +82,6 @@ class ServerSentEventsServiceImpl implements ServerSentEventsService {
             publisherByKeyCache[key] = flowable
 
             scheduleFlowableIdleTimeout(key, idleTimeout, idleTimeoutLastEvent)
-            if (throttleTime) {
-                flowable = flowable.throttleLatest(throttleTime.toMillis(), TimeUnit.MILLISECONDS, true)
-            }
 
             return flowable
         }
