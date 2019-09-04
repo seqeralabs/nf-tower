@@ -70,23 +70,27 @@ class TraceController extends BaseController {
         if (workflow.checkIsStarted()) {
             log.info("Client heartbeats received for flowables: ${workflowFlowableKey} and ${userFlowableKey}")
             serverSentEventsService.tryPublish(workflowFlowableKey) {
-                Event.of(TraceSseResponse.ofHeartbeat("Client heartbeat [${workflowFlowableKey}]"))
+                Event.of(TraceSseResponse.ofHeartbeat("NF heartbeat [${workflowFlowableKey}]"))
             }
             serverSentEventsService.tryPublish(userFlowableKey) {
-                Event.of(TraceSseResponse.ofHeartbeat("Client heartbeat [${userFlowableKey}]"))
+                Event.of(TraceSseResponse.ofHeartbeat("NF heartbeat [${userFlowableKey}]"))
             }
         }
     }
 
     private void publishWorkflowEvent(Workflow workflow, User user) {
         String userFlowableKey = serverSentEventsService.getKeyForEntity(User, user.id)
-
         serverSentEventsService.tryPublish(userFlowableKey) {
             Event.of(TraceSseResponse.ofWorkflow(WorkflowGet.of(workflow)))
         }
 
         if (!workflow.checkIsStarted()) {
+            WorkflowGet workflowWithProgress = progressService.buildWorkflowGet(workflow)
+
             String workflowFlowableKey = serverSentEventsService.getKeyForEntity(Workflow, workflow.id)
+            serverSentEventsService.tryPublish(workflowFlowableKey) {
+                Event.of(TraceSseResponse.ofWorkflow(workflowWithProgress))
+            }
             serverSentEventsService.tryComplete(workflowFlowableKey)
         }
     }

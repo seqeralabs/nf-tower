@@ -107,7 +107,7 @@ export class HomeComponent implements OnInit {
     this.liveEventsSubscription = this.serverSentEventsWorkflowService.connectToWorkflowListLive(this.user).subscribe(
       (data: Workflow | SseHeartbeat) => this.reactToEvent(data),
       (error: SseError) => {
-        console.log('Live workflow list error event received', error);
+        console.log('Live workflow error event received', error);
         this.notificationService.showErrorNotification(error.message, false);
       }
     );
@@ -115,7 +115,7 @@ export class HomeComponent implements OnInit {
 
   private reactToEvent(data: Workflow | SseHeartbeat) {
     if (data instanceof Workflow) {
-      console.log('Live workflow list event received', data);
+      console.log('Live user event received', data);
       this.workflowService.updateWorkflow(data);
     } else if (data instanceof SseHeartbeat) {
       console.log('Heartbeat event received', data);
