@@ -28,7 +28,7 @@ import io.seqera.tower.enums.TaskStatus
  */
 @ToString(includeNames = true)
 @Entity
-@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'workflow', 'workflowId'])
+@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'workflow'])
 @CompileDynamic
 class Task {
 

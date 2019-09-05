@@ -42,8 +42,7 @@
             "peakRss": 303972352,
             "volCtxt": 3,
             "invCtxt": 524,
-            "nativeId": 13894,
-            "workflowId": "12345"
+            "nativeId": 13894
         },
         {
             "taskId": 14,
@@ -87,8 +86,7 @@
             "peakRss": 6098944,
             "volCtxt": 34,
             "invCtxt": 254,
-            "nativeId": 15419,
-            "workflowId": "12345"
+            "nativeId": 15419
         },
         {
             "taskId": 15,
@@ -114,8 +112,7 @@
             "disk": null,
             "time": null,
             "env": null,
-            "nativeId": 19077,
-            "workflowId": "12345"
+            "nativeId": 19077
         }
     ],
     "workflowId": "12345"

@@ -24,8 +24,7 @@
             "disk": null,
             "time": null,
             "env": null,
-            "nativeId": 9432,
-            "workflowId": "12345"
+            "nativeId": 9432
         },
         {
             "taskId": 5,
@@ -51,8 +50,7 @@
             "disk": null,
             "time": null,
             "env": null,
-            "nativeId": 9494,
-            "workflowId": "12345"
+            "nativeId": 9494
         },
         {
             "taskId": 6,
@@ -78,8 +76,7 @@
             "disk": null,
             "time": null,
             "env": null,
-            "nativeId": 9426,
-            "workflowId": "12345"
+            "nativeId": 9426
         },
         {
             "taskId": 7,
@@ -105,8 +102,7 @@
             "disk": null,
             "time": null,
             "env": null,
-            "nativeId": 9445,
-            "workflowId": "12345"
+            "nativeId": 9445
         },
         {
             "taskId": 9,
@@ -132,8 +128,7 @@
             "disk": null,
             "time": null,
             "env": null,
-            "nativeId": 9465,
-            "workflowId": "12345"
+            "nativeId": 9465
         },
         {
             "taskId": 12,
@@ -159,8 +154,7 @@
             "disk": null,
             "time": null,
             "env": null,
-            "nativeId": 9485,
-            "workflowId": "12345"
+            "nativeId": 9485
         }
     ],
     "workflowId": "12345"
