@@ -176,4 +176,30 @@ class GateServiceImpl implements GateService {
         return mail
     }
 
+
+    protected Mail buildWelcomeEmail(User user) {
+        // create template binding
+        def binding = new HashMap(5)
+        binding.app_name = appName
+        binding.auth_url = buildAccessUrl(user)
+        binding.server_url = serverUrl
+        binding.user = user.firstName ?: user.userName
+
+        Mail mail = new Mail()
+        mail.to(user.email)
+        mail.subject("Welcome to $appName!")
+        mail.text(getTemplateFile('/io/seqera/tower/service/welcome-mail.txt', binding))
+        mail.body(getTemplateFile('/io/seqera/tower/service/welcome-mail.html', binding))
+        mail.attach(getLogoAttachment())
+        return mail
+    }
+
+    void allowLogin(User user) {
+        user.trusted = true
+        user.save(failOnError:true)
+
+        // send welcome email
+        final welcome = buildWelcomeEmail(user)
+        mailService.sendMail(welcome)
+    }
 }

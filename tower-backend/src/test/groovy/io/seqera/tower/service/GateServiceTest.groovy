@@ -19,7 +19,6 @@ import grails.gorm.transactions.TransactionService
 import grails.gorm.transactions.Transactional
 import io.micronaut.context.annotation.Value
 import io.micronaut.test.annotation.MicronautTest
-import io.seqera.mail.MailerConfig
 import io.seqera.tower.Application
 import io.seqera.tower.domain.AccessToken
 import io.seqera.tower.domain.Mail
@@ -37,10 +36,9 @@ import io.seqera.tower.util.DomainCreator
 class GateServiceTest extends AbstractContainerBaseTest {
 
     @Inject
-    MailerConfig mailerConfig
-
-    @Inject
     GateService gateService
+
+    @Inject MailService mailService
 
     @Inject
     TransactionService tx
@@ -267,6 +265,51 @@ class GateServiceTest extends AbstractContainerBaseTest {
         mail.body.contains("<li>user id: 123")
         mail.body.contains("<li>user name: xyz")
         mail.body.contains("<li>user email: alice@domain.com")
+    }
+
+    def 'should build welcome email' () {
+        given:
+        def RECIPIENT = 'alice@domain.com'
+        def user = new User(email: RECIPIENT, userName:'Mr Foo', authToken: 'xyz')
+        def mailer = Mock(MailService)
+        def service = new GateServiceImpl()
+        service.mailService = mailer
+        service.appName = 'Nextflow Tower'
+        service.serverUrl = 'http://localhost:1234'
+
+        when:
+        def mail = service.buildWelcomeEmail(user)
+
+        then:
+        mail.subject == 'Welcome to Nextflow Tower!'
+        mail.to == RECIPIENT
+        mail.attachments.size() == 1
+        mail.attachments[0].resource == '/io/seqera/tower/service/tower-logo.png'
+        mail.attachments[0].contentId == '<tower-logo>'
+        mail.attachments[0].disposition == 'inline'
+
+
+        // text email
+        mail.text.startsWith('Welcome to Nextflow Tower!')
+        mail.text.contains('This email was sent by Nextflow Tower\nhttp://localhost:1234')
+        // html email
+        mail.body.contains('Welcome to Nextflow Tower!')
+        mail.body.contains('http://localhost:1234')
+    }
+
+    def 'should allow login to not trusted user' () {
+        given: "an existing user"
+        User user = new DomainCreator().createUser(trusted: false, email: 'foo@gmail.com')
+
+        when:
+        gateService.allowLogin(user)
+        then:
+        User.get(user.id).trusted
+        and:
+        def mails = Mail.list()
+        mails.size()==1
+        mails[0].to == user.email
+        mails[0].subject.startsWith('Welcome')
     }
 
 

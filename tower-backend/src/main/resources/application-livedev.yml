@@ -14,7 +14,7 @@ tower:
     password: secret
   trustedEmails:
     - '*@seqera.io'
-    - 'paolo*'
+    - 'paolo.ditommaso@gmail.com'
 ---
 dataSource:
   pooled: false

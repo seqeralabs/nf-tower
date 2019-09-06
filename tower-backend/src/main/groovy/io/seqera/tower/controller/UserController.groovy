@@ -14,6 +14,7 @@ package io.seqera.tower.controller
 import javax.annotation.Nullable
 import javax.inject.Inject
 
+import grails.gorm.transactions.Transactional
 import groovy.util.logging.Slf4j
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.MediaType
@@ -27,7 +28,11 @@ import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.micronaut.security.rules.SecurityRule
 import io.seqera.tower.domain.User
+import io.seqera.tower.exchange.user.DeleteUserResponse
+import io.seqera.tower.exchange.user.EnableUserResponse
+import io.seqera.tower.exchange.user.GetUserResponse
 import io.seqera.tower.exchange.user.ListUserResponse
+import io.seqera.tower.service.GateService
 import io.seqera.tower.service.UserService
 
 @Slf4j
@@ -35,12 +40,10 @@ import io.seqera.tower.service.UserService
 @Secured(SecurityRule.IS_AUTHENTICATED)
 class UserController extends BaseController {
 
-    UserService userService
-
     @Inject
-    UserController(UserService userService) {
-        this.userService = userService
-    }
+    UserService userService
+    
+    @Inject GateService gateService
 
     @Post("/update")
     @Produces(MediaType.TEXT_PLAIN)
@@ -68,6 +71,18 @@ class UserController extends BaseController {
         }
     }
 
+    @Delete("/delete/{userId}")
+    @Secured(['ADMIN'])
+    @Transactional
+    HttpResponse<DeleteUserResponse> delete(Long userId) {
+        User user = User.get(userId)
+        if( !user )
+            return HttpResponse.badRequest(new DeleteUserResponse(message: "Cannot find user with ID=$userId"))
+
+        userService.delete(user)
+        HttpResponse.ok(new DeleteUserResponse(message: 'OK'))
+    }
+
     @Get('/list{?max,offset}')
     HttpResponse<ListUserResponse> list(@Nullable Integer offset, @Nullable Integer max) {
         if( offset==null ) offset=0
@@ -85,4 +100,27 @@ class UserController extends BaseController {
         }
     }
 
+    @Get('/get/{userId}')
+    @Secured(['ADMIN'])
+    @Transactional
+    HttpResponse<GetUserResponse> get(Long userId) {
+        final user = User.get(userId)
+        if( !user )
+            return HttpResponse.badRequest(new GetUserResponse(message: "Cannot find user with ID=$userId"))
+
+        HttpResponse.ok(new GetUserResponse(user:user))
+    }
+
+
+    @Get('/allow/login/{userId}')
+    @Secured(['ADMIN'])
+    @Transactional
+    HttpResponse<EnableUserResponse> allowLogin(Long userId) {
+        final user = User.get(userId)
+        if( !user )
+            return HttpResponse.badRequest(new EnableUserResponse(message: "Cannot find user with ID=$userId"))
+
+        gateService.allowLogin(user)
+        HttpResponse.ok(new EnableUserResponse(message: 'OK'))
+    }
 }
