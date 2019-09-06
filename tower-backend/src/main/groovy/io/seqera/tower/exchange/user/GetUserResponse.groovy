@@ -9,19 +9,18 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 
-package io.seqera.tower.service
+package io.seqera.tower.exchange.user
 
+import groovy.transform.CompileStatic
 import io.seqera.tower.domain.User
-import io.seqera.tower.exchange.gate.AccessGateResponse
+import io.seqera.tower.exchange.BaseResponse
+
 /**
- * Defines the Gate services
- * 
+ *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
-interface GateService {
-
-    AccessGateResponse access(String email)
-
-    void allowLogin(User user)
-
+@CompileStatic
+class GetUserResponse implements BaseResponse {
+    User user
+    String message
 }

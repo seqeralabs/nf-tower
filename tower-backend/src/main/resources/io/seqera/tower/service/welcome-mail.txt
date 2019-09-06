@@ -1,0 +1,9 @@
+Welcome to ${app_name}!
+
+Get started using the following link and clicking on the sign-in button!
+
+${server_url}
+
+--
+This email was sent by ${app_name}
+${server_url}
