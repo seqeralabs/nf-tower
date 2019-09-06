@@ -15,9 +15,12 @@ import javax.inject.Inject
 import java.time.OffsetDateTime
 import java.time.temporal.ChronoUnit
 
+import grails.gorm.transactions.TransactionService
 import grails.gorm.transactions.Transactional
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.tower.Application
+import io.seqera.tower.domain.Task
+import io.seqera.tower.domain.TaskData
 import io.seqera.tower.domain.User
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.domain.WorkflowComment
@@ -37,6 +40,8 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
     @Inject
     WorkflowService workflowService
 
+    @Inject
+    TransactionService tx
 
     void 'should create workflow' () {
         given:
@@ -321,12 +326,61 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         }
 
         when: 'delete the workflow'
-        Workflow.withNewTransaction {
-            workflowService.delete(workflow.refresh())
-        }
+        Workflow.withNewTransaction { workflowService.delete(workflow.refresh()) }
 
         then: 'the workflow is no longer in the database'
         Workflow.withNewTransaction { Workflow.count() } == 0
+    }
+
+    def 'delete workflow keep task data records' () {
+        given:
+        def creator = new DomainCreator()
+        def w1 = creator.createWorkflow(sessionId: 'abc', runName: 'alpha')
+        def w2 = creator.createWorkflow(sessionId: 'zzz', runName: 'delta')
+        def w3 = creator.createWorkflow(sessionId: 'zzz', runName: 'omega')
+        and:
+        // w1 has 2 tasks
+        def t1= creator.createTask(workflow: w1)
+        def t2= creator.createTask(workflow: w1)
+
+        // w2 has 3 tasks
+        def p1= creator.createTask(workflow: w2)
+        def p2=creator.createTask(workflow: w2)
+        def p3=creator.createTask(workflow: w2)
+
+        // w3 has 3 tasks, 2 of them are cached from the previous run
+        def q1 = creator.createTask(workflow: w3, data: p1.data)
+        def q2 = creator.createTask(workflow: w3, data: p2.data)
+        def q3 = creator.createTask(workflow: w3)
+
+        when:
+        tx.withNewTransaction { workflowService.delete(w1) }
+        then:
+        tx.withNewTransaction { Task.countByWorkflow(w1) } == 0
+        tx.withNewTransaction { TaskData.countBySessionId(w1.sessionId) } ==0
+        and:
+        tx.withNewTransaction { Task.countByWorkflow(w2) } == 3
+        tx.withNewTransaction { TaskData.countBySessionId(w2.sessionId) } ==4
+        and:
+        tx.withNewTransaction { Task.countByWorkflow(w2) } == 3
+        tx.withNewTransaction { TaskData.countBySessionId(w3.sessionId) } ==4
+
+
+        when:
+        tx.withNewTransaction { workflowService.delete(w2) }
+        then:
+        tx.withNewTransaction { Task.countByWorkflow(w2) } == 0
+        tx.withNewTransaction { TaskData.countBySessionId(w2.sessionId) } ==3
+        and:
+        tx.withNewTransaction { Task.countByWorkflow(w3) } == 3
+        tx.withNewTransaction { TaskData.countBySessionId(w3.sessionId) } ==3
+
+
+        when:
+        tx.withNewTransaction { workflowService.delete(w3) }
+        then:
+        tx.withNewTransaction { Task.countByWorkflow(w3) } == 0
+        tx.withNewTransaction { TaskData.countBySessionId(w3.sessionId) } ==0
     }
 
     def 'should find comments' () {

@@ -13,9 +13,12 @@ package io.seqera.tower.service
 
 import grails.gorm.PagedResultList
 import io.seqera.tower.domain.Task
+import io.seqera.tower.domain.TaskData
 import io.seqera.tower.exchange.trace.TraceTaskRequest
 
 interface TaskService {
+
+    TaskData getTaskDataBySessionIdAndHash(String sessionId, String hash)
 
     List<Task> processTaskTraceRequest(TraceTaskRequest request)
 

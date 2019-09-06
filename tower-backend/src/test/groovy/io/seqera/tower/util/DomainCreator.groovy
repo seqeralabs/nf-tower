@@ -20,6 +20,7 @@ import io.seqera.tower.domain.Mail
 import io.seqera.tower.domain.ResourceData
 import io.seqera.tower.domain.Role
 import io.seqera.tower.domain.Task
+import io.seqera.tower.domain.TaskData
 import io.seqera.tower.domain.User
 import io.seqera.tower.domain.UserRole
 import io.seqera.tower.domain.Workflow
@@ -44,6 +45,7 @@ class DomainCreator {
             WorkflowComment.deleteAll(WorkflowComment.list())
             WorkflowMetrics.deleteAll(WorkflowMetrics.list())
             Task.deleteAll(Task.list())
+            TaskData.deleteAll(TaskData.list())
             Workflow.deleteAll(Workflow.list())
             AccessToken.deleteAll(AccessToken.list())
             UserRole.deleteAll(UserRole.list())
@@ -75,7 +77,7 @@ class DomainCreator {
 
         fields.owner = fields.containsKey('owner') ? fields.owner : createUser()
 
-        fields.sessionId = fields.containsKey('sessionId') ? fields.sessionId : "35cce421-4712-4da5-856b-6557635e54${generateUniqueNamePart()}d".toString()
+        fields.sessionId = fields.containsKey('sessionId') ? fields.sessionId : "35cce421-4712-4da5-856b-${generateUniqueNamePart()}d".toString()
         fields.runName = fields.containsKey('runName') ? fields.runName : "astonishing_majorana${generateUniqueNamePart()}".toString()
         fields.submit = fields.containsKey('submit') ? fields.submit : OffsetDateTime.now()
         fields.start = fields.containsKey('start') ? fields.start : fields.submit
@@ -112,12 +114,28 @@ class DomainCreator {
 
         fields.workflow = fields.containsKey('workflow') ? fields.workflow : createWorkflow()
         fields.taskId = fields.containsKey('taskId') ? fields.taskId : generateUniqueNumber()
+        fields.status = fields.containsKey('status') ? fields.status : TaskStatus.SUBMITTED
+
+        if( !fields.data ) {
+            fields.name = fields.containsKey('name') ? fields.name : "taskName_${generateUniqueNamePart()}"
+            fields.hash = fields.containsKey('hash') ? fields.hash : "hash_${generateUniqueNamePart()}"
+            fields.submit = fields.containsKey('submit') ? fields.submit : OffsetDateTime.now()
+            task.data = new TaskData()
+            task.data.sessionId = fields.workflow.sessionId
+        }
+
+        createInstance(task, fields)
+    }
+
+    TaskData createTaskData(Map fields = [:]){
+        def result = new TaskData()
+
         fields.name = fields.containsKey('name') ? fields.name : "taskName_${generateUniqueNamePart()}"
         fields.hash = fields.containsKey('hash') ? fields.hash : "hash_${generateUniqueNamePart()}"
         fields.status = fields.containsKey('status') ? fields.status : TaskStatus.SUBMITTED
         fields.submit = fields.containsKey('submit') ? fields.submit : OffsetDateTime.now()
 
-        createInstance(task, fields)
+        createInstance(result, fields)
     }
 
     WorkflowMetrics createWorkflowMetrics(Workflow workflow, Map fields = [:]) {

@@ -28,7 +28,6 @@ import io.seqera.tower.Application
 import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.User
 import io.seqera.tower.domain.Workflow
-import io.seqera.tower.enums.SseErrorType
 import io.seqera.tower.enums.TraceProcessingStatus
 import io.seqera.tower.exchange.trace.TraceAliveRequest
 import io.seqera.tower.exchange.trace.TraceAliveResponse
@@ -103,9 +102,7 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         !response.body().message
 
         and: 'the workflow is in the database'
-        Workflow.withNewTransaction {
-            Workflow.count() == 1
-        }
+        Workflow.withNewTransaction { Workflow.count() } ==1
 
         and: 'the user has been associated with the workflow'
         User.withNewTransaction {
@@ -190,12 +187,8 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         nextflowSimulator.simulate()
 
         then: 'the workflow and its tasks have been saved'
-        Workflow.withNewTransaction {
-            Workflow.count() == 1
-        }
-        Workflow.withNewTransaction {
-            Task.count() == 15
-        }
+        Workflow.withNewTransaction { Workflow.count() } == 1
+        Workflow.withNewTransaction { Task.count() } == 15
     }
 
     void "save traces simulated from a complete sequence and subscribe to the live events in the mean time"() {

@@ -11,7 +11,6 @@
 
 package io.seqera.tower.domain
 
-
 import java.time.OffsetDateTime
 
 import com.fasterxml.jackson.annotation.JsonGetter
@@ -28,68 +27,39 @@ import io.seqera.tower.enums.TaskStatus
  */
 @ToString(includeNames = true)
 @Entity
-@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'workflow'])
+@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'workflow', 'data'])
 @CompileDynamic
-class Task {
+class Task implements TaskDef {
 
     static final private ObjectMapper mapper = new ObjectMapper().findAndRegisterModules()
 
     static belongsTo = [workflow: Workflow]
 
+    /*
+     * Task entity primary
+     */
+    Long id
+
     /**
-     * The order of the task in the workflow
+     * Task index as provided by the NF execution
      */
     Long taskId
-    String hash
-    String name
-    String process
-    String tag
-
-    TaskStatus status
-
-    OffsetDateTime submit
-    OffsetDateTime start
-    OffsetDateTime complete
 
     /**
-     * Multi-value field encoded as JSON
+     * Current task status
      */
-    String module
-    String container
-    Integer attempt
-    String script
-    String scratch
-    String workdir
+    TaskStatus status
 
-    String queue
-    Integer cpus
-    Long memory
-    Long disk
-    String time
-    String env
+    /**
+     * Task metadata and metrics info
+     */
+    TaskData data
 
-    String errorAction
-
-    Long exitStatus
-    Long duration
-    Long realtime
-    Long nativeId
-
-    Double pcpu
-    Double pmem
-    Long rss
-    Long vmem
-    Long peakRss
-    Long peakVmem
-    Long rchar
-    Long wchar
-    Long syscr
-    Long syscw
-    Long readBytes
-    Long writeBytes
-
-    Long volCtxt
-    Long invCtxt
+    private TaskData _data() {
+        if( data==null )
+            data = new TaskData()
+        return data
+    }
 
     boolean checkIsSubmitted() {
         status == TaskStatus.SUBMITTED
@@ -107,6 +77,10 @@ class Task {
         status == TaskStatus.FAILED
     }
 
+    boolean checkIsCached() {
+        status == TaskStatus.CACHED
+    }
+
     @JsonSetter('module')
     void deserializeModuleJson(List<String> moduleList) {
         module = moduleList ? mapper.writeValueAsString(moduleList) : null
@@ -122,50 +96,148 @@ class Task {
         exitStatus
     }
 
+    static mapping = {
+        data lazy: false
+        workflow lazy: true
+    }
+    
     static constraints = {
         taskId(unique: 'workflow')
-
-        hash(maxSize: 12)
-        process(nullable: true, maxSize: 255)
-        tag(nullable: true, maxSize: 255)
-        name(maxSize: 255)
-        exitStatus(nullable: true)
-        submit(nullable: true)
-        start(nullable: true)
-        complete(nullable: true)
-        module(nullable: true, maxSize: 255)
-        container(nullable: true, maxSize: 255)
-        attempt(nullable: true)
-        script(nullable: true)
-        scratch(nullable: true)
-        workdir(nullable: true, maxSize: 512)
-        queue(nullable: true, maxSize: 100)
-        cpus(nullable: true)
-        memory(nullable: true)
-        disk(nullable: true)
-        time(nullable: true)
-        env(nullable: true, maxSize: 2048)
-        errorAction(nullable: true)
-        duration(nullable: true)
-        realtime(nullable: true)
-        nativeId(nullable: true)
-        pcpu(nullable: true)
-        pmem(nullable: true)
-        rss(nullable: true)
-        vmem(nullable: true)
-        peakRss(nullable: true)
-        peakVmem(nullable: true)
-        rchar(nullable: true)
-        wchar(nullable: true)
-        syscr(nullable: true)
-        syscw(nullable: true)
-        readBytes(nullable: true)
-        writeBytes(nullable: true)
-        volCtxt(nullable: true)
-        invCtxt(nullable: true)
     }
 
-    static mapping = {
-        script(type: 'text')
-    }
+    static transients = [
+            'hash',
+            'name',
+            'process',
+            'tag',
+            'submit',
+            'start',
+            'complete',
+            'module',
+            'container',
+            'attempt',
+            'script',
+            'scratch',
+            'workdir',
+            'queue',
+            'cpus' ,
+            'memory',
+            'disk',
+            'time',
+            'env',
+            'errorAction',
+            'exitStatus',
+            'duration',
+            'realtime',
+            'nativeId',
+            'pcpu',
+            'pmem',
+            'rss',
+            'vmem',
+            'peakRss',
+            'peakVmem',
+            'rchar',
+            'wchar',
+            'syscr',
+            'syscw',
+            'readBytes',
+            'writeBytes',
+            'volCtxt',
+            'invCtxt'
+    ]
+
+    // -- getters
+
+    String getHash() { _data().hash }
+    String getName() { _data().name }
+    String getProcess() { _data().process }
+    String getTag() { _data().tag }
+
+    OffsetDateTime getSubmit() { _data().submit }
+    OffsetDateTime getStart() { _data().start }
+    OffsetDateTime getComplete() { _data().complete }
+
+    String getModule() { _data().module }
+    String getContainer() { _data().container }
+    Integer getAttempt() { _data().attempt }
+    String getScript() { _data().script }
+    String getScratch() { _data().scratch }
+    String getWorkdir() { _data().workdir }
+
+    String getQueue() { _data().queue }
+    Integer getCpus() { _data().cpus }
+    Long getMemory() { _data().memory }
+    Long getDisk() { _data().disk }
+    String getTime() { _data().time }
+    String getEnv() { _data().env }
+
+    String getErrorAction() { _data().errorAction }
+
+    Long getExitStatus() { _data().exitStatus }
+    Long getDuration() { _data().duration }
+    Long getRealtime() { _data().realtime }
+    Long getNativeId() { _data().nativeId }
+
+    Double getPcpu() { _data().pcpu }
+    Double getPmem() { _data().pmem }
+    Long getRss() { _data().rss }
+    Long getVmem() { _data().vmem }
+    Long getPeakRss() { _data().peakRss }
+    Long getPeakVmem() { _data().peakVmem }
+    Long getRchar() { _data().rchar }
+    Long getWchar() { _data().wchar }
+    Long getSyscr() { _data().syscr }
+    Long getSyscw() { _data().syscw }
+    Long getReadBytes() { _data().readBytes }
+    Long getWriteBytes() { _data().writeBytes }
+    Long getVolCtxt() { _data().volCtxt }
+    Long getInvCtxt() { _data().invCtxt }
+
+    // -- setters
+
+    void setHash(String x) { _data().hash = x }
+    void setName(String x) { _data().name = x }
+    void setProcess(String x) { _data().process = x }
+    void setTag(String x) { _data().tag = x }
+
+    void setSubmit(OffsetDateTime x) { _data().submit = x }
+    void setStart(OffsetDateTime x) { _data().start = x }
+    void setComplete(OffsetDateTime x) { _data().complete = x }
+
+    void setModule(String x) { _data().module = x }
+    void setContainer(String x ) { _data().container = x }
+    void setAttempt(Integer x) { _data().attempt = x }
+    void setScript(String x) { _data().script = x }
+    void setScratch(String x) { _data().scratch = x }
+    void setWorkdir(String x) { _data().workdir = x }
+
+    void setQueue(String x) { _data().queue = x }
+    void setCpus(Integer x) { _data().cpus = x }
+    void setMemory(Long x) { _data().memory = x }
+    void setDisk(Long x) { _data().disk= x }
+    void setTime(String x) { _data().time = x }
+    void setEnv(String x) { _data().env = x }
+
+    void setErrorAction(String x) { _data().errorAction = x }
+
+    void setExitStatus(Long x) { _data().exitStatus = x }
+    void setDuration(Long x) { _data().duration = x }
+    void setRealtime(Long x) { _data().realtime = x }
+    void setNativeId(Long x) { _data().nativeId = x }
+
+    void setPcpu(Double x) { _data().pcpu = x }
+    void setPmem(Double x) { _data().pmem = x }
+    void setRss(Long x) { _data().rss = x }
+    void setVmem(Long x) { _data().vmem = x }
+    void setPeakRss(Long x) { _data().peakRss = x }
+    void setPeakVmem(Long x) { _data().peakVmem = x }
+    void setRchar(Long x) { _data().rchar = x }
+    void setWchar(Long x) { _data().wchar = x }
+    void setSyscr(Long x) { _data().syscr = x }
+    void setSyscw(Long x) { _data().syscw = x }
+    void setReadBytes(Long x) { _data().readBytes = x }
+    void setWriteBytes(Long x) { _data().writeBytes = x }
+    void setVolCtxt(Long x) { _data().volCtxt = x }
+    void setInvCtxt(Long x) { _data().invCtxt = x }
+
 }

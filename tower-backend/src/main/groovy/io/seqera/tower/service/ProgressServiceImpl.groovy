@@ -23,6 +23,7 @@ import io.seqera.tower.exchange.progress.ProcessProgress
 import io.seqera.tower.exchange.progress.ProgressData
 import io.seqera.tower.exchange.progress.WorkflowProgress
 import io.seqera.tower.exchange.workflow.WorkflowGet
+import org.hibernate.Session
 
 @Slf4j
 @Transactional
@@ -70,8 +71,9 @@ class ProgressServiceImpl implements ProgressService {
         return result
     }
 
+    @CompileDynamic
     ProgressData computeWorkflowProgress(String workflowId) {
-        List<List<Object>> tasks = Task.executeQuery("""\
+        def sql = """\
             select
                p.name,
                t.status,
@@ -79,19 +81,31 @@ class ProgressServiceImpl implements ProgressService {
                sum(t.cpus) as totalCpus,
                sum(t.cpus * t.realtime) as cpuTime,
                sum(t.pcpu * t.realtime / 100) as cpuLoad,
-               sum(t.peakRss) as memoryRss,
+               sum(t.peak_rss) as memoryRss,
                sum(t.memory) as memoryReq,
                sum(t.rchar) as diskReads,
                sum(t.wchar) as diskWrites,
-               sum(t.volCtxt) as volCtxt,
-               sum(t.invCtxt) as invCtxt
+               sum(t.vol_Ctxt) as volCtxt,
+               sum(t.inv_Ctxt) as invCtxt
 
-             from WorkflowProcess p
-               left join Task t on p.workflow = t.workflow and p.name = t.process
+             from tw_workflow_process p
+               left join (
+                    select
+                       x.id, x.status, x.workflow_id, 
+                       y.process, y.cpus, y.pcpu, y.realtime, y.peak_rss, y.memory, y.rchar, y.wchar, y.vol_ctxt, y.inv_ctxt 
+                    from 
+                       tw_task x, tw_task_data y 
+                    where x.data_id=y.id and x.workflow_id = '$workflowId') t 
+                 on 
+                    p.workflow_id = t.workflow_id and p.name = t.process
              where
-               p.workflow.id = :workflowId
-             group by p.name, t.status
-             order by p.position """, [workflowId: workflowId])
+                p.workflow_id = '$workflowId'
+             group by 
+                p.name, t.status
+             order by 
+                p.position """.stripIndent()
+
+        def tasks = Task.withSession { Session session -> session.createNativeQuery(sql).list() }
 
         // aggregate tasks by name and status
         final workflowProgress = new WorkflowProgress()
