@@ -11,25 +11,24 @@
 
 package io.seqera.tower.service
 
-import groovy.transform.CompileStatic
-import io.reactivex.disposables.Disposable
-import io.reactivex.flowables.ConnectableFlowable
-import io.seqera.tower.domain.User
-import io.seqera.tower.domain.Workflow
-import io.seqera.tower.enums.SseErrorType
-
 import javax.inject.Singleton
 import java.time.Duration
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 
+import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import io.micronaut.context.annotation.Value
 import io.micronaut.http.sse.Event
 import io.reactivex.Flowable
+import io.reactivex.disposables.Disposable
+import io.reactivex.flowables.ConnectableFlowable
 import io.reactivex.functions.Consumer
 import io.reactivex.processors.PublishProcessor
+import io.seqera.tower.domain.User
+import io.seqera.tower.domain.Workflow
+import io.seqera.tower.enums.SseErrorType
 import io.seqera.tower.exchange.trace.sse.TraceSseResponse
 
 @Singleton
@@ -53,7 +52,7 @@ class ServerSentEventsServiceImpl implements ServerSentEventsService {
 
         getOrCreatePublisher(userFlowableKey, idleUserFlowableTimeout, { Event.of(TraceSseResponse.ofError(SseErrorType.TIMEOUT, "Expired [${userFlowableKey}]")) })
         Flowable<Event> userFlowableWithHeartbeat = getOrCreateHeartbeatForPublisher(publisherByKeyCache[userFlowableKey]) {
-            log.info("Server heartbeat ${it} generated for flowable: ${userFlowableKey}")
+            log.debug("Server heartbeat ${it} generated for flowable: ${userFlowableKey}")
             Event.of(TraceSseResponse.ofHeartbeat("Server heartbeat [${userFlowableKey}]"))
         }
 
@@ -73,11 +72,11 @@ class ServerSentEventsServiceImpl implements ServerSentEventsService {
     Flowable<Event> getOrCreatePublisher(String key, Duration idleTimeout, Closure<Event> idleTimeoutLastEvent) {
         synchronized (publisherByKeyCache) {
             if(publisherByKeyCache.containsKey(key)) {
-                log.info("Getting flowable: ${key}")
+                log.trace("Getting flowable: ${key}")
                 return publisherByKeyCache[key]
             }
 
-            log.info("Creating flowable: ${key}")
+            log.debug("Creating flowable: ${key}")
             Flowable<Event> flowable = PublishProcessor.<Event>create()
             publisherByKeyCache[key] = flowable
 
@@ -88,39 +87,39 @@ class ServerSentEventsServiceImpl implements ServerSentEventsService {
     }
 
     private void scheduleFlowableIdleTimeout(String key, Duration idleTimeout, Closure<Event> idleTimeoutLastEventPayload) {
-        Flowable flowable = publisherByKeyCache[key]
+        final flowable = publisherByKeyCache[key]
+        final timeoutFlowable = flowable.timeout(idleTimeout.toMillis(), TimeUnit.MILLISECONDS)
 
-        Flowable timeoutFlowable = flowable.timeout(idleTimeout.toMillis(), TimeUnit.MILLISECONDS)
-        timeoutFlowable.subscribe(
-            {
-                log.info("Data published for flowable: ${key}")
-            } as Consumer,
-            { Throwable t ->
-                if (t instanceof TimeoutException) {
-                    log.info("Idle timeout reached for flowable: ${key}")
-                    if (idleTimeoutLastEventPayload) {
-                        tryPublish(key, idleTimeoutLastEventPayload)
-                    }
-                    tryComplete(key)
-                } else {
-                    log.info("Unexpected error happened for id: ${key} | ${t.message}")
+        final Consumer trace = { log.trace("Data published for flowable: ${key}") } as Consumer
+        final Consumer handler = { Throwable t ->
+            if (t instanceof TimeoutException) {
+                log.debug("Idle timeout reached for flowable: ${key}")
+                if (idleTimeoutLastEventPayload) {
+                    tryPublish(key, idleTimeoutLastEventPayload)
                 }
-            } as Consumer
-        )
+                tryComplete(key)
+            }
+            else {
+                log.error("Unexpected error happened for id: ${key} | ${t.message}")
+            }
+        } as Consumer
+
+        timeoutFlowable.subscribe(trace,handler)
     }
 
+
     void tryPublish(String key, Closure<Event> payload) {
-        Flowable flowable = publisherByKeyCache[key]
+        final flowable = publisherByKeyCache[key]
         if (flowable) {
-            log.info("Publishing event for flowable: ${key}")
+            log.debug("Publishing event for flowable: ${key}")
             flowable.onNext(payload.call())
         }
     }
 
     void tryComplete(String key) {
-        PublishProcessor flowable = publisherByKeyCache[key]
+        final flowable = publisherByKeyCache[key]
         if (flowable) {
-            log.info("Completing flowable: ${key}")
+            log.debug("Completing flowable: ${key}")
             flowable.onComplete()
             publisherByKeyCache.remove(key)
             heartbeats.remove(flowable)
