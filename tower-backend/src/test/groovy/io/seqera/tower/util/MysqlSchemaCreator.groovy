@@ -14,7 +14,6 @@ package io.seqera.tower.util
 import io.micronaut.context.ApplicationContext
 import io.seqera.tower.Application
 import io.seqera.tower.domain.User
-import org.hibernate.Session
 import org.testcontainers.containers.FixedHostPortGenericContainer
 import org.testcontainers.containers.wait.strategy.Wait
 /**
@@ -42,16 +41,6 @@ class MysqlSchemaCreator {
             ctx.stop()
         }
 
-    }
-
-    static printTableNames() {
-        User.withNewSession { Session session ->
-            session
-                    .createSQLQuery("select t.table_name from information_schema.tables t where t.table_schema = 'tower'")
-                    .list()
-                    .sort()
-                    .each { println it }
-        }
     }
 
 }
