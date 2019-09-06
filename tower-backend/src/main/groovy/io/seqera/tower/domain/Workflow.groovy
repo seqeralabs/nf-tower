@@ -128,6 +128,7 @@ class Workflow {
     static constraints = {
         id(maxSize: 16)
         runName(unique: 'sessionId') // <-- the runName has to be unique for the same sessionId
+        sessionId(maxSize: 36)
 
         resume(nullable: true)
         success(nullable: true)
@@ -162,6 +163,7 @@ class Workflow {
         params(type: 'text')
         configFiles(type: 'text')
         configText(type: 'text')
+        tasks( cascade: 'save-update')
     }
 
 }

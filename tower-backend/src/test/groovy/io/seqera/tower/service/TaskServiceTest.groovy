@@ -35,19 +35,43 @@ class TaskServiceTest extends AbstractContainerBaseTest {
     @Inject
     TaskService taskService
 
+    void 'should find a task workflow id and hash' () {
+        given:
+        def creator = new DomainCreator()
+        def wf1 = creator.createWorkflow(sessionId: 'aaa-1')
+        def wf2 = creator.createWorkflow(sessionId: 'zzz-1')
+
+        def t1 = creator.createTask(workflow: wf1, hash: 'abc', name: 'foo')
+        def t2 = creator.createTask(workflow: wf2, hash: 'xyz', name: 'bar')
+        def t3 = creator.createTask(workflow: wf2, data: t1.data)
+
+        when:
+        def result = taskService.getTaskDataBySessionIdAndHash('aaa-1', 'abc')
+        then:
+        result.name == 'foo'
+        result.hash == 'abc'
+
+        when:
+        result = taskService.getTaskDataBySessionIdAndHash('zzz-1', 'xyz')
+        then:
+        result.name == 'bar'
+        result.hash == 'xyz'
+        
+        when:
+        result = taskService.getTaskDataBySessionIdAndHash('aaa-1', 'xyz')
+        then:
+        !result
+    }
 
     void "submit a task given a submit trace"() {
         given: 'create the workflow for the task'
-        Workflow workflow = new DomainCreator().createWorkflow()
+        def workflow = new DomainCreator().createWorkflow()
 
         and: "a task JSON submitted trace"
         TraceTaskRequest taskTraceJson = TracesJsonBank.extractTaskJsonTrace('success', 1, workflow.id, TaskTraceSnapshotStatus.SUBMITTED)
 
         when: "unmarshall the JSON to a task"
-        List<Task> tasks
-        Task.withNewTransaction {
-            tasks = taskService.processTaskTraceRequest(taskTraceJson)
-        }
+        List<Task> tasks = Task.withNewTransaction { taskService.processTaskTraceRequest(taskTraceJson) }
         Task task = tasks[0]
 
         then: "the task has been correctly saved"
@@ -57,9 +81,7 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         task.submit
         !task.start
         !task.complete
-        Task.withNewTransaction {
-            Task.count() == 1
-        }
+        Task.withNewTransaction { Task.count() } == 1
         
     }
 
@@ -253,19 +275,14 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         taskSubmittedTraceJson.tasks*.taskId = null
 
         when: "unmarshall the JSON to a task"
-        List<Task> tasks
-        Task.withNewTransaction {
-            tasks = taskService.processTaskTraceRequest(taskSubmittedTraceJson)
-        }
+        List<Task> tasks = Task.withNewTransaction { taskService.processTaskTraceRequest(taskSubmittedTraceJson) }
         Task taskSubmitted = tasks[0]
 
         then: "the task has a validation error"
         tasks.size() == 1
         taskSubmitted.hasErrors()
         taskSubmitted.errors.getFieldError('taskId').code == 'nullable'
-        Task.withNewTransaction {
-            Task.count() == 0
-        }
+        Task.withNewTransaction { Task.count()  } == 0
     }
 
     void "try to submit a task given a submit trace for a non existing workflow"() {

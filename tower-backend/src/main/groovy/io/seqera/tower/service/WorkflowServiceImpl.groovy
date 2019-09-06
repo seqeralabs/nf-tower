@@ -19,6 +19,7 @@ import grails.gorm.DetachedCriteria
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
 import io.seqera.tower.domain.Task
+import io.seqera.tower.domain.TaskData
 import io.seqera.tower.domain.User
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.domain.WorkflowComment
@@ -128,11 +129,25 @@ class WorkflowServiceImpl implements WorkflowService {
         WorkflowProcess.where { workflow == workflowToDelete }.deleteAll()
         WorkflowMetrics.where { workflow == workflowToDelete }.deleteAll()
         WorkflowComment.where { workflow == workflowToDelete }.deleteAll()
-        workflowToDelete.tasks?.each { Task task ->
-            task.delete()
-        }
-
+        Task.where { workflow == workflowToDelete }.deleteAll()
+        // delete orphan task-data records
+        final delete = """
+                delete TaskData d
+                where
+                  d.sessionId = :sessionId
+                  and d not in (
+                    select t.data
+                    from
+                      Task t, Workflow w
+                    where
+                      t.workflow.id = w.id
+                      and w.sessionId = :sessionId
+                  )
+                """.stripIndent()
+        TaskData.executeUpdate(delete,[sessionId: workflowToDelete.sessionId])
+        // finally delete workflow record
         workflowToDelete.delete()
+
     }
 
     void deleteById(String workflowId) {

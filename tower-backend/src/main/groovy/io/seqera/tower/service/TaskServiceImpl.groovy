@@ -19,6 +19,7 @@ import grails.gorm.PagedResultList
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
 import io.seqera.tower.domain.Task
+import io.seqera.tower.domain.TaskData
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.enums.TaskStatus
 import io.seqera.tower.exceptions.NonExistingWorkflowException
@@ -35,26 +36,66 @@ class TaskServiceImpl implements TaskService {
         this.workflowService = workflowService
     }
 
+    @CompileDynamic
+    TaskData getTaskDataBySessionIdAndHash(String sessionId, String hash) {
+        return TaskData.findBySessionIdAndHash(sessionId, hash)
+    }
+
+//    TaskData getDataBySessionIdAndHash(String sessionId, String hash) {
+//        def result = Task.executeQuery("""\
+//                from
+//                  TaskData d
+//                where
+//                  d.id in (
+//                    select t.data.id
+//                    from
+//                      Task t, Workflow w
+//                    where
+//                      t.workflow = w
+//                      and w.sessionId = :sessionId
+//                  )
+//                  and d.hash = :hash
+//                """, [hash: hash, sessionId: sessionId])
+//        if( !result )
+//            return null
+//        if( result.size()>1 )
+//            throw new IllegalStateException()
+//        return (TaskData)result.get(0)
+//    }
+
+
     List<Task> processTaskTraceRequest(TraceTaskRequest request) {
-        Workflow existingWorkflow = Workflow.get(request.workflowId)
+        final Workflow existingWorkflow = Workflow.get(request.workflowId)
         if (!existingWorkflow) {
-            throw new NonExistingWorkflowException("Can't find task for workflow ID: ${request.workflowId   }")
+            throw new NonExistingWorkflowException("Can't find task for workflow ID: ${request.workflowId}")
         }
 
         request.tasks.collect { Task task -> saveTask(task, existingWorkflow) }
     }
 
     @CompileDynamic
-    private Task saveTask(Task task, Workflow existingWorkflow) {
+    private Task saveTask(Task task, Workflow workflow) {
 
-        Task existingTask = Task.findByWorkflowAndTaskId(existingWorkflow, task.taskId)
+        // task `cached` are submitted just one time
+        TaskData record
+        if( task.checkIsCached() && (record=getTaskDataBySessionIdAndHash(workflow.sessionId, task.hash)) ) {
+            // if the data record already is stored, load and link it to the task instance
+            task.data = record
+            // save the task
+            task.workflow = workflow
+            task.save()
+            return task
+        }
+
+        Task existingTask = Task.findByWorkflowAndTaskId(workflow, task.taskId)
         if (existingTask) {
             updateMutableFields(existingTask, task)
             existingTask.save()
             return existingTask
         }
         else {
-            task.workflow = existingWorkflow
+            task.workflow = workflow
+            task.data.sessionId = workflow.sessionId
             task.save()
             return task
         }
@@ -106,16 +147,23 @@ class TaskServiceImpl implements TaskService {
     PagedResultList<Task> findTasks(String workflowId, Long max, Long offset, String orderProperty, String orderDirection, String sqlRegex) {
         def statusesToSearch = TaskStatus.findStatusesByRegex(sqlRegex)
 
-        new DetachedCriteria<Task>(Task).build {
+        if( orderProperty != 'taskId' && orderProperty != 'status' )
+            orderProperty = 'data.' + orderProperty
+
+        final criteria  = new DetachedCriteria<Task>(Task).build {
             workflow {
                 eq('id', workflowId)
             }
 
             if (sqlRegex) {
                 or {
-                    ilike('process', sqlRegex)
-                    ilike('tag', sqlRegex)
-                    ilike('hash', sqlRegex)
+                    data {
+                        or {
+                            ilike('process', sqlRegex)
+                            ilike('tag', sqlRegex)
+                            ilike('hash', sqlRegex)
+                        }
+                    }
 
                     if (statusesToSearch) {
                         'in'('status', statusesToSearch)
@@ -123,8 +171,10 @@ class TaskServiceImpl implements TaskService {
                 }
             }
 
-            order(orderProperty, orderDirection)
-        }.list(max: max, offset: offset)
+           order(orderProperty, orderDirection)
+        }
+
+        return criteria.list(max: max, offset: offset, fetch: [data: 'join'])
     }
 
 }
