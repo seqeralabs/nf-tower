@@ -141,6 +141,12 @@ class GateServiceImpl implements GateService {
         return new URI(accessUrl).toString()
     }
 
+    protected String getEnableUrl(String server, userId) {
+        if( server.contains('localhost'))
+            return 'http://localhost:8001/user?id=' + userId
+        final url = new URL(server)
+        return "${url.protocol}://admin.${url.host}/user?id=${userId}"
+    }
 
     protected Mail buildAccessEmail(User user) {
         // create template binding
@@ -166,6 +172,7 @@ class GateServiceImpl implements GateService {
         binding.user_name = user.userName
         binding.user_email = user.email
         binding.user_id = user.id
+        binding.enable_url = getEnableUrl(serverUrl, user.id)
 
         Mail mail = new Mail()
         mail.to(contactEmail)

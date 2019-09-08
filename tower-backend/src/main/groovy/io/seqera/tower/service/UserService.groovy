@@ -12,6 +12,7 @@
 package io.seqera.tower.service
 
 import java.security.Principal
+import java.time.OffsetDateTime
 
 import io.seqera.tower.domain.User
 
@@ -43,5 +44,7 @@ interface UserService {
     List<String> findAuthoritiesOfUser(User user)
 
     User getByAccessToken(String token)
+
+    User updateLastAccessTime(User user)
 
 }
