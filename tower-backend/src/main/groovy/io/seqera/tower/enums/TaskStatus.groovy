@@ -11,6 +11,9 @@
 
 package io.seqera.tower.enums
 
+import groovy.transform.ToString
+
+@ToString
 enum TaskStatus {
 
     NEW,        // just created
