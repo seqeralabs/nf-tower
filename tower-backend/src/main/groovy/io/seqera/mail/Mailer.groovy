@@ -347,7 +347,7 @@ class Mailer {
         }
 
         final transport = getTransport0()
-        log.debug("Connecting to host=$host port=$port user=$user")
+        log.debug("Connecting to host=$host port=$port user=${user?.substring(0,4)}..")
         transport.connect(host, port as int, user, password)
         try {
             for( Mail m : mails ) {

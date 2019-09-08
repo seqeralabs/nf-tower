@@ -101,6 +101,7 @@ class MailSpoolerImpl implements MailSpooler {
         final actions = new HashMap(2)
         actions.onSuccess = { Mail mail ->
             mail.sent = true; safeSave(mail)
+            log.debug "Mail sent to=${mail.to} subject=${mail.subject}"
         }
         actions.onError = { Mail mail, Exception e ->
             log.warn "Failed to send mail with ID=$mail.id", e
