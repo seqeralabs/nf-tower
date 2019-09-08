@@ -31,6 +31,7 @@ import io.seqera.tower.domain.Workflow
 import io.seqera.tower.enums.TraceProcessingStatus
 import io.seqera.tower.exchange.trace.TraceAliveRequest
 import io.seqera.tower.exchange.trace.TraceAliveResponse
+import io.seqera.tower.exchange.trace.TraceHelloResponse
 import io.seqera.tower.exchange.trace.TraceTaskRequest
 import io.seqera.tower.exchange.trace.TraceTaskResponse
 import io.seqera.tower.exchange.trace.TraceWorkflowRequest
@@ -62,6 +63,21 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         request.basicAuth(AuthenticationByApiToken.ID, user.accessTokens.first().token)
     }
 
+    void 'should response to to hello' () {
+        given: 'an allowed user'
+        User user = new DomainCreator().generateAllowedUser()
+
+        when: 'send a save request'
+        MutableHttpRequest request = HttpRequest.GET('/trace/hello')
+        request = appendBasicAuth(user, request)
+
+        HttpResponse<TraceHelloResponse> response = client.toBlocking().exchange(request, TraceHelloResponse)
+
+        then:
+        response.status == HttpStatus.OK
+        response.body().message == 'Want to play again?'
+
+    }
     void 'should handle an alive request' () {
         given: 'an allowed user'
         User user = new DomainCreator().generateAllowedUser()
