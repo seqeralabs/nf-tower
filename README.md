@@ -69,8 +69,8 @@ evaluation purpose.
 ## Environment variables: 
 
 * TOWER_APP_NAME: Application name
-* TOWER_SERVER_URL: Server URL eg `https://tower.com`
-* TOWER_CONTACT_EMAIL: Sysadmin email contact eg `info@seqera.io`
+* TOWER_SERVER_URL: Server URL eg `https://tower.nf`
+* TOWER_CONTACT_EMAIL: Sysadmin email contact eg `hello@tower.nf`
 * TOWER_DB_CREATE: DB creation policy eg `none`
 - TOWER_DB_URL: Database JDBC connection URL eg. `jdbc:mysql://localhost:3307/tower`. 
 - TOWER_DB_DRIVER: Database JDBC driver class name e.g. `com.mysql.cj.jdbc.Driver`.
