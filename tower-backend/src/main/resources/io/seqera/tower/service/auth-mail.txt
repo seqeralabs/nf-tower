@@ -1,8 +1,10 @@
 Hi ${user},
 
-Please click the following link to login in ${app_name} (it will be valid for the next 30 minutes):
+Please click the following link to login to ${app_name}:
 
 ${auth_url}
+
+This URL will be valid for the next 30 minutes.
 
 Not working? Try copying and pasting it to your browser.
 
