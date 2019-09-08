@@ -160,6 +160,7 @@ class Workflow {
     static mapping = {
         id generator: 'io.seqera.tower.domain.HashSequenceGenerator'
         errorReport(type: 'text')
+        errorMessage(type: 'text')
         params(type: 'text')
         configFiles(type: 'text')
         configText(type: 'text')
