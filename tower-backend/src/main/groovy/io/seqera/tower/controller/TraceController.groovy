@@ -15,6 +15,7 @@ import javax.inject.Inject
 
 import grails.gorm.transactions.Transactional
 import groovy.util.logging.Slf4j
+import io.micronaut.context.annotation.Value
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
@@ -27,6 +28,7 @@ import io.micronaut.security.rules.SecurityRule
 import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.User
 import io.seqera.tower.domain.Workflow
+import io.seqera.tower.enums.TraceProcessingStatus
 import io.seqera.tower.exchange.progress.ProgressData
 import io.seqera.tower.exchange.trace.TraceAliveRequest
 import io.seqera.tower.exchange.trace.TraceAliveResponse
@@ -49,6 +51,9 @@ import io.seqera.tower.service.UserService
 @Secured(SecurityRule.IS_ANONYMOUS)
 @Slf4j
 class TraceController extends BaseController {
+
+    @Value('${tower.server-url}')
+    String serverUrl
 
     TraceService traceService
     ProgressService progressService
@@ -132,7 +137,12 @@ class TraceController extends BaseController {
             User user = userService.getFromAuthData(authentication)
             log.info("Receiving workflow trace for workflows ID=${request.workflow?.id}")
             Workflow workflow = traceService.processWorkflowTrace(request, user)
-            response = HttpResponse.created(TraceWorkflowResponse.ofSuccess(workflow.id))
+            final resp = new TraceWorkflowResponse(
+                    status: TraceProcessingStatus.OK,
+                    workflowId: workflow.id,
+                    watchUrl: "${serverUrl}/watch/${workflow.id}"
+            )
+            response = HttpResponse.created(resp)
 
             publishHeartbeatEvents(workflow)
             publishWorkflowEvent(workflow, user)
@@ -163,7 +173,7 @@ class TraceController extends BaseController {
             publishProgressEvent(workflow)
         }
         catch (Exception e) {
-            log.error("Failed to handle trace trace=$request", e)
+            log.error("Failed to handle tasks trace for request: $request", e)
             response = HttpResponse.badRequest(TraceTaskResponse.ofError(e.message))
         }
 
