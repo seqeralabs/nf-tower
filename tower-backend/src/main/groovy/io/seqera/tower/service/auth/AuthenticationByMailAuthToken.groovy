@@ -25,7 +25,6 @@ import io.reactivex.Flowable
 import io.seqera.tower.domain.User
 import io.seqera.tower.service.UserService
 import org.reactivestreams.Publisher
-
 /**
  * Main application authentication provider
  */
@@ -64,6 +63,9 @@ class AuthenticationByMailAuthToken implements AuthenticationProvider {
             // a more explanatory message should be returned
             return new AuthFailure("Authentication token expired for user: $identity")
         }
+
+        // user is OK -- update last access timestamp
+        userService.updateLastAccessTime(user)
 
         List<String> authorities = userService.findAuthoritiesOfUser(user)
         Map attributes = [
