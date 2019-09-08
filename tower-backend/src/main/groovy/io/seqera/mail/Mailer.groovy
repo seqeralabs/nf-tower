@@ -338,6 +338,13 @@ class Mailer {
         sendViaJavaMail(msg)
     }
 
+    private String hide(String str, boolean canShow) {
+        if( str == null ) return str
+        if( str.size() < 4 )
+            return canShow ? str : '--'
+        else
+            return str.substring(0,4) + '[omitted]'
+    }
 
     void sendAll(List<Mail> mails, Map<String,Closure> actions) {
         log.trace "Mailer config: $config -- mails count: ${mails.size()}"
@@ -347,7 +354,7 @@ class Mailer {
         }
 
         final transport = getTransport0()
-        log.debug("Connecting to host=$host port=$port user=$user")
+        log.debug("Connecting to host=$host port=$port user=${hide(user,true)} password=${hide(password,false)}")
         transport.connect(host, port as int, user, password)
         try {
             for( Mail m : mails ) {

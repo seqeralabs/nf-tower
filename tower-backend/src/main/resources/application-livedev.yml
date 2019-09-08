@@ -10,6 +10,7 @@ micronaut:
       restart: true
 ---
 tower:
+  contactEmail: paolo.ditommaso+tower@gmail.com
   admin:
     password: secret
   trustedEmails:
@@ -36,7 +37,7 @@ grails:
     failOnError: false
 ---
 mail:
-  from: info@seqera.io
+  from: hello@tower.nf
   smtp:
     host: email-smtp.eu-west-1.amazonaws.com
     port: 587

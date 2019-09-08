@@ -16,6 +16,7 @@ import javax.inject.Singleton
 import javax.validation.ValidationException
 import java.security.Principal
 import java.time.Instant
+import java.time.OffsetDateTime
 
 import grails.gorm.DetachedCriteria
 import grails.gorm.transactions.Transactional
@@ -244,4 +245,10 @@ class UserServiceImpl implements UserService {
             }
         }.get()
     }
+
+    User updateLastAccessTime(User user) {
+        user.lastAccess = OffsetDateTime.now()
+        user.save()
+    }
+
 }

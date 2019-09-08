@@ -18,6 +18,7 @@ import groovy.util.logging.Slf4j
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
+import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Post
 import io.micronaut.http.sse.Event
 import io.micronaut.security.annotation.Secured
@@ -29,6 +30,7 @@ import io.seqera.tower.domain.Workflow
 import io.seqera.tower.exchange.progress.ProgressData
 import io.seqera.tower.exchange.trace.TraceAliveRequest
 import io.seqera.tower.exchange.trace.TraceAliveResponse
+import io.seqera.tower.exchange.trace.TraceHelloResponse
 import io.seqera.tower.exchange.trace.TraceTaskRequest
 import io.seqera.tower.exchange.trace.TraceTaskResponse
 import io.seqera.tower.exchange.trace.TraceWorkflowRequest
@@ -166,6 +168,13 @@ class TraceController extends BaseController {
         }
 
         response
+    }
+
+    @Get("/hello")
+    @Secured(['ROLE_USER'])
+    HttpResponse<TraceHelloResponse> hello(Authentication authentication) {
+        log.info "Trace hello from ${authentication.getName()}"
+        HttpResponse.ok(new TraceHelloResponse(message: 'Want to play again?'))
     }
 
 }

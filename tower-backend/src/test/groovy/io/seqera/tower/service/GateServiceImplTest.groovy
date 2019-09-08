@@ -98,4 +98,19 @@ class GateServiceImplTest extends Specification {
         'yo+xyz@gmail.com'  | 'http://host.com/auth?email=yo%2Bxyz%40gmail.com&authToken=abc'
     }
 
+    def 'should get user enable url' () {
+        given:
+        def service = new GateServiceImpl ()
+
+        when:
+        def url = service.getEnableUrl(SERVER, USER_ID)
+        then:
+        url == EXPECTED
+
+        where:
+        SERVER                      | USER_ID       | EXPECTED
+        'http://localhost'          | 1             | 'http://localhost:8001/user?id=1'
+        'http://localhost:8000'     | 2             | 'http://localhost:8001/user?id=2'
+        'http://foo.com'            | 3             | 'http://admin.foo.com/user?id=3'
+    }
 }
