@@ -114,8 +114,8 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         then: 'the workflow has been saved successfully'
         response.status == HttpStatus.CREATED
         response.body().status == TraceProcessingStatus.OK
-        response.body().workflowId == 'vN8KBbqR'
-        response.body().watchUrl == 'http://localhost:8000/watch/vN8KBbqR' 
+        response.body().workflowId
+        response.body().watchUrl == 'http://localhost:8000/watch/' + response.body().workflowId
         !response.body().message
 
         and: 'the workflow is in the database'
