@@ -1,7 +1,7 @@
 tower:
     appName: "${TOWER_APP_NAME:Nextflow Tower}"
     serverUrl: "${TOWER_SERVER_URL:`http://localhost:8000`}"
-    contactEmail: "${TOWER_CONTACT_EMAIL:info@seqera.io}"
+    contactEmail: "${TOWER_CONTACT_EMAIL:hello@tower.nf}"
     trustedEmails:
       - '*@seqera.io'
 ---
@@ -61,7 +61,7 @@ grails:
     failOnError: false
 ---
 mail:
-  from: "${TOWER_CONTACT_EMAIL:info@seqera.io}"
+  from: "${TOWER_CONTACT_EMAIL:hello@tower.nf}"
   smtp:
     host: "${TOWER_SMTP_HOST:email-smtp.eu-west-1.amazonaws.com}"
     port: "${TOWER_SMTP_PORT:587}"

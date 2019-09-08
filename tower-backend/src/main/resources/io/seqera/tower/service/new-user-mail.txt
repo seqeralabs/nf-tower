@@ -6,6 +6,8 @@ A new user just request access to ${app_name}:
 - user name: ${user_name}
 - user email: ${user_email}
 
+Enable the user using this link ${enable_url}
+
 
 --
 This email was sent by ${app_name}
