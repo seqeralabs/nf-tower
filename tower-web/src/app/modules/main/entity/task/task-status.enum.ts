@@ -36,3 +36,13 @@ export function convertTaskStatusToProgressTag(status: number | string): string 
   }
   return TaskStatus[status].toLowerCase();
 }
+
+export function convertTaskStatusToProgressLabel(status: string): string {
+  if( status == 'NEW')
+    return 'PENDING';
+  if( status == 'COMPLETED')
+    return 'SUCCEEDED';
+  else
+    return status;
+}
+
