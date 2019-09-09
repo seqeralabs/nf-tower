@@ -21,7 +21,6 @@ import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Post
-import io.micronaut.http.sse.Event
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.micronaut.security.rules.SecurityRule
@@ -70,44 +69,18 @@ class TraceController extends BaseController {
     }
 
 
-    protected void publishHeartbeatEvents(Workflow workflow) {
-        String workflowFlowableKey = serverSentEventsService.getKeyForEntity(Workflow, workflow.id)
-        String userFlowableKey = serverSentEventsService.getKeyForEntity(User, workflow.ownerId)
-
-        if (workflow.checkIsStarted()) {
-            log.info("Client heartbeats received for flowables: ${workflowFlowableKey} and ${userFlowableKey}")
-            serverSentEventsService.tryPublish(workflowFlowableKey) {
-                Event.of(TraceSseResponse.ofHeartbeat("NF heartbeat [${workflowFlowableKey}]"))
-            }
-            serverSentEventsService.tryPublish(userFlowableKey) {
-                Event.of(TraceSseResponse.ofHeartbeat("NF heartbeat [${userFlowableKey}]"))
-            }
-        }
-    }
-
     private void publishWorkflowEvent(Workflow workflow, User user) {
-        String userFlowableKey = serverSentEventsService.getKeyForEntity(User, user.id)
-        serverSentEventsService.tryPublish(userFlowableKey) {
-            Event.of(TraceSseResponse.ofWorkflow(WorkflowGet.of(workflow)))
-        }
-
-        if (!workflow.checkIsStarted()) {
-            String workflowFlowableKey = serverSentEventsService.getKeyForEntity(Workflow, workflow.id)
-            serverSentEventsService.tryPublish(workflowFlowableKey) {
-                final workflowWithProgress = progressService.buildWorkflowGet(workflow)
-                Event.of(TraceSseResponse.ofWorkflow(workflowWithProgress))
-            }
-            serverSentEventsService.tryComplete(workflowFlowableKey)
+        if (workflow.checkIsStarted()) {
+            serverSentEventsService.publishEvent(TraceSseResponse.ofWorkflow(user.id, workflow.id, WorkflowGet.of(workflow)))
+        } else {
+            final WorkflowGet workflowWithProgress = progressService.buildWorkflowGet(workflow)
+            serverSentEventsService.publishEvent(TraceSseResponse.ofWorkflow(user.id, workflow.id, workflowWithProgress))
         }
     }
 
     private void publishProgressEvent(Workflow workflow) {
-        String workflowFlowableKey = serverSentEventsService.getKeyForEntity(Workflow, workflow.id)
-
-        serverSentEventsService.tryPublish(workflowFlowableKey) {
-            ProgressData progress = progressService.fetchWorkflowProgress(workflow)
-            Event.of(TraceSseResponse.ofProgress(progress))
-        }
+        ProgressData progress = progressService.fetchWorkflowProgress(workflow)
+        serverSentEventsService.publishEvent(TraceSseResponse.ofProgress(workflow.ownerId, workflow.id, progress))
     }
 
     @Post("/alive")
@@ -123,7 +96,6 @@ class TraceController extends BaseController {
             return HttpResponse.badRequest(new TraceAliveResponse(message:msg))
         }
 
-        publishHeartbeatEvents(workflow)
         HttpResponse.ok(new TraceAliveResponse(message: 'OK'))
     }
 
@@ -144,7 +116,6 @@ class TraceController extends BaseController {
             )
             response = HttpResponse.created(resp)
 
-            publishHeartbeatEvents(workflow)
             publishWorkflowEvent(workflow, user)
         }
         catch (Exception e) {
@@ -168,7 +139,6 @@ class TraceController extends BaseController {
             List<Task> tasks = traceService.processTaskTrace(request)
 
             Workflow workflow = tasks.first().workflow
-            publishHeartbeatEvents(workflow)
             response = HttpResponse.created(TraceTaskResponse.ofSuccess(workflow.id))
             publishProgressEvent(workflow)
         }

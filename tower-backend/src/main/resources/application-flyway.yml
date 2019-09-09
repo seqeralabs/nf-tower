@@ -43,14 +43,3 @@ mail:
 auth:
   mail:
     duration: 30m
----
-sse:
-  time:
-    idle:
-      workflow-detail: 1m
-      workflow-list: 1m
-    throttle:
-      workflow-detail: 0s
-      workflow-list: 0s
-    heartbeat:
-      workflow-list: 1m

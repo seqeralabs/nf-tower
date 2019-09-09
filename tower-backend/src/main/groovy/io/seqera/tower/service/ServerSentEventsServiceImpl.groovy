@@ -11,24 +11,17 @@
 
 package io.seqera.tower.service
 
+import javax.annotation.PostConstruct
 import javax.inject.Singleton
 import java.time.Duration
-import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.TimeoutException
 
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import io.micronaut.context.annotation.Value
 import io.micronaut.http.sse.Event
 import io.reactivex.Flowable
-import io.reactivex.disposables.Disposable
-import io.reactivex.flowables.ConnectableFlowable
-import io.reactivex.functions.Consumer
 import io.reactivex.processors.PublishProcessor
-import io.seqera.tower.domain.User
-import io.seqera.tower.domain.Workflow
-import io.seqera.tower.enums.SseErrorType
 import io.seqera.tower.exchange.trace.sse.TraceSseResponse
 
 @Singleton
@@ -36,121 +29,32 @@ import io.seqera.tower.exchange.trace.sse.TraceSseResponse
 @CompileStatic
 class ServerSentEventsServiceImpl implements ServerSentEventsService {
 
-    private final Map<String, PublishProcessor<Event>> publisherByKeyCache = new ConcurrentHashMap(20)
-    private final Map<PublishProcessor<Event>, Flowable<Event>> heartbeats = new ConcurrentHashMap<>(20)
+    private final PublishProcessor<TraceSseResponse> eventPublisher = PublishProcessor.create()
+    private Flowable<Event<List<TraceSseResponse>>> eventFlowable
 
-    @Value('${sse.time.idle.workflow:5m}')
-    Duration idleWorkflowFlowableTimeout
-    @Value('${sse.time.idle.user:5m}')
-    Duration idleUserFlowableTimeout
-    @Value('${sse.time.heartbeat.user:1m}')
-    Duration heartbeatUserFlowableInterval
+    @Value('${sse.buffer.time:1s}')
+    Duration bufferFlowableTime
+    @Value('${sse.buffer.count:100}')
+    Integer bufferFlowableCount
 
-
-    Flowable<Event> getOrCreateUserPublisher(Serializable userId) {
-        String userFlowableKey = getKeyForEntity(User, userId)
-
-        getOrCreatePublisher(userFlowableKey, idleUserFlowableTimeout, { Event.of(TraceSseResponse.ofError(SseErrorType.TIMEOUT, "Expired [${userFlowableKey}]")) })
-        Flowable<Event> userFlowableWithHeartbeat = getOrCreateHeartbeatForPublisher(publisherByKeyCache[userFlowableKey]) {
-            log.debug("Server heartbeat ${it} generated for flowable: ${userFlowableKey}")
-            Event.of(TraceSseResponse.ofHeartbeat("Server heartbeat [${userFlowableKey}]"))
-        }
-
-        return userFlowableWithHeartbeat
-    }
-
-    Flowable getOrCreateWorkflowPublisher(Serializable workflowId) {
-        final workflowFlowableKey = getKeyForEntity(Workflow, workflowId)
-        final timeout = { Event.of(TraceSseResponse.ofError(SseErrorType.TIMEOUT, "Expired [${workflowFlowableKey}]")) }
-        getOrCreatePublisher(workflowFlowableKey, idleWorkflowFlowableTimeout, timeout)
-    }
-
-    String getKeyForEntity(Class entityClass, def entityId) {
-        "${entityClass.simpleName}-${entityId}"
-    }
-
-    Flowable<Event> getOrCreatePublisher(String key, Duration idleTimeout, Closure<Event> idleTimeoutLastEvent) {
-        synchronized (publisherByKeyCache) {
-            if(publisherByKeyCache.containsKey(key)) {
-                log.trace("Getting flowable: ${key}")
-                return publisherByKeyCache[key]
-            }
-
-            log.debug("Creating flowable: ${key}")
-            Flowable<Event> flowable = PublishProcessor.<Event>create()
-            publisherByKeyCache[key] = flowable
-
-            scheduleFlowableIdleTimeout(key, idleTimeout, idleTimeoutLastEvent)
-
-            return flowable
-        }
-    }
-
-    private void scheduleFlowableIdleTimeout(String key, Duration idleTimeout, Closure<Event> idleTimeoutLastEventPayload) {
-        final flowable = publisherByKeyCache[key]
-        final timeoutFlowable = flowable.timeout(idleTimeout.toMillis(), TimeUnit.MILLISECONDS)
-
-        final Consumer trace = { log.trace("Data published for flowable: ${key}") } as Consumer
-        final Consumer handler = { Throwable t ->
-            if (t instanceof TimeoutException) {
-                log.debug("Idle timeout reached for flowable: ${key}")
-                if (idleTimeoutLastEventPayload) {
-                    tryPublish(key, idleTimeoutLastEventPayload)
-                }
-                tryComplete(key)
-            }
-            else {
-                log.error("Unexpected error happened for id: ${key} | ${t.message}")
-            }
-        } as Consumer
-
-        timeoutFlowable.subscribe(trace,handler)
+    @PostConstruct
+    void initialize() {
+        eventFlowable = createBufferedEventFlowable()
     }
 
 
-    void tryPublish(String key, Closure<Event> payload) {
-        final flowable = publisherByKeyCache[key]
-        if (flowable) {
-            log.debug("Publishing event for flowable: ${key}")
-            flowable.onNext(payload.call())
-        }
+    Flowable<Event<List<TraceSseResponse>>> getEventsFlowable() {
+        return eventFlowable
     }
 
-    void tryComplete(String key) {
-        final flowable = publisherByKeyCache[key]
-        if (flowable) {
-            log.debug("Completing flowable: ${key}")
-            flowable.onComplete()
-            publisherByKeyCache.remove(key)
-            heartbeats.remove(flowable)
-        }
+    void publishEvent(TraceSseResponse traceSseResponse) {
+        log.debug("Publishing event for [userId - ${traceSseResponse.userId}] [workflowId - ${traceSseResponse.workflowId}]")
+        eventPublisher.onNext(traceSseResponse)
     }
 
-    Flowable<Event> generateHeartbeatFlowable(Duration interval, Closure<Event> heartbeatEventGenerator) {
-        Flowable.interval(interval.toMillis(), TimeUnit.MILLISECONDS)
-                .map(heartbeatEventGenerator) as Flowable<Event>
-    }
-
-    Flowable<Event> getOrCreateHeartbeatForPublisher(PublishProcessor<Event> publisher, Closure<Event> heartbeatEventGenerator) {
-        synchronized (heartbeats) {
-            if (heartbeats.containsKey(publisher)) {
-                return heartbeats.get(publisher)
-            }
-
-            ConnectableFlowable<Event> hotHeartbeatInterval = generateHeartbeatFlowable(heartbeatUserFlowableInterval, heartbeatEventGenerator)
-                    .publish()
-            Disposable heartbeatDispoable = hotHeartbeatInterval.connect()
-
-            Flowable<Event> dataFlowableWithHeartbeats = publisher
-                    .mergeWith(hotHeartbeatInterval)
-                    .takeUntil(publisher.takeLast(1))
-                    .doOnComplete({
-                        heartbeatDispoable.dispose()
-                    })
-
-            heartbeats.put(publisher, dataFlowableWithHeartbeats)
-            return dataFlowableWithHeartbeats
-        }
+    private Flowable<Event<List<TraceSseResponse>>> createBufferedEventFlowable() {
+        return eventPublisher.buffer(bufferFlowableTime.toMillis(), TimeUnit.MILLISECONDS, bufferFlowableCount)
+                             .map({ List<TraceSseResponse> traces -> Event.of(traces) })
     }
 
 }

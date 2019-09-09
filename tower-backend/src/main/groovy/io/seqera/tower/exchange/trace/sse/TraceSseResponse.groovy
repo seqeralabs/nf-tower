@@ -20,30 +20,26 @@ import java.time.Instant
 
 class TraceSseResponse {
 
+    def userId
+    def workflowId
+
     WorkflowGet workflow
     ProgressData progress
-    SseHeartbeat heartbeat
+
     SseError error
 
-    static TraceSseResponse ofWorkflow(WorkflowGet workflow) {
-        new TraceSseResponse(workflow: workflow)
+    static TraceSseResponse ofWorkflow(def userId, def workflowId, WorkflowGet workflow) {
+        new TraceSseResponse(userId: userId, workflowId: workflowId, workflow: workflow)
     }
 
-    static TraceSseResponse ofProgress(ProgressData progress) {
-        new TraceSseResponse(progress: progress)
+    static TraceSseResponse ofProgress(def userId, def workflowId, ProgressData progress) {
+        new TraceSseResponse(userId: userId, workflowId: workflowId, progress: progress)
     }
 
-    static TraceSseResponse ofError(SseErrorType type, String errorMessage) {
+    static TraceSseResponse ofError(def userId, def workflowId, SseErrorType type, String errorMessage) {
         SseError sseError = new SseError(type: type, message: errorMessage)
 
-        new TraceSseResponse(error: sseError)
+        new TraceSseResponse(userId: userId, workflowId: workflowId, error: sseError)
     }
-
-    static TraceSseResponse ofHeartbeat(String message) {
-        SseHeartbeat sseHeartbeat = new SseHeartbeat(message: message, timestamp: Instant.now())
-
-        new TraceSseResponse(heartbeat: sseHeartbeat)
-    }
-
 
 }

@@ -16,10 +16,8 @@ import {HttpErrorResponse} from "@angular/common/http";
 import {NotificationService} from "../../service/notification.service";
 import {ServerSentEventsService} from "../../service/server-sent-events.service";
 import {Subscription} from "rxjs";
-import {SseError} from "../../entity/sse/sse-error";
-import {SseErrorType} from "../../entity/sse/sse-error-type";
 import {Progress} from "../../entity/progress/progress";
-import {SseHeartbeat} from "../../entity/sse/sse-heartbeat";
+import {SseEvent} from "../../entity/sse/sse-event";
 
 @Component({
   selector: 'wt-workflow-detail',
@@ -29,7 +27,7 @@ import {SseHeartbeat} from "../../entity/sse/sse-heartbeat";
 export class WorkflowDetailComponent implements OnInit, OnDestroy {
 
   workflow: Workflow;
-  private liveEventsSubscription: Subscription;
+  private workflowEventsSubscription: Subscription;
 
   constructor(private workflowService: WorkflowService,
               private serverSentEventsWorkflowService: ServerSentEventsService,
@@ -71,29 +69,26 @@ export class WorkflowDetailComponent implements OnInit, OnDestroy {
   }
 
   private subscribeToWorkflowLiveEvents(workflow: Workflow): void {
-    this.liveEventsSubscription = this.serverSentEventsWorkflowService.connectToWorkflowLiveStream(workflow).subscribe(
-      (data: Workflow | Progress) => this.reactToEvent(data),
-      (error: SseError) => this.reactToErrorEvent(error)
+    this.workflowEventsSubscription = this.serverSentEventsWorkflowService.connectToWorkflowEventsStream(workflow).subscribe(
+      (event: SseEvent) => this.reactToEvent(event),
+      (event: SseEvent) => this.reactToErrorEvent(event)
     );
   }
 
   private unsubscribeFromWorkflowLiveEvents(): void {
-    if (this.liveEventsSubscription) {
-      this.liveEventsSubscription.unsubscribe();
-      this.liveEventsSubscription = null;
+    if (this.workflowEventsSubscription) {
+      this.workflowEventsSubscription.unsubscribe();
+      this.workflowEventsSubscription = null;
     }
   }
 
-  private reactToEvent(data: Workflow | Progress | SseHeartbeat): void {
-    if (data instanceof Workflow) {
-      console.log('Live workflow event received', data);
-      this.reactToWorkflowEvent(data);
+  private reactToEvent(event: SseEvent): void {
+    console.log('Live workflow event received', event);
+    if (event.isWorkflow) {
+      this.reactToWorkflowEvent(event.workflow);
       this.unsubscribeFromWorkflowLiveEvents();
-    } else if (data instanceof Progress) {
-      console.log('Live workflow event received', data);
-      this.reactToProgressEvent(data);
-    } else if (data instanceof SseHeartbeat) {
-      console.log('Heartbeat event received', data);
+    } else if (event.isProgress) {
+      this.reactToProgressEvent(event.progress);
     }
   }
 
@@ -106,11 +101,9 @@ export class WorkflowDetailComponent implements OnInit, OnDestroy {
     this.workflowService.updateProgress(progress, this.workflow);
   }
 
-  private reactToErrorEvent(error: SseError): void {
-    console.log('Live workflow error event received', error);
-    if (error.type == SseErrorType.TIMEOUT) {
-      this.notificationService.showErrorNotification('Live connection timed out');
-    }
+  private reactToErrorEvent(event: SseEvent): void {
+    console.log('Live workflow error event received', event);
+    this.notificationService.showErrorNotification(event.error.message);
   }
 
 }

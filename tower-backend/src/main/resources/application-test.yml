@@ -46,14 +46,3 @@ mail:
 auth:
   mail:
     duration: 30m
----
-sse:
-  time:
-    idle:
-      workflow: 1m
-      user: 1m
-    throttle:
-      workflow: 0s
-      user: 0s
-    heartbeat:
-      user: 1m

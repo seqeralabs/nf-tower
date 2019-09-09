@@ -24,47 +24,27 @@ import org.reactivestreams.Publisher
 class ServerSentEventsController {
 
     UserService userService
-
     ServerSentEventsService serverSentEventsService
 
     @Inject
-    ServerSentEventsController(ServerSentEventsService serverSentEventsService) {
+    ServerSentEventsController(UserService userService, ServerSentEventsService serverSentEventsService) {
         this.userService = userService
         this.serverSentEventsService = serverSentEventsService
     }
 
 
-    @Get("/workflow/{workflowId}")
-    Publisher<Event<TraceSseResponse>> liveWorkflow(String workflowId) {
-        log.debug("Subscribing to live events of workflow: ${workflowId}")
-        Flowable<Event<TraceSseResponse>> workflowFlowable
+    @Get("/")
+    Publisher<Event<List<TraceSseResponse>>> live() {
+        log.debug("Subscribing to live events")
         try {
-            workflowFlowable = serverSentEventsService.getOrCreateWorkflowPublisher(workflowId)
+            return serverSentEventsService.eventsFlowable
         }
         catch (Exception e) {
-            String message = "Unexpected error while obtaining event emitter for workflow: ${workflowId}"
-            log.error("${message} | ${e.message}", e)
-            workflowFlowable = Flowable.just(Event.of(TraceSseResponse.ofError(SseErrorType.UNEXPECTED, message)))
-        }
-
-        return workflowFlowable
-    }
-
-    @Get("/user/{userId}")
-    Publisher<Event<TraceSseResponse>> liveUser(Long userId) {
-        log.debug("Subscribing to live events of user: ${userId}")
-        Flowable<Event> userFlowable
-        try {
-            userFlowable = serverSentEventsService.getOrCreateUserPublisher(userId)
-        }
-        catch (Exception e) {
-            String message = "Unexpected error while obtaining event emitter for user: ${userId}"
+            String message = "Unexpected error while obtaining event emitter"
             log.error("${message} | ${e.message}", e)
 
-            return Flowable.just(Event.of(TraceSseResponse.ofError(SseErrorType.UNEXPECTED, message)))
+            return Flowable.just(Event.of([TraceSseResponse.ofError(null, null, SseErrorType.UNEXPECTED, message)]))
         }
-
-        return userFlowable
     }
 
 }
