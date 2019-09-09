@@ -112,6 +112,7 @@ class TraceController extends BaseController {
                     workflowId: workflow.id,
                     watchUrl: "${serverUrl}/watch/${workflow.id}"
             )
+
             publishWorkflowEvent(workflow, user)
             return HttpResponse.created(resp)
         }

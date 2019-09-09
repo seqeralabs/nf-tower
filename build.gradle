@@ -9,7 +9,6 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 
-
 allprojects {
     version "19.08.0"
     group "io.seqera"

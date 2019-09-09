@@ -61,7 +61,7 @@ export class LiveEventsService {
   private connect(url: string): Observable<LiveUpdate> {
     return new Observable((subscriber: Subscriber<LiveUpdate>) => {
       console.log('Connecting to receive live events', url);
-      const eventSource: EventSource = new EventSource(url);
+      const eventSource: EventSource = new EventSource(url, { withCredentials: true });
 
       eventSource.addEventListener('open', () => {
         console.log('Connection established', new Date().toISOString());

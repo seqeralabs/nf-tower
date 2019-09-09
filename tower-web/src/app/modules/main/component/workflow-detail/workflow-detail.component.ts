@@ -18,6 +18,7 @@ import {LiveEventsService} from "../../service/live-events.service";
 import {Subscription} from "rxjs";
 import {Progress} from "../../entity/progress/progress";
 import {LiveUpdate} from "../../entity/live/live-update";
+import {SseEvent} from "../../entity/sse/sse-event";
 
 @Component({
   selector: 'wt-workflow-detail',
