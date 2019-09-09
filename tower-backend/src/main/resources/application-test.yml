@@ -46,3 +46,9 @@ mail:
 auth:
   mail:
     duration: 30m
+---
+---
+sse:
+  buffer:
+    time: 1500ms
+    count: 10
