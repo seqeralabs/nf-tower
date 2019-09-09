@@ -72,6 +72,9 @@ export class WorkflowUtilizationComponent implements OnInit, OnChanges {
   }
 
   private computeDonutBinarySeries(filledValue: number, emptyValue: number): any[] {
+    //Avoid phantom empty circle fragment when the filled value exceeds 100%
+    emptyValue = (filledValue > 100) ? 0 : emptyValue;
+
     return [
       {
         className: 'ct-filled',
