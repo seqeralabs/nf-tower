@@ -34,6 +34,8 @@ import io.seqera.util.StringUtils
 import io.seqera.util.TokenHelper
 import org.springframework.validation.FieldError
 
+import static io.seqera.tower.domain.AccessToken.DEFAULT_TOKEN
+
 @Slf4j
 @Singleton
 @Transactional
@@ -129,7 +131,7 @@ class UserServiceImpl implements UserService {
 
         User user = new User(email: email, userName: userName)
         user.trusted = isTrustedEmail(email)
-        user.addToAccessTokens(new AccessToken(token: TokenHelper.createHexToken(), name: 'default', dateCreated: Instant.now()))
+        user.addToAccessTokens(new AccessToken(token: TokenHelper.createHexToken(), name: DEFAULT_TOKEN, dateCreated: Instant.now()))
         user.save()
 
         UserRole userRole = new UserRole(user: user, role: role)

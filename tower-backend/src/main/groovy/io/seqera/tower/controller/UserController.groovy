@@ -54,10 +54,11 @@ class UserController extends BaseController {
     HttpResponse<GetUserResponse> profile(Authentication authentication) {
         final User user = userService.getFromAuthData(authentication)
         if (!user) {
-            return HttpResponse.badRequest(new GetUserResponse(message: "Cannot find user"))
+            return HttpResponse.badRequest(new GetUserResponse(message: "Cannot find user with name ${authentication.getName()}"))
         }
 
-        HttpResponse.ok(new GetUserResponse(user: user, nfAccessToken: user.accessTokens?.getAt(0)?.token))
+        log.debug "Getting profile for user id=${user.id} userName=${user.userName} email=${user.email}n"
+        HttpResponse.ok(new GetUserResponse(user: user))
     }
 
     @Post("/update")

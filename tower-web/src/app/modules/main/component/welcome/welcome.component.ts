@@ -11,6 +11,10 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {User} from "../../entity/user/user";
 import {AuthService} from "../../service/auth.service";
+import {HttpClient, HttpErrorResponse} from "@angular/common/http";
+import {environment} from "../../../../../environments/environment";
+import {GetDefaultTokenResponse, ListAccessTokensResponse} from "../../entity/access-token";
+import {NotificationService} from "../../service/notification.service";
 
 @Component({
   selector: 'wt-welcome',
@@ -19,19 +23,36 @@ import {AuthService} from "../../service/auth.service";
 })
 export class WelcomeComponent implements OnInit {
 
-  user: User;
-
   nextflowRunCommand = 'nextflow run hello -with-tower ';
 
-  constructor(private auth: AuthService) { }
+  accessToken: string;
+
+  constructor(private httpClient: HttpClient, private notificationService: NotificationService) { }
 
   ngOnInit() {
-    this.user = this.auth.currentUser
+    this.fetchNextflowCommand();
+    this.fetchDefaultToken();
+  }
+
+  private fetchNextflowCommand() {
     const url = new URL(window.location.href);
     const base = url.origin;
     if( !base.endsWith('://tower.nf') ) {
       this.nextflowRunCommand += base + '/api'
     }
+  }
+
+  private fetchDefaultToken() {
+    let url = `${environment.apiUrl}/token/default`;
+    this.httpClient.get<GetDefaultTokenResponse>(url)
+      .subscribe(
+        resp => {
+          this.accessToken = resp.token.token;
+        },
+        (resp: HttpErrorResponse) => {
+          this.notificationService.showErrorNotification(resp.error.message);
+        }
+      );
   }
 
 }
