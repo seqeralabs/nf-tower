@@ -30,7 +30,7 @@ export class ErrorInterceptor implements HttpInterceptor {
     return next.handle(request).pipe(
       catchError(error => {
         if (!authorizationErrorCodes.includes(error.status)) {
-          return;
+          return throwError(error);
         }
         console.log('Authorization error intercepted', error);
 
