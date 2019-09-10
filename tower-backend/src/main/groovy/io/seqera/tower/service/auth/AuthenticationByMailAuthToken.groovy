@@ -68,11 +68,7 @@ class AuthenticationByMailAuthToken implements AuthenticationProvider {
         userService.updateLastAccessTime(user)
 
         List<String> authorities = userService.findAuthoritiesOfUser(user)
-        Map attributes = [
-                id: user.id, email: user.email, userName: user.userName, accessToken: user.accessTokens?.getAt(0)?.token,
-                firstName: user.firstName, lastName: user.lastName, organization: user.organization, description: user.description, avatar: user.avatar,
-        ]
-        return new UserDetails(user.email, authorities, (Map) attributes)
+        return new UserDetails(user.email, authorities)
     }
 
     protected boolean isAuthTokenExpired(User user) {
