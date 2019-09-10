@@ -3,7 +3,14 @@
     <div class="card-header">
       <div class="row">
         <div class="col">
-          <h1><a class="project-name" [href]="workflow.data.repository" target="_blank">{{workflow.data.projectName}}</a></h1>
+          <h1>
+            <ng-container *ngIf="workflow.data.repository!=null; else noLink">
+              <a class="project-name" [href]="workflow.data.repository" target="_blank">{{workflow.data.projectName}}</a>
+            </ng-container>
+            <ng-template #noLink>
+              <span >{{workflow.data.projectName}}</span>
+            </ng-template>
+          </h1>
           <h2>{{workflow.data.runName}}</h2>
         </div>
         <div class="col m-auto align-middle text-right pr-5 status-icon">
