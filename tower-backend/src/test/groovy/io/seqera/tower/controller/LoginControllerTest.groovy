@@ -77,16 +77,6 @@ class LoginControllerTest extends AbstractContainerBaseTest {
         authentication.attributes.iss
         authentication.attributes.exp
         authentication.attributes.iat
-
-        authentication.attributes.id == user.id
-        authentication.attributes.email == user.email
-        authentication.attributes.userName == user.userName
-        authentication.attributes.accessToken == user.accessTokens.first().token
-        authentication.attributes.firstName == user.firstName
-        authentication.attributes.lastName == user.lastName
-        authentication.attributes.avatar == user.avatar
-        authentication.attributes.organization == user.organization
-        authentication.attributes.description == user.description
     }
 
     void 'try to login with valid credentials (email and authToken) for a user which has an expired authToken'() {
