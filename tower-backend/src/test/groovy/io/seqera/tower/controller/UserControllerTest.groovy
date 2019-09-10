@@ -38,6 +38,34 @@ class UserControllerTest extends AbstractContainerBaseTest {
     RxHttpClient client
 
 
+    void "get data of the logged in user"() {
+        given: "an existing user"
+        User user = new DomainCreator().createUserWithRole(
+                [email: 'email@email.com', userName: 'username',
+                 firstName: 'Firstname', lastName: 'Lastname', organization: 'Organization', description: 'Description', avatar: 'http://avatar.com'],
+                'ROLE_USER')
+
+        when: "perform the request to obtain the info the user"
+        String accessToken = doJwtLogin(user, client)
+        HttpResponse<GetUserResponse> response = client.toBlocking().exchange(
+                HttpRequest.GET("/user/")
+                        .bearerAuth(accessToken),
+                GetUserResponse.class
+        )
+
+        then: 'the user info has been obtained properly'
+        response.status == HttpStatus.OK
+        response.body().user.id == user.id
+        response.body().user.email == user.email
+        response.body().user.userName == user.userName
+        response.body().user.firstName == user.firstName
+        response.body().user.lastName == user.lastName
+        response.body().user.organization == user.organization
+        response.body().user.description == user.description
+        response.body().user.avatar == user.avatar
+        response.body().nfAccessToken == user.accessTokens.first().token
+    }
+
     void "update the user data"() {
         given: "an existing user"
         User user = new DomainCreator().createUserWithRole([:], 'ROLE_USER')

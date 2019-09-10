@@ -10,7 +10,7 @@
  */
 import { Injectable } from '@angular/core';
 import {BehaviorSubject, Observable, of, Subject} from "rxjs";
-import {map, tap} from "rxjs/operators";
+import {map, mergeMap, tap} from "rxjs/operators";
 import {User} from "../entity/user/user";
 import {HttpClient} from "@angular/common/http";
 import {environment} from "src/environments/environment";
@@ -46,25 +46,28 @@ export class AuthService {
 
   auth(email: string, authToken: string): Observable<User> {
     return this.http.post(authEndpointUrl, {username: email, password: authToken}).pipe(
-      map((authData: any) => this.retrieveUserFromAuthResponse(authData)),
+      mergeMap((authData: any) => this.requestUserProfileInfo(authData)),
       tap((user: User) => this.setAuthUser(user))
     );
   }
 
-  private retrieveUserFromAuthResponse(authData: any) {
+  private requestUserProfileInfo(authData: any): Observable<User> {
     let userData: UserData = <UserData> {email: authData.username, jwtAccessToken: authData['access_token'], roles: authData.roles};
 
-    let attributes: any = this.parseJwt(userData.jwtAccessToken);
-    userData.id = attributes.id;
-    userData.userName = attributes.userName;
-    userData.firstName = attributes.firstName;
-    userData.lastName = attributes.lastName;
-    userData.organization = attributes.organization;
-    userData.description = attributes.description;
-    userData.avatar = attributes.avatar;
-    userData.nfAccessToken = attributes.accessToken;
+    return this.http.get(`${userEndpointUrl}/`, {headers: {'Authorization': `Bearer ${userData.jwtAccessToken}`}}).pipe(
+      map((data: any) => {
+        userData.id = data.user.id;
+        userData.userName = data.user.userName;
+        userData.firstName = data.user.firstName;
+        userData.lastName = data.user.lastName;
+        userData.organization = data.user.organization;
+        userData.description = data.user.description;
+        userData.avatar = data.user.avatar;
+        userData.nfAccessToken = data.accessToken;
 
-    return new User(userData);
+        return new User(userData);
+      })
+    );
   }
 
   private setAuthUser(user: User): void {
