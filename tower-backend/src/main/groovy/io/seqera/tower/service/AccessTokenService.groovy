@@ -45,7 +45,7 @@ abstract class AccessTokenService {
     @Query("delete ${AccessToken token} where ${token.user}.id = $userId")
     abstract Integer deleteByUserId(Serializable userId)
 
-    AccessToken createToken(String name, User user ) {
+    AccessToken createToken(String name, User user) {
         def result = new AccessToken()
         result.name = name
         result.user = user

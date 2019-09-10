@@ -63,7 +63,6 @@ class UserControllerTest extends AbstractContainerBaseTest {
         response.body().user.organization == user.organization
         response.body().user.description == user.description
         response.body().user.avatar == user.avatar
-        response.body().nfAccessToken == user.accessTokens.first().token
     }
 
     void "update the user data"() {

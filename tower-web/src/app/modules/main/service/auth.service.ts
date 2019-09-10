@@ -63,7 +63,6 @@ export class AuthService {
         userData.organization = data.user.organization;
         userData.description = data.user.description;
         userData.avatar = data.user.avatar;
-        userData.nfAccessToken = data.accessToken;
 
         return new User(userData);
       })

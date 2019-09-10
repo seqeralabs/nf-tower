@@ -30,3 +30,8 @@ export interface ListAccessTokensResponse {
   message: string;
 }
 
+export interface GetDefaultTokenResponse {
+  token: AccessToken;
+  message: string;
+}
+

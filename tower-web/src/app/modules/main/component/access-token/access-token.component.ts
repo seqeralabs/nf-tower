@@ -51,7 +51,7 @@ export class AccessTokenComponent implements OnInit {
     }
 
     createNewToken() {
-      let name: string = prompt("Token name")
+      let name: string = prompt("Token name");
       if( name == null )
           return;
       let req: CreateAccessTokenRequest = {name:name};

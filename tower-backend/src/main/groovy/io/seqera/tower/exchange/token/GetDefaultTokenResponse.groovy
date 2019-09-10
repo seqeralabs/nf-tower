@@ -8,16 +8,17 @@
  * This Source Code Form is "Incompatible With Secondary Licenses", as
  * defined by the Mozilla Public License, v. 2.0.
  */
-export interface UserData {
-  id: number;
-  userName: string;
-  email: string;
-  roles: string[];
-  jwtAccessToken: string;
 
-  firstName: string;
-  lastName: string;
-  organization: string;
-  description: string;
-  avatar: string;
+package io.seqera.tower.exchange.token
+
+import io.seqera.tower.domain.AccessToken
+import io.seqera.tower.exchange.BaseResponse
+
+/**
+ *
+ * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
+ */
+class GetDefaultTokenResponse implements BaseResponse {
+    String message
+    AccessToken token
 }

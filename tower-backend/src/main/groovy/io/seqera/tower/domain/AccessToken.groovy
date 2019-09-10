@@ -26,6 +26,8 @@ import groovy.transform.CompileDynamic
 @JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version', 'user', 'userId'])
 class AccessToken {
 
+    static final String DEFAULT_TOKEN = 'default'
+
     Long id
     String token
     String name
