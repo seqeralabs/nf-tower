@@ -40,10 +40,25 @@ import io.seqera.tower.service.UserService
 @Secured(SecurityRule.IS_AUTHENTICATED)
 class UserController extends BaseController {
 
-    @Inject
     UserService userService
-    
-    @Inject GateService gateService
+    GateService gateService
+
+    @Inject
+    UserController(UserService userService, GateService gateService) {
+        this.userService = userService
+        this.gateService = gateService
+    }
+
+    @Get('/')
+    @Transactional
+    HttpResponse<GetUserResponse> profile(Authentication authentication) {
+        final User user = userService.getFromAuthData(authentication)
+        if (!user) {
+            return HttpResponse.badRequest(new GetUserResponse(message: "Cannot find user"))
+        }
+
+        HttpResponse.ok(new GetUserResponse(user: user, nfAccessToken: user.accessTokens?.getAt(0)?.token))
+    }
 
     @Post("/update")
     @Produces(MediaType.TEXT_PLAIN)

@@ -21,6 +21,9 @@ import io.seqera.tower.exchange.BaseResponse
  */
 @CompileStatic
 class GetUserResponse implements BaseResponse {
+
     User user
+    String nfAccessToken
+
     String message
 }
