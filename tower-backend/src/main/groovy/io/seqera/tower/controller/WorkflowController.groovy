@@ -101,16 +101,12 @@ class WorkflowController extends BaseController {
      */
     @Get("/{workflowId}")
     @Transactional
-<<<<<<< HEAD
     @Secured(['ROLE_USER'])
 <<<<<<< HEAD
     HttpResponse<WorkflowGet> get(String workflowId) {
         Workflow workflow = workflowService.get(workflowId)
 =======
     HttpResponse<WorkflowGet> get(String id) {
-=======
-    HttpResponse<WorkflowGet> get(Long id) {
->>>>>>> Refactor security strategy from JWT token to JWT cookie
         Workflow workflow = workflowService.get(id)
 >>>>>>> Refactor security strategy from JWT token to JWT cookie
 
@@ -149,12 +145,7 @@ class WorkflowController extends BaseController {
 
     @Get("/{workflowId}/tasks")
     @Transactional
-<<<<<<< HEAD
-    @Secured(SecurityRule.IS_ANONYMOUS)
     HttpResponse<TaskList> tasks(String workflowId, HttpParameters filterParams) {
-=======
-    HttpResponse<TaskList> tasks(Long workflowId, HttpParameters filterParams) {
->>>>>>> Refactor security strategy from JWT token to JWT cookie
         Long max = filterParams.getFirst('length', Long.class, 10l)
         Long offset = filterParams.getFirst('start', Long.class, 0l)
         String orderProperty = filterParams.getFirst('order[0][column]', String.class, 'taskId')
