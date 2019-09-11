@@ -31,7 +31,7 @@ micronaut:
             generator:
               secret: pleaseChangeThisSecretForANewOne
         generator:
-          access-token-expiration: 3600
+          access-token-expiration: 86400
 ---
 jackson:
   serialization:
@@ -78,6 +78,7 @@ live:
   buffer:
     time: 1s
     count: 100
+    heartbeat: 2m
 ---
 endpoints:
   bean:
