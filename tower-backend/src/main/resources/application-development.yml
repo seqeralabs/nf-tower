@@ -9,11 +9,12 @@ micronaut:
     cors:
       enabled: true
   security:
-    token:
-      jwt:
-        cookie:
-          loginSuccessTargetUrl: "${TOWER_SERVER_URL:`http://localhost:4200`}/access?success=true"
-          loginFailureTargetUrl: "${TOWER_SERVER_URL:`http://localhost:4200`}/access?success=false"
+    session:
+      enabled: true
+      loginSuccessTargetUrl: "${TOWER_SERVER_URL:`http://localhost:4200`}/access?success=true"
+      loginFailureTargetUrl: "${TOWER_SERVER_URL:`http://localhost:4200`}/access?success=false"
+      logoutTargetUrl: "${TOWER_SERVER_URL:`http://localhost:4200`}/logout"
+
 ---
 dataSource:
   pooled: true

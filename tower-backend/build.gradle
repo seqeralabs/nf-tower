@@ -59,7 +59,8 @@ dependencies {
     compile "io.micronaut.configuration:micronaut-micrometer-registry-statsd"
     
     annotationProcessor "io.micronaut:micronaut-security"
-    compile "io.micronaut:micronaut-security-jwt"
+    compile "io.micronaut:micronaut-security-session"
+    testCompile "io.micronaut:micronaut-security-jwt"
     
     compile 'io.micronaut.configuration:micronaut-flyway:1.1.0'
     compile "ch.qos.logback:logback-classic:1.2.3"

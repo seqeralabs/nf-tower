@@ -22,28 +22,12 @@ micronaut:
       login:
         enabled: true
       logout:
-        enable: false
-    token:
-      jwt:
         enabled: true
-        bearer:
-          enabled: false
-        cookie:
-          enabled: true
-          cookieHttpOnly: false
-          cookieSecure: true
-          loginSuccessTargetUrl: "${TOWER_SERVER_URL:`http://localhost:8000`}/access?success=true"
-          loginFailureTargetUrl: "${TOWER_SERVER_URL:`http://localhost:8000`}/access?success=false"
-        signatures:
-          secret:
-            generator:
-              secret: "${TOWER_JWT_SECRET:pleaseChangeThisSecretForANewOne}"
-        generator:
-<<<<<<< HEAD
-          access-token-expiration: 86400
-=======
-          accessTokenExpiration: 3600
->>>>>>> Refactor security strategy from JWT token to JWT cookie
+    session:
+      enabled: true
+      loginSuccessTargetUrl: "${TOWER_SERVER_URL:`http://localhost:8000`}/access?success=true"
+      loginFailureTargetUrl: "${TOWER_SERVER_URL:`http://localhost:8000`}/access?success=false"
+      logoutTargetUrl: "${TOWER_SERVER_URL:`http://localhost:8000`}/logout"
 ---
 jackson:
   serialization:

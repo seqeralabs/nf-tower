@@ -8,12 +8,19 @@ micronaut:
       paths: src/main
       restart: true
   security:
+    session:
+      enabled: false
     token:
       jwt:
+        enabled: true
         bearer:
           enabled: true
-        cookie:
-          enabled: false
+        signatures:
+          secret:
+            generator:
+              secret: this_secret_has_32_characters...
+        generator:
+          accessTokenExpiration: 3600
 ---
 dataSource:
   pooled: false
