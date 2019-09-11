@@ -38,6 +38,7 @@ class User {
     String avatar
 
     boolean trusted
+    Boolean disabled
 
     OffsetDateTime dateCreated
     OffsetDateTime lastUpdated
@@ -50,7 +51,7 @@ class User {
         userName(unique: true, blank:false, matches: USERNAME_REGEX, maxSize: 40)
         authToken(unique: true, nullable: true)
         authTime(nullable: true)
-
+        disabled(nullable: true)
         firstName(nullable: true, maxSize: 100)
         lastName(nullable: true, maxSize: 100)
         organization(nullable: true, maxSize: 100)
