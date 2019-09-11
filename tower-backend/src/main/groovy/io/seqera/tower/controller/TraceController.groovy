@@ -11,6 +11,8 @@
 
 package io.seqera.tower.controller
 
+import io.seqera.tower.enums.WorkflowAction
+
 import javax.inject.Inject
 
 import grails.gorm.transactions.Transactional
@@ -70,17 +72,11 @@ class TraceController extends BaseController {
 
 
     private void publishWorkflowEvent(Workflow workflow, User user) {
-        if (workflow.checkIsStarted()) {
-            serverSentEventsService.publishEvent(TraceSseResponse.ofWorkflow(user.id, workflow.id, WorkflowGet.of(workflow)))
-        } else {
-            final WorkflowGet workflowWithProgress = progressService.buildWorkflowGet(workflow)
-            serverSentEventsService.publishEvent(TraceSseResponse.ofWorkflow(user.id, workflow.id, workflowWithProgress))
-        }
+        serverSentEventsService.publishEvent(TraceSseResponse.ofAction(user.id, workflow.id, WorkflowAction.WORKFLOW_UPDATE))
     }
 
     private void publishProgressEvent(Workflow workflow) {
-        ProgressData progress = progressService.fetchWorkflowProgress(workflow)
-        serverSentEventsService.publishEvent(TraceSseResponse.ofProgress(workflow.ownerId, workflow.id, progress))
+        serverSentEventsService.publishEvent(TraceSseResponse.ofAction(workflow.ownerId, workflow.id, WorkflowAction.PROGRESS_UPDATE))
     }
 
     @Post("/alive")

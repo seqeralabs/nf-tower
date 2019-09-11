@@ -111,12 +111,14 @@ export class HomeComponent implements OnInit {
 
   private reactToDataEvent(event: SseEvent) {
     console.log('Live user event received', event);
-    this.workflowService.updateWorkflow(event.workflow);
+    this.workflowService.getWorkflow(event.workflowId, true).subscribe((workflow: Workflow) => {
+      this.workflowService.updateWorkflow(workflow)
+    });
   }
 
   private reactToErrorEvent(event: SseEvent) {
     console.log('Live user error event received', event);
-    this.notificationService.showErrorNotification(event.error.message);
+    this.notificationService.showErrorNotification(event.message);
   }
 
   private get isAtRoot(): boolean {

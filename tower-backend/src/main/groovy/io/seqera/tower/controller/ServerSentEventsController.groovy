@@ -9,7 +9,6 @@ import io.micronaut.http.sse.Event
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.rules.SecurityRule
 import io.reactivex.Flowable
-import io.seqera.tower.enums.SseErrorType
 import io.seqera.tower.exchange.trace.sse.TraceSseResponse
 import io.seqera.tower.service.ServerSentEventsService
 import io.seqera.tower.service.UserService
@@ -43,7 +42,7 @@ class ServerSentEventsController {
             String message = "Unexpected error while obtaining event emitter"
             log.error("${message} | ${e.message}", e)
 
-            return Flowable.just(Event.of([TraceSseResponse.ofError(null, null, SseErrorType.UNEXPECTED, message)]))
+            return Flowable.just(Event.of([TraceSseResponse.ofError(null, null, message)]))
         }
     }
 

@@ -11,6 +11,9 @@
 
 package io.seqera.tower.controller
 
+import io.seqera.tower.exchange.progress.GetProgressResponse
+import io.seqera.tower.exchange.progress.ProgressData
+
 import javax.inject.Inject
 
 import grails.gorm.PagedResultList
@@ -100,6 +103,26 @@ class WorkflowController extends BaseController {
             return HttpResponse.notFound()
         }
         HttpResponse.ok(progressService.buildWorkflowGet(workflow))
+    }
+
+    @Transactional
+    @Secured(['ROLE_USER'])
+    @Get('/{workflowId}/progress')
+    @CompileDynamic
+    HttpResponse<GetProgressResponse> progress(String workflowId) {
+        try {
+            final Workflow workflow = workflowService.get(workflowId)
+            if (!workflow) {
+                return HttpResponse.notFound(new GetProgressResponse(message: "Oops... Can't find workflow ID $workflowId"))
+            }
+
+            final ProgressData progress = progressService.fetchWorkflowProgress(workflow)
+            HttpResponse.ok(new GetProgressResponse(progress: progress))
+        }
+        catch( Exception e ) {
+            log.error "Unable to get progress for workflow with id=$workflowId", e
+            HttpResponse.badRequest(new GetProgressResponse(message: "Oops... Failed to get progress for workflow ID $workflowId"))
+        }
     }
 
     @Get("/{workflowId}/tasks")

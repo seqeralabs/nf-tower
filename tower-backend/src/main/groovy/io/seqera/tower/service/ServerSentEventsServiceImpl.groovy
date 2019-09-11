@@ -54,7 +54,7 @@ class ServerSentEventsServiceImpl implements ServerSentEventsService {
 
     private Flowable<Event<List<TraceSseResponse>>> createBufferedEventFlowable() {
         return eventPublisher.buffer(bufferFlowableTime.toMillis(), TimeUnit.MILLISECONDS, bufferFlowableCount)
-                             .map({ List<TraceSseResponse> traces -> Event.of(traces) })
+                             .map({ List<TraceSseResponse> traces -> Event.of(traces.unique()) })
     }
 
 }

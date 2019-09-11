@@ -11,35 +11,25 @@
 
 package io.seqera.tower.exchange.trace.sse
 
+import groovy.transform.EqualsAndHashCode
+import io.seqera.tower.enums.WorkflowAction
+import io.seqera.tower.exchange.BaseResponse
 
-import io.seqera.tower.enums.SseErrorType
-import io.seqera.tower.exchange.progress.ProgressData
-import io.seqera.tower.exchange.workflow.WorkflowGet
-
-import java.time.Instant
-
-class TraceSseResponse {
+@EqualsAndHashCode
+class TraceSseResponse implements BaseResponse {
 
     def userId
     def workflowId
 
-    WorkflowGet workflow
-    ProgressData progress
+    WorkflowAction action
+    String message
 
-    SseError error
-
-    static TraceSseResponse ofWorkflow(def userId, def workflowId, WorkflowGet workflow) {
-        new TraceSseResponse(userId: userId, workflowId: workflowId, workflow: workflow)
+    static TraceSseResponse ofAction(def userId, def workflowId, WorkflowAction action) {
+        new TraceSseResponse(userId: userId, workflowId: workflowId, action: action)
     }
 
-    static TraceSseResponse ofProgress(def userId, def workflowId, ProgressData progress) {
-        new TraceSseResponse(userId: userId, workflowId: workflowId, progress: progress)
-    }
-
-    static TraceSseResponse ofError(def userId, def workflowId, SseErrorType type, String errorMessage) {
-        SseError sseError = new SseError(type: type, message: errorMessage)
-
-        new TraceSseResponse(userId: userId, workflowId: workflowId, error: sseError)
+    static TraceSseResponse ofError(def userId, def workflowId, String errorMessage) {
+        new TraceSseResponse(userId: userId, workflowId: workflowId, message: errorMessage)
     }
 
 }

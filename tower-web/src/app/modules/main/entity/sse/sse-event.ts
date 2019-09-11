@@ -9,45 +9,33 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 
-import {Workflow} from "../workflow/workflow";
-import {Progress} from "../progress/progress";
-import {SseError} from "./sse-error";
+import {WorkflowAction} from "./workflow-action.enum";
 
 export class SseEvent {
 
   userId: string | number;
   workflowId: string | number;
 
-  workflow: Workflow;
-  progress: Progress;
+  action: WorkflowAction;
 
-  error:SseError;
+  message: string;
 
   constructor(json: any) {
     this.userId = json.userId;
     this.workflowId = json.workflowId;
-
-    if (json.workflow) {
-      this.workflow = new Workflow(json.workflow);
-    }
-    if (json.progress) {
-      this.progress = new Progress(json.progress);
-    }
-    if (json.error) {
-      this.error = new SseError(json.error);
-    }
+    this.action = WorkflowAction[<string>json.action];
   }
 
   get isError(): boolean {
-    return (this.error != null);
+    return (this.message != null);
   }
 
-  get isWorkflow(): boolean {
-    return (this.workflow != null);
+  get isWorkflowUpdate(): boolean {
+    return (this.action == WorkflowAction.WORKFLOW_UPDATE);
   }
 
-  get isProgress(): boolean {
-    return (this.progress != null);
+  get isProgressUpdate(): boolean {
+    return (this.action == WorkflowAction.PROGRESS_UPDATE);
   }
 
 }

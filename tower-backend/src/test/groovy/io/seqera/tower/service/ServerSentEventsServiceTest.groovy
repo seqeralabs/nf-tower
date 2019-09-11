@@ -12,6 +12,7 @@
 package io.seqera.tower.service
 
 import io.seqera.tower.enums.SseErrorType
+import io.seqera.tower.enums.WorkflowAction
 import io.seqera.tower.exchange.trace.sse.TraceSseResponse
 
 import javax.inject.Inject
@@ -32,7 +33,7 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
 
     void "publish a single element, the element is received after the time window passes"() {
         given: 'a trace to publish'
-        TraceSseResponse trace = TraceSseResponse.ofError(1, 1, SseErrorType.UNEXPECTED, 'Error')
+        TraceSseResponse trace = TraceSseResponse.ofAction(1, 1, WorkflowAction.WORKFLOW_UPDATE)
 
         and: 'subscribe to the events stream'
         TestSubscriber subscriber = serverSentEventsService.eventsFlowable.test()
@@ -53,13 +54,13 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
     void "publish as many elements as the buffer size windows, the elements are received"() {
         given: 'several traces to publish'
         List<TraceSseResponse> traces = (1..serverSentEventsService.bufferFlowableCount).collect {
-            TraceSseResponse.ofError(it, it, SseErrorType.UNEXPECTED, 'Error')
+            TraceSseResponse.ofAction(it, it, WorkflowAction.WORKFLOW_UPDATE)
         }
 
         and: 'more traces overflowing the buffer'
         Integer overflow = serverSentEventsService.bufferFlowableCount.intdiv(2)
         (1..overflow).each {
-            TraceSseResponse.ofError("o${it}", "o${it}", SseErrorType.UNEXPECTED, 'Overflow')
+            TraceSseResponse.ofAction(it, it, WorkflowAction.WORKFLOW_UPDATE)
         }
 
         and: 'subscribe to the events stream'

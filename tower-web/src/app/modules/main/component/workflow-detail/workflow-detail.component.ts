@@ -84,26 +84,32 @@ export class WorkflowDetailComponent implements OnInit, OnDestroy {
 
   private reactToEvent(event: SseEvent): void {
     console.log('Live workflow event received', event);
-    if (event.isWorkflow) {
-      this.reactToWorkflowEvent(event.workflow);
+    if (event.isWorkflowUpdate) {
+      this.reactToWorkflowUpdateEvent(event);
       this.unsubscribeFromWorkflowLiveEvents();
-    } else if (event.isProgress) {
-      this.reactToProgressEvent(event.progress);
+
+    } else if (event.isProgressUpdate) {
+      this.reactToProgressUpdateEvent(event);
     }
   }
 
-  private reactToWorkflowEvent(workflow: Workflow): void {
-    this.workflowService.updateWorkflow(workflow);
-    this.workflow = workflow;
+  private reactToWorkflowUpdateEvent(event: SseEvent): void {
+    this.workflowService.getWorkflow(event.workflowId, true).subscribe((workflow: Workflow) => {
+      this.workflowService.updateWorkflow(workflow);
+      this.workflow = workflow;
+    });
+
   }
 
-  private reactToProgressEvent(progress: Progress): void {
-    this.workflowService.updateProgress(progress, this.workflow);
+  private reactToProgressUpdateEvent(event: SseEvent): void {
+    this.workflowService.getProgress(event.workflowId).subscribe((progress: Progress) => {
+      this.workflowService.updateProgress(progress, this.workflow);
+    })
   }
 
   private reactToErrorEvent(event: SseEvent): void {
     console.log('Live workflow error event received', event);
-    this.notificationService.showErrorNotification(event.error.message);
+    this.notificationService.showErrorNotification(event.message);
   }
 
 }

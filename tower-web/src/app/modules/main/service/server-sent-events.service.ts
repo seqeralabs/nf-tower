@@ -41,7 +41,7 @@ export class ServerSentEventsService {
 
     return this.events$.pipe(
       filter((event: SseEvent) => event.userId == user.data.id),
-      filter((event: SseEvent) => event.isWorkflow)
+      filter((event: SseEvent) => event.isWorkflowUpdate)
     )
   }
 
@@ -66,7 +66,7 @@ export class ServerSentEventsService {
 
         const events: SseEvent[] = dataArray.map((data) => new SseEvent(data));
         events.forEach((event: SseEvent) => {
-          if (event.error) {
+          if (event.isError) {
             subscriber.error(event);
           } else {
             subscriber.next(event)
