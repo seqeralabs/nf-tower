@@ -62,7 +62,9 @@ export class WorkflowLoadComponent implements OnInit, OnChanges {
     //Avoid 50% fill bug when all values are 0
     totalValue = (totalValue == 0 && filledValue == 0) ? 1 : totalValue;
 
-    return { donut: true, donutWidth: 10, startAngle: 270, total: totalValue*2 };
+    return { donut: true, donutWidth: 10, startAngle: 270, total: totalValue * 2,
+             labelInterpolationFnc: () => `${filledValue} / ${totalValue}`
+    };
   }
 
   private computeGaugeBinarySeries(filledValue: number, totalValue: number): any[] {
