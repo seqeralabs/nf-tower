@@ -25,6 +25,7 @@ class User {
 
     static final USERNAME_REGEX = /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/
 
+    Long id
     String userName
     String email
     String authToken

@@ -12,24 +12,46 @@
 package io.seqera.tower.exchange.trace.sse
 
 import groovy.transform.EqualsAndHashCode
+import groovy.transform.ToString
 import io.seqera.tower.enums.WorkflowAction
 import io.seqera.tower.exchange.BaseResponse
 
+@ToString(ignoreNulls = true)
 @EqualsAndHashCode
 class TraceSseResponse implements BaseResponse {
 
-    def userId
-    def workflowId
+    final Long userId
+    final String workflowId
+    final WorkflowAction action
+    final String message
 
-    WorkflowAction action
-    String message
-
-    static TraceSseResponse ofAction(def userId, def workflowId, WorkflowAction action) {
-        new TraceSseResponse(userId: userId, workflowId: workflowId, action: action)
+    TraceSseResponse(Long userId, String workflowId, WorkflowAction action)  {
+        this.userId = userId
+        this.workflowId = workflowId
+        this.action = action
+        this.message = null
     }
 
-    static TraceSseResponse ofError(def userId, def workflowId, String errorMessage) {
-        new TraceSseResponse(userId: userId, workflowId: workflowId, message: errorMessage)
+    TraceSseResponse(String message) {
+        this.message = message
+        this.userId = null
+        this.workflowId = null
+        this.action = null
     }
 
+    static TraceSseResponse of(Long userId, String workflowId, WorkflowAction action=null) {
+        new TraceSseResponse(userId, workflowId, action)
+    }
+
+    static TraceSseResponse ofError(String errorMessage) {
+        new TraceSseResponse(errorMessage)
+    }
+
+    String toString() {
+        def result = "TraceSseResponse[userId=$userId; workflowId=$workflowId; action=${action?.toString()}"
+        if( message )
+            result += "; message='$message'"
+        result += "]"
+        return result
+    }
 }

@@ -33,9 +33,13 @@ class ServerSentEventsServiceImpl implements ServerSentEventsService {
     private Flowable<Event<List<TraceSseResponse>>> eventFlowable
 
     @Value('${sse.buffer.time:1s}')
-    Duration bufferFlowableTime
+    Duration bufferTimeout
+
     @Value('${sse.buffer.count:100}')
-    Integer bufferFlowableCount
+    Integer bufferCount
+
+    @Value('${sse.buffer.heartbeat:1m}')
+    Duration heartbeatDuration
 
     @PostConstruct
     void initialize() {
@@ -48,13 +52,35 @@ class ServerSentEventsServiceImpl implements ServerSentEventsService {
     }
 
     void publishEvent(TraceSseResponse traceSseResponse) {
-        log.debug("Publishing event for [userId - ${traceSseResponse.userId}] [workflowId - ${traceSseResponse.workflowId}]")
+        log.trace("Publishing event=${traceSseResponse.toString()}")
         eventPublisher.onNext(traceSseResponse)
     }
 
     private Flowable<Event<List<TraceSseResponse>>> createBufferedEventFlowable() {
-        return eventPublisher.buffer(bufferFlowableTime.toMillis(), TimeUnit.MILLISECONDS, bufferFlowableCount)
-                             .map({ List<TraceSseResponse> traces -> Event.of(traces.unique()) })
+        log.debug "Creating SSE event buffer flowable timeout=$bufferTimeout count=$bufferCount heartbeat=$heartbeatDuration"
+        
+        return eventPublisher
+                    // group together all events in a window of one second (up to 100)
+                    .buffer(bufferTimeout.toMillis(), TimeUnit.MILLISECONDS, bufferCount)
+                    // remove all identical events
+                    .map({ List<TraceSseResponse> traces -> traces.unique() })
+                    // discard empty events
+                    .filter({ List<TraceSseResponse> traces -> traces.size()>0 })
+                    // the following buffer behaves as a heartbeat
+                    // the count=1 makes pass any trace event
+                    // if not trace event show within the `heartbeatDuration` it emits an empty event
+                    .buffer(heartbeatDuration.toMillis(), TimeUnit.MILLISECONDS, 1)
+                    // finally wrap the traces in a `Event` type
+                    // note this guy gets a list of list (!)
+                    .map { List<List<TraceSseResponse>> wrap ->
+                        final List<TraceSseResponse> traces = wrap ? wrap.first() : Collections.<TraceSseResponse>emptyList()
+                        if( log.isTraceEnabled() )
+                            log.trace "Send SSE events: ${traces.toString()})"
+                        else
+                            log.debug "Send SSE events (count=${traces.size()})"
+                        Event.of(traces)
+                    }
+
     }
 
 }

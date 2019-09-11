@@ -3,6 +3,7 @@ package io.seqera.tower.controller
 import javax.inject.Inject
 
 import groovy.util.logging.Slf4j
+import io.micronaut.http.HttpRequest
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.sse.Event
@@ -33,16 +34,16 @@ class ServerSentEventsController {
 
 
     @Get("/")
-    Publisher<Event<List<TraceSseResponse>>> live() {
-        log.debug("Subscribing to live events")
+    Publisher<Event<List<TraceSseResponse>>> live(HttpRequest request) {
+        log.debug("Client subscribing to live events [remoteAddress=${request.remoteAddress}]")
         try {
-            return serverSentEventsService.eventsFlowable
+            return serverSentEventsService.getEventsFlowable()
         }
         catch (Exception e) {
             String message = "Unexpected error while obtaining event emitter"
             log.error("${message} | ${e.message}", e)
 
-            return Flowable.just(Event.of([TraceSseResponse.ofError(null, null, message)]))
+            return Flowable.just(Event.of([TraceSseResponse.ofError(message)]))
         }
     }
 
