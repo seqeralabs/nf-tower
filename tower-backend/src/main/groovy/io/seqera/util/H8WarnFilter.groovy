@@ -11,10 +11,14 @@
 
 package io.seqera.util
 
+
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.filter.Filter
 import ch.qos.logback.core.spi.FilterReply
 import groovy.transform.CompileStatic
+
+import ch.qos.logback.classic.Level
+import static ch.qos.logback.classic.Level.ERROR
 
 /**
  *
@@ -24,11 +28,11 @@ import groovy.transform.CompileStatic
 class H8WarnFilter extends Filter<ILoggingEvent> {
     @Override
     FilterReply decide(ILoggingEvent event) {
-        return stripPrefix(event.message) ? FilterReply.DENY : FilterReply.NEUTRAL
+        return stripPrefix(event.message, event.getLevel()) ? FilterReply.DENY : FilterReply.NEUTRAL
     }
 
-    static private boolean stripPrefix(String str) {
-        if( str.startsWith('Cannot decrypt / verify JWT: Invalid JWT serialization: Missing dot delimiter') )
+    static private boolean stripPrefix(String str, Level level) {
+        if( level==ERROR && str.contains('Invalid JWT serialization: Missing dot delimiter') )
             return true
         if( str.startsWith("HHH90000022:") )
             return true
