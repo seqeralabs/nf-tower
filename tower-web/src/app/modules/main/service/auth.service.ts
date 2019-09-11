@@ -21,7 +21,6 @@ import {Router} from "@angular/router";
 const authEndpointUrl: string = `${environment.apiUrl}/login`;
 const userEndpointUrl: string = `${environment.apiUrl}/user`;
 const gateEndpointUrl: string = `${environment.apiUrl}/gate`;
-const authCookieName: string = 'JWT';
 
 @Injectable({
   providedIn: 'root'
@@ -50,38 +49,15 @@ export class AuthService {
     return authEndpointUrl;
   }
 
-  auth(email: string, authToken: string): Observable<User> {
-    return this.http.post(authEndpointUrl, {username: email, password: authToken}).pipe(
-      mergeMap((authData: any) => this.requestUserProfileInfo(authData)),
-      tap((user: User) => this.setAuthUser(user))
-    );
-  }
-
   retrieveUser(): Observable<User> {
-    return this.requestUserProfileInfo(null).pipe(
+    return this.requestUserProfileInfo().pipe(
       tap((user: User) => this.setAuthUser(user))
     );
   }
 
-  private requestUserProfileInfo(authData: any): Observable<User> {
-    let userData: UserData = <UserData>{
-      email: authData.username,
-      jwtAccessToken: authData['access_token'],
-      roles: authData.roles
-    };
-
-    return this.http.get(`${userEndpointUrl}/`, {headers: {'Authorization': `Bearer ${userData.jwtAccessToken}`}}).pipe(
-      map((data: any) => {
-        userData.id = data.user.id;
-        userData.userName = data.user.userName;
-        userData.firstName = data.user.firstName;
-        userData.lastName = data.user.lastName;
-        userData.organization = data.user.organization;
-        userData.description = data.user.description;
-        userData.avatar = data.user.avatar;
-
-        return new User(userData);
-      })
+  private requestUserProfileInfo(): Observable<User> {
+    return this.http.get(`${userEndpointUrl}/`).pipe(
+      map((data: any) => new User(data.user))
     );
   }
 
@@ -114,12 +90,7 @@ export class AuthService {
 
   private logout(): void {
     this.removeUser();
-    this.deleteCookie(authCookieName);
     this.userSubject.next(null);
-  }
-
-  private deleteCookie(cookieName: string) {
-    document.cookie = cookieName + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
   }
 
   private persistUser(user: User): void {

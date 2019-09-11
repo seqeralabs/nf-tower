@@ -100,15 +100,9 @@ class WorkflowController extends BaseController {
      * @return The http response
      */
     @Get("/{workflowId}")
-    @Transactional
     @Secured(['ROLE_USER'])
-<<<<<<< HEAD
-    HttpResponse<WorkflowGet> get(String workflowId) {
-        Workflow workflow = workflowService.get(workflowId)
-=======
     HttpResponse<WorkflowGet> get(String id) {
         Workflow workflow = workflowService.get(id)
->>>>>>> Refactor security strategy from JWT token to JWT cookie
 
         if (!workflow) {
             return HttpResponse.notFound()
@@ -123,7 +117,6 @@ class WorkflowController extends BaseController {
      * @return The http response
      */
     @Transactional
-    @Secured(['ROLE_USER'])
     @Get('/{workflowId}/progress')
     @CompileDynamic
     HttpResponse<GetProgressResponse> progress(String workflowId) {

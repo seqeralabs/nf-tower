@@ -3,6 +3,7 @@ import {ActivatedRoute, ParamMap, Router} from "@angular/router";
 import {AuthService} from "../../service/auth.service";
 import {NotificationService} from "../../service/notification.service";
 import {User} from "../../entity/user/user";
+import {HttpErrorResponse} from "@angular/common/http";
 
 @Component({
   selector: 'wt-access',
@@ -24,14 +25,19 @@ export class AccessComponent implements OnInit {
     this.success = (queryParams.get('success') == 'true');
 
     if (this.success) {
-      this.authService.retrieveUser().subscribe((user: User) => {
-        console.log('User successfully authenticated', user);
-      });
+      this.authService.retrieveUser().subscribe(
+        (user: User) => {
+          console.log('User successfully authenticated', user);
+          this.router.navigate(['']);
+        },
+        (resp: HttpErrorResponse) => {
+          this.notificationService.showErrorNotification(`Login failed: ${resp.error.message}`);
+        }
+      );
     } else {
       this.notificationService.showErrorNotification('Login failed');
+      this.router.navigate(['']);
     }
-
-    this.router.navigate(['']);
   }
 
 }
