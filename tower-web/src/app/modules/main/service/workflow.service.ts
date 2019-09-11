@@ -99,6 +99,14 @@ export class WorkflowService {
     );
   }
 
+  getProgress(workflowId: string | number): Observable<Progress> {
+    console.log(`Requesting progress for workflow ${workflowId}`);
+    const url: string = `${endpointUrl}/${workflowId}/progress`;
+    return this.http.get(url).pipe(
+      map((data: any) => new Progress(data.progress))
+    );
+  }
+
   buildTasksGetUrl(workflowId: number | string): string {
     return `${endpointUrl}/${workflowId}/tasks`;
   }

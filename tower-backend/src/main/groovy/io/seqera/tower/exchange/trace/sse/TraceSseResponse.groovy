@@ -11,39 +11,25 @@
 
 package io.seqera.tower.exchange.trace.sse
 
+import groovy.transform.EqualsAndHashCode
+import io.seqera.tower.enums.WorkflowAction
+import io.seqera.tower.exchange.BaseResponse
 
-import io.seqera.tower.enums.SseErrorType
-import io.seqera.tower.exchange.progress.ProgressData
-import io.seqera.tower.exchange.workflow.WorkflowGet
+@EqualsAndHashCode
+class TraceSseResponse implements BaseResponse {
 
-import java.time.Instant
+    def userId
+    def workflowId
 
-class TraceSseResponse {
+    WorkflowAction action
+    String message
 
-    WorkflowGet workflow
-    ProgressData progress
-    SseHeartbeat heartbeat
-    SseError error
-
-    static TraceSseResponse ofWorkflow(WorkflowGet workflow) {
-        new TraceSseResponse(workflow: workflow)
+    static TraceSseResponse ofAction(def userId, def workflowId, WorkflowAction action) {
+        new TraceSseResponse(userId: userId, workflowId: workflowId, action: action)
     }
 
-    static TraceSseResponse ofProgress(ProgressData progress) {
-        new TraceSseResponse(progress: progress)
+    static TraceSseResponse ofError(def userId, def workflowId, String errorMessage) {
+        new TraceSseResponse(userId: userId, workflowId: workflowId, message: errorMessage)
     }
-
-    static TraceSseResponse ofError(SseErrorType type, String errorMessage) {
-        SseError sseError = new SseError(type: type, message: errorMessage)
-
-        new TraceSseResponse(error: sseError)
-    }
-
-    static TraceSseResponse ofHeartbeat(String message) {
-        SseHeartbeat sseHeartbeat = new SseHeartbeat(message: message, timestamp: Instant.now())
-
-        new TraceSseResponse(heartbeat: sseHeartbeat)
-    }
-
 
 }

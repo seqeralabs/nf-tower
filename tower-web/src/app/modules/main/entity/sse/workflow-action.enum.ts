@@ -8,14 +8,8 @@
  * This Source Code Form is "Incompatible With Secondary Licenses", as
  * defined by the Mozilla Public License, v. 2.0.
  */
+export enum WorkflowAction {
 
-package io.seqera.tower.exchange.trace.sse
-
-import io.seqera.tower.enums.SseErrorType
-
-class SseError {
-
-    SseErrorType type
-    String message
+  WORKFLOW_UPDATE, PROGRESS_UPDATE
 
 }

@@ -73,15 +73,9 @@ mail:
       required: true
 ---
 sse:
-  time:
-    idle:
-      workflow: 90s
-      user: 30m
-    throttle:
-      workflow: 1s
-      user: 0s
-    heartbeat:
-      user: 1m
+  buffer:
+    time: 1s
+    count: 100
 ---
 endpoints:
   bean:

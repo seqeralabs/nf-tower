@@ -11,28 +11,14 @@
 
 package io.seqera.tower.service
 
-import java.time.Duration
-
+import io.seqera.tower.exchange.trace.sse.TraceSseResponse
 import io.micronaut.http.sse.Event
 import io.reactivex.Flowable
-import io.reactivex.processors.PublishProcessor
 
 interface ServerSentEventsService {
 
-    Flowable getOrCreateUserPublisher(Serializable userId)
+    void publishEvent(TraceSseResponse traceSseResponse)
 
-    Flowable getOrCreateWorkflowPublisher(Serializable workflowId)
-
-    String getKeyForEntity(Class aClass, def id)
-
-    Flowable getOrCreatePublisher(String key, Duration idleTimeout, Closure<Event> idleTimeoutLastEvent)
-
-    void tryPublish(String key, Closure<Event> payload)
-
-    void tryComplete(String key)
-
-    Flowable generateHeartbeatFlowable(Duration interval, Closure<Event> heartbeatGenerator)
-
-    Flowable getOrCreateHeartbeatForPublisher(PublishProcessor<Event> publisher, Closure<Event> heartbeatGenerator)
+    Flowable<Event> getEventsFlowable()
 
 }
