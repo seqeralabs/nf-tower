@@ -24,6 +24,14 @@ import groovy.transform.CompileStatic
 class H8WarnFilter extends Filter<ILoggingEvent> {
     @Override
     FilterReply decide(ILoggingEvent event) {
-        return event.message.startsWith("HHH90000022:") ? FilterReply.DENY : FilterReply.NEUTRAL
+        return stripPrefix(event.message) ? FilterReply.DENY : FilterReply.NEUTRAL
+    }
+
+    static private boolean stripPrefix(String str) {
+        if( str.startsWith('Cannot decrypt / verify JWT: Invalid JWT serialization: Missing dot delimiter') )
+            return true
+        if( str.startsWith("HHH90000022:") )
+            return true
+        return false
     }
 }
