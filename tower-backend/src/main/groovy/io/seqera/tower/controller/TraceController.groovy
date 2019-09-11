@@ -151,4 +151,10 @@ class TraceController extends BaseController {
         HttpResponse.ok(new TraceHelloResponse(message: 'Want to play again?'))
     }
 
+    @Get("/ping")
+    @Secured(SecurityRule.IS_ANONYMOUS)
+    HttpResponse<TraceHelloResponse> ping(HttpRequest req) {
+        log.info "Trace ping from ${req.remoteAddress}"
+        HttpResponse.ok(new TraceHelloResponse(message: 'pong'))
+    }
 }
