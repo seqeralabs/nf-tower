@@ -11,6 +11,13 @@
 
 package io.seqera.tower.service
 
+<<<<<<< HEAD:tower-backend/src/test/groovy/io/seqera/tower/service/LiveEventsServiceTest.groovy
+=======
+import io.seqera.tower.enums.SseErrorType
+import io.seqera.tower.enums.WorkflowAction
+import io.seqera.tower.exchange.trace.sse.TraceSseResponse
+
+>>>>>>> Refactor SSE events to send just the user and workflow ids. Request updates explicitly when an event comes in:tower-backend/src/test/groovy/io/seqera/tower/service/ServerSentEventsServiceTest.groovy
 import javax.inject.Inject
 
 import grails.gorm.transactions.Transactional
@@ -31,7 +38,11 @@ class LiveEventsServiceTest extends AbstractContainerBaseTest {
 
     void "publish a single element, the element is received after the time window passes"() {
         given: 'a trace to publish'
+<<<<<<< HEAD:tower-backend/src/test/groovy/io/seqera/tower/service/LiveEventsServiceTest.groovy
         LiveUpdate trace = LiveUpdate.of(1, '1', LiveAction.WORKFLOW_UPDATE)
+=======
+        TraceSseResponse trace = TraceSseResponse.ofAction(1, 1, WorkflowAction.WORKFLOW_UPDATE)
+>>>>>>> Refactor SSE events to send just the user and workflow ids. Request updates explicitly when an event comes in:tower-backend/src/test/groovy/io/seqera/tower/service/ServerSentEventsServiceTest.groovy
 
         and: 'subscribe to the events stream'
         TestSubscriber subscriber = serverSentEventsService.eventsFlowable.test()
@@ -51,14 +62,23 @@ class LiveEventsServiceTest extends AbstractContainerBaseTest {
 
     void "publish as many elements as the buffer size windows, the elements are received"() {
         given: 'several traces to publish'
+<<<<<<< HEAD:tower-backend/src/test/groovy/io/seqera/tower/service/LiveEventsServiceTest.groovy
         List<LiveUpdate> traces = (1..serverSentEventsService.bufferCount).collect {
             LiveUpdate.of(it, it.toString(), LiveAction.WORKFLOW_UPDATE)
+=======
+        List<TraceSseResponse> traces = (1..serverSentEventsService.bufferFlowableCount).collect {
+            TraceSseResponse.ofAction(it, it, WorkflowAction.WORKFLOW_UPDATE)
+>>>>>>> Refactor SSE events to send just the user and workflow ids. Request updates explicitly when an event comes in:tower-backend/src/test/groovy/io/seqera/tower/service/ServerSentEventsServiceTest.groovy
         }
 
         and: 'more traces overflowing the buffer'
         Integer overflow = serverSentEventsService.bufferCount.intdiv(2)
         (1..overflow).each {
+<<<<<<< HEAD:tower-backend/src/test/groovy/io/seqera/tower/service/LiveEventsServiceTest.groovy
             LiveUpdate.of(it, it.toString(), LiveAction.WORKFLOW_UPDATE)
+=======
+            TraceSseResponse.ofAction(it, it, WorkflowAction.WORKFLOW_UPDATE)
+>>>>>>> Refactor SSE events to send just the user and workflow ids. Request updates explicitly when an event comes in:tower-backend/src/test/groovy/io/seqera/tower/service/ServerSentEventsServiceTest.groovy
         }
 
         and: 'subscribe to the events stream'

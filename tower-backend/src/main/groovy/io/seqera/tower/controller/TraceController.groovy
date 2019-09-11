@@ -11,6 +11,8 @@
 
 package io.seqera.tower.controller
 
+import io.seqera.tower.enums.WorkflowAction
+
 import javax.inject.Inject
 
 import grails.gorm.transactions.Transactional
