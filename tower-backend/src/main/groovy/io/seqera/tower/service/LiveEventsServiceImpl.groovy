@@ -57,7 +57,7 @@ class LiveEventsServiceImpl implements LiveEventsService {
     }
 
     private Flowable<Event<List<LiveUpdate>>> createBufferedEventFlowable() {
-        log.debug "Creating SSE event buffer flowable timeout=$bufferTimeout count=$bufferCount heartbeat=$heartbeatDuration"
+        log.info "Creating SSE event buffer flowable timeout=$bufferTimeout count=$bufferCount heartbeat=$heartbeatDuration"
         
         return eventPublisher
                     // group together all events in a window of one second (up to 100)
@@ -76,8 +76,6 @@ class LiveEventsServiceImpl implements LiveEventsService {
                         final List<LiveUpdate> traces = wrap ? wrap.first() : Collections.<LiveUpdate>emptyList()
                         if( log.isTraceEnabled() )
                             log.trace "Send SSE events: ${traces.toString()})"
-                        else
-                            log.debug "Send SSE events (count=${traces.size()})"
                         Event.of(traces)
                     }
 
