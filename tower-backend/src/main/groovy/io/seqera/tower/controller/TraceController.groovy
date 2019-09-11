@@ -98,26 +98,23 @@ class TraceController extends BaseController {
     @Transactional
     @Secured(['ROLE_USER'])
     HttpResponse<TraceWorkflowResponse> workflow(@Body TraceWorkflowRequest request, Authentication authentication) {
-        HttpResponse<TraceWorkflowResponse> response
         try {
             User user = userService.getFromAuthData(authentication)
             log.info("Receiving workflow trace for workflows ID=${request.workflow?.id}")
             Workflow workflow = traceService.processWorkflowTrace(request, user)
+
             final resp = new TraceWorkflowResponse(
                     status: TraceProcessingStatus.OK,
                     workflowId: workflow.id,
                     watchUrl: "${serverUrl}/watch/${workflow.id}"
             )
-            response = HttpResponse.created(resp)
-
             publishWorkflowEvent(workflow, user)
+            return HttpResponse.created(resp)
         }
         catch (Exception e) {
             log.error("Failed to handle workflow trace=${request.workflow?.id}", e)
-            response = HttpResponse.badRequest(TraceWorkflowResponse.ofError(e.message))
+            return HttpResponse.badRequest(TraceWorkflowResponse.ofError(e.message))
         }
-
-        response
     }
 
     @Post("/task")
