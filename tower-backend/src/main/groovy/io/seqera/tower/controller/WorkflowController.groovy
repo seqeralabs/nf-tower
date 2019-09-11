@@ -93,11 +93,17 @@ class WorkflowController extends BaseController {
         HttpResponse.ok(ListWorklowResponse.of(result))
     }
 
-    @Get("/{id}")
+    /**
+     * Endpoint invoked by the client to fetch workflow status
+     *
+     * @param workflowId The ID of the workflow for which the status is requested
+     * @return The http response
+     */
+    @Get("/{workflowId}")
     @Transactional
     @Secured(['ROLE_USER'])
-    HttpResponse<WorkflowGet> get(String id) {
-        Workflow workflow = workflowService.get(id)
+    HttpResponse<WorkflowGet> get(String workflowId) {
+        Workflow workflow = workflowService.get(workflowId)
 
         if (!workflow) {
             return HttpResponse.notFound()
@@ -105,6 +111,12 @@ class WorkflowController extends BaseController {
         HttpResponse.ok(progressService.buildWorkflowGet(workflow))
     }
 
+    /**
+     * Endpoint invoked by the client to fetch workflow progress data
+     *
+     * @param workflowId The ID of the workflow for which the update is requested
+     * @return The http response
+     */
     @Transactional
     @Secured(['ROLE_USER'])
     @Get('/{workflowId}/progress')
@@ -115,6 +127,7 @@ class WorkflowController extends BaseController {
             if (!workflow) {
                 return HttpResponse.notFound(new GetProgressResponse(message: "Oops... Can't find workflow ID $workflowId"))
             }
+            // TODO check the user is allowed to fetch this data
 
             final ProgressData progress = progressService.fetchWorkflowProgress(workflow)
             HttpResponse.ok(new GetProgressResponse(progress: progress))

@@ -11,13 +11,12 @@
 
 package io.seqera.tower.controller
 
-import io.seqera.tower.enums.WorkflowAction
-
 import javax.inject.Inject
 
 import grails.gorm.transactions.Transactional
 import groovy.util.logging.Slf4j
 import io.micronaut.context.annotation.Value
+import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
@@ -30,7 +29,7 @@ import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.User
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.enums.TraceProcessingStatus
-import io.seqera.tower.exchange.progress.ProgressData
+import io.seqera.tower.enums.WorkflowAction
 import io.seqera.tower.exchange.trace.TraceAliveRequest
 import io.seqera.tower.exchange.trace.TraceAliveResponse
 import io.seqera.tower.exchange.trace.TraceHelloResponse
@@ -39,7 +38,6 @@ import io.seqera.tower.exchange.trace.TraceTaskResponse
 import io.seqera.tower.exchange.trace.TraceWorkflowRequest
 import io.seqera.tower.exchange.trace.TraceWorkflowResponse
 import io.seqera.tower.exchange.trace.sse.TraceSseResponse
-import io.seqera.tower.exchange.workflow.WorkflowGet
 import io.seqera.tower.service.ProgressService
 import io.seqera.tower.service.ServerSentEventsService
 import io.seqera.tower.service.TraceService
@@ -72,11 +70,11 @@ class TraceController extends BaseController {
 
 
     private void publishWorkflowEvent(Workflow workflow, User user) {
-        serverSentEventsService.publishEvent(TraceSseResponse.ofAction(user.id, workflow.id, WorkflowAction.WORKFLOW_UPDATE))
+        serverSentEventsService.publishEvent(TraceSseResponse.of(user.id, workflow.id, WorkflowAction.WORKFLOW_UPDATE))
     }
 
     private void publishProgressEvent(Workflow workflow) {
-        serverSentEventsService.publishEvent(TraceSseResponse.ofAction(workflow.ownerId, workflow.id, WorkflowAction.PROGRESS_UPDATE))
+        serverSentEventsService.publishEvent(TraceSseResponse.of(workflow.owner.id, workflow.id, WorkflowAction.PROGRESS_UPDATE))
     }
 
     @Post("/alive")

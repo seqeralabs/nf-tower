@@ -11,16 +11,14 @@
 
 package io.seqera.tower.service
 
-import io.seqera.tower.enums.SseErrorType
-import io.seqera.tower.enums.WorkflowAction
-import io.seqera.tower.exchange.trace.sse.TraceSseResponse
-
 import javax.inject.Inject
 
 import grails.gorm.transactions.Transactional
 import io.micronaut.test.annotation.MicronautTest
 import io.reactivex.subscribers.TestSubscriber
 import io.seqera.tower.Application
+import io.seqera.tower.enums.WorkflowAction
+import io.seqera.tower.exchange.trace.sse.TraceSseResponse
 import io.seqera.tower.util.AbstractContainerBaseTest
 
 @MicronautTest(application = Application.class)
@@ -33,7 +31,7 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
 
     void "publish a single element, the element is received after the time window passes"() {
         given: 'a trace to publish'
-        TraceSseResponse trace = TraceSseResponse.ofAction(1, 1, WorkflowAction.WORKFLOW_UPDATE)
+        TraceSseResponse trace = TraceSseResponse.of(1, '1', WorkflowAction.WORKFLOW_UPDATE)
 
         and: 'subscribe to the events stream'
         TestSubscriber subscriber = serverSentEventsService.eventsFlowable.test()
@@ -45,7 +43,7 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
         subscriber.assertValueCount(0)
 
         and: 'the event is received after the buffer time window passes'
-        sleep(serverSentEventsService.bufferFlowableTime.toMillis() + 100) // --> Sleep the time window and add a prudential time to make sure the data has been received
+        sleep(serverSentEventsService.bufferTimeout.toMillis() + 100) // --> Sleep the time window and add a prudential time to make sure the data has been received
         subscriber.assertValueCount(1)
         subscriber.events.first()[0].data.userId == [trace.userId]
         subscriber.events.first()[0].data.workflowId == [trace.workflowId]
@@ -53,14 +51,14 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
 
     void "publish as many elements as the buffer size windows, the elements are received"() {
         given: 'several traces to publish'
-        List<TraceSseResponse> traces = (1..serverSentEventsService.bufferFlowableCount).collect {
-            TraceSseResponse.ofAction(it, it, WorkflowAction.WORKFLOW_UPDATE)
+        List<TraceSseResponse> traces = (1..serverSentEventsService.bufferCount).collect {
+            TraceSseResponse.of(it, it.toString(), WorkflowAction.WORKFLOW_UPDATE)
         }
 
         and: 'more traces overflowing the buffer'
-        Integer overflow = serverSentEventsService.bufferFlowableCount.intdiv(2)
+        Integer overflow = serverSentEventsService.bufferCount.intdiv(2)
         (1..overflow).each {
-            TraceSseResponse.ofAction(it, it, WorkflowAction.WORKFLOW_UPDATE)
+            TraceSseResponse.of(it, it.toString(), WorkflowAction.WORKFLOW_UPDATE)
         }
 
         and: 'subscribe to the events stream'
@@ -73,8 +71,8 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
 
         then: 'the data is received right away and the buffer contains just as many elements as the size window'
         subscriber.assertValueCount(1)
-        subscriber.events.first()[0].data.userId == (1..serverSentEventsService.bufferFlowableCount)
-        subscriber.events.first()[0].data.workflowId == (1..serverSentEventsService.bufferFlowableCount)
+        subscriber.events.first()[0].data.userId == (1..serverSentEventsService.bufferCount)
+        subscriber.events.first()[0].data.workflowId == (1..serverSentEventsService.bufferCount)*.toString()
     }
 
 }
