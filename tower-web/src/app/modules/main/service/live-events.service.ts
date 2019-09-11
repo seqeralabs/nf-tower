@@ -13,35 +13,35 @@ import {environment} from "../../../../environments/environment";
 import {Observable, Subscriber} from "rxjs";
 import {Workflow} from "../entity/workflow/workflow";
 import {User} from "../entity/user/user";
-import {SseEvent} from "../entity/sse/sse-event";
+import {LiveUpdate} from "../entity/live/live-update";
 import {filter} from "rxjs/operators";
 
-const endpointUrl: string = `${environment.apiUrl}/sse`;
+const endpointUrl: string = `${environment.apiUrl}/live`;
 
 @Injectable({
   providedIn: 'root'
 })
-export class ServerSentEventsService {
+export class LiveEventsService {
 
-  private events$: Observable<SseEvent>;
+  private events$: Observable<LiveUpdate>;
 
   constructor() {
   }
 
-  connectToWorkflowEventsStream(workflow: Workflow): Observable<SseEvent> {
+  connectToWorkflowEventsStream(workflow: Workflow): Observable<LiveUpdate> {
     this.connectToLiveStream();
 
     return this.events$.pipe(
-      filter((event: SseEvent) => event.workflowId == workflow.data.id),
+      filter((event: LiveUpdate) => event.workflowId == workflow.data.id),
     )
   }
 
-  connectToUserEventsStream(user: User): Observable<SseEvent> {
+  connectToUserEventsStream(user: User): Observable<LiveUpdate> {
     this.connectToLiveStream();
 
     return this.events$.pipe(
-      filter((event: SseEvent) => event.userId == user.data.id),
-      filter((event: SseEvent) => event.isWorkflowUpdate)
+      filter((event: LiveUpdate) => event.userId == user.data.id),
+      filter((event: LiveUpdate) => event.isWorkflowUpdate)
     )
   }
 
@@ -53,8 +53,8 @@ export class ServerSentEventsService {
     this.events$ = this.connect(sseUrl);
   }
 
-  private connect(url: string): Observable<SseEvent> {
-    return new Observable((subscriber: Subscriber<SseEvent>) => {
+  private connect(url: string): Observable<LiveUpdate> {
+    return new Observable((subscriber: Subscriber<LiveUpdate>) => {
       console.log('Connecting to receive live events', url);
 
       const eventSource: EventSource = new EventSource(url);
@@ -64,8 +64,8 @@ export class ServerSentEventsService {
           return;
         }
 
-        const events: SseEvent[] = dataArray.map((data) => new SseEvent(data));
-        events.forEach((event: SseEvent) => {
+        const events: LiveUpdate[] = dataArray.map((data) => new LiveUpdate(data));
+        events.forEach((event: LiveUpdate) => {
           if (event.isError) {
             subscriber.error(event);
           } else {

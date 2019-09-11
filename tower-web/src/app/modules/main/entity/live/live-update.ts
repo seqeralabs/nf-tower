@@ -9,21 +9,21 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 
-import {WorkflowAction} from "./workflow-action.enum";
+export enum LiveAction {
+  WORKFLOW_UPDATE, PROGRESS_UPDATE
+}
 
-export class SseEvent {
+export class LiveUpdate {
 
   userId: string | number;
   workflowId: string | number;
-
-  action: WorkflowAction;
-
+  action: LiveAction;
   message: string;
 
   constructor(json: any) {
     this.userId = json.userId;
     this.workflowId = json.workflowId;
-    this.action = WorkflowAction[<string>json.action];
+    this.action = LiveAction[<string>json.action];
   }
 
   get isError(): boolean {
@@ -31,11 +31,11 @@ export class SseEvent {
   }
 
   get isWorkflowUpdate(): boolean {
-    return (this.action == WorkflowAction.WORKFLOW_UPDATE);
+    return (this.action == LiveAction.WORKFLOW_UPDATE);
   }
 
   get isProgressUpdate(): boolean {
-    return (this.action == WorkflowAction.PROGRESS_UPDATE);
+    return (this.action == LiveAction.PROGRESS_UPDATE);
   }
 
 }

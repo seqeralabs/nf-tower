@@ -15,13 +15,13 @@ import {AuthService} from "../../service/auth.service";
 import {Router} from "@angular/router";
 import {Workflow} from "../../entity/workflow/workflow";
 import {WorkflowService} from "../../service/workflow.service";
-import {ServerSentEventsService} from "../../service/server-sent-events.service";
+import {LiveEventsService} from "../../service/live-events.service";
 import {Subscription} from "rxjs";
 import {NotificationService} from "../../service/notification.service";
 import {FilteringParams} from "../../util/filtering-params";
 import {concat, differenceBy, intersectionBy, orderBy} from "lodash";
 import {environment} from "../../../../../environments/environment";
-import {SseEvent} from "../../entity/sse/sse-event";
+import {LiveUpdate} from "../../entity/live/live-update";
 
 @Component({
   selector: 'wt-home',
@@ -45,7 +45,7 @@ export class HomeComponent implements OnInit {
 
   constructor(private authService: AuthService,
               private workflowService: WorkflowService,
-              private serverSentEventsWorkflowService: ServerSentEventsService,
+              private serverSentEventsWorkflowService: LiveEventsService,
               private notificationService: NotificationService,
               private router: Router) {
   }
@@ -104,19 +104,19 @@ export class HomeComponent implements OnInit {
     }
 
     this.userEventsSubscription = this.serverSentEventsWorkflowService.connectToUserEventsStream(this.user).subscribe(
-      (event: SseEvent) => this.reactToDataEvent(event),
-      (event: SseEvent) => this.reactToErrorEvent(event)
+      (event: LiveUpdate) => this.reactToDataEvent(event),
+      (event: LiveUpdate) => this.reactToErrorEvent(event)
     );
   }
 
-  private reactToDataEvent(event: SseEvent) {
+  private reactToDataEvent(event: LiveUpdate) {
     console.log('Live user event received', event);
     this.workflowService.getWorkflow(event.workflowId, true).subscribe((workflow: Workflow) => {
       this.workflowService.updateWorkflow(workflow)
     });
   }
 
-  private reactToErrorEvent(event: SseEvent) {
+  private reactToErrorEvent(event: LiveUpdate) {
     console.log('Live user error event received', event);
     this.notificationService.showErrorNotification(event.message);
   }
