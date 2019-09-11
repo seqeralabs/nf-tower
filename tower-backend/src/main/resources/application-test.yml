@@ -47,7 +47,7 @@ auth:
   mail:
     duration: 30m
 ---
-sse:
+live:
   buffer:
     time: 1500ms
     count: 10

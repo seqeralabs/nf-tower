@@ -36,7 +36,7 @@ import io.seqera.tower.exchange.trace.TraceTaskRequest
 import io.seqera.tower.exchange.trace.TraceTaskResponse
 import io.seqera.tower.exchange.trace.TraceWorkflowRequest
 import io.seqera.tower.exchange.trace.TraceWorkflowResponse
-import io.seqera.tower.exchange.trace.sse.TraceSseResponse
+import io.seqera.tower.exchange.live.LiveUpdate
 import io.seqera.tower.service.auth.AuthenticationByApiToken
 import io.seqera.tower.util.AbstractContainerBaseTest
 import io.seqera.tower.util.DomainCreator
@@ -216,7 +216,7 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         NextflowSimulator nextflowSimulator = new NextflowSimulator(user: user, workflowLabel: 'simulation', client: client.toBlocking(), sleepBetweenRequests: 0)
 
         when: 'subscribe to the live events for the workflow list endpoint'
-        TestSubscriber listSubscriber = sseClient.eventStream("/sse/user/${user.id}", TraceSseResponse.class).test()
+        TestSubscriber listSubscriber = sseClient.eventStream("/live/user/${user.id}", LiveUpdate.class).test()
 
         then: 'the list flowable has just been created (is active)'
         listSubscriber.assertNotComplete()
@@ -228,7 +228,7 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         Workflow.withNewTransaction { Workflow.count() } == 1
 
         when: 'subscribe to the live events for the workflow detail endpoint'
-        TestSubscriber detailSubscriber = sseClient.eventStream("/sse/workflow/${nextflowSimulator.workflowId}", TraceSseResponse.class).test()
+        TestSubscriber detailSubscriber = sseClient.eventStream("/live/workflow/${nextflowSimulator.workflowId}", LiveUpdate.class).test()
 
         then: 'the detail flowable is active'
         detailSubscriber.assertNotComplete()

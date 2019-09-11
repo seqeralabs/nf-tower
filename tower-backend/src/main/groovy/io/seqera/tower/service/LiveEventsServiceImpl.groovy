@@ -22,23 +22,23 @@ import io.micronaut.context.annotation.Value
 import io.micronaut.http.sse.Event
 import io.reactivex.Flowable
 import io.reactivex.processors.PublishProcessor
-import io.seqera.tower.exchange.trace.sse.TraceSseResponse
+import io.seqera.tower.exchange.live.LiveUpdate
 
 @Singleton
 @Slf4j
 @CompileStatic
-class ServerSentEventsServiceImpl implements ServerSentEventsService {
+class LiveEventsServiceImpl implements LiveEventsService {
 
-    private final PublishProcessor<TraceSseResponse> eventPublisher = PublishProcessor.create()
-    private Flowable<Event<List<TraceSseResponse>>> eventFlowable
+    private final PublishProcessor<LiveUpdate> eventPublisher = PublishProcessor.create()
+    private Flowable<Event<List<LiveUpdate>>> eventFlowable
 
-    @Value('${sse.buffer.time:1s}')
+    @Value('${live.buffer.time:1s}')
     Duration bufferTimeout
 
-    @Value('${sse.buffer.count:100}')
+    @Value('${live.buffer.count:100}')
     Integer bufferCount
 
-    @Value('${sse.buffer.heartbeat:1m}')
+    @Value('${live.buffer.heartbeat:1m}')
     Duration heartbeatDuration
 
     @PostConstruct
@@ -47,33 +47,33 @@ class ServerSentEventsServiceImpl implements ServerSentEventsService {
     }
 
 
-    Flowable<Event<List<TraceSseResponse>>> getEventsFlowable() {
+    Flowable<Event<List<LiveUpdate>>> getEventsFlowable() {
         return eventFlowable
     }
 
-    void publishEvent(TraceSseResponse traceSseResponse) {
+    void publishEvent(LiveUpdate traceSseResponse) {
         log.trace("Publishing event=${traceSseResponse.toString()}")
         eventPublisher.onNext(traceSseResponse)
     }
 
-    private Flowable<Event<List<TraceSseResponse>>> createBufferedEventFlowable() {
+    private Flowable<Event<List<LiveUpdate>>> createBufferedEventFlowable() {
         log.debug "Creating SSE event buffer flowable timeout=$bufferTimeout count=$bufferCount heartbeat=$heartbeatDuration"
         
         return eventPublisher
                     // group together all events in a window of one second (up to 100)
                     .buffer(bufferTimeout.toMillis(), TimeUnit.MILLISECONDS, bufferCount)
                     // remove all identical events
-                    .map({ List<TraceSseResponse> traces -> traces.unique() })
+                    .map({ List<LiveUpdate> traces -> traces.unique() })
                     // discard empty events
-                    .filter({ List<TraceSseResponse> traces -> traces.size()>0 })
+                    .filter({ List<LiveUpdate> traces -> traces.size()>0 })
                     // the following buffer behaves as a heartbeat
                     // the count=1 makes pass any trace event
                     // if not trace event show within the `heartbeatDuration` it emits an empty event
                     .buffer(heartbeatDuration.toMillis(), TimeUnit.MILLISECONDS, 1)
                     // finally wrap the traces in a `Event` type
                     // note this guy gets a list of list (!)
-                    .map { List<List<TraceSseResponse>> wrap ->
-                        final List<TraceSseResponse> traces = wrap ? wrap.first() : Collections.<TraceSseResponse>emptyList()
+                    .map { List<List<LiveUpdate>> wrap ->
+                        final List<LiveUpdate> traces = wrap ? wrap.first() : Collections.<LiveUpdate>emptyList()
                         if( log.isTraceEnabled() )
                             log.trace "Send SSE events: ${traces.toString()})"
                         else

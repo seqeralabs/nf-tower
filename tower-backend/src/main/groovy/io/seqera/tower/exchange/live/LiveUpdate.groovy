@@ -9,46 +9,46 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 
-package io.seqera.tower.exchange.trace.sse
+package io.seqera.tower.exchange.live
 
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
-import io.seqera.tower.enums.WorkflowAction
+import io.seqera.tower.enums.LiveAction
 import io.seqera.tower.exchange.BaseResponse
 
 @ToString(ignoreNulls = true)
 @EqualsAndHashCode
-class TraceSseResponse implements BaseResponse {
+class LiveUpdate implements BaseResponse {
 
     final Long userId
     final String workflowId
-    final WorkflowAction action
+    final LiveAction action
     final String message
 
-    TraceSseResponse(Long userId, String workflowId, WorkflowAction action)  {
+    LiveUpdate(Long userId, String workflowId, LiveAction action)  {
         this.userId = userId
         this.workflowId = workflowId
         this.action = action
         this.message = null
     }
 
-    TraceSseResponse(String message) {
+    LiveUpdate(String message) {
         this.message = message
         this.userId = null
         this.workflowId = null
         this.action = null
     }
 
-    static TraceSseResponse of(Long userId, String workflowId, WorkflowAction action=null) {
-        new TraceSseResponse(userId, workflowId, action)
+    static LiveUpdate of(Long userId, String workflowId, LiveAction action=null) {
+        new LiveUpdate(userId, workflowId, action)
     }
 
-    static TraceSseResponse ofError(String errorMessage) {
-        new TraceSseResponse(errorMessage)
+    static LiveUpdate ofError(String errorMessage) {
+        new LiveUpdate(errorMessage)
     }
 
     String toString() {
-        def result = "TraceSseResponse[userId=$userId; workflowId=$workflowId; action=${action?.toString()}"
+        def result = "LiveUpdate[userId=$userId; workflowId=$workflowId; action=${action?.toString()}"
         if( message )
             result += "; message='$message'"
         result += "]"

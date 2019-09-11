@@ -14,10 +14,10 @@ import {WorkflowService} from "../../service/workflow.service";
 import {ActivatedRoute, ParamMap, Router} from "@angular/router";
 import {HttpErrorResponse} from "@angular/common/http";
 import {NotificationService} from "../../service/notification.service";
-import {ServerSentEventsService} from "../../service/server-sent-events.service";
+import {LiveEventsService} from "../../service/live-events.service";
 import {Subscription} from "rxjs";
 import {Progress} from "../../entity/progress/progress";
-import {SseEvent} from "../../entity/sse/sse-event";
+import {LiveUpdate} from "../../entity/live/live-update";
 
 @Component({
   selector: 'wt-workflow-detail',
@@ -30,7 +30,7 @@ export class WorkflowDetailComponent implements OnInit, OnDestroy {
   private workflowEventsSubscription: Subscription;
 
   constructor(private workflowService: WorkflowService,
-              private serverSentEventsWorkflowService: ServerSentEventsService,
+              private serverSentEventsWorkflowService: LiveEventsService,
               private notificationService: NotificationService,
               private route: ActivatedRoute,
               private router: Router) { }
@@ -70,8 +70,8 @@ export class WorkflowDetailComponent implements OnInit, OnDestroy {
 
   private subscribeToWorkflowLiveEvents(workflow: Workflow): void {
     this.workflowEventsSubscription = this.serverSentEventsWorkflowService.connectToWorkflowEventsStream(workflow).subscribe(
-      (event: SseEvent) => this.reactToEvent(event),
-      (event: SseEvent) => this.reactToErrorEvent(event)
+      (event: LiveUpdate) => this.reactToEvent(event),
+      (event: LiveUpdate) => this.reactToErrorEvent(event)
     );
   }
 
@@ -82,7 +82,7 @@ export class WorkflowDetailComponent implements OnInit, OnDestroy {
     }
   }
 
-  private reactToEvent(event: SseEvent): void {
+  private reactToEvent(event: LiveUpdate): void {
     console.log('Live workflow event received', event);
     if (event.isWorkflowUpdate) {
       this.reactToWorkflowUpdateEvent(event);
@@ -93,7 +93,7 @@ export class WorkflowDetailComponent implements OnInit, OnDestroy {
     }
   }
 
-  private reactToWorkflowUpdateEvent(event: SseEvent): void {
+  private reactToWorkflowUpdateEvent(event: LiveUpdate): void {
     this.workflowService.getWorkflow(event.workflowId, true).subscribe((workflow: Workflow) => {
       this.workflowService.updateWorkflow(workflow);
       this.workflow = workflow;
@@ -101,13 +101,13 @@ export class WorkflowDetailComponent implements OnInit, OnDestroy {
 
   }
 
-  private reactToProgressUpdateEvent(event: SseEvent): void {
+  private reactToProgressUpdateEvent(event: LiveUpdate): void {
     this.workflowService.getProgress(event.workflowId).subscribe((progress: Progress) => {
       this.workflowService.updateProgress(progress, this.workflow);
     })
   }
 
-  private reactToErrorEvent(event: SseEvent): void {
+  private reactToErrorEvent(event: LiveUpdate): void {
     console.log('Live workflow error event received', event);
     this.notificationService.showErrorNotification(event.message);
   }

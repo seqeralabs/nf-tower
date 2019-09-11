@@ -74,7 +74,7 @@ mail:
       enable: true
       required: true
 ---
-sse:
+live:
   buffer:
     time: 1s
     count: 100

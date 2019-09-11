@@ -11,13 +11,14 @@
 
 package io.seqera.tower.service
 
-import io.seqera.tower.exchange.trace.sse.TraceSseResponse
+
 import io.micronaut.http.sse.Event
 import io.reactivex.Flowable
+import io.seqera.tower.exchange.live.LiveUpdate
 
-interface ServerSentEventsService {
+interface LiveEventsService {
 
-    void publishEvent(TraceSseResponse traceSseResponse)
+    void publishEvent(LiveUpdate traceSseResponse)
 
     Flowable<Event> getEventsFlowable()
 

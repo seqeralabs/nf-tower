@@ -17,21 +17,21 @@ import grails.gorm.transactions.Transactional
 import io.micronaut.test.annotation.MicronautTest
 import io.reactivex.subscribers.TestSubscriber
 import io.seqera.tower.Application
-import io.seqera.tower.enums.WorkflowAction
-import io.seqera.tower.exchange.trace.sse.TraceSseResponse
+import io.seqera.tower.enums.LiveAction
+import io.seqera.tower.exchange.live.LiveUpdate
 import io.seqera.tower.util.AbstractContainerBaseTest
 
 @MicronautTest(application = Application.class)
 @Transactional
-class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
+class LiveEventsServiceTest extends AbstractContainerBaseTest {
 
     @Inject
-    ServerSentEventsServiceImpl serverSentEventsService
+    LiveEventsServiceImpl serverSentEventsService
 
 
     void "publish a single element, the element is received after the time window passes"() {
         given: 'a trace to publish'
-        TraceSseResponse trace = TraceSseResponse.of(1, '1', WorkflowAction.WORKFLOW_UPDATE)
+        LiveUpdate trace = LiveUpdate.of(1, '1', LiveAction.WORKFLOW_UPDATE)
 
         and: 'subscribe to the events stream'
         TestSubscriber subscriber = serverSentEventsService.eventsFlowable.test()
@@ -51,14 +51,14 @@ class ServerSentEventsServiceTest extends AbstractContainerBaseTest {
 
     void "publish as many elements as the buffer size windows, the elements are received"() {
         given: 'several traces to publish'
-        List<TraceSseResponse> traces = (1..serverSentEventsService.bufferCount).collect {
-            TraceSseResponse.of(it, it.toString(), WorkflowAction.WORKFLOW_UPDATE)
+        List<LiveUpdate> traces = (1..serverSentEventsService.bufferCount).collect {
+            LiveUpdate.of(it, it.toString(), LiveAction.WORKFLOW_UPDATE)
         }
 
         and: 'more traces overflowing the buffer'
         Integer overflow = serverSentEventsService.bufferCount.intdiv(2)
         (1..overflow).each {
-            TraceSseResponse.of(it, it.toString(), WorkflowAction.WORKFLOW_UPDATE)
+            LiveUpdate.of(it, it.toString(), LiveAction.WORKFLOW_UPDATE)
         }
 
         and: 'subscribe to the events stream'

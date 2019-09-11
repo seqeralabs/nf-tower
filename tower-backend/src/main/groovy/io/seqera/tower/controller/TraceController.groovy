@@ -29,7 +29,7 @@ import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.User
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.enums.TraceProcessingStatus
-import io.seqera.tower.enums.WorkflowAction
+import io.seqera.tower.enums.LiveAction
 import io.seqera.tower.exchange.trace.TraceAliveRequest
 import io.seqera.tower.exchange.trace.TraceAliveResponse
 import io.seqera.tower.exchange.trace.TraceHelloResponse
@@ -37,9 +37,9 @@ import io.seqera.tower.exchange.trace.TraceTaskRequest
 import io.seqera.tower.exchange.trace.TraceTaskResponse
 import io.seqera.tower.exchange.trace.TraceWorkflowRequest
 import io.seqera.tower.exchange.trace.TraceWorkflowResponse
-import io.seqera.tower.exchange.trace.sse.TraceSseResponse
+import io.seqera.tower.exchange.live.LiveUpdate
 import io.seqera.tower.service.ProgressService
-import io.seqera.tower.service.ServerSentEventsService
+import io.seqera.tower.service.LiveEventsService
 import io.seqera.tower.service.TraceService
 import io.seqera.tower.service.UserService
 /**
@@ -57,11 +57,11 @@ class TraceController extends BaseController {
     TraceService traceService
     ProgressService progressService
     UserService userService
-    ServerSentEventsService serverSentEventsService
+    LiveEventsService serverSentEventsService
 
 
     @Inject
-    TraceController(TraceService traceService, ProgressService progressService, UserService userService, ServerSentEventsService serverSentEventsService) {
+    TraceController(TraceService traceService, ProgressService progressService, UserService userService, LiveEventsService serverSentEventsService) {
         this.traceService = traceService
         this.progressService = progressService
         this.userService = userService
@@ -70,11 +70,11 @@ class TraceController extends BaseController {
 
 
     private void publishWorkflowEvent(Workflow workflow, User user) {
-        serverSentEventsService.publishEvent(TraceSseResponse.of(user.id, workflow.id, WorkflowAction.WORKFLOW_UPDATE))
+        serverSentEventsService.publishEvent(LiveUpdate.of(user.id, workflow.id, LiveAction.WORKFLOW_UPDATE))
     }
 
     private void publishProgressEvent(Workflow workflow) {
-        serverSentEventsService.publishEvent(TraceSseResponse.of(workflow.owner.id, workflow.id, WorkflowAction.PROGRESS_UPDATE))
+        serverSentEventsService.publishEvent(LiveUpdate.of(workflow.owner.id, workflow.id, LiveAction.PROGRESS_UPDATE))
     }
 
     @Post("/alive")

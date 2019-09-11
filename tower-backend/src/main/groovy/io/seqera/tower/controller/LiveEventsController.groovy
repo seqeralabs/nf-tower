@@ -10,31 +10,31 @@ import io.micronaut.http.sse.Event
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.rules.SecurityRule
 import io.reactivex.Flowable
-import io.seqera.tower.exchange.trace.sse.TraceSseResponse
-import io.seqera.tower.service.ServerSentEventsService
+import io.seqera.tower.exchange.live.LiveUpdate
+import io.seqera.tower.service.LiveEventsService
 import io.seqera.tower.service.UserService
 import org.reactivestreams.Publisher
 /**
  * Server Sent Events endpoints to receive live updates in the client.
  *
  */
-@Controller("/sse")
+@Controller("/live")
 @Secured(SecurityRule.IS_ANONYMOUS)
 @Slf4j
-class ServerSentEventsController {
+class LiveEventsController {
 
     UserService userService
-    ServerSentEventsService serverSentEventsService
+    LiveEventsService serverSentEventsService
 
     @Inject
-    ServerSentEventsController(UserService userService, ServerSentEventsService serverSentEventsService) {
+    LiveEventsController(UserService userService, LiveEventsService serverSentEventsService) {
         this.userService = userService
         this.serverSentEventsService = serverSentEventsService
     }
 
 
     @Get("/")
-    Publisher<Event<List<TraceSseResponse>>> live(HttpRequest request) {
+    Publisher<Event<List<LiveUpdate>>> live(HttpRequest request) {
         log.debug("Client subscribing to live events [remoteAddress=${request.remoteAddress}]")
         try {
             return serverSentEventsService.getEventsFlowable()
@@ -43,7 +43,7 @@ class ServerSentEventsController {
             String message = "Unexpected error while obtaining event emitter"
             log.error("${message} | ${e.message}", e)
 
-            return Flowable.just(Event.of([TraceSseResponse.ofError(message)]))
+            return Flowable.just(Event.of([LiveUpdate.ofError(message)]))
         }
     }
 
