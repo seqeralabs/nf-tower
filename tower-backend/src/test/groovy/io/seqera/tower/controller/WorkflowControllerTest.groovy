@@ -13,6 +13,7 @@ package io.seqera.tower.controller
 
 import io.micronaut.http.uri.UriBuilder
 import io.seqera.tower.enums.TaskStatus
+import io.seqera.tower.exchange.progress.GetProgressResponse
 import spock.lang.Unroll
 
 import javax.inject.Inject
@@ -112,6 +113,24 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         then: "the server responds UNAUTHORIZED"
         HttpClientResponseException e = thrown(HttpClientResponseException)
         e.status == HttpStatus.UNAUTHORIZED
+    }
+
+    void "get the progress of a workflow"() {
+        given: "a workflow with"
+        DomainCreator creator = new DomainCreator()
+        Workflow workflow = creator.createWorkflow()
+
+        when: "perform the request to obtain the progress"
+        String accessToken = doJwtLogin(creator.generateAllowedUser(), client)
+        HttpResponse<GetProgressResponse> response = client.toBlocking().exchange(
+                HttpRequest.GET("/workflow/${workflow.id}/progress")
+                        .bearerAuth(accessToken),
+                GetProgressResponse.class
+        )
+
+        then: "the workflow progress has been obtained"
+        response.status == HttpStatus.OK
+        response.body().progress
     }
 
     void "get a list of workflows"() {

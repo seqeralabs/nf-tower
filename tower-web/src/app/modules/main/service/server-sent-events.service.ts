@@ -11,12 +11,10 @@
 import { Injectable } from '@angular/core';
 import {environment} from "../../../../environments/environment";
 import {Observable, Subscriber} from "rxjs";
-import {Task} from "../entity/task/task";
 import {Workflow} from "../entity/workflow/workflow";
-import {SseError} from "../entity/sse/sse-error";
 import {User} from "../entity/user/user";
-import {SseHeartbeat} from "../entity/sse/sse-heartbeat";
-import {Progress} from "../entity/progress/progress";
+import {SseEvent} from "../entity/sse/sse-event";
+import {filter} from "rxjs/operators";
 
 const endpointUrl: string = `${environment.apiUrl}/sse`;
 
@@ -25,59 +23,62 @@ const endpointUrl: string = `${environment.apiUrl}/sse`;
 })
 export class ServerSentEventsService {
 
+  private events$: Observable<SseEvent>;
+
   constructor() {
   }
 
-  connectToWorkflowLiveStream(workflow: Workflow): Observable<Workflow | Progress | SseHeartbeat | SseError> {
-    const workflowDetailUrl: string = `${endpointUrl}/workflow/${workflow.id}`;
+  connectToWorkflowEventsStream(workflow: Workflow): Observable<SseEvent> {
+    this.connectToLiveStream();
 
-    return this.connect(workflowDetailUrl);
+    return this.events$.pipe(
+      filter((event: SseEvent) => event.workflowId == workflow.data.id),
+    )
   }
 
-  connectToUserLiveStream(user: User): Observable<Workflow | Progress | SseHeartbeat | SseError> {
-    const workflowListUrl: string = `${endpointUrl}/user/${user.data.id}`;
+  connectToUserEventsStream(user: User): Observable<SseEvent> {
+    this.connectToLiveStream();
 
-    return this.connect(workflowListUrl);
+    return this.events$.pipe(
+      filter((event: SseEvent) => event.userId == user.data.id),
+      filter((event: SseEvent) => event.isWorkflowUpdate)
+    )
   }
 
-  private connect(url: string): Observable<Workflow | Progress | SseHeartbeat | SseError> {
-    return new Observable((subscriber: Subscriber<Workflow | Progress>) => {
+  private connectToLiveStream(): void {
+    if (this.events$) {
+      return;
+    }
+    const sseUrl: string = `${endpointUrl}/`;
+    this.events$ = this.connect(sseUrl);
+  }
+
+  private connect(url: string): Observable<SseEvent> {
+    return new Observable((subscriber: Subscriber<SseEvent>) => {
       console.log('Connecting to receive live events', url);
 
       const eventSource: EventSource = new EventSource(url);
       eventSource.addEventListener('message', (event: MessageEvent) => {
-        const transformedData: any = this.transformEventData(JSON.parse(event.data));
-
-        if (transformedData instanceof SseError) {
-          subscriber.error(transformedData);
-        } else {
-          subscriber.next(transformedData);
+        const dataArray: any[] = JSON.parse(event.data);
+        if (!dataArray || (Array.isArray(dataArray) && dataArray.length == 0)) {
+          return;
         }
+
+        const events: SseEvent[] = dataArray.map((data) => new SseEvent(data));
+        events.forEach((event: SseEvent) => {
+          if (event.isError) {
+            subscriber.error(event);
+          } else {
+            subscriber.next(event)
+          }
+        });
+
       });
+
       eventSource.addEventListener('error', () => {
         console.log('Event source error. Possible idle timeout', new Date().toISOString());
       });
-
-      return () => {
-        console.log('Disconnecting of live events', url);
-        eventSource.close();
-      };
     });
-  }
-
-  private transformEventData(data: any): Workflow | Progress | SseHeartbeat | SseError {
-    if (data.workflow) {
-      return new Workflow(data.workflow);
-    }
-    if (data.progress) {
-      return new Progress(data.progress);
-    }
-    if (data.heartbeat) {
-      return new SseHeartbeat(data.heartbeat);
-    }
-    if (data.error) {
-      return new SseError(data.error);
-    }
   }
 
 }

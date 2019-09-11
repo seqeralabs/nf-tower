@@ -10,6 +10,6 @@
  */
 export enum SseErrorType {
 
-  NONEXISTENT, BAD_PROCESSING, TIMEOUT, UNEXPECTED
+  UNEXPECTED
 
 }

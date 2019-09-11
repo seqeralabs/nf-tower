@@ -16,14 +16,12 @@ import {Router} from "@angular/router";
 import {Workflow} from "../../entity/workflow/workflow";
 import {WorkflowService} from "../../service/workflow.service";
 import {ServerSentEventsService} from "../../service/server-sent-events.service";
-import {SseError} from "../../entity/sse/sse-error";
 import {Subscription} from "rxjs";
 import {NotificationService} from "../../service/notification.service";
-import {SseHeartbeat} from "../../entity/sse/sse-heartbeat";
 import {FilteringParams} from "../../util/filtering-params";
 import {concat, differenceBy, intersectionBy, orderBy} from "lodash";
 import {environment} from "../../../../../environments/environment";
-import {SseErrorType} from "../../entity/sse/sse-error-type";
+import {SseEvent} from "../../entity/sse/sse-event";
 
 @Component({
   selector: 'wt-home',
@@ -34,7 +32,7 @@ export class HomeComponent implements OnInit {
 
   user: User;
   workflows: Workflow[];
-  private liveEventsSubscription: Subscription;
+  private userEventsSubscription: Subscription;
 
   shouldShowLandingPage: boolean;
 
@@ -101,31 +99,26 @@ export class HomeComponent implements OnInit {
   }
 
   private subscribeToUserLiveEvents(): void {
-    if (this.liveEventsSubscription) {
+    if (this.userEventsSubscription) {
       return;
     }
 
-    this.liveEventsSubscription = this.serverSentEventsWorkflowService.connectToUserLiveStream(this.user).subscribe(
-      (data: Workflow | SseHeartbeat) => this.reactToDataEvent(data),
-      (error: SseError) => this.reactToErrorEvent(error)
+    this.userEventsSubscription = this.serverSentEventsWorkflowService.connectToUserEventsStream(this.user).subscribe(
+      (event: SseEvent) => this.reactToDataEvent(event),
+      (event: SseEvent) => this.reactToErrorEvent(event)
     );
   }
 
-  private reactToDataEvent(data: Workflow | SseHeartbeat) {
-    if (data instanceof Workflow) {
-      console.log('Live user event received', data);
-      this.workflowService.updateWorkflow(data);
-    } else if (data instanceof SseHeartbeat) {
-      console.log('Heartbeat event received', data);
-    }
+  private reactToDataEvent(event: SseEvent) {
+    console.log('Live user event received', event);
+    this.workflowService.getWorkflow(event.workflowId, true).subscribe((workflow: Workflow) => {
+      this.workflowService.updateWorkflow(workflow)
+    });
   }
 
-  private reactToErrorEvent(error: SseError) {
-    console.log('Live user error event received', error);
-    if (error.type == SseErrorType.TIMEOUT) {
-      this.liveEventsSubscription = null;
-      this.subscribeToUserLiveEvents();
-    }
+  private reactToErrorEvent(event: SseEvent) {
+    console.log('Live user error event received', event);
+    this.notificationService.showErrorNotification(event.message);
   }
 
   private get isAtRoot(): boolean {
