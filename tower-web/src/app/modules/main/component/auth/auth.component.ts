@@ -43,7 +43,7 @@ export class AuthComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    setTimeout(() => this.submitAuthForm(), 500);
+    setTimeout(() => this.submitAuthForm(), 300);
   }
 
   private submitAuthForm(): void {

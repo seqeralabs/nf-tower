@@ -9,7 +9,7 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 
-import { Component, OnInit } from '@angular/core';
+import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
 import {AuthService} from "../../service/auth.service";
 import {Router} from "@angular/router";
 import {NotificationService} from "../../service/notification.service";
@@ -19,14 +19,27 @@ import {NotificationService} from "../../service/notification.service";
   templateUrl: './logout.component.html',
   styleUrls: ['./logout.component.scss']
 })
-export class LogoutComponent implements OnInit {
+export class LogoutComponent implements OnInit, AfterViewInit {
 
-  constructor(private authService: AuthService,
-              private router: Router
-  ) { }
+  @ViewChild('logoutForm', {static: true})
+  logoutForm;
+
+  logoutEndpointUrl: string;
+
+  constructor(private authService: AuthService) {
+  }
 
   ngOnInit() {
-    this.authService.logoutAndGoHome();
+    this.authService.logout();
+    this.logoutEndpointUrl = this.authService.logoutEndpointUrl;
+  }
+
+  ngAfterViewInit() {
+    setTimeout(() => this.submitLogoutForm(), 300);
+  }
+
+  private submitLogoutForm(): void {
+    this.logoutForm.nativeElement.submit();
   }
 
 }

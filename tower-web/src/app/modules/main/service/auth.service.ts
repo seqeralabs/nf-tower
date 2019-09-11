@@ -19,6 +19,7 @@ import {AccessGateResponse} from "../entity/gate";
 import {Router} from "@angular/router";
 
 const authEndpointUrl: string = `${environment.apiUrl}/login`;
+const logoutEndpointUrl: string = `${environment.apiUrl}/logout`;
 const userEndpointUrl: string = `${environment.apiUrl}/user`;
 const gateEndpointUrl: string = `${environment.apiUrl}/gate`;
 
@@ -47,6 +48,10 @@ export class AuthService {
 
   get authEndpointUrl(): string {
     return authEndpointUrl;
+  }
+
+  get logoutEndpointUrl(): string {
+    return logoutEndpointUrl;
   }
 
   retrieveUser(): Observable<User> {
@@ -88,7 +93,7 @@ export class AuthService {
     this.router.navigate(['/']);
   }
 
-  private logout(): void {
+  logout(): void {
     this.removeUser();
     this.userSubject.next(null);
   }

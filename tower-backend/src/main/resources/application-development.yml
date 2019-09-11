@@ -13,8 +13,7 @@ micronaut:
       enabled: true
       loginSuccessTargetUrl: "${TOWER_SERVER_URL:`http://localhost:4200`}/access?success=true"
       loginFailureTargetUrl: "${TOWER_SERVER_URL:`http://localhost:4200`}/access?success=false"
-      logoutTargetUrl: "${TOWER_SERVER_URL:`http://localhost:4200`}/logout"
-
+      logoutTargetUrl: "${TOWER_SERVER_URL:`http://localhost:4200`}/"
 ---
 dataSource:
   pooled: true

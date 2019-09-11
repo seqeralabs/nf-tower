@@ -27,7 +27,7 @@ micronaut:
       enabled: true
       loginSuccessTargetUrl: "${TOWER_SERVER_URL:`http://localhost:8000`}/access?success=true"
       loginFailureTargetUrl: "${TOWER_SERVER_URL:`http://localhost:8000`}/access?success=false"
-      logoutTargetUrl: "${TOWER_SERVER_URL:`http://localhost:8000`}/logout"
+      logoutTargetUrl: "${TOWER_SERVER_URL:`http://localhost:8000`}/"
 ---
 jackson:
   serialization:
