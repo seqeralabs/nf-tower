@@ -25,7 +25,7 @@ dataSource:
   username: sa
   password: ""
 hibernate:
-  show_sql: true
+  show_sql: false
   cache:
     queries: false
     use_second_level_cache: false
