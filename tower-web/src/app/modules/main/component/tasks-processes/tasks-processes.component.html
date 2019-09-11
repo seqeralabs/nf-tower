@@ -9,7 +9,7 @@
             {{progress.process}}
           </div>
           <div class="col-sm progress-label">
-            {{progress.data.succeeded}} of {{progress.total}}
+            {{progress.data.succeeded + progress.data.cached}} of {{progress.total}}
           </div>
         </div>
         <div class="progress-wrapper" [title]="getTooltipText(progress)" data-toggle="tooltip" data-placement="top" data-html="true">
