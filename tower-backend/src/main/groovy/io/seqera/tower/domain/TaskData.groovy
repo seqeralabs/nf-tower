@@ -81,7 +81,7 @@ class TaskData implements TaskDef {
     Long exitStatus
     Long duration
     Long realtime
-    Long nativeId
+    String nativeId
 
     Double pcpu
     Double pmem
@@ -125,7 +125,7 @@ class TaskData implements TaskDef {
         errorAction(nullable: true)
         duration(nullable: true)
         realtime(nullable: true)
-        nativeId(nullable: true)
+        nativeId(nullable: true, maxSize: 100)
         pcpu(nullable: true)
         pmem(nullable: true)
         rss(nullable: true)

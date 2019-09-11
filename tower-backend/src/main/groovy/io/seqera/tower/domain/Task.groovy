@@ -176,7 +176,7 @@ class Task implements TaskDef {
     Long getExitStatus() { _data().exitStatus }
     Long getDuration() { _data().duration }
     Long getRealtime() { _data().realtime }
-    Long getNativeId() { _data().nativeId }
+    String getNativeId() { _data().nativeId }
 
     Double getPcpu() { _data().pcpu }
     Double getPmem() { _data().pmem }
@@ -223,7 +223,7 @@ class Task implements TaskDef {
     void setExitStatus(Long x) { _data().exitStatus = x }
     void setDuration(Long x) { _data().duration = x }
     void setRealtime(Long x) { _data().realtime = x }
-    void setNativeId(Long x) { _data().nativeId = x }
+    void setNativeId(String x) { _data().nativeId = x }
 
     void setPcpu(Double x) { _data().pcpu = x }
     void setPmem(Double x) { _data().pmem = x }
