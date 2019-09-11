@@ -51,5 +51,5 @@ export interface TaskData {
   peakRss: number;
   volCtxt: number;
   invCtxt: number;
-  nativeId: number;
+  nativeId: string;
 }

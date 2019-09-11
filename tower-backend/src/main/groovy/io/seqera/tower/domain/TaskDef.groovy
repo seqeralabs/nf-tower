@@ -49,7 +49,7 @@ interface TaskDef {
     Long getExitStatus()
     Long getDuration()
     Long getRealtime()
-    Long getNativeId()
+    String getNativeId()
 
     Double getPcpu()
     Double getPmem()
@@ -98,7 +98,7 @@ interface TaskDef {
     void setExitStatus(Long x)
     void setDuration(Long x)
     void setRealtime(Long x)
-    void setNativeId(Long x)
+    void setNativeId(String x)
 
     void setPcpu(Double x)
     void setPmem(Double x)
