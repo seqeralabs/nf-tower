@@ -35,7 +35,7 @@ abstract class BaseController {
                 "- params : ${request.parameters.collect { k,v -> "$k=$v"}}\n" +
                 "- user   : ${request.userPrincipal.isPresent() ? request.userPrincipal.get().getName() : '-'}\n" +
                 "- message: [${e.getClass().getName()}] ${e.message ?: e.toString()}\n"
-        log.error(err)
+        log.error(err,e)
         final msg = "Oops.. something went wrong -- ${e.message?:e.toString()}"
         return HttpResponse.badRequest(new MessageResponse(msg))
     }
