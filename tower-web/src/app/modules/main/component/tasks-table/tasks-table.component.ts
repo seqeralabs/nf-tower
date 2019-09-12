@@ -293,8 +293,8 @@ export class TasksTableComponent implements OnInit, OnChanges {
     for( let index in cols ) {
       let entry = cols[index];
       result += `<tr>
-                    <th scope="row">${entry.name}</th>
-                    <td>${this.col(row, entry.name)}</td>
+                    <th scope="row"><div class="scrollable">${entry.name}</div></th>
+                    <td><div class="scrollable">${this.col(row, entry.name)}</div></td>
                     <td><div class="scrollable">${entry.description}</div></td>
                   </tr>`
     }
