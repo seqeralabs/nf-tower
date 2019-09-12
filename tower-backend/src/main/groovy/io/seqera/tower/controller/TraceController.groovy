@@ -130,6 +130,7 @@ class TraceController extends BaseController {
             List<Task> tasks = traceService.processTaskTrace(request)
 
             Workflow workflow = tasks.first().workflow
+            progressService.updateLoadPeaks(workflow) // this query should be cached into 2nd level cache
             response = HttpResponse.created(TraceTaskResponse.ofSuccess(workflow.id))
             publishProgressEvent(workflow)
         }
