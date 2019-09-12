@@ -111,7 +111,8 @@ class TokenController  extends BaseController {
     @Get('/default')
     HttpResponse<GetDefaultTokenResponse> getDefaultToken(Authentication authentication) {
         final user = userService.getFromAuthData(authentication)
-
+        if( !user )
+            return HttpResponse.badRequest(new GetDefaultTokenResponse(message: "Cannot find user: ${authentication.name}"))
         AccessToken result = user.accessTokens.find { it.name == AccessToken.DEFAULT_TOKEN }
         if( result )
             return HttpResponse.ok(new GetDefaultTokenResponse(token: result))
