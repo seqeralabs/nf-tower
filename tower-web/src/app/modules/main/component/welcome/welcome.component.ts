@@ -44,9 +44,10 @@ export class WelcomeComponent implements OnInit {
   private makeNextflowConfig(token: string): string {
     let endpoint = this.getEndpointUrl();
     let result = 'tower {\n';
-    result += `  authToken = '${token}'\n`;
+    result += `  accessToken = '${token}'\n`;
     if( endpoint != null )
       result += `  endpoint = '${endpoint}'\n`;
+    result += '  enabled = true\n';
     result += '}';
     return result;
   }
