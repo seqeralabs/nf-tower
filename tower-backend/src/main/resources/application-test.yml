@@ -61,7 +61,6 @@ auth:
   mail:
     duration: 30m
 ---
-<<<<<<< HEAD
 live:
   buffer:
     time: 1500ms

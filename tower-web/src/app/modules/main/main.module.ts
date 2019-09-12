@@ -45,11 +45,8 @@ import { WorkflowLoadComponent } from './component/workflow-load/workflow-load.c
 import {WorkflowErrorComponent} from "./component/workflow-error/workflow-error.component";
 import { LoadingComponent } from './component/loading/loading.component';
 import {TreeListComponent} from "./component/tree-list/TreeListComponent";
-<<<<<<< HEAD
 import {WorkflowStatusIconComponent} from "../../workflow-status-icon/workflow-status-icon.component";
-=======
 import { AccessComponent } from './component/access/access.component';
->>>>>>> Refactor security strategy from JWT token to JWT cookie
 
 /*
  * Main application routing strategy

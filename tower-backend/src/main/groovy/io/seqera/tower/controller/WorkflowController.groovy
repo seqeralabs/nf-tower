@@ -99,7 +99,8 @@ class WorkflowController extends BaseController {
      * @param workflowId The ID of the workflow for which the status is requested
      * @return The http response
      */
-    @Get("/{workflowId}")
+    @Transactional
+    @Get("/{id}")
     @Secured(['ROLE_USER'])
     HttpResponse<WorkflowGet> get(String id) {
         Workflow workflow = workflowService.get(id)
