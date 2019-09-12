@@ -28,14 +28,6 @@ import static ch.qos.logback.classic.Level.ERROR
 class H8WarnFilter extends Filter<ILoggingEvent> {
     @Override
     FilterReply decide(ILoggingEvent event) {
-        return stripPrefix(event.message, event.getLevel()) ? FilterReply.DENY : FilterReply.NEUTRAL
-    }
-
-    static private boolean stripPrefix(String str, Level level) {
-        if( level==ERROR && str.contains('Invalid JWT serialization: Missing dot delimiter') )
-            return true
-        if( str.startsWith("HHH90000022:") )
-            return true
-        return false
+        return event.message.startsWith("HHH90000022:") ? FilterReply.DENY : FilterReply.NEUTRAL
     }
 }
