@@ -4,6 +4,6 @@
         [ngClass]="{'mdi-check-circle-outline': workflow.isSuccessful, 'mdi-alert-circle-outline': workflow.isFailed || workflow.isPartialFailed,
                             'succeed': workflow.isSuccessful, 'failed': workflow.isFailed, 'partialFailed': workflow.isPartialFailed}">
   </span>
-  <span *ngIf="!isLiveEventsOnline" class="workflow-status live-off mdi mdi-sync-off" data-toggle="tooltip" data-placement="bottom" title="Live events sync offline!">
+  <span [hidden]="isLiveEventsOnline" class="workflow-status live-off mdi mdi-sync-off" data-toggle="tooltip" data-placement="bottom" title="Live events sync offline!">
   </span>
 </div>
