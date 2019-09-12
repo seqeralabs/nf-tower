@@ -20,9 +20,9 @@ import io.micronaut.context.event.ShutdownEvent
 import io.micronaut.context.event.StartupEvent
 import io.micronaut.runtime.context.scope.refresh.RefreshEvent
 import io.micronaut.runtime.event.annotation.EventListener
+import io.micronaut.security.authentication.UserDetails
 import io.micronaut.security.event.LoginSuccessfulEvent
 import io.seqera.mail.MailSpooler
-
 /**
  * Object listening for application events
  * 
@@ -55,6 +55,15 @@ class ApplicationListener {
 
     @EventListener
     void onUserLogin(LoginSuccessfulEvent event) {
-        log.info "Login $event.source"
+        log.info "Login event | user=${fetchUserDetails(event.source)}"
+    }
+
+    private String fetchUserDetails(source) {
+        if(!source)
+            return null
+        if( source instanceof UserDetails ) {
+            return "user=${source.username}; roles=${source.roles}"
+        }
+        return "user=${source.toString()} [class=${source.getClass().getName()}]"
     }
 }
