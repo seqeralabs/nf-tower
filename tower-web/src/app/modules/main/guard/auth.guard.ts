@@ -38,15 +38,13 @@ export class AuthGuard implements CanActivate {
       return true;
     }
 
-    console.log('User not logged in');
+    console.log('User is not logged in');
     this.notificationService.showErrorNotification('Please log in');
     this.authService.logoutAndGoHome();
     return false;
   }
 
   checkDisabled(): Observable<boolean> {
-    console.log('Checking if disabled');
-
     return this.authService.requestEnabledStatus().pipe(
       tap((isEnabled: boolean) => {
         if (isEnabled) {
@@ -56,7 +54,7 @@ export class AuthGuard implements CanActivate {
 
         console.log('User is disabled');
         this.notificationService.showErrorNotification('Your user has been disabled');
-        window.location.replace('/logout');
+        this.authService.logoutAndGoHome();
       })
     );
   }
