@@ -78,7 +78,7 @@ live:
   buffer:
     time: 1s
     count: 100
-    heartbeat: 2m
+    heartbeat: 50s
 ---
 endpoints:
   bean:
