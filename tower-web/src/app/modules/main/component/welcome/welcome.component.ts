@@ -23,23 +23,32 @@ import {NotificationService} from "../../service/notification.service";
 })
 export class WelcomeComponent implements OnInit {
 
-  nextflowRunCommand = 'nextflow run hello -with-tower ';
+  nextflowRunCommand: string;
+
+  nextflowConfig: string;
 
   accessToken: string;
 
   constructor(private httpClient: HttpClient, private notificationService: NotificationService) { }
 
   ngOnInit() {
-    this.fetchNextflowCommand();
     this.fetchDefaultToken();
   }
 
-  private fetchNextflowCommand() {
-    const url = new URL(window.location.href);
-    const base = url.origin;
-    if( !base.endsWith('://tower.nf') ) {
-      this.nextflowRunCommand += base + '/api'
-    }
+  private makeNextflowCommand(): string {
+    const cmd = 'nextflow run hello -with-tower ';
+    let endpoint = this.getEndpointUrl();
+    return endpoint ? cmd + endpoint : cmd;
+  }
+
+  private makeNextflowConfig(token: string): string {
+    let endpoint = this.getEndpointUrl();
+    let result = 'tower {\n';
+    result += `  authToken = '${token}'\n`;
+    if( endpoint != null )
+      result += `  endpoint = '${endpoint}'\n`;
+    result += '}';
+    return result;
   }
 
   private fetchDefaultToken() {
@@ -48,6 +57,8 @@ export class WelcomeComponent implements OnInit {
       .subscribe(
         resp => {
           this.accessToken = resp.token.token;
+          this.nextflowConfig = this.makeNextflowConfig(this.accessToken);
+          this.nextflowRunCommand = this.makeNextflowCommand();
         },
         (resp: HttpErrorResponse) => {
           this.notificationService.showErrorNotification(resp.error.message);
@@ -55,4 +66,14 @@ export class WelcomeComponent implements OnInit {
       );
   }
 
+  private getEndpointUrl(): string {
+    const url = new URL(window.location.href);
+    const base = url.origin;
+    if( !base.endsWith('://tower.nf') ) {
+      return base + '/api'
+    }
+    else {
+      return null;
+    }
+  }
 }
