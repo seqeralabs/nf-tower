@@ -23,6 +23,9 @@ import io.micronaut.runtime.event.annotation.EventListener
 import io.micronaut.security.authentication.UserDetails
 import io.micronaut.security.event.LoginSuccessfulEvent
 import io.seqera.mail.MailSpooler
+import io.seqera.tower.exchange.live.LiveUpdate
+import io.seqera.tower.service.LiveEventsService
+
 /**
  * Object listening for application events
  * 
@@ -36,10 +39,14 @@ class ApplicationListener {
     @Inject
     MailSpooler mailSpooler
 
+    @Inject
+    LiveEventsService liveEventsService
+
     @EventListener
     void onStartup(StartupEvent event) {
         log.info "Application started up"
         mailSpooler.start()
+        liveEventsService.publishEvent(LiveUpdate.nope())
     }
 
     @EventListener

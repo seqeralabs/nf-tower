@@ -47,6 +47,10 @@ class LiveUpdate implements BaseResponse {
         new LiveUpdate(errorMessage)
     }
 
+    static LiveUpdate nope() {
+        new LiveUpdate(0,'-',null)
+    }
+
     String toString() {
         def result = "LiveUpdate[userId=$userId; workflowId=$workflowId; action=${action?.toString()}"
         if( message )
