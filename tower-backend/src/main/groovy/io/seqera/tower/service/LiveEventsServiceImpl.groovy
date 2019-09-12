@@ -78,6 +78,8 @@ class LiveEventsServiceImpl implements LiveEventsService {
                             log.trace "Send SSE events: ${traces.toString()})"
                         Event.of(traces)
                     }
+                    // avoid Could not emit buffer due to lack of requests #130
+                    .onBackpressureBuffer()
 
     }
 
