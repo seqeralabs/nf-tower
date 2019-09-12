@@ -1,0 +1,33 @@
+@import "~src/assets/variables";
+
+
+.spinner-border {
+  color: $running-blue;
+  font-size: 5px;
+  width: 2.9rem;
+  height: 2.9rem;
+}
+
+.workflow-status {
+  vertical-align: text-top;
+
+  &.succeed {
+    color: $succeed-green;
+  }
+
+  &.failed {
+    color: $failed-red;
+  }
+
+  &.partialFailed {
+    color: $partialFailed-orange;
+  }
+}
+
+.status-icon {
+  font-size: 3.5rem;
+}
+
+.live-off {
+  color: $failed-red;
+}
