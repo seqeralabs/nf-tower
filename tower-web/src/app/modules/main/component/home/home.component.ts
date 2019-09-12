@@ -109,9 +109,11 @@ export class HomeComponent implements OnInit {
 
   private reactToDataEvent(event: LiveUpdate) {
     console.log('Live user event received', event);
-    this.workflowService.getWorkflow(event.workflowId, true).subscribe((workflow: Workflow) => {
-      this.workflowService.updateWorkflow(workflow)
-    });
+    setInterval(() => {
+      this.workflowService.getWorkflow(event.workflowId, true).subscribe((workflow: Workflow) => {
+        this.workflowService.updateWorkflow(workflow)
+      })
+    }, 300);
   }
 
   private reactToErrorEvent(event: LiveUpdate) {

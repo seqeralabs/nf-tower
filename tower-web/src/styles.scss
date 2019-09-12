@@ -1,6 +1,7 @@
 /* You can add global styles to this file, and also import other style files */
 @import "~src/assets/variables";
 
+/* Layout styles */
 html {
   font-size: $font-size-root;
   height: 100%;
@@ -12,17 +13,6 @@ body {
   width: 100%;
   overflow-x: auto;
   background-color: $body-background;
-}
-
-pre, code, samp {
-  font-family: SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
-}
-
-code {
-  color: #343a40!important;
-  background-color: #f8f9fa!important;
-  padding: 4px 6px;
-  border-radius: 2px;
 }
 
 #navbar {
@@ -63,13 +53,40 @@ code {
 }
 
 #notification-container {
-  position: absolute;
-  top: calc(#{$navbar-height} + 2px);
+  position: fixed;
+  top: $navbar-height;
   right: 0;
+  width: 100%;
+  z-index: 1;
+}
+#home.no-navbar #notification-container {
+  top: 0;
 }
 
-/* callout styles */
+footer {
+  font-size: smaller;
 
+  a {
+    color: inherit;
+  }
+
+  .list-style-none {
+    list-style: none!important;
+  }
+
+  .flex-justify-between {
+    justify-content: space-between!important;
+  }
+
+  img {
+    height: 28px;
+    position: relative;
+    top: -7px;
+    opacity: 0.6;
+  }
+}
+
+/* Callout styles */
 .bd-callout {
     padding: 1.25rem;
     margin-top: 1.25rem;
@@ -283,25 +300,14 @@ code {
   }
 }
 
-footer {
-  font-size: smaller;
+/* Utility styles */
+pre, code, samp {
+  font-family: SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+}
 
-  a {
-    color: inherit;
-  }
-
-  .list-style-none {
-    list-style: none!important;
-  }
-
-  .flex-justify-between {
-    justify-content: space-between!important;
-  }
-
-  img {
-    height: 28px;
-    position: relative;
-    top: -7px;
-    opacity: 0.6;
-  }
+code {
+  color: #343a40!important;
+  background-color: #f8f9fa!important;
+  padding: 4px 6px;
+  border-radius: 2px;
 }
