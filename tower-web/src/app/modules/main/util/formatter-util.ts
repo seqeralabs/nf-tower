@@ -43,7 +43,7 @@ export abstract class FormatterUtil {
 
     const dateInstance: Date = new Date(date);
     if (!format)
-      format = 'YYYY-MM-DD hh:mm:ss'
+      format = 'YYYY-MM-DD HH:mm:ss';
 
     return dateFormat(dateInstance, format);
   }
