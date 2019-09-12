@@ -13,13 +13,7 @@
           </h1>
           <h2>{{workflow.data.runName}}</h2>
         </div>
-        <div class="col m-auto align-middle text-right pr-5 status-icon">
-          <span *ngIf="workflow.isRunning" class="spinner-border" role="status"></span>
-          <span *ngIf="workflow.isCompleted" class="workflow-status mdi"
-                [ngClass]="{'mdi-check-circle-outline': workflow.isSuccessful, 'mdi-alert-circle-outline': workflow.isFailed || workflow.isPartialFailed,
-                            'succeed': workflow.isSuccessful, 'failed': workflow.isFailed, 'partialFailed': workflow.isPartialFailed}">
-          </span>
-        </div>
+        <wt-workflow-status-icon [workflow]="workflow"></wt-workflow-status-icon>
       </div>
     </div>
     <div class="card-body">

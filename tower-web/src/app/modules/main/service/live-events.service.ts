@@ -10,7 +10,7 @@
  */
 import { Injectable } from '@angular/core';
 import {environment} from "../../../../environments/environment";
-import {Observable, Subscriber} from "rxjs";
+import {BehaviorSubject, Observable, ReplaySubject, Subject, Subscriber} from "rxjs";
 import {Workflow} from "../entity/workflow/workflow";
 import {User} from "../entity/user/user";
 import {LiveUpdate} from "../entity/live/live-update";
@@ -23,9 +23,14 @@ const endpointUrl: string = `${environment.apiUrl}/live`;
 })
 export class LiveEventsService {
 
+  connectionStatus$: Observable<boolean>;
+  private connectionStatusSubject: BehaviorSubject<boolean>;
+
   private events$: Observable<LiveUpdate>;
 
   constructor() {
+    this.connectionStatusSubject = new BehaviorSubject(null);
+    this.connectionStatus$ = this.connectionStatusSubject.asObservable();
   }
 
   connectToWorkflowEventsStream(workflow: Workflow): Observable<LiveUpdate> {
@@ -59,6 +64,8 @@ export class LiveEventsService {
 
       const eventSource: EventSource = new EventSource(url);
       eventSource.addEventListener('message', (event: MessageEvent) => {
+        this.updateStatus(true);
+
         const dataArray: any[] = JSON.parse(event.data);
         if (!dataArray || (Array.isArray(dataArray) && dataArray.length == 0)) {
           return;
@@ -76,9 +83,19 @@ export class LiveEventsService {
       });
 
       eventSource.addEventListener('error', () => {
-        console.log('Event source error. Possible idle timeout', new Date().toISOString());
+        this.updateStatus(false);
+        console.log('Event source error', new Date().toISOString());
       });
     });
+  }
+
+  private updateStatus(newStatus: boolean): void {
+    const currentStatus: boolean = this.connectionStatusSubject.value;
+    if (newStatus == currentStatus) {
+      return;
+    }
+
+    this.connectionStatusSubject.next(newStatus);
   }
 
 }
