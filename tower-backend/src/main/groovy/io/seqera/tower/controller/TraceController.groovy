@@ -80,8 +80,8 @@ class TraceController extends BaseController {
     @Post("/alive")
     @Transactional
     @Secured(['ROLE_USER'])
-    HttpResponse<TraceAliveResponse> alive(@Body TraceAliveRequest req) {
-        log.info "Trace alive message for workflowId=$req.workflowId"
+    HttpResponse<TraceAliveResponse> alive(@Body TraceAliveRequest req, Authentication authentication) {
+        log.info "Receiving tarce alive [workflowId=${req.workflowId}; user=${authentication.name}]"
 
         Workflow workflow = Workflow.get(req.workflowId)
         if (!workflow) {
@@ -97,11 +97,15 @@ class TraceController extends BaseController {
     @Post("/workflow")
     @Transactional
     @Secured(['ROLE_USER'])
-    HttpResponse<TraceWorkflowResponse> workflow(@Body TraceWorkflowRequest request, Authentication authentication) {
+    HttpResponse<TraceWorkflowResponse> workflow(@Body TraceWorkflowRequest req, Authentication authentication) {
         try {
+            final msg = (req.workflow.checkIsStarted()
+                    ? "Receiving trace for new workflow [user=${authentication.name}]"
+                    : "Receiving trace for workflow completion [workflowId=${req.workflow.id}; user=${authentication.name}]")
+            log.info(msg)
+
             User user = userService.getFromAuthData(authentication)
-            log.info("Receiving workflow trace for workflows ID=${request.workflow?.id}")
-            Workflow workflow = traceService.processWorkflowTrace(request, user)
+            Workflow workflow = traceService.processWorkflowTrace(req, user)
 
             final resp = new TraceWorkflowResponse(
                     status: TraceProcessingStatus.OK,
@@ -112,7 +116,7 @@ class TraceController extends BaseController {
             return HttpResponse.created(resp)
         }
         catch (Exception e) {
-            log.error("Failed to handle workflow trace=${request.workflow?.id}", e)
+            log.error("Failed to handle workflow trace=${req.workflow?.id}", e)
             return HttpResponse.badRequest(TraceWorkflowResponse.ofError(e.message))
         }
     }
@@ -120,14 +124,15 @@ class TraceController extends BaseController {
     @Post("/task")
     @Transactional
     @Secured(['ROLE_USER'])
-    HttpResponse<TraceTaskResponse> task(@Body TraceTaskRequest request) {
+    HttpResponse<TraceTaskResponse> task(@Body TraceTaskRequest req, Authentication authentication) {
+        log.info "Receiving task trace request [workflowId=${req.workflowId}; user=${authentication.name}]"
+
         HttpResponse<TraceTaskResponse> response
-        if( !request.workflowId )
+        if( !req.workflowId )
             HttpResponse.badRequest(TraceTaskResponse.ofError("Missing workflow ID"))
 
         try {
-            log.info("Receiving task trace for workflow ID=${request.workflowId}")
-            List<Task> tasks = traceService.processTaskTrace(request)
+            List<Task> tasks = traceService.processTaskTrace(req)
 
             Workflow workflow = tasks.first().workflow
             progressService.updateLoadPeaks(workflow) // this query should be cached into 2nd level cache
@@ -135,7 +140,7 @@ class TraceController extends BaseController {
             publishProgressEvent(workflow)
         }
         catch (Exception e) {
-            log.error("Failed to handle tasks trace for request: $request", e)
+            log.error("Failed to handle tasks trace for request: $req", e)
             response = HttpResponse.badRequest(TraceTaskResponse.ofError(e.message))
         }
 
@@ -145,7 +150,7 @@ class TraceController extends BaseController {
     @Get("/hello")
     @Secured(['ROLE_USER'])
     HttpResponse<TraceHelloResponse> hello(Authentication authentication) {
-        log.info "Trace hello from ${authentication.getName()}"
+        log.info "Receiving trace hello [user=${authentication.getName()}]"
         HttpResponse.ok(new TraceHelloResponse(message: 'Want to play again?'))
     }
 
