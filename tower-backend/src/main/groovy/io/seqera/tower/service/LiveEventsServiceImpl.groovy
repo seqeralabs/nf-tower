@@ -76,6 +76,8 @@ class LiveEventsServiceImpl implements LiveEventsService {
                         final List<LiveUpdate> traces = wrap ? wrap.first() : Collections.<LiveUpdate>emptyList()
                         if( log.isTraceEnabled() )
                             log.trace "Send SSE events: ${traces.toString()})"
+                        else
+                            log.debug "Send SSE events (count=${traces.size()})"
                         Event.of(traces)
                     }
                     // avoid Could not emit buffer due to lack of requests #130
