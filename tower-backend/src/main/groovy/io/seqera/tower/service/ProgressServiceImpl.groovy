@@ -44,7 +44,7 @@ class ProgressServiceImpl implements ProgressService {
         return result
     }
 
-    private void updatePeaks(Workflow workflow, WorkflowProgress progress) {
+    private void updatePeaks(Workflow workflow, WorkflowProgress progress, boolean save) {
 
         if( workflow.peakLoadCpus < progress.loadCpus ) {
             workflow.peakLoadCpus = progress.loadCpus
@@ -60,14 +60,14 @@ class ProgressServiceImpl implements ProgressService {
         progress.peakLoadTasks = workflow.peakLoadTasks
         progress.peakLoadMemory = workflow.peakLoadMemory
 
-        if( workflow.isDirty() )
+        if( save && workflow.isDirty() )
             workflow.save()
     }
 
     @CompileDynamic
     ProgressData fetchWorkflowProgress(Workflow workflow) {
         final result = computeWorkflowProgress(workflow.id)
-        updatePeaks(workflow, result.workflowProgress)
+        updatePeaks(workflow, result.workflowProgress,false)
         return result
     }
 
@@ -130,4 +130,8 @@ class ProgressServiceImpl implements ProgressService {
         new ProgressData(workflowProgress: workflowProgress, processesProgress: processProgresses)
     }
 
+    void updateLoadPeaks(Workflow workflow) {
+        final result = computeWorkflowProgress(workflow.id)
+        updatePeaks(workflow, result.workflowProgress,true)
+    }
 }

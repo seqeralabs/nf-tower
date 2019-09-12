@@ -86,7 +86,7 @@ class WorkflowServiceImpl implements WorkflowService {
         // invoke validation explicitly due to gorm bug
         // https://github.com/grails/gorm-hibernate5/issues/110
         if (workflow.validate())
-            workflow.save(flush:true)
+            workflow.save()
 
         return workflow
     }
@@ -101,7 +101,7 @@ class WorkflowServiceImpl implements WorkflowService {
         updateMutableFields(existingWorkflow, workflow)
         associateMetrics(existingWorkflow, metrics)
 
-        existingWorkflow.save(flush:true)
+        existingWorkflow.save()
         existingWorkflow
     }
 

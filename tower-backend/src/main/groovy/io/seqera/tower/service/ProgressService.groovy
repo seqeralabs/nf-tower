@@ -21,4 +21,6 @@ interface ProgressService {
 
     ProgressData fetchWorkflowProgress(Workflow workflow)
 
+    void updateLoadPeaks(Workflow workflow)
+
 }
