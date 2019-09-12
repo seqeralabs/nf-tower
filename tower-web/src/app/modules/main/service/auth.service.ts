@@ -45,7 +45,6 @@ export class AuthService {
     return this.userSubject.value
   }
 
-
   auth(email: string, authToken: string): Observable<User> {
     return this.http.post(authEndpointUrl, {username: email, password: authToken}).pipe(
       mergeMap((authData: any) => this.requestUserProfileInfo(authData)),
@@ -68,6 +67,12 @@ export class AuthService {
 
         return new User(userData);
       })
+    );
+  }
+
+  requestEnabledStatus(): Observable<boolean> {
+    return this.http.get(`${userEndpointUrl}/status`).pipe(
+      map((data: any) => !data.disabled)
     );
   }
 

@@ -11,6 +11,8 @@
 
 package io.seqera.tower.controller
 
+import io.seqera.tower.exchange.user.GetUserStatusResponse
+
 import javax.annotation.Nullable
 import javax.inject.Inject
 
@@ -59,6 +61,18 @@ class UserController extends BaseController {
 
         log.debug "Getting profile for user id=${user.id} userName=${user.userName} email=${user.email}n"
         HttpResponse.ok(new GetUserResponse(user: user))
+    }
+
+    @Get('/status')
+    @Transactional
+    HttpResponse<GetUserStatusResponse> status(Authentication authentication) {
+        final User user = userService.getFromAuthData(authentication)
+        if (!user) {
+            return HttpResponse.badRequest(new GetUserStatusResponse(message: "Cannot find user with name ${authentication.getName()}"))
+        }
+
+        log.debug "Getting status for user id=${user.id} userName=${user.userName} email=${user.email} disabled=${user.disabled}"
+        return HttpResponse.ok(new GetUserStatusResponse(disabled: user.disabled))
     }
 
     @Post("/update")

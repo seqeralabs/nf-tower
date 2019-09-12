@@ -11,6 +11,9 @@
 
 package io.seqera.tower.controller
 
+import io.seqera.tower.exchange.user.GetUserStatusResponse
+import spock.lang.Unroll
+
 import javax.inject.Inject
 
 import grails.gorm.transactions.Transactional
@@ -63,6 +66,27 @@ class UserControllerTest extends AbstractContainerBaseTest {
         response.body().user.organization == user.organization
         response.body().user.description == user.description
         response.body().user.avatar == user.avatar
+    }
+
+    @Unroll
+    void "get the status of a user"() {
+        given: "an existing user (disabled or not)"
+        User user = new DomainCreator().createUserWithRole([disabled: disabled], 'ROLE_USER')
+
+        when: "perform the request to obtains the status"
+        String accessToken = doJwtLogin(user, client)
+        HttpResponse<GetUserStatusResponse> response = client.toBlocking().exchange(
+                HttpRequest.GET("/user/status")
+                           .bearerAuth(accessToken),
+                GetUserStatusResponse.class
+        )
+
+        then: 'the user has been updated'
+        response.status == HttpStatus.OK
+        response.body().disabled == disabled
+
+        where: 'the user status is'
+        disabled << [true, false, null]
     }
 
     void "update the user data"() {

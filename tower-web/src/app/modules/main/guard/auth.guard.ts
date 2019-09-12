@@ -12,6 +12,8 @@ import {Injectable} from '@angular/core';
 import {ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot} from '@angular/router';
 import {AuthService} from "../service/auth.service";
 import {NotificationService} from "../service/notification.service";
+import {Observable} from "rxjs";
+import {tap} from "rxjs/operators";
 
 @Injectable({
   providedIn: 'root'
@@ -22,8 +24,13 @@ export class AuthGuard implements CanActivate {
               private notificationService: NotificationService,
               private router: Router) {}
 
-  canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
-    return this.checkLogin();
+  canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean | Observable<boolean> {
+    const isLoggedIn: boolean = this.checkLogin();
+    if (!isLoggedIn) {
+      return false;
+    }
+
+    return this.checkDisabled();
   }
 
   checkLogin(): boolean {
@@ -31,10 +38,27 @@ export class AuthGuard implements CanActivate {
       return true;
     }
 
-    console.log('User not authenticated');
+    console.log('User not logged in');
     this.notificationService.showErrorNotification('Please log in');
     this.authService.logoutAndGoHome();
     return false;
+  }
+
+  checkDisabled(): Observable<boolean> {
+    console.log('Checking if disabled');
+
+    return this.authService.requestEnabledStatus().pipe(
+      tap((isEnabled: boolean) => {
+        if (isEnabled) {
+          console.log('User is enabled');
+          return;
+        }
+
+        console.log('User is disabled');
+        this.notificationService.showErrorNotification('Your user has been disabled');
+        window.location.replace('/logout');
+      })
+    );
   }
 
 }
