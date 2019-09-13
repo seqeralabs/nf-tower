@@ -12,7 +12,6 @@
 import {Component, OnInit} from '@angular/core';
 import {NotificationService} from "../../service/notification.service";
 import {Notification} from "../../entity/notification/notification";
-import {NotificationType} from "../../entity/notification/notification-type.enum";
 import {NavigationEnd, Router} from "@angular/router";
 
 
@@ -39,7 +38,7 @@ export class NotificationComponent implements OnInit {
   }
 
   private clearNotificationsOnRouteChange() {
-    this.router.events.subscribe((event) => {
+    this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
         this.clearNotificationCache();
       }
@@ -66,11 +65,6 @@ export class NotificationComponent implements OnInit {
   private clearNotificationCache(): void {
     this.notificationsCache.clear();
     this.notifications = [];
-  }
-
-  getAlertClass(notification: Notification): string {
-    return (notification.type == NotificationType.ERROR)   ? 'danger'  :
-           (notification.type == NotificationType.SUCCESS) ? 'success' : 'info';
   }
 
 }
