@@ -3,7 +3,7 @@
 <wt-loading [loadingText]="'Loading'" *ngIf="shouldShowLoadingScreen"></wt-loading>
 
 <wt-navbar *ngIf="!shouldShowLandingPage"></wt-navbar>
-<div *ngIf="!shouldShowLandingPage && !shouldShowLoadingScreen" id="layout">
+<div *ngIf="!shouldShowLandingPage && !shouldShowLoadingScreen" id="layout" class="pb-4">
 
   <div id="sidebar" *ngIf="shouldShowSidebar" (scroll)="onSidebarScroll($event)">
     <wt-sidebar [workflows]="workflows" (onDeleteWorkflow)="deleteWorkflow($event)"
@@ -26,7 +26,7 @@
 </div>
 
 <footer class="footer" *ngIf="!shouldShowLandingPage">
-  <div class="container d-flex flex-justify-between mt-5 pt-3 pb-4 border-top border-gray-light text-muted">
+  <div class="container d-flex flex-justify-between pt-4 border-top border-gray-light text-muted">
     <ul class="list-style-none d-flex flex-wrap ">
       <li class="mr-3">© 2019 <a href="https://www.seqera.io" target="_blank">Seqera Labs</a></li>
       <li class="mr-3">Version {{version}}_{{commitId}}</li>
@@ -42,7 +42,6 @@
       <li class="mr-3"><a href="https://www.seqera.io/blog/" target="_blank">Blog</a></li>
       <li class="mr-3"><a href="https://www.seqera.io/jobs/" target="_blank">Careers</a></li>
       <li class="mr-3"><a href="mailto:hello@tower.nf">Contact</a></li>
-
     </ul>
   </div>
 </footer>
