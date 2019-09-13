@@ -12,7 +12,7 @@
 import {Component, OnInit} from '@angular/core';
 import {User} from "../../entity/user/user";
 import {AuthService} from "../../service/auth.service";
-import {Router} from "@angular/router";
+import {NavigationEnd, Router} from "@angular/router";
 import {Workflow} from "../../entity/workflow/workflow";
 import {WorkflowService} from "../../service/workflow.service";
 import {LiveEventsService} from "../../service/live-events.service";
@@ -34,12 +34,11 @@ export class HomeComponent implements OnInit {
   workflows: Workflow[];
   private userEventsSubscription: Subscription;
 
-  shouldShowLandingPage: boolean;
-
   searchingText: string;
   offset: number = 0;
   isSearchTriggered: boolean;
   isNextPageLoadTriggered: boolean;
+
   version: string;
   commitId: string;
 
@@ -59,7 +58,6 @@ export class HomeComponent implements OnInit {
       (user: User) => {
         this.user = user;
         if (!this.user) {
-          this.shouldShowLandingPage = this.isAtRoot;
           return;
         }
 
@@ -68,7 +66,7 @@ export class HomeComponent implements OnInit {
           this.subscribeToUserLiveEvents();
         });
       }
-    )
+    );
   }
 
   private receiveWorkflows(emittedWorkflows: Workflow[]): void {
@@ -123,6 +121,14 @@ export class HomeComponent implements OnInit {
 
   private get isAtRoot(): boolean {
     return (this.router.url == '/');
+  }
+
+  get shouldShowLandingPage(): boolean {
+    return (!this.user && this.isAtRoot);
+  }
+
+  get shouldShowNavbar(): boolean {
+    return (this.user != null);
   }
 
   get shouldShowSidebar(): boolean {
