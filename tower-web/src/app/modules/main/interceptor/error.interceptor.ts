@@ -22,8 +22,7 @@ const authorizationErrorCodes: number[] = [401, 403];
 export class ErrorInterceptor implements HttpInterceptor {
 
   constructor(private authService: AuthService,
-              private notificationService: NotificationService,
-              private router: Router) {
+              private notificationService: NotificationService) {
   }
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {

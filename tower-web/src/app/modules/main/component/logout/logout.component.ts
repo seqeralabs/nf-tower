@@ -21,9 +21,8 @@ import {NotificationService} from "../../service/notification.service";
 })
 export class LogoutComponent implements OnInit {
 
-  constructor(private authService: AuthService,
-              private router: Router
-  ) { }
+  constructor(private authService: AuthService) {
+  }
 
   ngOnInit() {
     this.authService.logoutAndGoHome();
