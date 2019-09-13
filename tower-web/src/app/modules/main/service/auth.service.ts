@@ -16,6 +16,7 @@ import {HttpClient} from "@angular/common/http";
 import {environment} from "src/environments/environment";
 import {UserData} from "../entity/user/user-data";
 import {AccessGateResponse} from "../entity/gate";
+import {Router} from "@angular/router";
 
 const authEndpointUrl: string = `${environment.apiUrl}/login`;
 const userEndpointUrl: string = `${environment.apiUrl}/user`;
@@ -30,7 +31,8 @@ export class AuthService {
 
   private userSubject: BehaviorSubject<User>;
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient,
+              private router: Router) {
     this.userSubject = new BehaviorSubject(this.getPersistedUser());
     this.user$ = this.userSubject.asObservable();
   }
@@ -91,7 +93,12 @@ export class AuthService {
     );
   }
 
-  logout(): void {
+  logoutAndGoHome() {
+    this.logout();
+    this.router.navigate(['/']);
+  }
+
+  private logout(): void {
     this.removeUser();
     this.userSubject.next(null);
   }
