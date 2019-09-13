@@ -36,7 +36,7 @@ export class ErrorInterceptor implements HttpInterceptor {
 
         if (this.authService.isUserAuthenticated && error.status == 401) {
           this.notificationService.showErrorNotification('Session expired');
-          window.location.replace('/logout');
+          this.authService.logoutAndGoHome();
         } else if (error.status == 403) {
           this.notificationService.showErrorNotification('Forbidden access');
         }
