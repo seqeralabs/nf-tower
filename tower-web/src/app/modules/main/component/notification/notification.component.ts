@@ -13,8 +13,8 @@ import {Component, OnInit} from '@angular/core';
 import {NotificationService} from "../../service/notification.service";
 import {Notification} from "../../entity/notification/notification";
 import {NotificationType} from "../../entity/notification/notification-type.enum";
+import {Router} from "@angular/router";
 
-declare var $: any;
 
 @Component({
   selector: 'wt-notification',
@@ -26,7 +26,8 @@ export class NotificationComponent implements OnInit {
   notificationsCache: Map<number, Notification>;
   notifications: Notification[];
 
-  constructor(private notificationService: NotificationService) {
+  constructor(private notificationService: NotificationService,
+              private router: Router) {
     this.notificationsCache = new Map();
   }
 
@@ -34,28 +35,39 @@ export class NotificationComponent implements OnInit {
     this.notificationService.notification$.subscribe(
       (notification: Notification) => this.showNotification(notification)
     );
+    this.clearNotificationsOnRouteChange();
+
+    setTimeout(() => this.notificationService.showErrorNotification('Testing'));
   }
 
+
+  private clearNotificationsOnRouteChange() {
+    this.router.events.subscribe((val) => {
+      console.log('Route changed', val);
+      this.clearNotificationCache();
+    });
+  }
 
   private showNotification(notification: Notification) {
     this.addNotificationToCache(notification);
-
-    setTimeout(() => {
-      $(`#notification-${notification.id}`)
-        .toast({animation: false, delay: notification.msDelay}).toast('show')
-        .on('hidden.bs.toast', () => this.removeNotificationFromCache(notification));
-    });
-
+    if (notification.autohide) {
+      setTimeout(() => this.removeNotificationFromCache(notification), notification.msDelay);
+    }
   }
 
-  private addNotificationToCache(notification: Notification) {
+  private addNotificationToCache(notification: Notification): void {
     this.notificationsCache.set(notification.id, notification);
     this.notifications = Array.from(this.notificationsCache.values());
   }
 
-  private removeNotificationFromCache(notification: Notification) {
+  private removeNotificationFromCache(notification: Notification): void {
     this.notificationsCache.delete(notification.id);
     this.notifications = Array.from(this.notificationsCache.values());
+  }
+
+  private clearNotificationCache(): void {
+    this.notificationsCache.clear();
+    this.notifications = [];
   }
 
   getAlertClass(notification: Notification): string {

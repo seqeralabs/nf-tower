@@ -1,18 +1,9 @@
 <div id="notification-container">
-<!--  <div *ngFor="let notification of notifications" id="notification-{{notification.id}}" class="toast" role="alert" aria-live="assertive" aria-atomic="true">-->
-<!--    <div class="alert alert-dismissible" [ngClass]="{'alert-danger': notification.isError, 'alert-success': notification.isSuccess, 'alert-info': notification.isInfo}" role="alert">-->
-<!--      {{notification.message}}-->
-<!--      <button type="button" class="close" data-dismiss="toast" aria-label="Close">-->
-<!--        <span aria-hidden="true">&times;</span>-->
-<!--      </button>-->
-<!--    </div>-->
-<!--  </div>-->
-    <div id="notification" class="alert alert-info alert-dismissible text-center" role="alert">
-      Notification
-      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+  <div *ngFor="let notification of notifications" id="notification-{{notification.id}}" class="alert alert-dismissible text-center" role="alert"
+       [ngClass]="{'alert-danger': notification.isError, 'alert-success': notification.isSuccess, 'alert-info': notification.isInfo}">
+      {{notification.message}}
+      <button type="button" class="close" aria-label="Close" (click)="removeNotificationFromCache(notification)">
         <span aria-hidden="true">&times;</span>
       </button>
-    </div>
-
-  <div class="mt-2"></div>
+  </div>
 </div>
