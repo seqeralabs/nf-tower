@@ -31,11 +31,13 @@ export class NotificationService {
     this.showNotification(new Notification(NotificationType.SUCCESS, message, autohide, msDelay));
   }
 
-  showErrorNotification(message: string, autohide: boolean = true, msDelay: number = 3000): void {
+  showErrorNotification(message: string, autohide: boolean = false, msDelay: number = 3000): void {
     this.showNotification(new Notification(NotificationType.ERROR, message, autohide, msDelay));
   }
 
   private showNotification(notification: Notification): void {
-    this.notificationSubject.next(notification);
+    //Move the execution to the end of the event queue in order to make sure that possible route changes have been completed before showing a notification.
+    //This is required in case we want to redirect the user to a page and show a notification on it.
+    setTimeout(() => this.notificationSubject.next(notification));
   }
 }

@@ -32,8 +32,8 @@ export class AuthGuard implements CanActivate {
     }
 
     console.log('User not authenticated');
-    this.notificationService.showErrorNotification('Please log in');
     this.authService.logoutAndGoHome();
+    this.notificationService.showErrorNotification('Please log in');
     return false;
   }
 

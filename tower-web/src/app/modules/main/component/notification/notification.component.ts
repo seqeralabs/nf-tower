@@ -13,7 +13,7 @@ import {Component, OnInit} from '@angular/core';
 import {NotificationService} from "../../service/notification.service";
 import {Notification} from "../../entity/notification/notification";
 import {NotificationType} from "../../entity/notification/notification-type.enum";
-import {Router} from "@angular/router";
+import {NavigationEnd, Router} from "@angular/router";
 
 
 @Component({
@@ -36,15 +36,13 @@ export class NotificationComponent implements OnInit {
       (notification: Notification) => this.showNotification(notification)
     );
     this.clearNotificationsOnRouteChange();
-
-    setTimeout(() => this.notificationService.showErrorNotification('Testing'));
   }
 
-
   private clearNotificationsOnRouteChange() {
-    this.router.events.subscribe((val) => {
-      console.log('Route changed', val);
-      this.clearNotificationCache();
+    this.router.events.subscribe((event) => {
+      if (event instanceof NavigationEnd) {
+        this.clearNotificationCache();
+      }
     });
   }
 
