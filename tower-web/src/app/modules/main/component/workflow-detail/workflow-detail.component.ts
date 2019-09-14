@@ -52,11 +52,8 @@ export class WorkflowDetailComponent implements OnInit, OnDestroy {
 
     this.workflowService.getWorkflow(workflowId, true).subscribe(
       (workflow: Workflow) => this.reactToWorkflowReceived(workflow),
-      (error: HttpErrorResponse) => {
-        if (error.status === 404) {
-          this.notificationService.showErrorNotification("Workflow doesn't exist");
-          this.router.navigate(['/']);
-        }
+      (resp: HttpErrorResponse) => {
+          this.notificationService.showErrorNotification(resp.error.message);
       }
     )
   }

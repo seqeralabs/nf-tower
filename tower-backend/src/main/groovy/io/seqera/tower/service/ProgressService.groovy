@@ -13,11 +13,11 @@ package io.seqera.tower.service
 
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.exchange.progress.ProgressData
-import io.seqera.tower.exchange.workflow.WorkflowGet
+import io.seqera.tower.exchange.workflow.GetWorkflowResponse
 
 interface ProgressService {
 
-    WorkflowGet buildWorkflowGet(Workflow workflow)
+    GetWorkflowResponse buildWorkflowGet(Workflow workflow)
 
     ProgressData fetchWorkflowProgress(Workflow workflow)
 

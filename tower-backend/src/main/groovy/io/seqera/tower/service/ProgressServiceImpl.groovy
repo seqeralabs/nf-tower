@@ -18,11 +18,10 @@ import groovy.transform.CompileDynamic
 import groovy.util.logging.Slf4j
 import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.Workflow
-import io.seqera.tower.domain.WorkflowMetrics
 import io.seqera.tower.exchange.progress.ProcessProgress
 import io.seqera.tower.exchange.progress.ProgressData
 import io.seqera.tower.exchange.progress.WorkflowProgress
-import io.seqera.tower.exchange.workflow.WorkflowGet
+import io.seqera.tower.exchange.workflow.GetWorkflowResponse
 import org.hibernate.Session
 
 @Slf4j
@@ -31,16 +30,11 @@ import org.hibernate.Session
 class ProgressServiceImpl implements ProgressService {
 
     @CompileDynamic
-    WorkflowGet buildWorkflowGet(Workflow workflow) {
-        final result = new WorkflowGet(workflow: workflow)
-
+    @Transactional(readOnly = true)
+    GetWorkflowResponse buildWorkflowGet(Workflow workflow) {
+        final result = new GetWorkflowResponse(workflow: workflow)
         // fetch progress
         result.progress = fetchWorkflowProgress(workflow)
-
-        // fetch metrics
-        if( workflow.complete )
-            result.metrics = WorkflowMetrics.findAllByWorkflow(workflow)
-
         return result
     }
 
@@ -60,7 +54,7 @@ class ProgressServiceImpl implements ProgressService {
         progress.peakLoadTasks = workflow.peakLoadTasks
         progress.peakLoadMemory = workflow.peakLoadMemory
 
-        if( save && workflow.isDirty() )
+        if( save )
             workflow.save()
     }
 

@@ -11,19 +11,22 @@
 
 package io.seqera.tower.exchange.workflow
 
-
-import io.seqera.tower.domain.WorkflowMetrics
 import io.seqera.tower.domain.Workflow
+import io.seqera.tower.exchange.BaseResponse
 import io.seqera.tower.exchange.progress.ProgressData
 
-class WorkflowGet {
+class GetWorkflowResponse implements BaseResponse {
 
     Workflow workflow
     ProgressData progress
-    List<WorkflowMetrics> metrics
+    String message
 
-    static WorkflowGet of(Workflow workflow) {
-        new WorkflowGet(workflow: workflow)
+    static GetWorkflowResponse of(Workflow workflow) {
+        new GetWorkflowResponse(workflow: workflow)
+    }
+
+    static GetWorkflowResponse error(String message) {
+        new GetWorkflowResponse(message: message)
     }
 
 }
