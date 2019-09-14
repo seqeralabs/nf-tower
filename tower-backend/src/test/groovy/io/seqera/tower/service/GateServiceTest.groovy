@@ -46,6 +46,9 @@ class GateServiceTest extends AbstractContainerBaseTest {
     @Value('${tower.contact-email}')
     String contactEmail
 
+    @Value('${tower.server-url}')
+    String serverUrl
+
     void "a new user is created on first time access"() {
         given: "an email"
         String EMAIL = 'tomas@seqera.io'
@@ -118,7 +121,6 @@ class GateServiceTest extends AbstractContainerBaseTest {
 
         when: "the user send an access request"
         def resp = tx.withNewTransaction { gateService.access(user.email) }
-        String userName = resp.user.userName
 
         then:
         resp.state == AccessGateResponse.State.LOGIN_ALLOWED
@@ -137,7 +139,7 @@ class GateServiceTest extends AbstractContainerBaseTest {
         def mail = Mail.withNewTransaction { Mail.list()[0] }
         mail.to == user.email
         mail.subject == 'Nextflow Tower Sign in'
-        mail.body.contains("Hi $userName,")
+        mail.body.contains("${serverUrl}/auth?email=${resp.user.email.replaceAll('@','%40')}&authToken=${resp.user.authToken}")
 
     }
 
@@ -218,18 +220,10 @@ class GateServiceTest extends AbstractContainerBaseTest {
         then:
         mail.subject == 'Nextflow Tower Sign in'
         mail.to == RECIPIENT
-        mail.attachments.size() == 1
-        mail.attachments[0].resource == '/io/seqera/tower/service/tower-logo.png'
-        mail.attachments[0].contentId == '<tower-logo>'
-        mail.attachments[0].disposition == 'inline'
-
 
         // text email
-        mail.text.startsWith('Hi Mr Foo,')
         mail.text.contains('http://localhost:1234/auth?email=alice%40domain.com&authToken=xyz')
-        mail.text.contains('This email was sent by Nextflow Tower\nhttp://localhost')
         // html email
-        mail.body.contains('Hi Mr Foo,')
         mail.body.contains('http://localhost:1234/auth?email=alice%40domain.com&authToken=xyz')
     }
 
@@ -250,16 +244,13 @@ class GateServiceTest extends AbstractContainerBaseTest {
         then:
         mail.subject == 'New user registration'
         mail.to == 'admin@host.com'
-        mail.attachments.size() == 1
-        mail.attachments[0].resource == '/io/seqera/tower/service/tower-logo.png'
-        mail.attachments[0].contentId == '<tower-logo>'
-        mail.attachments[0].disposition == 'inline'
-
+        and:
         // text email
         mail.text.startsWith('Hi,')
         mail.text.contains("- user id: 123")
         mail.text.contains("- user name: xyz")
         mail.text.contains("- user email: alice@domain.com")
+        and:
         // html email
         mail.body.contains('Hi,')
         mail.body.contains("<li>user id: 123")
