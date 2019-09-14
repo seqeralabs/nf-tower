@@ -16,13 +16,10 @@ import java.time.OffsetDateTime
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import grails.gorm.annotation.Entity
 import groovy.transform.CompileDynamic
-import groovy.transform.ToString
-
 /**
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
-@ToString(includeNames = true)
 @Entity
 @JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'workflow', 'sessionId'])
 @CompileDynamic
@@ -144,5 +141,9 @@ class TaskData implements TaskDef {
 
     static mapping = {
         script(type: 'text')
+    }
+
+    String toString() {
+        "TaskData[id=$id]"
     }
 }

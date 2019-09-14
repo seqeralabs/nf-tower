@@ -19,13 +19,11 @@ import com.fasterxml.jackson.annotation.JsonSetter
 import com.fasterxml.jackson.databind.ObjectMapper
 import grails.gorm.annotation.Entity
 import groovy.transform.CompileDynamic
-import groovy.transform.ToString
 import io.seqera.tower.enums.TaskStatus
 /**
  * Workflow task info
  * see https://www.nextflow.io/docs/latest/tracing.html#execution-report
  */
-@ToString(includeNames = true)
 @Entity
 @JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'workflow', 'data'])
 @CompileDynamic
@@ -240,4 +238,7 @@ class Task implements TaskDef {
     void setVolCtxt(Long x) { _data().volCtxt = x }
     void setInvCtxt(Long x) { _data().invCtxt = x }
 
+    String toString() {
+        "Task[id=$id; taskId=$taskId, status=$status; dataId=${data.id}]"
+    }
 }
