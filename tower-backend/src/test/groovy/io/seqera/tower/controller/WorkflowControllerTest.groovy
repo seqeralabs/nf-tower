@@ -47,7 +47,7 @@ import io.seqera.tower.exchange.workflow.ListWorkflowCommentsResponse
 import io.seqera.tower.exchange.workflow.GetWorkflowMetricsResponse
 import io.seqera.tower.exchange.workflow.UpdateWorkflowCommentRequest
 import io.seqera.tower.exchange.workflow.UpdateWorkflowCommentResponse
-import io.seqera.tower.exchange.workflow.WorkflowGet
+import io.seqera.tower.exchange.workflow.GetWorkflowResponse
 import io.seqera.tower.exchange.workflow.ListWorklowResponse
 import io.seqera.tower.service.WorkflowService
 import io.seqera.tower.util.AbstractContainerBaseTest
@@ -70,8 +70,10 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
     void "get a workflow"() {
         given: "a workflow with some metrics"
         DomainCreator creator = new DomainCreator()
+        final user = creator.generateAllowedUser()
         Workflow workflow = creator.createWorkflow(
                 complete: OffsetDateTime.now(),
+                owner: user,
                 manifest: new WfManifest(defaultBranch: 'master'),
                 stats: new WfStats(computeTimeFmt: '(a few seconds)'),
                 nextflow: new WfNextflow(version: "19.05.0-TOWER", timestamp: Instant.now(), build: '19.01.1'),
@@ -82,11 +84,11 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
 
 
         when: "perform the request to obtain the workflow"
-        String accessToken = doJwtLogin(creator.generateAllowedUser(), client)
-        HttpResponse<WorkflowGet> response = client.toBlocking().exchange(
+        String accessToken = doJwtLogin(user, client)
+        HttpResponse<GetWorkflowResponse> response = client.toBlocking().exchange(
                 HttpRequest.GET("/workflow/${workflow.id}")
                            .bearerAuth(accessToken),
-                WorkflowGet.class
+                GetWorkflowResponse.class
         )
 
         then: "the workflow data is properly obtained"
@@ -95,7 +97,6 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         response.body().workflow.stats
         response.body().workflow.nextflow
         response.body().workflow.manifest
-        response.body().metrics.size() == 2
         response.body().progress.workflowProgress
     }
 
@@ -105,9 +106,9 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         Workflow workflow = domainCreator.createWorkflow()
 
         when: "perform the request to obtain the workflow as an anonymous user"
-        HttpResponse<WorkflowGet> response = client.toBlocking().exchange(
+        HttpResponse<GetWorkflowResponse> response = client.toBlocking().exchange(
                 HttpRequest.GET("/workflow/${workflow.id}"),
-                WorkflowGet.class
+                GetWorkflowResponse.class
         )
 
         then: "the server responds UNAUTHORIZED"
@@ -231,7 +232,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         client.toBlocking().exchange(
                 HttpRequest.GET("/workflow/100")
                         .bearerAuth(accessToken),
-                WorkflowGet.class
+                GetWorkflowResponse.class
         )
 
         then: "a 404 response is obtained"

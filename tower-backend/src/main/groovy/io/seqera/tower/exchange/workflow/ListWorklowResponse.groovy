@@ -13,9 +13,9 @@ package io.seqera.tower.exchange.workflow
 
 class ListWorklowResponse {
 
-    List<WorkflowGet> workflows
+    List<GetWorkflowResponse> workflows
 
-    static ListWorklowResponse of(List<WorkflowGet> workflows) {
+    static ListWorklowResponse of(List<GetWorkflowResponse> workflows) {
         new ListWorklowResponse(workflows: workflows)
     }
 }

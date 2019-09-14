@@ -40,6 +40,7 @@ class WorkflowServiceImpl implements WorkflowService {
     }
 
     @CompileDynamic
+    @Transactional(readOnly = true)
     Workflow get(String id) {
         Workflow.findById(id, [fetch: [tasksProgress: 'join', processesProgress: 'join']])
     }

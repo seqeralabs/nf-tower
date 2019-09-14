@@ -11,9 +11,6 @@
 
 package io.seqera.tower.controller
 
-import io.seqera.tower.exchange.progress.GetProgressResponse
-import io.seqera.tower.exchange.progress.ProgressData
-
 import javax.inject.Inject
 
 import grails.gorm.PagedResultList
@@ -36,18 +33,20 @@ import io.seqera.tower.domain.Workflow
 import io.seqera.tower.domain.WorkflowComment
 import io.seqera.tower.domain.WorkflowMetrics
 import io.seqera.tower.exchange.MessageResponse
+import io.seqera.tower.exchange.progress.GetProgressResponse
+import io.seqera.tower.exchange.progress.ProgressData
 import io.seqera.tower.exchange.task.TaskGet
 import io.seqera.tower.exchange.task.TaskList
 import io.seqera.tower.exchange.workflow.AddWorkflowCommentRequest
 import io.seqera.tower.exchange.workflow.AddWorkflowCommentResponse
 import io.seqera.tower.exchange.workflow.DeleteWorkflowCommentRequest
 import io.seqera.tower.exchange.workflow.DeleteWorkflowCommentResponse
-import io.seqera.tower.exchange.workflow.ListWorkflowCommentsResponse
 import io.seqera.tower.exchange.workflow.GetWorkflowMetricsResponse
+import io.seqera.tower.exchange.workflow.ListWorkflowCommentsResponse
+import io.seqera.tower.exchange.workflow.ListWorklowResponse
 import io.seqera.tower.exchange.workflow.UpdateWorkflowCommentRequest
 import io.seqera.tower.exchange.workflow.UpdateWorkflowCommentResponse
-import io.seqera.tower.exchange.workflow.WorkflowGet
-import io.seqera.tower.exchange.workflow.ListWorklowResponse
+import io.seqera.tower.exchange.workflow.GetWorkflowResponse
 import io.seqera.tower.service.ProgressService
 import io.seqera.tower.service.TaskService
 import io.seqera.tower.service.UserService
@@ -87,8 +86,8 @@ class WorkflowController extends BaseController {
 
         List<Workflow> workflows = workflowService.listByOwner(userService.getFromAuthData(authentication), max, offset, searchRegex)
 
-        List<WorkflowGet> result = workflows.collect { Workflow workflow ->
-            WorkflowGet.of(workflow)
+        List<GetWorkflowResponse> result = workflows.collect { Workflow workflow ->
+            GetWorkflowResponse.of(workflow)
         }
         HttpResponse.ok(ListWorklowResponse.of(result))
     }
@@ -100,15 +99,25 @@ class WorkflowController extends BaseController {
      * @return The http response
      */
     @Get("/{workflowId}")
-    @Transactional
+    @Transactional(readOnly = true)
     @Secured(['ROLE_USER'])
-    HttpResponse<WorkflowGet> get(String workflowId) {
-        Workflow workflow = workflowService.get(workflowId)
-
-        if (!workflow) {
-            return HttpResponse.notFound()
+    HttpResponse<GetWorkflowResponse> get(String workflowId, Authentication authentication) {
+        final workflow = workflowService.get(workflowId)
+        if (!workflow)
+            return HttpResponse.notFound(GetWorkflowResponse.error("Unknown workflow ID: $workflowId"))
+        final user = userService.getFromAuthData(authentication)
+        if( !user ) {
+            log.error "Unknown user=${authentication.name}"
+            return HttpResponse.badRequest(GetWorkflowResponse.error("Invalid user authenticaton: $authentication.name"))
         }
-        HttpResponse.ok(progressService.buildWorkflowGet(workflow))
+        if( workflow.owner.id != user.id ) {
+            log.warn "Workflow ID=$workflowId does not belong to user=$authentication.name"
+            return HttpResponse.badRequest(GetWorkflowResponse.error("Invalid workflow request: $workflowId"))
+        }
+
+        final resp = progressService.buildWorkflowGet(workflow)
+        workflow.discard()
+        HttpResponse.ok(resp)
     }
 
     /**
