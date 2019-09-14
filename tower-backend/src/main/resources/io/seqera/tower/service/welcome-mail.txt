@@ -1,9 +1,33 @@
-Welcome to ${app_name}!
+Welcome to Nextflow Tower!
+---
 
-Get started using the following link and clicking on the sign-in button!
+Congratulations! You now have beta access to Nextflow Tower for your email ${user_email}.
 
+We hope you are as excited about it as we are about joining us for this new adventure in
+the story of Nextflow.
+
+Ready to start monitoring your workflows from anywhere?  Sign in using the link below,
+then follow the few settings described in the Welcome page.
+
+${login_url}
+
+
+Need more help? Check out the community Gitter chat at the following link
+https://gitter.im/nf-tower/community.
+
+This is a beta, and we know that everything is not perfect yet. We hope that with your help,
+we can redefine what scientific workflow are with the Nextflow Tower.
+
+We would love to hear your feedback to help us understand how we can improve the experience.
+For any problem or suggestion, please create an issue using the Tower project repository hosted
+on GitHub at this link https://github.com/seqeralabs/nf-tower.
+
+All the best,
+The Nextflow Tower Team
+
+---
 ${server_url}
-
---
-This email was sent by ${app_name}
-${server_url}
+Seqera Labs
+Barcelona Biomedical Research Park
+C/ Dr. Aiguader, 88,
+08003 Barcelona
