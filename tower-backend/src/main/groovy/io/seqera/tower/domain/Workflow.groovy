@@ -20,7 +20,6 @@ import com.fasterxml.jackson.annotation.JsonSetter
 import com.fasterxml.jackson.databind.ObjectMapper
 import grails.gorm.annotation.Entity
 import groovy.transform.CompileDynamic
-import groovy.transform.ToString
 import io.seqera.tower.enums.WorkflowStatus
 /**
  * Workflow info.
@@ -29,7 +28,6 @@ import io.seqera.tower.enums.WorkflowStatus
 @Entity
 @JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'tasks', 'owner'])
 @CompileDynamic
-@ToString(includeNames = true)
 class Workflow {
 
     static final private ObjectMapper mapper = new ObjectMapper().findAndRegisterModules()
@@ -124,6 +122,10 @@ class Workflow {
         params ? mapper.readValue(params, Object.class) : null
     }
 
+    @Override
+    String toString() {
+        "Workflow[id=$id]"
+    }
 
     static constraints = {
         id(maxSize: 16)

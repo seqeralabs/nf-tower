@@ -17,7 +17,6 @@ import java.time.OffsetDateTime
 
 import grails.gorm.annotation.Entity
 import groovy.transform.CompileDynamic
-import groovy.transform.ToString
 import io.seqera.util.CheckHelper
 /**
  * Helper class modeling mail parameters
@@ -25,7 +24,6 @@ import io.seqera.util.CheckHelper
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
 @Entity
-@ToString(includeNames = true)
 @CompileDynamic
 class Mail {
 
@@ -245,4 +243,8 @@ class Mail {
         this.attachments << new MailAttachment(headers, item)
     }
 
+    @Override
+    String toString() {
+        return "Mail[id=$id]"
+    }
 }
