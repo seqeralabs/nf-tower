@@ -37,7 +37,7 @@ grails:
     failOnError: false
 ---
 mail:
-  from: hello@tower.nf
+  from: "Nextflow Tower <support@tower.nf>"
   smtp:
     host: email-smtp.eu-west-1.amazonaws.com
     port: 587

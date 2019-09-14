@@ -281,20 +281,20 @@ class GateServiceTest extends AbstractContainerBaseTest {
         def mail = service.buildWelcomeEmail(user)
 
         then:
-        mail.subject == 'Welcome to Nextflow Tower!'
+        mail.subject == 'You now have beta access to Nextflow Tower!'
         mail.to == RECIPIENT
         mail.attachments.size() == 1
-        mail.attachments[0].resource == '/io/seqera/tower/service/tower-logo.png'
-        mail.attachments[0].contentId == '<tower-logo>'
+        mail.attachments[0].resource == '/io/seqera/tower/service/tower-splash.png'
+        mail.attachments[0].contentId == '<tower-splash>'
         mail.attachments[0].disposition == 'inline'
 
 
         // text email
         mail.text.startsWith('Welcome to Nextflow Tower!')
-        mail.text.contains('This email was sent by Nextflow Tower\nhttp://localhost:1234')
+        mail.text.contains('You now have beta access to Nextflow Tower for your email alice@domain.com')
         // html email
         mail.body.contains('Welcome to Nextflow Tower!')
-        mail.body.contains('http://localhost:1234')
+        mail.body.contains('alice@domain.com')
     }
 
     def 'should allow login to not trusted user' () {
@@ -309,7 +309,7 @@ class GateServiceTest extends AbstractContainerBaseTest {
         def mails = Mail.list()
         mails.size()==1
         mails[0].to == user.email
-        mails[0].subject.startsWith('Welcome')
+        mails[0].subject.startsWith('You now have beta access to Nextflow Tower!')
     }
 
 

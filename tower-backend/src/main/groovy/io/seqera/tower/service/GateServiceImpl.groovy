@@ -187,17 +187,16 @@ class GateServiceImpl implements GateService {
     protected Mail buildWelcomeEmail(User user) {
         // create template binding
         def binding = new HashMap(5)
-        binding.app_name = appName
-        binding.auth_url = buildAccessUrl(user)
         binding.server_url = serverUrl
-        binding.user = user.firstName ?: user.userName
+        binding.login_url = "${serverUrl}/login"
+        binding.user_email = user.email
 
         Mail mail = new Mail()
         mail.to(user.email)
-        mail.subject("Welcome to $appName!")
+        mail.subject("You now have beta access to Nextflow Tower!")
         mail.text(getTemplateFile('/io/seqera/tower/service/welcome-mail.txt', binding))
         mail.body(getTemplateFile('/io/seqera/tower/service/welcome-mail.html', binding))
-        mail.attach(getLogoAttachment())
+        mail.attach(MailAttachment.resource('/io/seqera/tower/service/tower-splash.png', contentId: '<tower-splash>', disposition: 'inline'))
         return mail
     }
 
