@@ -3,24 +3,24 @@ Welcome to Nextflow Tower!
 
 Congratulations! You now have beta access to Nextflow Tower for your email ${user_email}.
 
-We hope you are as excited about it as we are about joining us for this new adventure in
-the story of Nextflow.
+We hope you are as excited as we are about this new adventure in the journey of Nextflow.
 
-Ready to start monitoring your workflows from anywhere?  Sign in using the link below,
-then follow the few settings described in the Welcome page.
+Ready to start monitoring your workflows from anywhere? Sign in using the link below,
+then follow the instructions on the welcome page.
 
 ${login_url}
 
 
 Need more help? Check out the community Gitter chat at the following link
-https://gitter.im/nf-tower/community.
+https://gitter.im/nf-tower/community or send us a mail at ${contact_email}.
 
-This is a beta, and we know that everything is not perfect yet. We hope that with your help,
-we can redefine what scientific workflow are with the Nextflow Tower.
+This is a beta release, and we know that everything is not perfect yet. We hope that with your help,
+we can redefine what scientific workflows can be.
 
 We would love to hear your feedback to help us understand how we can improve the experience.
-For any problem or suggestion, please create an issue using the Tower project repository hosted
+For any problems or suggestions, please create an issue using the Tower project repository hosted
 on GitHub at this link https://github.com/seqeralabs/nf-tower.
+
 
 All the best,
 The Nextflow Tower Team

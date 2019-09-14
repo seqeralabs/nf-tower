@@ -41,15 +41,14 @@ class GateServiceImplTest extends Specification {
                 user: 'Mr Bean',
                 app_name: 'Nextflow Tower',
                 auth_url: 'https://tower.com/login?d78a8ds',
+                contact_email: 'support@foo.com',
                 server_url:'http://host.com']
         def service = Spy(GateServiceImpl)
         when:
         def text = service.getTextTemplate(binding)
         then:
-        text.contains('Hi Mr Bean,')
         text.contains('https://tower.com/login?d78a8ds')
         text.contains('http://host.com')
-        text.contains('This email was sent by Nextflow Tower')
     }
 
     def 'should load html template' () {
@@ -58,15 +57,14 @@ class GateServiceImplTest extends Specification {
                 user: 'Mr Bean',
                 app_name: 'Nextflow Tower',
                 auth_url: 'https://tower.com/login?1234',
+                contact_email: 'support@foo.com',
                 server_url:'https://tower.nf']
         def service = Spy(GateServiceImpl)
         when:
         def text = service.getHtmlTemplate(binding)
         then:
-        text.contains('Hi Mr Bean,')
-        text.contains('href="https://tower.com/login?1234"')
-        text.contains('https://tower.nf')
-        text.contains('This email was sent by Nextflow Tower')
+        text.contains('https://tower.com/login?1234')
+        text.contains('support@foo.com')
     }
 
     def 'should load logo attachment' () {

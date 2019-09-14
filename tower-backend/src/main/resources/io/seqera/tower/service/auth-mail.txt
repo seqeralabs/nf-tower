@@ -1,14 +1,24 @@
-Hi ${user},
+Dear ${user},
 
-Please click the following link to login to ${app_name}:
+Please complete the sign in clicking the URL below:
 
 ${auth_url}
 
-This URL will be valid for the next 30 minutes.
+This link will be valid for 30 minutes.
 
-Not working? Try copying and pasting it to your browser.
+Not working? Try copying & pasting it in your browser.
 
 
---
-This email was sent by ${app_name}
+Need more help? Check out the community Gitter chat at this link
+https://gitter.im/nf-tower/community or drop us a mail: ${contact_email}
+
+
+All the best,
+The Nextflow Tower Team
+
+---
 ${server_url}
+Seqera Labs
+Barcelona Biomedical Research Park
+C/ Dr. Aiguader, 88,
+08003 Barcelona

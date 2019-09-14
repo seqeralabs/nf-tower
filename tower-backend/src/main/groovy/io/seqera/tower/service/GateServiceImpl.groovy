@@ -154,14 +154,15 @@ class GateServiceImpl implements GateService {
         binding.app_name = appName
         binding.auth_url = buildAccessUrl(user)
         binding.server_url = serverUrl
+        binding.login_url = "${serverUrl}/login"
         binding.user = user.firstName ?: user.userName
+        binding.contact_email = contactEmail
 
         Mail mail = new Mail()
         mail.to(user.email)
         mail.subject("$appName Sign in")
         mail.text(getTextTemplate(binding))
         mail.body(getHtmlTemplate(binding))
-        mail.attach(getLogoAttachment())
         return mail
     }
 
@@ -179,7 +180,6 @@ class GateServiceImpl implements GateService {
         mail.subject("New user registration")
         mail.text(getTemplateFile('/io/seqera/tower/service/new-user-mail.txt', binding))
         mail.body(getTemplateFile('/io/seqera/tower/service/new-user-mail.html', binding))
-        mail.attach(getLogoAttachment())
         return mail
     }
 
@@ -190,6 +190,7 @@ class GateServiceImpl implements GateService {
         binding.server_url = serverUrl
         binding.login_url = "${serverUrl}/login"
         binding.user_email = user.email
+        binding.contact_email = contactEmail
 
         Mail mail = new Mail()
         mail.to(user.email)
