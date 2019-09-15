@@ -131,6 +131,11 @@ class UserServiceImpl implements UserService {
 
         User user = new User(email: email, userName: userName)
         user.trusted = isTrustedEmail(email)
+        if( user.trusted ) {
+            user.authTime = Instant.now()
+            user.authToken = TokenHelper.createHexToken()
+        }
+
         user.addToAccessTokens(new AccessToken(token: TokenHelper.createHexToken(), name: DEFAULT_TOKEN, dateCreated: Instant.now()))
         user.save()
 
@@ -154,7 +159,7 @@ class UserServiceImpl implements UserService {
 
     @CompileDynamic
     @Override
-    User generateAuthToken(User user) {
+    User updateUserAuthToken(User user) {
         user.authTime = Instant.now()
         user.authToken = TokenHelper.createHexToken()
         return user.save()

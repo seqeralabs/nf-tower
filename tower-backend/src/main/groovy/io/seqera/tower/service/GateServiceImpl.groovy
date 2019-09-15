@@ -58,15 +58,18 @@ class GateServiceImpl implements GateService {
     AccessGateResponse access(String email) {
         final result = new AccessGateResponse()
         result.user = User.findByEmail(email)
-
-        final isNew = result.user==null
-        if( isNew ) {
+        boolean isNew
+        if( !result.user ) {
+            isNew = true
             result.user = userService.create(email, 'ROLE_USER')
+        }
+        else if( result.user.trusted ) {
+            isNew = false
+            result.user = userService.updateUserAuthToken(result.user)
         }
 
         if( result.user.trusted ) {
             // if the user is trusted send the login email
-            result.user = userService.generateAuthToken(result.user)
             result.state = AccessGateResponse.State.LOGIN_ALLOWED
             sendLoginEmail(result.user)
         }

@@ -12,7 +12,6 @@
 package io.seqera.tower.service
 
 import java.security.Principal
-import java.time.OffsetDateTime
 
 import io.seqera.tower.domain.User
 
@@ -20,7 +19,7 @@ interface UserService {
 
     User create(String email, String authority)
 
-    User generateAuthToken(User user)
+    User updateUserAuthToken(User user)
 
     User getFromAuthData(Principal userSecurityData)
 
