@@ -15,7 +15,6 @@ import java.time.Instant
 import java.time.OffsetDateTime
 
 import io.seqera.tower.domain.AccessToken
-import io.seqera.tower.domain.HashSequenceGenerator
 import io.seqera.tower.domain.Mail
 import io.seqera.tower.domain.ResourceData
 import io.seqera.tower.domain.Role
@@ -63,7 +62,6 @@ class DomainCreator {
                     tables.each {
                         session.createSQLQuery("truncate table $it").executeUpdate()
                     }
-                    session.createSQLQuery("insert into ${HashSequenceGenerator.SEQUENCE_NAME} values ( 1 )".toString()).executeUpdate()
                 }
                 finally {
                     session.createSQLQuery("SET FOREIGN_KEY_CHECKS=1;").executeUpdate()
@@ -76,7 +74,7 @@ class DomainCreator {
         Workflow workflow = new Workflow()
 
         fields.owner = fields.containsKey('owner') ? fields.owner : createUser()
-
+        fields.id = fields.containsKey('id') ? fields.id : 'id-' + generateUniqueNamePart()
         fields.sessionId = fields.containsKey('sessionId') ? fields.sessionId : "35cce421-4712-4da5-856b-${generateUniqueNamePart()}d".toString()
         fields.runName = fields.containsKey('runName') ? fields.runName : "astonishing_majorana${generateUniqueNamePart()}".toString()
         fields.submit = fields.containsKey('submit') ? fields.submit : OffsetDateTime.now()

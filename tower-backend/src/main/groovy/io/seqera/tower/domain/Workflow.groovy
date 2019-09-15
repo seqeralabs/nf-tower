@@ -160,7 +160,7 @@ class Workflow {
     }
 
     static mapping = {
-        id generator: 'io.seqera.tower.domain.HashSequenceGenerator'
+        id(generator: 'assigned')
         errorReport(type: 'text')
         errorMessage(type: 'text')
         params(type: 'text')
@@ -169,6 +169,23 @@ class Workflow {
         tasks( cascade: 'save-update')
     }
 
+}
+
+
+@Entity
+@CompileDynamic
+class WorkflowKey {
+    Long id
+    String sessionId
+    String workflowId
+    OffsetDateTime dateCreated
+    OffsetDateTime lastUpdated
+
+    static constraints = {
+        id(maxSize: 16)
+        sessionId(maxSize: 36, unique:true)
+        workflowId(nullable: true, unique: true)
+    }
 }
 
 /**

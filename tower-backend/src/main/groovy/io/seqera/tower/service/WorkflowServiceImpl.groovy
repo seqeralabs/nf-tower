@@ -13,6 +13,7 @@ package io.seqera.tower.service
 
 import javax.inject.Inject
 import javax.inject.Singleton
+import javax.validation.ValidationException
 import java.time.OffsetDateTime
 
 import grails.gorm.DetachedCriteria
@@ -81,13 +82,14 @@ class WorkflowServiceImpl implements WorkflowService {
 
     private Workflow saveWorkflow(Workflow workflow, User owner) {
         workflow.submit = workflow.start
-
         workflow.owner = owner
-
         // invoke validation explicitly due to gorm bug
         // https://github.com/grails/gorm-hibernate5/issues/110
-        if (workflow.validate())
-            workflow.save()
+        if (workflow.validate()) {
+            workflow.save(flush:true)
+        }
+        else
+            throw new ValidationException("Invalid workflow object: ${workflow.errors}")
 
         return workflow
     }

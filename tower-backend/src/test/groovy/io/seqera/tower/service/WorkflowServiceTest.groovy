@@ -12,6 +12,7 @@
 package io.seqera.tower.service
 
 import javax.inject.Inject
+import javax.validation.ValidationException
 import java.time.OffsetDateTime
 import java.time.temporal.ChronoUnit
 
@@ -31,6 +32,7 @@ import io.seqera.tower.util.AbstractContainerBaseTest
 import io.seqera.tower.util.DomainCreator
 import io.seqera.tower.util.TracesJsonBank
 import io.seqera.tower.util.WorkflowTraceSnapshotStatus
+import org.springframework.dao.DataIntegrityViolationException
 import spock.lang.Unroll
 
 @MicronautTest(application = Application.class)
@@ -43,16 +45,6 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
     @Inject
     TransactionService tx
 
-    void 'should create workflow' () {
-        given:
-        def creator = new DomainCreator()
-
-        when:
-        def wf = creator.createWorkflow()
-        then:
-        wf.id == 'vN8KBbqR'
-    }
-
     void "start a workflow given a started trace"() {
         given: "a workflow JSON started trace"
         TraceWorkflowRequest workflowStartedTraceJson = TracesJsonBank.extractWorkflowJsonTrace('success', null, WorkflowTraceSnapshotStatus.STARTED)
@@ -63,11 +55,12 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         when: "unmarshall the JSON to a workflow"
         Workflow workflow
         Workflow.withNewTransaction {
+            workflowStartedTraceJson.workflow.id = '123'
             workflow = workflowService.processTraceWorkflowRequest(workflowStartedTraceJson, owner)
         }
 
         then: "the workflow has been correctly saved"
-        workflow.id
+        workflow.id == '123'
         workflow.owner
         workflow.checkIsStarted()
         workflow.submit
@@ -176,16 +169,17 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
 
     void "start a workflow given a started trace, then try to start the same one"() {
         given: "a workflow JSON started trace"
-        TraceWorkflowRequest workflowStarted1TraceJson = TracesJsonBank.extractWorkflowJsonTrace('success', null, WorkflowTraceSnapshotStatus.STARTED)
+        def WORKFLOW_ID = 'ID-100'
+        TraceWorkflowRequest workflowStarted1TraceJson = TracesJsonBank.extractWorkflowJsonTrace('success', WORKFLOW_ID, WorkflowTraceSnapshotStatus.STARTED)
 
         and: 'a user owner for the workflow'
         User owner = new DomainCreator().createUser()
 
         when: "unmarshall the JSON to a workflow"
-        Workflow workflowStarted1 = Workflow.withNewTransaction { workflowService.processTraceWorkflowRequest(workflowStarted1TraceJson, owner) }
+        Workflow workflowStarted1 = Workflow.withNewSession { workflowService.processTraceWorkflowRequest(workflowStarted1TraceJson, owner) }
 
         then: "the workflow has been correctly saved"
-        workflowStarted1.id
+        workflowStarted1.id == WORKFLOW_ID
         workflowStarted1.owner
         workflowStarted1.checkIsStarted()
         workflowStarted1.submit
@@ -193,13 +187,14 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         Workflow.withNewTransaction { Workflow.count() } == 1
 
         when: "given a workflow started trace with the same workflowId, unmarshall the started JSON to a second workflow"
-        TraceWorkflowRequest workflowStarted2TraceJson = TracesJsonBank.extractWorkflowJsonTrace('success', null, WorkflowTraceSnapshotStatus.STARTED)
-        Workflow workflowStarted2 = Workflow.withNewTransaction {
+        
+        TraceWorkflowRequest workflowStarted2TraceJson = TracesJsonBank.extractWorkflowJsonTrace('success', WORKFLOW_ID, WorkflowTraceSnapshotStatus.STARTED)
+        Workflow workflowStarted2 = Workflow.withNewSession {
             workflowService.processTraceWorkflowRequest(workflowStarted2TraceJson, owner)
         }
 
         then: "the second workflow is treated as a new one, and sessionId/runName combination cannot be repeated"
-        workflowStarted2.errors.getFieldError('runName').code == 'unique'
+        thrown(DataIntegrityViolationException)
         Workflow.withNewTransaction { Workflow.count() } == 1 
     }
 
@@ -218,8 +213,8 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         }
 
         then: "the workflow has validation errors"
-        workflowStarted.hasErrors()
-        workflowStarted.errors.getFieldError('sessionId').code == 'nullable'
+        thrown(ValidationException)
+
         Workflow.withNewTransaction {
             Workflow.count() == 0
         }

@@ -17,6 +17,7 @@ import io.seqera.tower.exchange.BaseResponse
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
-class TraceHelloResponse implements BaseResponse {
+class TraceInitResponse implements BaseResponse {
     String message
+    String workflowId
 }
