@@ -58,6 +58,7 @@ class ProgressServiceImpl implements ProgressService {
             workflow.save()
     }
 
+    @Transactional(readOnly = true)
     @CompileDynamic
     ProgressData fetchWorkflowProgress(Workflow workflow) {
         final result = computeWorkflowProgress(workflow.id)

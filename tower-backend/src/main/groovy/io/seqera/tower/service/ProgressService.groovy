@@ -17,6 +17,8 @@ import io.seqera.tower.exchange.workflow.GetWorkflowResponse
 
 interface ProgressService {
 
+    ProgressData computeWorkflowProgress(String workflowId)
+
     GetWorkflowResponse buildWorkflowGet(Workflow workflow)
 
     ProgressData fetchWorkflowProgress(Workflow workflow)

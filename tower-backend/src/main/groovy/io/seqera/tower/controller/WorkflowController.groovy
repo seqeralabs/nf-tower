@@ -126,7 +126,7 @@ class WorkflowController extends BaseController {
      * @param workflowId The ID of the workflow for which the update is requested
      * @return The http response
      */
-    @Transactional
+    @Transactional(readOnly = true)
     @Secured(['ROLE_USER'])
     @Get('/{workflowId}/progress')
     @CompileDynamic
@@ -137,8 +137,8 @@ class WorkflowController extends BaseController {
                 return HttpResponse.notFound(new GetProgressResponse(message: "Oops... Can't find workflow ID $workflowId"))
             }
             // TODO check the user is allowed to fetch this data
-
             final ProgressData progress = progressService.fetchWorkflowProgress(workflow)
+            workflow.discard()
             HttpResponse.ok(new GetProgressResponse(progress: progress))
         }
         catch( Exception e ) {

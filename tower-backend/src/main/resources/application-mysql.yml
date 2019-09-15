@@ -1,7 +1,8 @@
 ---
 dataSource:
   pooled: true
-  dbCreate: create
+  dbCreate: none
+  jmxExport: true
   url: jdbc:mysql://localhost:3307/tower
   driverClassName: com.mysql.cj.jdbc.Driver
   username: tower
@@ -17,6 +18,11 @@ hibernate:
 grails:
   gorm:
     failOnError: false
+---
+flyway:
+  datasources:
+    default:
+      locations: classpath:db-schema
 ---
 mail:
   debug: true
