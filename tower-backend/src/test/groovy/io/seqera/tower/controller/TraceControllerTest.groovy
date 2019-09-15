@@ -29,14 +29,15 @@ import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.User
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.enums.TraceProcessingStatus
+import io.seqera.tower.exchange.live.LiveUpdate
 import io.seqera.tower.exchange.trace.TraceAliveRequest
 import io.seqera.tower.exchange.trace.TraceAliveResponse
-import io.seqera.tower.exchange.trace.TraceHelloResponse
+import io.seqera.tower.exchange.trace.TraceInitRequest
+import io.seqera.tower.exchange.trace.TraceInitResponse
 import io.seqera.tower.exchange.trace.TraceTaskRequest
 import io.seqera.tower.exchange.trace.TraceTaskResponse
 import io.seqera.tower.exchange.trace.TraceWorkflowRequest
 import io.seqera.tower.exchange.trace.TraceWorkflowResponse
-import io.seqera.tower.exchange.live.LiveUpdate
 import io.seqera.tower.service.auth.AuthenticationByApiToken
 import io.seqera.tower.util.AbstractContainerBaseTest
 import io.seqera.tower.util.DomainCreator
@@ -68,16 +69,18 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         User user = new DomainCreator().generateAllowedUser()
 
         when: 'send a save request'
-        MutableHttpRequest request = HttpRequest.GET('/trace/hello')
+        MutableHttpRequest request = HttpRequest.POST('/trace/init', new TraceInitRequest(sessionId: 'xyz'))
         request = appendBasicAuth(user, request)
 
-        HttpResponse<TraceHelloResponse> response = client.toBlocking().exchange(request, TraceHelloResponse)
+        HttpResponse<TraceInitResponse> response = client.toBlocking().exchange(request, TraceInitResponse)
 
         then:
         response.status == HttpStatus.OK
-        response.body().message == 'Want to play again?'
+        response.body().message == 'OK'
+        response.body().workflowId == 'vN8KBbqR'
 
     }
+
     void 'should handle an alive request' () {
         given: 'an allowed user'
         User user = new DomainCreator().generateAllowedUser()

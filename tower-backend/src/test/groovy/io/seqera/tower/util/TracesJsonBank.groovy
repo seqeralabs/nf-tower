@@ -49,7 +49,8 @@ class TracesJsonBank {
         File jsonFile = workflowDir.listFiles().find { it.name.endsWith(fileNamePart) }
         log.debug "Test json file: $jsonFile"
         TraceWorkflowRequest workflowTrace = DomainHelper.mapper.readValue(jsonFile, TraceWorkflowRequest.class)
-        workflowTrace.workflow.id = workflowId
+        if( workflowId )
+            workflowTrace.workflow.id = workflowId
 
         workflowTrace
     }
@@ -105,6 +106,7 @@ class NextflowSimulator {
     void simulate(Integer nRequests = null) {
         if (!workflowId) {
             TraceWorkflowRequest workflowStarted = TracesJsonBank.extractWorkflowJsonTrace(workflowLabel, null, WorkflowTraceSnapshotStatus.STARTED)
+            workflowStarted.workflow.id = "id-${new Random().nextInt(1000)}".toString()
             HttpResponse<TraceWorkflowResponse> workflowResponse = client.exchange(buildRequest(WORKFLOW_TRACE_ENDPOINT, workflowStarted), TraceWorkflowResponse.class)
             workflowId = workflowResponse.body().workflowId
 

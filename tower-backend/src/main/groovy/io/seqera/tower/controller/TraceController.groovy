@@ -13,6 +13,7 @@ package io.seqera.tower.controller
 
 import javax.inject.Inject
 
+import grails.gorm.transactions.TransactionService
 import grails.gorm.transactions.Transactional
 import groovy.util.logging.Slf4j
 import io.micronaut.context.annotation.Value
@@ -22,24 +23,28 @@ import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Post
+import io.micronaut.retry.annotation.Retryable
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.micronaut.security.rules.SecurityRule
+import io.seqera.tower.domain.HashSequenceGenerator
 import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.User
 import io.seqera.tower.domain.Workflow
-import io.seqera.tower.enums.TraceProcessingStatus
+import io.seqera.tower.domain.WorkflowKey
 import io.seqera.tower.enums.LiveAction
+import io.seqera.tower.enums.TraceProcessingStatus
+import io.seqera.tower.exchange.live.LiveUpdate
 import io.seqera.tower.exchange.trace.TraceAliveRequest
 import io.seqera.tower.exchange.trace.TraceAliveResponse
-import io.seqera.tower.exchange.trace.TraceHelloResponse
+import io.seqera.tower.exchange.trace.TraceInitRequest
+import io.seqera.tower.exchange.trace.TraceInitResponse
 import io.seqera.tower.exchange.trace.TraceTaskRequest
 import io.seqera.tower.exchange.trace.TraceTaskResponse
 import io.seqera.tower.exchange.trace.TraceWorkflowRequest
 import io.seqera.tower.exchange.trace.TraceWorkflowResponse
-import io.seqera.tower.exchange.live.LiveUpdate
-import io.seqera.tower.service.ProgressService
 import io.seqera.tower.service.LiveEventsService
+import io.seqera.tower.service.ProgressService
 import io.seqera.tower.service.TraceService
 import io.seqera.tower.service.UserService
 /**
@@ -58,7 +63,7 @@ class TraceController extends BaseController {
     ProgressService progressService
     UserService userService
     LiveEventsService serverSentEventsService
-
+    @Inject TransactionService transactionService
 
     @Inject
     TraceController(TraceService traceService, ProgressService progressService, UserService userService, LiveEventsService serverSentEventsService) {
@@ -69,11 +74,11 @@ class TraceController extends BaseController {
     }
 
 
-    private void publishWorkflowEvent(Workflow workflow, User user) {
+    protected void publishWorkflowEvent(Workflow workflow, User user) {
         serverSentEventsService.publishEvent(LiveUpdate.of(user.id, workflow.id, LiveAction.WORKFLOW_UPDATE))
     }
 
-    private void publishProgressEvent(Workflow workflow) {
+    protected void publishProgressEvent(Workflow workflow) {
         serverSentEventsService.publishEvent(LiveUpdate.of(workflow.owner.id, workflow.id, LiveAction.PROGRESS_UPDATE))
     }
 
@@ -147,17 +152,24 @@ class TraceController extends BaseController {
         response
     }
 
-    @Get("/hello")
+    @Post("/init")
     @Secured(['ROLE_USER'])
-    HttpResponse<TraceHelloResponse> hello(Authentication authentication) {
-        log.info "Receiving trace hello [user=${authentication.getName()}]"
-        HttpResponse.ok(new TraceHelloResponse(message: 'Want to play again?'))
+    HttpResponse<TraceInitResponse> init(TraceInitRequest req, Authentication authentication) {
+        log.info "Receiving trace init [user=${authentication.getName()}]"
+        final key = transactionService.withTransaction {
+            def record = new WorkflowKey()
+            record.sessionId = req.sessionId
+            record.save()
+        }
+        final workflowId = HashSequenceGenerator.getHash(key.id)
+        final resp = new TraceInitResponse(workflowId: workflowId, message: 'OK')
+        HttpResponse.ok(resp)
     }
 
     @Get("/ping")
     @Secured(SecurityRule.IS_ANONYMOUS)
-    HttpResponse<TraceHelloResponse> ping(HttpRequest req) {
+    HttpResponse<String> ping(HttpRequest req) {
         log.info "Trace ping from ${req.remoteAddress}"
-        HttpResponse.ok(new TraceHelloResponse(message: 'pong'))
+        HttpResponse.ok('pong')
     }
 }
