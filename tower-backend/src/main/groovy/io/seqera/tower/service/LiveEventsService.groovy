@@ -11,16 +11,15 @@
 
 package io.seqera.tower.service
 
-
 import io.micronaut.http.sse.Event
-import io.reactivex.Flowable
 import io.seqera.tower.exchange.live.LiveUpdate
+import org.reactivestreams.Publisher
 
 interface LiveEventsService {
 
     void publishEvent(LiveUpdate traceSseResponse)
 
-    Flowable<Event> getEventsFlowable()
+    Publisher<Event> getEventsFlowable()
 
     void stop()
 

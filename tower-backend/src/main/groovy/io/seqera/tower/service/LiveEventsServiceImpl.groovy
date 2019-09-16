@@ -19,19 +19,16 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import io.micronaut.context.annotation.Value
 import io.micronaut.http.sse.Event
-import io.reactivex.Flowable
 import io.reactivex.processors.PublishProcessor
 import io.seqera.tower.exchange.live.LiveUpdate
 import io.seqera.tower.util.BackpressureBuffer
+import org.reactivestreams.Publisher
 
 @Singleton
 @Slf4j
 @CompileStatic
 class LiveEventsServiceImpl implements LiveEventsService {
 
-    private final PublishProcessor<List<LiveUpdate>> eventPublisher = PublishProcessor.create()
-
-    private Flowable<Event<List<LiveUpdate>>> eventFlowable
 
     @Value('${live.buffer.time:1s}')
     Duration bufferTimeout
@@ -44,9 +41,13 @@ class LiveEventsServiceImpl implements LiveEventsService {
 
     BackpressureBuffer buffer
 
+    PublishProcessor<List<LiveUpdate>> eventPublisher
+
     @PostConstruct
     void initialize() {
         log.info "Creating SSE event buffer flowable timeout=$bufferTimeout count=$bufferCount heartbeat=$heartbeatDuration"
+
+        eventPublisher = PublishProcessor.create()
 
         // -- implements the back pressure logic
         buffer = new BackpressureBuffer<LiveUpdate>()
@@ -59,17 +60,15 @@ class LiveEventsServiceImpl implements LiveEventsService {
                 }
                 .start()
 
-        // -- wrap into a Event object
-        eventFlowable = eventPublisher
-                .map { List<LiveUpdate> traces ->
-                    log.trace "Publisher map traces (${traces.size()}) $traces"
-                    Event.of(traces)
-                }
     }
 
 
-    Flowable<Event<List<LiveUpdate>>> getEventsFlowable() {
-        return eventFlowable
+    Publisher<Event<List<LiveUpdate>>> getEventsFlowable() {
+        return eventPublisher
+                .map { List<LiveUpdate> traces ->
+                    log.debug "+++ Publisher map traces (${traces.size()}) $traces"
+                    Event.of(traces)
+                }
     }
 
     void publishEvent(LiveUpdate liveUpdate) {
