@@ -101,8 +101,9 @@ class BackpressureBuffer<T> {
         while( !terminated ) {
             final event = eventQueue.poll(pollTimeout, TimeUnit.MILLISECONDS)
             // reconcile task events ie. send out only the last event
-            if( event ) {
+            if( event!=null ) {
                 buffer[event.hashCode()] = event
+                log.trace "Taking event=$event -- buffer=$buffer"
             }
 
             // check if there's something to send
@@ -123,7 +124,7 @@ class BackpressureBuffer<T> {
             if(  timeoutFlag || maxCountFlag || terminated ) {
                 log.trace "${ timeout ? 'Timeout' : (maxCountFlag ? 'Max buffer size' : 'Terminate')} event"
                 // send
-                final List payload = new ArrayList<?>((Collection)buffer.values()).unique()
+                final List payload = new ArrayList<?>((Collection)buffer.values())
                 action?.call(payload)
                 // clean up for next iteration
                 previous = now

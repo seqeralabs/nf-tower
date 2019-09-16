@@ -43,7 +43,7 @@ class BackpressureBufferTest extends Specification{
         assert buffer.heartbeat.toMillis() == 500
 
         when:
-        for( int it=1; it<=10; it++ )
+        for( int it=0; it<10; it++ )
             buffer.offer(it.intdiv(2))
         then:
         !events
@@ -52,7 +52,7 @@ class BackpressureBufferTest extends Specification{
         sleep 150
         then:
         events.size()==1
-        events[0] == [1,2,3,4,5]
+        events[0] == [0,1,2,3,4]
 
         when:
         buffer.offer('hello')
@@ -65,18 +65,43 @@ class BackpressureBufferTest extends Specification{
         sleep(600)
         then:
         events.size()==3
-        events == [[1, 2, 3, 4, 5], ['hello'], []]
+        events == [[0, 1, 2, 3, 4], ['hello'], []]
 
         when:
         sleep(2_000)
         println events
         then:
-        events == [[1, 2, 3, 4, 5], ['hello'], [], [], [], [], []]
+        events == [[0, 1, 2, 3, 4], ['hello'], [], [], [], [], []]
 
         when:
         buffer.terminateAndAwait()
         then:
         noExceptionThrown()
+    }
+
+    def 'should not emit event when are all equals' () {
+
+        given:
+        def events = []
+        def buffer = new BackpressureBuffer()
+                .setTimeout(Duration.parse('PT0.2s'))
+                .setHeartbeat(Duration.parse('PT1s'))
+                .setMaxCount(10)
+                .onNext { events << it }
+                .start()
+
+        when:
+        for( int i=0; i<20; i++ ) {
+            buffer.offer(i % 2)
+        }
+        sleep 50
+        then:
+        events == []
+
+        when:
+        sleep 300
+        then:
+        events == [ [0,1] ]
     }
 
 
