@@ -76,7 +76,7 @@ mail:
 ---
 live:
   buffer:
-    time: 1s
+    time: 5s
     count: 100
     heartbeat: 50s
 ---
