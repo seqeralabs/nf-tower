@@ -20,6 +20,7 @@ import io.seqera.tower.Application
 import io.seqera.tower.enums.LiveAction
 import io.seqera.tower.exchange.live.LiveUpdate
 import io.seqera.tower.util.AbstractContainerBaseTest
+import spock.lang.Ignore
 
 @MicronautTest(application = Application.class)
 @Transactional
@@ -49,6 +50,7 @@ class LiveEventsServiceTest extends AbstractContainerBaseTest {
         subscriber.events.first()[0].data.workflowId == [trace.workflowId]
     }
 
+    @Ignore
     void "publish as many elements as the buffer size windows, the elements are received"() {
         given: 'several traces to publish'
         List<LiveUpdate> traces = (1..serverSentEventsService.bufferCount).collect {

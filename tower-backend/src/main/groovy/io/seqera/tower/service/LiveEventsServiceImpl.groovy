@@ -14,7 +14,6 @@ package io.seqera.tower.service
 import javax.annotation.PostConstruct
 import javax.inject.Singleton
 import java.time.Duration
-import java.util.concurrent.TimeUnit
 
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
@@ -23,13 +22,15 @@ import io.micronaut.http.sse.Event
 import io.reactivex.Flowable
 import io.reactivex.processors.PublishProcessor
 import io.seqera.tower.exchange.live.LiveUpdate
+import io.seqera.tower.util.BackpressureBuffer
 
 @Singleton
 @Slf4j
 @CompileStatic
 class LiveEventsServiceImpl implements LiveEventsService {
 
-    private final PublishProcessor<LiveUpdate> eventPublisher = PublishProcessor.create()
+    private final PublishProcessor<List<LiveUpdate>> eventPublisher = PublishProcessor.create()
+
     private Flowable<Event<List<LiveUpdate>>> eventFlowable
 
     @Value('${live.buffer.time:1s}')
@@ -41,9 +42,29 @@ class LiveEventsServiceImpl implements LiveEventsService {
     @Value('${live.buffer.heartbeat:1m}')
     Duration heartbeatDuration
 
+    BackpressureBuffer buffer
+
     @PostConstruct
     void initialize() {
-        eventFlowable = createBufferedEventFlowable()
+        log.info "Creating SSE event buffer flowable timeout=$bufferTimeout count=$bufferCount heartbeat=$heartbeatDuration"
+
+        // -- implements the back pressure logic
+        buffer = new BackpressureBuffer<LiveUpdate>()
+                .setTimeout(bufferTimeout)
+                .setHeartbeat(heartbeatDuration)
+                .setMaxCount(bufferCount)
+                .onNext { List<LiveUpdate> updates ->
+                    log.debug "Publishing live updates -> (${updates.size()}) ${updates}"
+                    eventPublisher.onNext(updates)
+                }
+                .start()
+
+        // -- wrap into a Event object
+        eventFlowable = eventPublisher
+                .map { List<LiveUpdate> traces ->
+                    log.trace "Publisher map traces (${traces.size()}) $traces"
+                    Event.of(traces)
+                }
     }
 
 
@@ -51,37 +72,12 @@ class LiveEventsServiceImpl implements LiveEventsService {
         return eventFlowable
     }
 
-    void publishEvent(LiveUpdate traceSseResponse) {
-        log.trace("Publishing event=${traceSseResponse.toString()}")
-        eventPublisher.onNext(traceSseResponse)
+    void publishEvent(LiveUpdate liveUpdate) {
+        buffer.offer(liveUpdate)
     }
 
-    private Flowable<Event<List<LiveUpdate>>> createBufferedEventFlowable() {
-        log.info "Creating SSE event buffer flowable timeout=$bufferTimeout count=$bufferCount heartbeat=$heartbeatDuration"
-        
-        return eventPublisher
-                    // avoid Could not emit buffer due to lack of requests #130
-                    .onBackpressureBuffer()
-                    // group together all events in a window of one second (up to 100)
-                    .buffer(bufferTimeout.toMillis(), TimeUnit.MILLISECONDS, bufferCount)
-                    // remove all identical events
-                    .map({ List<LiveUpdate> traces -> traces.unique() })
-                    // discard empty events
-                    .filter({ List<LiveUpdate> traces -> traces.size()>0 })
-                    // the following buffer behaves as a heartbeat
-                    // the count=1 makes pass any trace event
-                    // if not trace event show within the `heartbeatDuration` it emits an empty event
-                    .buffer(heartbeatDuration.toMillis(), TimeUnit.MILLISECONDS, 1)
-                    // finally wrap the traces in a `Event` type
-                    // note this guy gets a list of list (!)
-                    .map { List<List<LiveUpdate>> wrap ->
-                        final List<LiveUpdate> traces = wrap ? wrap.first() : Collections.<LiveUpdate>emptyList()
-                        // NOTE: it produces a log event for *each* connected client
-                        if( log.isTraceEnabled() )
-                            log.trace "Send SSE events: ${traces.toString()})"
-                        Event.of(traces)
-                    }
-
+    void stop() {
+        buffer?.terminateAndAwait()
     }
 
 }
