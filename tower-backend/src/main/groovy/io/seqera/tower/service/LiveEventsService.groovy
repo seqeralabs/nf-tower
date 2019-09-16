@@ -22,4 +22,6 @@ interface LiveEventsService {
 
     Flowable<Event> getEventsFlowable()
 
+    void stop()
+
 }
