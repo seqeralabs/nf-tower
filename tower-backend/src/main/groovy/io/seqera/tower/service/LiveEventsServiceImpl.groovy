@@ -60,6 +60,8 @@ class LiveEventsServiceImpl implements LiveEventsService {
         log.info "Creating SSE event buffer flowable timeout=$bufferTimeout count=$bufferCount heartbeat=$heartbeatDuration"
         
         return eventPublisher
+                    // avoid Could not emit buffer due to lack of requests #130
+                    .onBackpressureBuffer()
                     // group together all events in a window of one second (up to 100)
                     .buffer(bufferTimeout.toMillis(), TimeUnit.MILLISECONDS, bufferCount)
                     // remove all identical events
@@ -79,8 +81,6 @@ class LiveEventsServiceImpl implements LiveEventsService {
                             log.trace "Send SSE events: ${traces.toString()})"
                         Event.of(traces)
                     }
-                    // avoid Could not emit buffer due to lack of requests #130
-                    .onBackpressureBuffer()
 
     }
 
