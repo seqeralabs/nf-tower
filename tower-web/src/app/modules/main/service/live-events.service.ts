@@ -56,10 +56,10 @@ export class LiveEventsService {
       return;
     }
     const sseUrl: string = `${endpointUrl}/`;
-    this.events$ = this.connect(sseUrl);
+    this.connect(sseUrl);
   }
 
-  private connect(url: string): Observable<LiveUpdate> {
+  private connect(url: string): void {
     this.eventsSubject = new Subject<LiveUpdate>();
     this.events$ = this.eventsSubject.asObservable();
 
@@ -93,8 +93,6 @@ export class LiveEventsService {
       this.updateStatus(false);
       console.log('Event source error', new Date().toISOString());
     });
-
-    return this.events$;
   }
 
   private updateStatus(newStatus: boolean): void {
