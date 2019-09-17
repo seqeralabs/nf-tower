@@ -29,7 +29,6 @@ import org.reactivestreams.Publisher
 @CompileStatic
 class LiveEventsServiceImpl implements LiveEventsService {
 
-
     @Value('${live.buffer.time:1s}')
     Duration bufferTimeout
 
@@ -51,11 +50,12 @@ class LiveEventsServiceImpl implements LiveEventsService {
 
         // -- implements the back pressure logic
         buffer = new BackpressureBuffer<LiveUpdate>()
+                .setName('Live events buffer')
                 .setTimeout(bufferTimeout)
                 .setHeartbeat(heartbeatDuration)
                 .setMaxCount(bufferCount)
                 .onNext { List<LiveUpdate> updates ->
-                    log.debug "Publishing live updates -> (${updates.size()}) ${updates}"
+                    log.trace "Publishing live updates -> (${updates.size()}) ${updates}"
                     eventPublisher.onNext(updates)
                 }
                 .start()
@@ -66,7 +66,7 @@ class LiveEventsServiceImpl implements LiveEventsService {
     Publisher<Event<List<LiveUpdate>>> getEventsFlowable() {
         return eventPublisher
                 .map { List<LiveUpdate> traces ->
-                    log.debug "+++ Publisher map traces (${traces.size()}) $traces"
+                    log.trace "Publishing map traces (${traces.size()}) $traces"
                     Event.of(traces)
                 }
     }

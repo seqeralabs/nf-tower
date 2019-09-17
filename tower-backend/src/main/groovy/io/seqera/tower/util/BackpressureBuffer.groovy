@@ -47,7 +47,7 @@ class BackpressureBuffer<T> {
 
     private int maxCount = DEFAULT_MAX_COUNT
 
-    private String name = 'Event buffer spooler'
+    private String name = 'Back-pressure buffer'
 
     private Closure action
 

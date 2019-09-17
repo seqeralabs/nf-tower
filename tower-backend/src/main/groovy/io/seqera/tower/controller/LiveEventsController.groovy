@@ -35,7 +35,7 @@ class LiveEventsController {
 
     @Get("/")
     Publisher<Event<List<LiveUpdate>>> live(HttpRequest request) {
-        log.debug("Client subscribing to live events [remoteAddress=${request.remoteAddress}]")
+        log.debug("== Client subscribing to live events [remoteAddress=${request.remoteAddress}]")
         try {
             return serverSentEventsService.getEventsFlowable()
         }
