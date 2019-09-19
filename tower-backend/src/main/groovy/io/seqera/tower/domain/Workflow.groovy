@@ -136,6 +136,7 @@ class Workflow {
         success(nullable: true)
         complete(nullable: true)
 
+        commandLine(maxSize: 8096)
         params(nullable: true)
         commitId(nullable: true)
         configFiles(nullable: true)
