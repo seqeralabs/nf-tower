@@ -1,12 +1,11 @@
-# Nextflow Tower
+<img src='./tower-web/src/assets/landing/assets/img/nf-tower-purple.svg' width='500' alt='Nextflow Tower logo'/>
 
-![Nextflow Tower logo](./tower-web/src/assets/nf-tower.svg)
-
-[![Chat on Gitter](https://img.shields.io/gitter/room/nf-tower/community.svg?colorB=26af64&style=popout)](https://gitter.im/nf-tower/community)
 ![build status](https://codebuild.eu-west-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoid1VqblVBMmVDbE54MUdrTUNra0l5eGl3WWcxR0xCaDU1UVFJV1IzRWdodTJNNmx0d2Q3SS84REdaN1BOTUg4VVd5bS9Xdk8zeW5leFRON1NRZTZSVzhvPSIsIml2UGFyYW1ldGVyU3BlYyI6InVyaGJMWktuOGpDVDQ0WGsiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
+[![Chat on Gitter](https://img.shields.io/gitter/room/nf-tower/community.svg?colorB=26af64&style=popout)](https://gitter.im/nf-tower/community)
+
 
 Nextflow Tower is an open source monitoring and managing platform 
-for [Nextflow](https://www.nextflow.io/) workflows.
+for [Nextflow](https://www.nextflow.io/) workflows. Learn more at [tower.nf](https://tower.nf/).
 
 ## Build the environment 
 
