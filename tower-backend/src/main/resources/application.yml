@@ -3,7 +3,7 @@ tower:
     serverUrl: "${TOWER_SERVER_URL:`http://localhost:8000`}"
     contactEmail: "${TOWER_CONTACT_EMAIL:hello@tower.nf}"
     trustedEmails:
-      - '*@seqera.io'
+      - '*'
 ---
 micronaut:
   application:
@@ -98,4 +98,3 @@ endpoints:
       threshold: '500MB'
     jdbc:
       enabled: true
-

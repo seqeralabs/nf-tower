@@ -1,22 +1,22 @@
 @import "../../../../../assets/variables";
 
-.profile-item {
-  padding-left: 60px;
-}
-
 .profile-card {
   left: initial;
   right: 0;
 }
 
 .thumbnail {
-  max-height: 100%;
-  max-width: 100%;
+  max-height: 30px;
+  max-width: 30px;
+}
 
-  position: absolute;
-  margin: auto;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+@media (max-width: 576px){
+  .profile-item #user-dropdown {
+    display: none;
+  }
+  .profile-item .profile-card {
+    display: block;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
 }

@@ -1,4 +1,4 @@
-<nav id="navbar" class="navbar navbar-light navbar-expand-lg fixed-top">
+<nav id="navbar" class="navbar navbar-light bg-white navbar-expand-lg fixed-top">
   <a class="navbar-brand" href="/">
     <img src="assets/nf-tower-black.svg" alt="Nextflow Tower Logo">
   </a>
@@ -26,7 +26,11 @@
           <img class="thumbnail rounded-circle" alt="avatar" [src]="user.avatar">
         </a>
         <div class="dropdown-menu profile-card" aria-labelledby="user-dropdown">
-          <div class="dropdown-header text-dark" href="/profile">Signed in as<br><span class="font-weight-bold">{{user.nameToDisplay}}</span></div>
+          <div class="dropdown-header text-dark" href="/profile">
+            <img class="thumbnail rounded-circle float-right d-sm-none" alt="avatar" [src]="user.avatar">
+            Signed in as<br>
+            <span class="font-weight-bold">{{user.nameToDisplay}}</span>
+          </div>
           <div class="dropdown-divider"></div>
           <a class="dropdown-item" href="/welcome">Getting started</a>
           <div class="dropdown-divider"></div>
