@@ -3,19 +3,20 @@
 <wt-loading [loadingText]="'Loading'" *ngIf="shouldShowLoadingScreen"></wt-loading>
 
 <wt-navbar *ngIf="!shouldShowLandingPage"></wt-navbar>
-<div *ngIf="!shouldShowLandingPage && !shouldShowLoadingScreen" id="layout" class="pb-4">
+<div *ngIf="!shouldShowLandingPage && !shouldShowLoadingScreen" id="layout" class="d-flex pb-4">
 
-  <div id="sidebar" *ngIf="shouldShowSidebar" (scroll)="onSidebarScroll($event)">
-    <wt-sidebar [workflows]="workflows" (onDeleteWorkflow)="deleteWorkflow($event)"
-                (onSearchingWorkflows)="searchWorkflows($event)">
-    </wt-sidebar>
+  <div id="sidebar-wrapper" *ngIf="shouldShowSidebar" (scroll)="onSidebarScroll($event)" [ngClass]="{'toggled': isToggled}">
+    <div id="sidebar" class="sticky-top">
+      <wt-sidebar [workflows]="workflows" (onDeleteWorkflow)="deleteWorkflow($event)"
+                  (onSearchingWorkflows)="searchWorkflows($event)">
+      </wt-sidebar>
 
-    <div class="row load-gap">
-      <div *ngIf="isNextPageLoadTriggered" class="spinner-grow m-auto" role="status">
-        <span class="sr-only">Loading...</span>
+      <div class="row load-gap">
+        <div *ngIf="isNextPageLoadTriggered" class="spinner-grow m-auto" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
       </div>
     </div>
-
   </div>
 
   <div id="central">

@@ -10,7 +10,7 @@ html {
 body {
   height: 100%;
   width: 100%;
-  overflow-x: auto;
+  overflow-x: hidden;
   background-color: $body-background;
 }
 
@@ -27,35 +27,72 @@ code {
 
 #navbar {
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.16);
+  width: 100vw;
 }
 
 .navbar-brand img {
-  width: 260px;
+  height: 40px;
 }
 
 #layout {
-  display: flex;
-  min-height: calc(100% - #{$navbar-height});
   padding-top: $navbar-height;
-  width: 100%;
+}
+
+.sidebar-toggler-btn {
+  color: rgba(0,0,0,.5);
+  cursor: pointer;
+  padding: .25rem .75rem;
+  font-size: 1.25rem;
+  line-height: 1;
+  background-color: transparent;
+  border: 1px solid rgba(0,0,0,.1);
+  border-radius: .25rem;
+}
+
+#sidebar-wrapper {
+  min-height: 100vh;
+  margin-left: $sidebar-width * -1;
+  -webkit-transition: margin .25s ease-in-out;
+  -moz-transition: margin .25s ease-in-out;
+  -o-transition: margin .25s ease-in-out;
+  transition: margin .25s ease-in-out;
+  width: $sidebar-width;
+}
+
+#sidebar-wrapper.toggled {
+  margin-left: 0;
 }
 
 #sidebar {
-  position: sticky;
-  top: 0;
-  flex: 0 0 25%;
+  // TODO: Make sticky-top behaviour work with navbar height
+  width: $sidebar-width;
+  max-width: 100%;
   background-color: $sidebar-background;
   border-right: $sidebar-border;
   overflow-x: hidden;
   overflow-y: auto;
-  height: 100vh;
 }
 
 #central {
-  width: 100%;
-  min-height: inherit;
-  flex: 1 0 75%;
+  min-width: 100%;
 }
+
+
+// Reverse behaviour on larger screens
+@media (min-width: 768px) {
+  #sidebar-wrapper {
+    margin-left: 0;
+  }
+  #sidebar-wrapper.toggled {
+    margin-left: $sidebar-width * -1;
+  }
+  // Stretch content instead of going off-canvas
+  #central {
+    min-width: 0;
+    width: 100%;
+  }
+}
+
 
 #notification-container {
   position: absolute;

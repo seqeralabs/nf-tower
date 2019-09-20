@@ -32,5 +32,12 @@ export class NavbarComponent implements OnInit {
     )
   }
 
+  toggleSidebar() {
+    console.log(this);
+    this.isSidebarToggled = !this.isSidebarToggled;
+    // TODO: Make this work properly instead of hacking with jQuery
+    // On a plane with no internet connection now
+    $('#sidebar-wrapper').toggleClass('toggled');
+  }
 
 }
