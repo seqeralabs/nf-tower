@@ -160,7 +160,9 @@ code {
   }
 
   .dataTables_filter input {
-    width: 30rem;
+    @media (min-width: 576px){
+      width: 30rem;
+    }
     font-size: 1rem;
     font-weight: 400;
     line-height: 1.5;

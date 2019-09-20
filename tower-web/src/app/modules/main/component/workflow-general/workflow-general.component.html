@@ -1,65 +1,13 @@
-<div class="card">
+<div class="card mb-3">
   <div class="card-header">General</div>
   <div class="card-body">
-    <div class="row">
-      <div class="col">
-        <p>
-          <span class="mdi mdi-calendar"></span>
-          <span class="pl-3">
-          {{workflow.startDateFormatted}}
-          </span>
-        </p>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col">
-        <p>
-          <span class="mdi mdi-source-commit"></span>
-          <span class="pl-3">
-          {{workflow.humanizedRevision}}
-            </span>
-        </p>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col">
-        <p>
-          <span class="mdi mdi-restore-clock"></span>
-          <span class="pl-3">
-          {{workflow.data.sessionId}}
-          </span>
-        </p>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col">
-        <p>
-          <span class="mdi mdi-account"></span>
-          <span class="pl-3">
-          {{workflow.data.userName}}
-          </span>
-        </p>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col">
-        <p>
-          <span class="mdi mdi-server"></span>
-          <span class="pl-3">
-          {{workflow.data.workDir}}
-          </span>
-        </p>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col">
-        <p>
-          <span class="mdi mdi-docker"></span>
-          <span class="pl-3">
-          {{workflow.humanizedContainer}}
-          </span>
-        </p>
-      </div>
-    </div>
+    <ul class="list-unstyled">
+      <li><span class="mr-3 mdi mdi-24px mdi-calendar"></span> {{workflow.startDateFormatted}}</li>
+      <li><span class="mr-3 mdi mdi-24px mdi-source-commit"></span> {{workflow.humanizedRevision}}</li>
+      <li><span class="mr-3 mdi mdi-24px mdi-restore-clock"></span> {{workflow.data.sessionId}}</li>
+      <li><span class="mr-3 mdi mdi-24px mdi-account"></span> {{workflow.data.userName}}</li>
+      <li><span class="mr-3 mdi mdi-24px mdi-server"></span> {{workflow.data.workDir}}</li>
+      <li><span class="mr-3 mdi mdi-24px mdi-docker"></span> {{workflow.humanizedContainer}}</li>
+    </ul>
   </div>
 </div>

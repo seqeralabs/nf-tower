@@ -13,6 +13,10 @@
   p {
     font-size: 0.9em;
   }
+
+  .card-content {
+    margin-right: 2rem;
+  }
 }
 
 .workflow--succeed {
@@ -51,4 +55,3 @@ div.btn-delete {
   position: relative;
   button { position: absolute; right: 0px; bottom: 0px; }
 }
-

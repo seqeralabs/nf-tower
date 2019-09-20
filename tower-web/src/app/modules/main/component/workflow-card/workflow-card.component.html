@@ -4,10 +4,11 @@
       <span class="mdi" [ngClass]="{'mdi-check-circle-outline': workflow.isSuccessful, 'mdi-progress-check': workflow.isRunning, 'mdi-alert-circle-outline': workflow.isFailed || workflow.isPartialFailed}"></span>
       {{workflow.data.projectName}}
     </h5>
-    <p class="mb-0"><span class="mdi mdi-run"></span> {{workflow.data.runName}}</p>
-    <p class="mb-0"><span class="mdi mdi-clock-outline"></span> Duration: {{workflow.humanizedDuration}}</p>
-    <p class="mb-0"><span class="mdi mdi-calendar"></span> Started: {{workflow.startDateFormatted}} </p>
-
+    <div class="card-content">
+        <p class="mb-0"><span class="mdi mdi-run"></span> {{workflow.data.runName}}</p>
+        <p class="mb-0"><span class="mdi mdi-clock-outline"></span> Duration: {{workflow.humanizedDuration}}</p>
+        <p class="mb-0"><span class="mdi mdi-calendar"></span> Started: {{workflow.startDateFormatted}} </p>
+    </div>
     <div class="btn-delete">
       <button type="button" class="btn btn-outline-danger btn-sm" (click)="deleteWorkflow(workflow, $event)"><span class="mdi mdi-trash-can"></span></button>
     </div>

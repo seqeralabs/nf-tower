@@ -5,18 +5,32 @@
   right: 0;
 }
 
-.thumbnail {
-  max-height: 30px;
-  max-width: 30px;
+.profile-item {
+  #user-dropdown {
+    padding-top: 2px;
+    padding-bottom: 2px;
+    margin-left: 1rem;
+  }
+  .thumbnail {
+    max-height: 32px;
+    max-width: 32px;
+  }
 }
 
 @media (max-width: 576px){
-  .profile-item #user-dropdown {
-    display: none;
-  }
-  .profile-item .profile-card {
-    display: block;
-    margin-top: 0.5rem;
-    margin-bottom: 0.5rem;
+  .profile-item {
+    #user-dropdown {
+      display: none;
+      margin-left: 0;
+    }
+    .profile-card {
+      display: block;
+      margin-top: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .thumbnail {
+      max-height: 36px;
+      max-width: 36px;
+    }
   }
 }

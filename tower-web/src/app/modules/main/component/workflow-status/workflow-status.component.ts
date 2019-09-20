@@ -29,7 +29,6 @@ export class WorkflowStatusComponent implements OnInit {
 
   constructor() {
     this.statusesTags = getAllTaskStatusesProgressStateTags();
-    this.statusesRows = chunk(this.statusesTags, 3)
   }
 
   ngOnInit() {
