@@ -56,10 +56,8 @@
           <wt-tasks-table [workflowId]="workflow.id" [progress]="workflow.progress"></wt-tasks-table>
         </div>
       </div>
-      <div class="row" *ngIf="workflow.isCompleted">
-        <div class="col-md">
-          <wt-workflow-metrics></wt-workflow-metrics>
-        </div>
+      <div *ngIf="workflow.isCompleted">
+        <wt-workflow-metrics></wt-workflow-metrics>
       </div>
     </div>
   </div>

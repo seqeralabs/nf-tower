@@ -64,7 +64,7 @@ code {
 }
 
 #sidebar {
-  // TODO: Make sticky-top behaviour work with navbar height
+  top: 62px;
   width: $sidebar-width;
   max-width: 100%;
   background-color: $sidebar-background;
@@ -79,7 +79,7 @@ code {
 
 
 // Reverse behaviour on larger screens
-@media (min-width: 768px) {
+@media (min-width: 960px) {
   #sidebar-wrapper {
     margin-left: 0;
   }
