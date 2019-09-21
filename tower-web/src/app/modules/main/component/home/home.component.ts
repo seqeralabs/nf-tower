@@ -33,7 +33,6 @@ export class HomeComponent implements OnInit {
   user: User;
   workflows: Workflow[];
   private userEventsSubscription: Subscription;
-  isSidebarToggled: false;
 
   searchingText: string;
   offset: number = 0;
