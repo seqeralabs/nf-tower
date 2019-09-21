@@ -31,7 +31,7 @@
     "file-size": "^1.0.0",
     "humanize-duration-ts": "^2.0.0",
     "jquery": "^3.4.0",
-    "lodash": "^4.17.13",
+    "lodash": "^4.17.15",
     "ng-chartist": "^4.1.0",
     "popper.js": "^1.15.0",
     "rxjs": "~6.4.0",
