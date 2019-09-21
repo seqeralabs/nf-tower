@@ -27,11 +27,11 @@ Tower backend settings can be provided either:
 A minimal config requires the settings for the SMTP 
 server, using the following variables: 
 
-- TOWER_SMTP_HOST: The SMTP server host name eg. `email-smtp.eu-west-1.amazonaws.com`.
-- TOWER_SMTP_PORT: The SMTP server port number eg. `587`.
-- TOWER_SMTP_USER: The SMTP user name.  
+- TOWER_SMTP_HOST: The SMTP server host name e.g. `email-smtp.eu-west-1.amazonaws.com`.
+- TOWER_SMTP_PORT: The SMTP server port number e.g. `587`.
+- TOWER_SMTP_USER: The SMTP user name.
 - TOWER_SMTP_PASSWORD: The SMTP user password.
- 
+
 
 ## Basic use case
     
@@ -43,8 +43,8 @@ Navigate to GUI in `http://localhost:8000` and follow the instructions.
 
 Define the following env variables: 
 
-- TOWER_SMTP_USER=<smtp user name>
-- TOWER_SMTP_PASSWORD=<smpt password>
+- TOWER_SMTP_USER=`<smtp user name>`
+- TOWER_SMTP_PASSWORD=`<smpt password>`
 
 (see `tower-backend/src/main/resources/application.yml` for further config details)
 
@@ -72,19 +72,20 @@ By default it uses [H2](https://www.h2database.com), an embedded database meant 
 
 ## Environment variables: 
 
-* TOWER_APP_NAME: Application name
-* TOWER_SERVER_URL: Server URL eg `https://tower.nf`
-* TOWER_CONTACT_EMAIL: Sysadmin email contact eg `hello@tower.nf`
-* TOWER_DB_CREATE: DB creation policy eg `none`
-* TOWER_DB_URL: Database JDBC connection URL eg. `jdbc:mysql://localhost:3307/tower`. 
+* TOWER_APP_NAME: Application name.
+* TOWER_SERVER_URL: Server URL e.g. `https://tower.nf`.
+* TOWER_CONTACT_EMAIL: Sysadmin email contact e.g. `hello@tower.nf`.
+* TOWER_DB_CREATE: DB creation policy e.g. `none`.
+* TOWER_DB_URL: Database JDBC connection URL e.g. `jdbc:mysql://localhost:3307/tower`. 
 * TOWER_DB_DRIVER: Database JDBC driver class name e.g. `com.mysql.cj.jdbc.Driver`.
-* TOWER_DB_DIALECT: Database SQL Hibernate dialect `org.hibernate.dialect.MySQL55Dialect`. * TOWER_DB_USER: Database user name.
+* TOWER_DB_DIALECT: Database SQL Hibernate dialect `org.hibernate.dialect.MySQL55Dialect`.
+* TOWER_DB_USER: Database user name.
 * TOWER_DB_PASSWORD: Database user password.
-* TOWER_SMTP_HOST: SMTP server host name
-* TOWER_SMTP_PORT: SMTP server port eg 587
+* TOWER_SMTP_HOST: SMTP server host name.
+* TOWER_SMTP_PORT: SMTP server port e.g. `587`.
 * TOWER_SMTP_AUTH: SMTP server authentication eg `true`
-* TOWER_SMTP_USER: SMTP server user name 
-* TOWER_SMTP_PASSWORD: SMTP server user password 
+* TOWER_SMTP_USER: SMTP server user name.
+* TOWER_SMTP_PASSWORD: SMTP server user password.
 
 ## License
 
