@@ -44,9 +44,8 @@ class UserServiceImpl implements UserService {
 
     WorkflowService workflowService
 
-
     @Value('${tower.trusted-emails}')
-    List<String> trustedEmails = Collections.emptyList()
+    List<String> trustedEmails
 
     UserServiceImpl() { }
 
@@ -149,6 +148,11 @@ class UserServiceImpl implements UserService {
 
 
     protected boolean isTrustedEmail(String email) {
+        if( trustedEmails==null ) {
+            // implicitly trusted if no rule is specified
+            return true
+        }
+        
         for( String pattern : trustedEmails ) {
             if( StringUtils.like(email, pattern) )
                 return true
