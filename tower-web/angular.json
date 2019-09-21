@@ -30,7 +30,7 @@
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "node_modules/@mdi/font/css/materialdesignicons.min.css",
               "node_modules/chartist/dist/chartist.min.css",
-              "node_modules/datatables.net-dt/css/jquery.dataTables.min.css",
+              "node_modules/datatables.net-bs4/css/dataTables.bootstrap4.min.css",
               "src/styles.scss"
             ],
             "scripts": [
@@ -38,6 +38,7 @@
               "node_modules/popper.js/dist/umd/popper.min.js",
               "node_modules/bootstrap/dist/js/bootstrap.min.js",
               "node_modules/datatables.net/js/jquery.dataTables.min.js",
+              "node_modules/datatables.net-bs4/js/dataTables.bootstrap4.min.js",
               "node_modules/datatables.net-scroller/js/dataTables.scroller.min.js"
             ],
             "es5BrowserSupport": true

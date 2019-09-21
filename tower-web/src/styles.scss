@@ -170,13 +170,6 @@ code {
 /* Task DataTable styles */
 #tasks-table-wrapper {
 
-  @media (min-width: 1400px) {
-    max-width: 1000px;
-  }
-  @media (min-width: 1650px) {
-    max-width: 1140px;
-  }
-
   .code {
     font-family: SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
   }
@@ -192,28 +185,6 @@ code {
     pre { margin-left: 1em; }
   }
 
-  .dataTables_filter {
-    float: left !important;
-  }
-
-  .dataTables_filter input {
-    @media (min-width: 576px){
-      width: 30rem;
-    }
-    font-size: 1rem;
-    font-weight: 400;
-    line-height: 1.5;
-    color: #495057;
-    background-color: #fff;
-    background-clip: padding-box;
-    border: 1px solid #ced4da;
-    border-radius: .25rem;
-  }
-
-  .dataTables_scrollBody {
-    overflow-y: hidden !important;
-  }
-
   td.details-control {
     cursor: pointer;
   }
@@ -221,13 +192,6 @@ code {
   .details-table {
     margin-left: 1em;
     table-layout: fixed;
-
-    @media (min-width: 1400px) {
-      max-width: 1000px;
-    }
-    @media (min-width: 1650px) {
-      max-width: 1140px;
-    }
 
     th:nth-child(1) {
       width: 20%;
