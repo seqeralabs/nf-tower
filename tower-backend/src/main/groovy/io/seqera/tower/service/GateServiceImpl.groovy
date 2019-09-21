@@ -80,6 +80,7 @@ class GateServiceImpl implements GateService {
         }
         else {
             result.state = AccessGateResponse.State.KEEP_CALM_PLEASE
+            sendAccessRequestEmail(result.user)
         }
 
         return result
@@ -89,13 +90,18 @@ class GateServiceImpl implements GateService {
     protected void sendLoginEmail(User user) {
         assert user.email, "Missing email address for user=$user"
 
-        final mail = buildAccessEmail(user)
+        final mail = buildSignInEmail(user)
         mailService.sendMail(mail)
     }
 
     protected void sendNewUserEmail(User user) {
         assert user.email, "Missing email address for user=$user"
         mailService.sendMail( buildNewUserEmail(user) )
+    }
+
+    protected void sendAccessRequestEmail(User user) {
+        assert user.email, "Missing email address for user=$user"
+        mailService.sendMail( buildAccessRequestEmail(user) )
     }
 
     /**
@@ -151,7 +157,7 @@ class GateServiceImpl implements GateService {
         return "${url.protocol}://admin.${url.host}/user?id=${userId}"
     }
 
-    protected Mail buildAccessEmail(User user) {
+    protected Mail buildSignInEmail(User user) {
         // create template binding
         def binding = new HashMap(5)
         binding.app_name = appName
@@ -181,8 +187,24 @@ class GateServiceImpl implements GateService {
         Mail mail = new Mail()
         mail.to(contactEmail)
         mail.subject("New user registration")
-        mail.text(getTemplateFile('/io/seqera/tower/service/new-user-mail.txt', binding))
         mail.body(getTemplateFile('/io/seqera/tower/service/new-user-mail.html', binding))
+        return mail
+    }
+
+
+    protected Mail buildAccessRequestEmail(User user) {
+        def binding = new HashMap(5)
+        binding.app_name = appName
+        binding.server_url = serverUrl
+        binding.user_name = user.userName
+        binding.user_email = user.email
+        binding.user_id = user.id
+        binding.enable_url = getEnableUrl(serverUrl, user.id)
+
+        Mail mail = new Mail()
+        mail.to(contactEmail)
+        mail.subject("User access request")
+        mail.body(getTemplateFile('/io/seqera/tower/service/access-request.html', binding))
         return mail
     }
 

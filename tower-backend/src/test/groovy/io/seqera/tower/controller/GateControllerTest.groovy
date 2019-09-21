@@ -86,7 +86,8 @@ class GateControllerTest extends AbstractContainerBaseTest {
         !registeredUser.authToken
 
         and: "no mail was sent"
-        Mail.withNewTransaction { Mail.count() } == 0
+        Mail.withNewTransaction { Mail.count() } == 1
+        Mail.withNewTransaction { Mail.list().first().to } == contactEmail
 
     }
 
