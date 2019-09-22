@@ -77,23 +77,5 @@ live:
     time: 5s
     count: 100
     heartbeat: 50s
----
-endpoints:
-  bean:
-    enabled: true
-  info:
-    enabled: true
-  metrics:
-    enabled: true
-  caches:
-    enabled: true
-  refresh:
-    enabled: true
-  health:
-    disk-space:
-      enabled: true
-      path: '/'
-      threshold: '500MB'
-    jdbc:
-      enabled: true
+
 
