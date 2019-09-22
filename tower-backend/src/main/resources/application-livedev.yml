@@ -59,6 +59,8 @@ endpoints:
     enabled: true
   refresh:
     enabled: true
+  loggers:
+    enabled: true
   health:
     disk-space:
       enabled: true
