@@ -26,7 +26,6 @@ class WorkflowKey {
     OffsetDateTime lastUpdated
 
     static constraints = {
-        id(maxSize: 16)
         sessionId(nullable: true, maxSize: 36)
         workflowId(nullable: true, unique: true)
     }
