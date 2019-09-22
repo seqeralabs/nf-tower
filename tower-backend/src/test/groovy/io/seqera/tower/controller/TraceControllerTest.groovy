@@ -18,18 +18,15 @@ import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.MutableHttpRequest
-import io.micronaut.http.client.DefaultHttpClient
 import io.micronaut.http.client.RxHttpClient
 import io.micronaut.http.client.annotation.Client
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.test.annotation.MicronautTest
-import io.reactivex.subscribers.TestSubscriber
 import io.seqera.tower.Application
 import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.User
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.enums.TraceProcessingStatus
-import io.seqera.tower.exchange.live.LiveUpdate
 import io.seqera.tower.exchange.trace.TraceAliveRequest
 import io.seqera.tower.exchange.trace.TraceAliveResponse
 import io.seqera.tower.exchange.trace.TraceInitRequest
@@ -56,9 +53,6 @@ class TraceControllerTest extends AbstractContainerBaseTest {
     @Client('/')
     RxHttpClient client
 
-    @Inject
-    @Client('/')
-    DefaultHttpClient sseClient
 
     protected HttpRequest appendBasicAuth(User user, MutableHttpRequest request) {
         request.basicAuth(AuthenticationByApiToken.ID, user.accessTokens.first().token)
@@ -144,10 +138,9 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         MutableHttpRequest request = HttpRequest.POST('/trace/task', taskSubmittedJsonTrace)
         request = appendBasicAuth(user, request)
 
-        HttpResponse<TraceTaskResponse> response = client.toBlocking().exchange(
-                request,
-                TraceTaskResponse.class
-        )
+        def response = client
+                .toBlocking()
+                .exchange(request, TraceTaskResponse )
 
         then: 'the task has been saved successfully'
         response.status == HttpStatus.CREATED
@@ -156,9 +149,7 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         !response.body().message
 
         and: 'the task is in the database'
-        Task.withNewTransaction {
-            Task.count() == 1
-        }
+        Task.withNewTransaction { Task.count() } ==1
     }
 
     void "try to save a new workflow without being authenticated"() {
@@ -167,10 +158,7 @@ class TraceControllerTest extends AbstractContainerBaseTest {
 
         when: 'send a save request'
         MutableHttpRequest request = HttpRequest.POST('/trace/workflow', workflowStartedJsonTrace)
-        client.toBlocking().exchange(
-                request,
-                TraceWorkflowResponse.class
-        )
+        client.toBlocking().exchange( request, TraceWorkflowResponse )
 
         then: "the server responds UNAUTHORIZED"
         HttpClientResponseException e = thrown(HttpClientResponseException)
@@ -186,10 +174,7 @@ class TraceControllerTest extends AbstractContainerBaseTest {
 
         when: 'send a save request'
         MutableHttpRequest request = HttpRequest.POST('/trace/task', taskSubmittedJsonTrace)
-        client.toBlocking().exchange(
-            request,
-            TraceTaskResponse.class
-        )
+        client.toBlocking().exchange(request, TraceTaskResponse)
 
         then: "the server responds UNAUTHORIZED"
         HttpClientResponseException e = thrown(HttpClientResponseException)
@@ -211,41 +196,6 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         Workflow.withNewTransaction { Task.count() } == 15
     }
 
-    void "save traces simulated from a complete sequence and subscribe to the live events in the mean time"() {
-        given: 'an allowed user'
-        User user = new DomainCreator().generateAllowedUser()
 
-        and: 'a nextflow simulator'
-        NextflowSimulator nextflowSimulator = new NextflowSimulator(user: user, workflowLabel: 'simulation', client: client.toBlocking(), sleepBetweenRequests: 0)
-
-        when: 'subscribe to the live events for the workflow list endpoint'
-        TestSubscriber listSubscriber = sseClient.eventStream("/live/user/${user.id}", LiveUpdate.class).test()
-
-        then: 'the list flowable has just been created (is active)'
-        listSubscriber.assertNotComplete()
-
-        and: 'send the first request to start the workflow'
-        nextflowSimulator.simulate(1)
-
-        then: 'the workflow has been created'
-        Workflow.withNewTransaction { Workflow.count() } == 1
-
-        when: 'subscribe to the live events for the workflow detail endpoint'
-        TestSubscriber detailSubscriber = sseClient.eventStream("/live/workflow/${nextflowSimulator.workflowId}", LiveUpdate.class).test()
-
-        then: 'the detail flowable is active'
-        detailSubscriber.assertNotComplete()
-
-        when: 'keep simulating with the next task request'
-        nextflowSimulator.simulate(1)
-
-        then: 'the tasks have been created'
-        Task.withNewTransaction { Task.count() } == 6
-
-        and: 'the task progress event has been sent'
-        //For some reason the event isn't received here although it's working properly in the browser
-//        detailSubscriber.awaitCount(1)
-//        detailSubscriber.assertValueCount(1)
-    }
 
 }
