@@ -11,9 +11,6 @@
 
 package io.seqera.tower.enums
 
-import groovy.transform.ToString
-
-@ToString
 enum TaskStatus {
 
     NEW,        // just created
@@ -30,5 +27,7 @@ enum TaskStatus {
         String regex = sqlRegex.toUpperCase().replaceAll('%', /.*/)
         values().findAll { it.name() ==~ regex }
     }
+
+    String toString() { super.toString() }
 
 }
