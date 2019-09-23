@@ -76,8 +76,8 @@ export class AuthService {
     this.userSubject.next(user);
   }
 
-  access(email: string): Observable<AccessGateResponse> {
-    return this.http.post<AccessGateResponse>(`${gateEndpointUrl}/access`, {email: email})
+  access(email: string, captcha: string): Observable<AccessGateResponse> {
+    return this.http.post<AccessGateResponse>(`${gateEndpointUrl}/access`, {email: email, captcha: captcha});
   }
 
   update(user: User): Observable<string> {
