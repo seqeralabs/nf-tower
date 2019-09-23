@@ -20,6 +20,13 @@
             </p>
           </div>
         </div>
+
+        <div class="row" style="padding-bottom: 1rem;">
+          <div class="col">
+            <div class="g-recaptcha" data-callback="onCaptchaOk" [attr.data-sitekey]="captchaKey" ></div>
+          </div>
+        </div>
+
         <div class="row">
           <div class="col">
             <button class="btn btn-primary btn-block" type="submit" name="action" [disabled]="!isSubmitEnabled()">

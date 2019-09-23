@@ -9,13 +9,14 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, NgZone, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from "@angular/router";
 import {HttpErrorResponse} from "@angular/common/http";
 import {NgForm} from "@angular/forms";
 import {AuthService} from "src/app/modules/main/service/auth.service";
 import {NotificationService} from "src/app/modules/main/service/notification.service";
 import {AccessGateState} from "src/app/modules/main/entity/gate";
+import {environment} from "../../../../../environments/environment";
 
 @Component({
   selector: 'wt-login',
@@ -32,26 +33,30 @@ export class LoginComponent implements OnInit {
 
   email: string;
   state: AccessGateState;
+  captchaResponse;
+  captchaKey = environment.captchaKey;
 
-  constructor(private route: ActivatedRoute,
-              private router: Router,
+  constructor(private ngZone: NgZone,
               private authService: AuthService,
               private notificationService: NotificationService) {
     this.isSubmitted = false;
     this.state = null;
   }
 
-  ngOnInit() { }
+  ngOnInit() {
+    if( this.captchaKey ) {
+      this.addCaptchaScript();
+    }
+  }
 
   submit(): void {
     this.isSubmitted = true;
-
     this
       .authService
-      .access(this.email)
+      .access(this.email, this.captchaResponse)
       .subscribe(
           (data) => {
-            this.state = data.state
+            this.state = data.state;
           },
           (resp: HttpErrorResponse) => {
             this.isSubmitted = false;
@@ -61,7 +66,26 @@ export class LoginComponent implements OnInit {
   }
 
   isSubmitEnabled(): boolean {
-    return (!this.isSubmitted && this.loginForm.form.valid);
+    return !this.isSubmitted && this.loginForm.form.valid && (this.captchaKey==null || this.captchaResponse!=null);
+  }
+
+  /*
+   * Dynamic load google captcha script
+   * https://developers.google.com/recaptcha/docs/display
+   */
+  private addCaptchaScript(): void {
+    // @ts-ignore
+    window.onCaptchaOk = (data) => {
+      this.ngZone.run(() => {
+        this.captchaResponse = data;
+      });
+    };
+
+    const script = document.createElement('script');
+    script.src = `https://www.google.com/recaptcha/api.js`;
+    script.async = true;
+    script.defer = true;
+    document.body.appendChild(script);
   }
 
 }
