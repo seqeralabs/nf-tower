@@ -31,7 +31,7 @@ import io.seqera.tower.util.DomainCreator
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
-@MicronautTest(application = Application.class)
+@MicronautTest(application = Application.class, environments = ['test','trusted'])
 @Transactional
 class GateServiceTest extends AbstractContainerBaseTest {
 

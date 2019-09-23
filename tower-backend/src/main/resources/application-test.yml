@@ -1,7 +1,3 @@
-tower:
-  trustedEmails:
-    - '*@hack.com'
----
 micronaut:
   io:
     watch:
