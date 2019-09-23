@@ -11,6 +11,7 @@
 
 package io.seqera.tower.service
 
+import javax.annotation.Nullable
 import javax.inject.Inject
 import javax.inject.Singleton
 import javax.validation.ValidationException
@@ -44,6 +45,7 @@ class UserServiceImpl implements UserService {
 
     WorkflowService workflowService
 
+    @Nullable
     @Value('${tower.trusted-emails}')
     List<String> trustedEmails
 
