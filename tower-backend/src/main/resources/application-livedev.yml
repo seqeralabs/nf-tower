@@ -37,7 +37,7 @@ grails:
     failOnError: false
 ---
 mail:
-  from: "paolo.ditommaso+tower@gmail.com
+  from: "paolo.ditommaso+tower@gmail.com"
   smtp:
     host: email-smtp.eu-west-1.amazonaws.com
     port: 587
