@@ -61,6 +61,8 @@ endpoints:
     enabled: true
   loggers:
     enabled: true
+  mailer:
+    enabled: true
   health:
     disk-space:
       enabled: true

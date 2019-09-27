@@ -46,6 +46,7 @@ import org.jsoup.safety.Whitelist
 @CompileStatic
 class Mailer {
 
+
     // Adapted from post by Phil Haack and modified to match better
     // See https://stackoverflow.com/a/22581832/395921
     private final static String TAG_START = "\\<\\w+((\\s+\\w+(\\s*\\=\\s*(?:\".*?\"|'.*?'|[^'\"\\>\\s]+))?)+\\s*|\\s*)\\>"
@@ -372,11 +373,13 @@ class Mailer {
 
     protected void createMessageAndSend0(Transport transport, Mail mail, Map<String,Closure> actions ) {
         try {
-            def msg = createMimeMessage(mail)
+            final msg = createMimeMessage(mail)
             transport.sendMessage(msg, msg.getAllRecipients())
 
-            if( actions.containsKey('onSuccess'))
+            if( actions.containsKey('onSuccess')) {
                 actions.onSuccess.call(mail)
+            }
+
         }
         catch (Exception e){
             if( actions.containsKey('onError') ) {
