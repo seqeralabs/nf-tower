@@ -15,6 +15,7 @@ import groovy.transform.CompileDynamic
 import groovy.util.logging.Slf4j
 import io.micronaut.context.annotation.ConfigurationProperties
 /**
+ * Model mailer config object
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
