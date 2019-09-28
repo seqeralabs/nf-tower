@@ -23,7 +23,6 @@ import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Post
-import io.micronaut.retry.annotation.Retryable
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.micronaut.security.rules.SecurityRule
@@ -105,7 +104,7 @@ class TraceController extends BaseController {
     HttpResponse<TraceWorkflowResponse> workflow(@Body TraceWorkflowRequest req, Authentication authentication) {
         try {
             final msg = (req.workflow.checkIsStarted()
-                    ? "Receiving trace for new workflow [user=${authentication.name}]"
+                    ? "Receiving trace for new workflow [workflowId=${req.workflow.id}; user=${authentication.name}]"
                     : "Receiving trace for workflow completion [workflowId=${req.workflow.id}; user=${authentication.name}]")
             log.info(msg)
 
@@ -121,7 +120,7 @@ class TraceController extends BaseController {
             return HttpResponse.created(resp)
         }
         catch (Exception e) {
-            log.error("Failed to handle workflow trace=${req.workflow?.id}", e)
+            log.error("Failed to handle workflow trace=${req.workflow.id}", e)
             return HttpResponse.badRequest(TraceWorkflowResponse.ofError(e.message))
         }
     }
@@ -156,12 +155,10 @@ class TraceController extends BaseController {
     @Secured(['ROLE_USER'])
     HttpResponse<TraceInitResponse> init(TraceInitRequest req, Authentication authentication) {
         log.info "Receiving trace init [user=${authentication.getName()}]"
-        final key = transactionService.withTransaction {
-            def record = new WorkflowKey()
-            record.sessionId = req.sessionId
-            record.save()
-        }
-        final workflowId = HashSequenceGenerator.getHash(key.id)
+        final record = transactionService.withTransaction { new WorkflowKey(sessionId: req.sessionId) .save() }
+        final workflowId = HashSequenceGenerator.getHash(record.id)
+        log.info "Created new workflow ID=${workflowId} [user=${authentication.getName()}]"
+        transactionService.withTransaction { record.workflowId=workflowId; record.save() }
         final resp = new TraceInitResponse(workflowId: workflowId, message: 'OK')
         HttpResponse.ok(resp)
     }

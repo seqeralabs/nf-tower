@@ -27,6 +27,6 @@ class WorkflowKey {
 
     static constraints = {
         sessionId(nullable: true, maxSize: 36)
-        workflowId(nullable: true, unique: true)
+        workflowId(nullable: true, unique: true, maxSize: 16)
     }
 }
