@@ -61,7 +61,6 @@ dependencies {
     annotationProcessor "io.micronaut:micronaut-security"
     compile "io.micronaut:micronaut-security-jwt"
     
-    compile 'io.micronaut.configuration:micronaut-flyway:1.1.0'
     compile "ch.qos.logback:logback-classic:1.2.3"
 
     annotationProcessor "io.micronaut.configuration:micronaut-openapi"
