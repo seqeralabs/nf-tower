@@ -1,115 +1,103 @@
-<div class="container mt-5 w-50" [hidden]="state!=null">
+<div class="container mt-3"><div class="row justify-content-center"><div class="col-sm-10 col-md-8 col-lg-6 col-xl-5">
 
-  <div class="card">
-    <div class="card-header">
-      Nextflow Tower Sign in
-    </div>
-    <div class="card-body">
-      <form #loginForm="ngForm" (ngSubmit)="submit()">
-        <div class="form-group">
-          <label for="email" data-error="Provide a valid email">Email</label>
-          <input id="email" name="email" type="email" email required class="form-control" [(ngModel)]="email">
+<div class="card" [hidden]="state!=null">
+  <div class="card-header">
+    Nextflow Tower Sign in
+  </div>
+  <div class="card-body">
+    <form #loginForm="ngForm" (ngSubmit)="submit()">
+      <div class="form-group">
+        <label for="email" data-error="Provide a valid email">Email</label>
+        <input id="email" name="email" type="email" email required class="form-control" [(ngModel)]="email">
+      </div>
+      <div class="row">
+        <div class="col">
+          <h6>No password required</h6>
+          <p>
+          Nextflow Tower does not require a password or registration procedure.
+          Just provide your email address and we'll send you an authentication link to login.
+          That's all!
+          </p>
         </div>
-        <div class="row">
-          <div class="col">
-            <h6>No password required</h6>
-            <p>
-            Nextflow Tower does not require a password or registration procedure.
-            Just provide your email address and we'll send you an authentication link to login.
-            That's all!
-            </p>
-          </div>
-        </div>
+      </div>
 
-        <div class="row" style="padding-bottom: 1rem;">
-          <div class="col">
-            <div class="g-recaptcha" data-callback="onCaptchaOk" [attr.data-sitekey]="captchaKey" ></div>
-          </div>
+      <div class="row" style="padding-bottom: 1rem;">
+        <div class="col">
+          <div class="g-recaptcha" data-callback="onCaptchaOk" [attr.data-sitekey]="captchaKey" ></div>
         </div>
+      </div>
 
-        <div class="row">
-          <div class="col">
-            <button class="btn btn-primary btn-block" type="submit" name="action" [disabled]="!isSubmitEnabled()">
-              Sign in
-            </button>
-          </div>
+      <div class="row">
+        <div class="col">
+          <button class="btn btn-primary btn-block" type="submit" name="action" [disabled]="!isSubmitEnabled()">
+            Sign in
+          </button>
         </div>
-      </form>
-    </div>
-
+      </div>
+    </form>
   </div>
 </div>
 
 <!--
   Sign-in confirmation message
 -->
-<div class="container mt-5 w-50" *ngIf="state==State.LOGIN_ALLOWED">
-  <div class="m-auto">
-    <div class="alert alert-success" role="alert">
-      <h4 class="alert-heading">Almost there!</h4>
-      <hr>
-      <p class="pt-1">
-        A login email has just been sent to <span class="sent-email">{{email}}</span>. Check your inbox!
-      </p>
+<div class="alert alert-success" role="alert" *ngIf="state==State.LOGIN_ALLOWED">
+  <h4 class="alert-heading">Almost there!</h4>
+  <hr>
+  <p class="pt-1">
+    A login email has just been sent to <span class="sent-email">{{email}}</span>. Check your inbox!
+  </p>
 
-      <p class="pt-2">
-        Having problem receiving the mail? Try to check the spam folder.
-      </p>
-      <p>
-        Still in trouble? Contact us at <a href="mailto:support@tower.nf">support@tower.nf</a>
-      </p>
-    </div>
-  </div>
+  <p class="pt-2">
+    Having problem receiving the mail? Try to check the spam folder.
+  </p>
+  <p>
+    Still in trouble? Contact us at <a href="mailto:support@tower.nf">support@tower.nf</a>
+  </p>
 </div>
 
 <!--
   The access request was received, the user needs to wait for admin approval
 -->
-<div class="container mt-5 w-50" *ngIf="state==State.PENDING_APPROVAL">
-  <div class="m-auto">
-    <div class="alert alert-primary" role="alert">
-      <h4 class="alert-heading">We have received your access request!</h4>
-      <hr>
-      <p class="pt-1">
-        Your access request for <span class="sent-email">{{email}}</span> has been received
-        and will be reviewed as soon as possible.
-      </p>
-      <p class="pt-2">
-        Please note, priority will be given to requests from users providing a institutional or corporate
-        email address.
-      </p>
-      <p>
-        Consider registering again if you have used an anonymous email address.
-      </p>
-      <p class="pt-2">
-        For any other question or doubt, contact us at <a href="mailto:support@tower.nf">support@tower.nf</a>
-      </p>
-    </div>
-  </div>
+<div class="alert alert-primary" role="alert" *ngIf="state==State.PENDING_APPROVAL">
+  <h4 class="alert-heading">We have received your access request!</h4>
+  <hr>
+  <p class="pt-1">
+    Your access request for <span class="sent-email">{{email}}</span> has been received
+    and will be reviewed as soon as possible.
+  </p>
+  <p class="pt-2">
+    Please note, priority will be given to requests from users providing a institutional or corporate
+    email address.
+  </p>
+  <p>
+    Consider registering again if you have used an anonymous email address.
+  </p>
+  <p class="pt-2">
+    For any other question or doubt, contact us at <a href="mailto:support@tower.nf">support@tower.nf</a>
+  </p>
 </div>
 
 <!--
   The access request was received, still need to be approved
 -->
-<div class="container mt-5 w-50" *ngIf="state==State.KEEP_CALM_PLEASE">
-  <div class="m-auto">
-    <div class="alert alert-secondary" role="alert">
-      <h4 class="alert-heading">Your access request is pending!</h4>
-      <hr>
-      <p class="pt-1">
-        Your access request for <span class="sent-email">{{email}}</span> has been received
-        and will be reviewed as soon as possible.
-      </p>
-      <p class="pt-2">
-        Please note, priority will be given to requests from users providing a institutional or corporate
-        email address.
-      </p>
-      <p>
-        Consider registering again if you have used an anonymous email address.
-      </p>
-      <p class="pt-2">
-        For any other question or doubt, contact us at <a href="mailto:support@tower.nf">support@tower.nf</a>
-      </p>
-    </div>
-  </div>
+<div class="alert alert-secondary" role="alert" *ngIf="state==State.KEEP_CALM_PLEASE">
+  <h4 class="alert-heading">Your access request is pending!</h4>
+  <hr>
+  <p class="pt-1">
+    Your access request for <span class="sent-email">{{email}}</span> has been received
+    and will be reviewed as soon as possible.
+  </p>
+  <p class="pt-2">
+    Please note, priority will be given to requests from users providing a institutional or corporate
+    email address.
+  </p>
+  <p>
+    Consider registering again if you have used an anonymous email address.
+  </p>
+  <p class="pt-2">
+    For any other question or doubt, contact us at <a href="mailto:support@tower.nf">support@tower.nf</a>
+  </p>
 </div>
+
+</div></div></div>
