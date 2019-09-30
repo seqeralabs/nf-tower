@@ -38,7 +38,7 @@ class LiveEventsServiceImpl implements LiveEventsService {
     @Value('${live.buffer.heartbeat:1m}')
     Duration heartbeatDuration
 
-    BackpressureBuffer buffer
+    BackpressureBuffer<LiveUpdate> buffer
 
     PublishProcessor<List<LiveUpdate>> eventPublisher
 
