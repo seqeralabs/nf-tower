@@ -20,7 +20,12 @@ import {User} from "../../entity/user/user";
 })
 export class NavbarComponent implements OnInit {
 
+  @Input()
+  shouldShowSidebar: string;
+
   user: User;
+
+  private isSidebarShown: boolean = true;
 
   constructor(private authService: AuthService) {
 
@@ -32,10 +37,12 @@ export class NavbarComponent implements OnInit {
     )
   }
 
-  toggleSidebar() {
-    // TODO: Make this work properly instead of hacking with jQuery
-    // On a plane with no internet connection now
-    // $('#sidebar-wrapper').toggleClass('toggled');
+  private toggleSidebar(): void {
+    this.isSidebarShown = !this.isSidebarShown;
+    console.log('navbar isSidebarShown = '+this.isSidebarShown);
+  }
+  get isSidebarToggled(): boolean {
+    return this.isSidebarShown;
   }
 
 }
