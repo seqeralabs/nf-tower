@@ -15,4 +15,6 @@ enum WorkflowStatus {
 
     STARTED, PAUSED, RESUMED, SUCCEEDED, FAILED
 
+    String toString() { super.toString() }
+
 }

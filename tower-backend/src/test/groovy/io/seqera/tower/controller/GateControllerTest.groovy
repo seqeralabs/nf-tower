@@ -33,7 +33,7 @@ import io.seqera.tower.util.DomainCreator
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
-@MicronautTest(application = Application.class)
+@MicronautTest(application = Application.class, environments = ['test','trusted'])
 @Transactional
 class GateControllerTest extends AbstractContainerBaseTest {
 
@@ -86,7 +86,8 @@ class GateControllerTest extends AbstractContainerBaseTest {
         !registeredUser.authToken
 
         and: "no mail was sent"
-        Mail.withNewTransaction { Mail.count() } == 0
+        Mail.withNewTransaction { Mail.count() } == 1
+        Mail.withNewTransaction { Mail.list().first().to } == contactEmail
 
     }
 

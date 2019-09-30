@@ -36,7 +36,6 @@ server, using the following variables:
 - `TOWER_SMTP_USER`: The SMTP user name.
 - `TOWER_SMTP_PASSWORD`: The SMTP user password.
 
-
 ## Basic use case
 
 Navigate to GUI in `http://localhost:8000` and follow the instructions.
@@ -92,7 +91,7 @@ By default it uses [H2](https://www.h2database.com), an embedded database meant 
 * `TOWER_DB_USER`: Database user name.
 * `TOWER_DB_PASSWORD`: Database user password.
 * `TOWER_SMTP_HOST`: SMTP server host name
-* `TOWER_SMTP_PORT`: SMTP server port eg 587
+* `TOWER_SMTP_PORT`: SMTP server port eg `587`
 * `TOWER_SMTP_AUTH`: SMTP server authentication eg `true`
 * `TOWER_SMTP_USER`: SMTP server user name
 * `TOWER_SMTP_PASSWORD`: SMTP server user password

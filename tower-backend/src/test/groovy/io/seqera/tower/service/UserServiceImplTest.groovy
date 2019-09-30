@@ -42,11 +42,19 @@ class UserServiceImplTest extends Specification {
 
     def 'validate trusted email ' () {
 
+        // by default any email is trusted
         when:
         def service = new UserServiceImpl()
         then:
+        service.isTrustedEmail('me@foo.com')
+
+        // trusted list is empty anything is rejected
+        when:
+        service = new UserServiceImpl(trustedEmails: [])
+        then:
         !service.isTrustedEmail('me@foo.com')
 
+        // trust users with foo.com domain
         when:
         service = new UserServiceImpl(trustedEmails: ['*@foo.com'])
         then:

@@ -48,7 +48,6 @@ class GateServiceImplTest extends Specification {
         def text = service.getTextTemplate(binding)
         then:
         text.contains('https://tower.com/login?d78a8ds')
-        text.contains('http://host.com')
     }
 
     def 'should load html template' () {

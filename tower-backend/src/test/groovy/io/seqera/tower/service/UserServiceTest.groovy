@@ -26,7 +26,7 @@ import io.seqera.tower.util.DomainCreator
 import io.seqera.util.StringUtils
 import org.grails.datastore.mapping.validation.ValidationException as GrailsValidationException
 
-@MicronautTest(application = Application.class)
+@MicronautTest(application = Application.class, environments = ['test','trusted'])
 @Transactional
 class UserServiceTest extends AbstractContainerBaseTest {
 

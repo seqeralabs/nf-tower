@@ -412,4 +412,34 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         comments[1].text == 'First hello'
     }
 
+
+    def 'workflow key should be case sensitive' () {
+        given:
+        def creator = new DomainCreator()
+        User user = creator.createUser()
+        def w1 = creator.createWorkflow(owner: user, id: 'abc')
+        def w2 = creator.createWorkflow(owner: user, id: 'ABC')
+
+        when:
+        w1 = tx.withTransaction { w1.save() }
+        then:
+        tx.withTransaction { Workflow.get(w1.id) }
+
+        when:
+        w2 = tx.withTransaction { w2.save() }
+        then:
+        tx.withTransaction { Workflow.get(w2.id) }
+
+        and:
+        tx.withTransaction { Workflow.count() } ==2
+
+
+        when:
+        def w3 = creator.createWorkflow(owner: user, id: 'ABC')
+        tx.withTransaction { w3.save() }
+        then:
+        thrown(DataIntegrityViolationException)
+    }
+
+
 }
