@@ -1,10 +1,12 @@
-Dear ${user},
+Welcome to Nextflow Tower!
 
-Please complete the sign in clicking the URL below:
+Complete your sign in to Nextflow Tower by clicking the button below
+and start monitoring your workflows like never before with seamless
+Nextflow integration:
 
 ${auth_url}
 
-This link will be valid for 30 minutes.
+This link is valid for 30 minutes.
 
 Not working? Try copying & pasting it in your browser.
 
@@ -17,8 +19,8 @@ All the best,
 The Nextflow Tower Team
 
 ---
-${server_url}
 Seqera Labs
 Barcelona Biomedical Research Park
 C/ Dr. Aiguader, 88,
 08003 Barcelona
+https://seqera.io

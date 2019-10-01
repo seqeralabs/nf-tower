@@ -11,18 +11,17 @@
 
 package io.seqera.tower.exchange.gate
 
+import groovy.transform.Canonical
+
 /**
  * Model a user registration request
  * 
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
+@Canonical
 class AccessGateRequest {
 
     String email
+    String captcha
 
-    AccessGateRequest() {}
-
-    AccessGateRequest(String email) {
-        this.email = email
-    }
 }

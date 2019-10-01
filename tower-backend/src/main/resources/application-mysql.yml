@@ -12,7 +12,7 @@ hibernate:
     queries: false
     use_second_level_cache: false
     use_query_cache: false
-  dialect: org.hibernate.dialect.MySQL55Dialect
+  dialect: io.seqera.util.MySQL55DialectCollateBin
   naming_strategy: io.seqera.util.H8NamingStrategy
 grails:
   gorm:

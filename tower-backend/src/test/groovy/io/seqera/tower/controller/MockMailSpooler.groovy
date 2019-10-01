@@ -16,6 +16,7 @@ import javax.inject.Singleton
 import io.micronaut.context.annotation.Replaces
 import io.seqera.mail.MailSpooler
 import io.seqera.mail.MailSpoolerImpl
+import io.seqera.mail.MailerStatus
 
 /**
  *
@@ -37,5 +38,15 @@ class MockMailSpooler implements MailSpooler {
     @Override
     void newMail() {
 
+    }
+
+    @Override
+    void pause(boolean value) {
+
+    }
+
+    @Override
+    MailerStatus getStatus() {
+        return null
     }
 }

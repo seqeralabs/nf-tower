@@ -44,7 +44,7 @@ class AuthenticationByApiToken implements AuthenticationProvider {
     @Override
     Publisher<AuthenticationResponse> authenticate(AuthenticationRequest req) {
         if( req.identity != ID ) {
-            log.debug "Not a valid access token identity=$req.identity"
+            log.trace "Not a valid access token identity=$req.identity"
             // a more explanatory message should be returned
             def result = new AuthFailure('Not a valid access token identify')
             return Flowable.just(result) as Publisher<AuthenticationResponse>

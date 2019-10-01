@@ -11,6 +11,7 @@
 
 package io.seqera.tower.service
 
+import javax.annotation.Nullable
 import javax.inject.Inject
 import javax.inject.Singleton
 import javax.validation.ValidationException
@@ -44,9 +45,9 @@ class UserServiceImpl implements UserService {
 
     WorkflowService workflowService
 
-
+    @Nullable
     @Value('${tower.trusted-emails}')
-    List<String> trustedEmails = Collections.emptyList()
+    List<String> trustedEmails
 
     UserServiceImpl() { }
 
@@ -149,6 +150,11 @@ class UserServiceImpl implements UserService {
 
 
     protected boolean isTrustedEmail(String email) {
+        if( trustedEmails==null ) {
+            // implicitly trusted if no rule is specified
+            return true
+        }
+        
         for( String pattern : trustedEmails ) {
             if( StringUtils.like(email, pattern) )
                 return true

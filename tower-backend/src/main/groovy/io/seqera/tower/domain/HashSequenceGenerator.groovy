@@ -39,6 +39,10 @@ class HashSequenceGenerator extends SequenceStyleGenerator {
         hashIds.encode(id)
     }
 
+    static Long fromHash(String key) {
+        hashIds.decode(key)[0]
+    }
+
     @Override
     Serializable generate(SharedSessionContractImplementor session, Object object) throws HibernateException {
         final num = (Long)super.generate(session, object)

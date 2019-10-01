@@ -14,6 +14,7 @@ package io.seqera.mail
 import javax.inject.Singleton
 
 /**
+ * Define mail spooler operations
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
@@ -24,6 +25,9 @@ interface MailSpooler {
 
     void stop()
 
+    void pause(boolean value)
+
     void newMail()
 
+    MailerStatus getStatus()
 }

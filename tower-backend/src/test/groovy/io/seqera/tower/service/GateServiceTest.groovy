@@ -31,7 +31,7 @@ import io.seqera.tower.util.DomainCreator
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
-@MicronautTest(application = Application.class)
+@MicronautTest(application = Application.class, environments = ['test','trusted'])
 @Transactional
 class GateServiceTest extends AbstractContainerBaseTest {
 
@@ -159,7 +159,10 @@ class GateServiceTest extends AbstractContainerBaseTest {
         tx.withNewTransaction { User.count() } == 1
 
         and: 'no email was sent'
-        tx.withNewTransaction { Mail.count() } == 0
+        tx.withNewTransaction { Mail.count() } == 1
+        def mail = Mail.withNewTransaction { Mail.list()[0] }
+        mail.to == contactEmail
+
     }
 
     void "register a new user and then a user with a similar email"() {
@@ -199,9 +202,7 @@ class GateServiceTest extends AbstractContainerBaseTest {
         then: "the user couldn't be created"
         ValidationException e = thrown(ValidationException)
         e.message == "Can't save a user with bad email format"
-        tx.withNewTransaction {
-            User.count() == 0
-        }
+        tx.withNewTransaction { User.count() } == 0
     }
 
     def 'should build auth email' () {
@@ -215,7 +216,7 @@ class GateServiceTest extends AbstractContainerBaseTest {
         service.serverUrl = 'http://localhost:1234'
 
         when:
-        def mail = service.buildAccessEmail(user)
+        def mail = service.buildSignInEmail(user)
 
         then:
         mail.subject == 'Nextflow Tower Sign in'
@@ -245,11 +246,30 @@ class GateServiceTest extends AbstractContainerBaseTest {
         mail.subject == 'New user registration'
         mail.to == 'admin@host.com'
         and:
-        // text email
-        mail.text.startsWith('Hi,')
-        mail.text.contains("- user id: 123")
-        mail.text.contains("- user name: xyz")
-        mail.text.contains("- user email: alice@domain.com")
+        // html email
+        mail.body.contains('Hi,')
+        mail.body.contains("<li>user id: 123")
+        mail.body.contains("<li>user name: xyz")
+        mail.body.contains("<li>user email: alice@domain.com")
+    }
+
+    def 'should build a access request email' () {
+        given:
+        def email = 'alice@domain.com'
+        def user = new User(email: email, userName:'xyz', id: 123)
+        def mailer = Mock(MailService)
+        def service = new GateServiceImpl()
+        service.mailService = mailer
+        service.appName = 'Nextflow Tower'
+        service.serverUrl = 'http://localhost:1234'
+        service.contactEmail = 'admin@host.com'
+
+        when:
+        def mail = service.buildAccessRequestEmail(user)
+
+        then:
+        mail.subject == 'User access request'
+        mail.to == 'admin@host.com'
         and:
         // html email
         mail.body.contains('Hi,')
