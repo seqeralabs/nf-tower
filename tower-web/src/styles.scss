@@ -319,17 +319,10 @@ code {
 
 footer {
   font-size: smaller;
+  text-align: center;
 
   a {
     color: inherit;
-  }
-
-  .list-style-none {
-    list-style: none!important;
-  }
-
-  .flex-justify-between {
-    justify-content: space-between!important;
   }
 
   img {
@@ -337,5 +330,14 @@ footer {
     position: relative;
     top: -7px;
     opacity: 0.6;
+  }
+
+  @media (min-width: 540px) {
+    .col-sm {
+      text-align: left;
+    }
+    .footer-rhs-col {
+        text-align: right;
+    }
   }
 }
