@@ -46,6 +46,9 @@ import {WorkflowErrorComponent} from "./component/workflow-error/workflow-error.
 import { LoadingComponent } from './component/loading/loading.component';
 import {TreeListComponent} from "./component/tree-list/TreeListComponent";
 import {WorkflowStatusIconComponent} from "../../workflow-status-icon/workflow-status-icon.component";
+import { HighlightModule } from 'ngx-highlightjs';
+import bash from 'highlight.js/lib/languages/bash';
+import groovy from 'highlight.js/lib/languages/groovy';
 
 /*
  * Main application routing strategy
@@ -72,6 +75,13 @@ const routes: Routes = [
   exports: [RouterModule],
 })
 export class MainRoutingModule { }
+
+export function hljsLanguages() {
+  return [
+    {name: 'groovy', func: groovy},
+    {name: 'bash', func: bash}
+  ];
+}
 
 /*
  * Define the main application module
@@ -107,7 +117,8 @@ export class MainRoutingModule { }
     HttpClientModule,
     FormsModule,
     ChartistModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    HighlightModule.forRoot({ languages: hljsLanguages })
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
@@ -116,4 +127,3 @@ export class MainRoutingModule { }
   bootstrap: [MainComponent]
 })
 export class MainModule { }
-
