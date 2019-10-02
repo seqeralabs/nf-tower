@@ -23,6 +23,8 @@ import {NotificationService} from "../../service/notification.service";
 })
 export class WelcomeComponent implements OnInit {
 
+  accessTokenExport: string;
+
   nextflowRunCommand: string;
 
   nextflowConfig: string;
@@ -33,6 +35,12 @@ export class WelcomeComponent implements OnInit {
 
   ngOnInit() {
     this.fetchDefaultToken();
+  }
+
+  private makeAccessTokenExport(token: string): string {
+    let result = `export TOWER_ACCESS_TOKEN=${token}\n`;
+    result += 'export NXF_VER=19.09.0-edge';
+    return result;
   }
 
   private makeNextflowCommand(): string {
@@ -60,6 +68,7 @@ export class WelcomeComponent implements OnInit {
           this.accessToken = resp.token.token;
           this.nextflowConfig = this.makeNextflowConfig(this.accessToken);
           this.nextflowRunCommand = this.makeNextflowCommand();
+          this.accessTokenExport = this.makeAccessTokenExport(this.accessToken);
         },
         (resp: HttpErrorResponse) => {
           this.notificationService.showErrorNotification(resp.error.message);

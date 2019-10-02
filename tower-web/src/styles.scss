@@ -19,10 +19,16 @@ pre, code, samp {
 }
 
 code {
-  color: #343a40!important;
-  background-color: #f8f9fa!important;
+  color: #343a40 !important;
+  background-color: #f8f9fa !important;
   padding: 4px 6px;
   border-radius: 2px;
+}
+
+pre code {
+  display: block;
+  padding: 1rem !important;
+  border-radius: .25rem;
 }
 
 #navbar {

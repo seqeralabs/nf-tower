@@ -16,21 +16,19 @@
   <div class="card-body">
     <div class="tab-content">
       <div class="tab-pane fade show active" id="commandLine" role="tabpanel" aria-labelledby="processes-tab">
-        <pre class="command-line-box"><code class="rounded p-3" [highlight]="commandLine"></code></pre>
+        <pre class="command-line-box"><code [highlight]="commandLine"></code></pre>
       </div>
       <div class="tab-pane fade" id="parameters" role="tabpanel" aria-labelledby="params-tab">
         <wt-tree-list [workflow]="workflow" > </wt-tree-list>
       </div>
       <div class="tab-pane fade" id="configuration" role="tabpanel" aria-labelledby="configuration-tab">
         <h5>Configuration files</h5>
-        <div class="pt-2 pb-2">
-          <ul>
-            <li *ngFor="let cfg of workflow.data.configFiles"><samp>{{cfg}}</samp></li>
-          </ul>
-        </div>
+        <ul class="list-unstyled mt-2">
+          <li *ngFor="let cfg of workflow.data.configFiles" class="mb-2"><samp>{{cfg}}</samp></li>
+        </ul>
 
         <h5>Resolved configuration</h5>
-        <pre class="tab-config"><code class="rounded p-3" [highlight]="resolved_config"></code></pre>
+        <pre class="tab-config"><code [highlight]="resolved_config"></code></pre>
       </div>
     </div>
   </div>

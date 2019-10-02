@@ -15,7 +15,7 @@
           <p>
             If you don't have it already install Nextflow as usual:
           </p>
-          <pre class="p-3 bg-light text-dark">curl https://get.nextflow.io | bash</pre>
+          <pre><code>curl https://get.nextflow.io | bash</code></pre>
 
           <p>
           Finalise the installation copying the <code>nextflow</code> launcher in a directory in
@@ -28,9 +28,7 @@
         <p>
         Define the following environment variable in your environment:
         </p>
-        <pre class="p-3 bg-light text-dark">
-export TOWER_ACCESS_TOKEN={{accessToken}}
-export NXF_VER=19.09.0-edge </pre>
+        <pre><code [highlight]="accessTokenExport"></code></pre>
       </div>
 
       <div class='bd-callout bd-callout-success'>
@@ -38,7 +36,7 @@ export NXF_VER=19.09.0-edge </pre>
         <p>
           Launch nextflow as usual adding the -with-tower command line option:
         </p>
-        <pre class="p-3 bg-light text-dark">{{nextflowRunCommand}}</pre>
+        <pre><code>{{nextflowRunCommand}}</code></pre>
       </div>
 
       <div class='bd-callout bd-callout-success'>
@@ -54,7 +52,7 @@ export NXF_VER=19.09.0-edge </pre>
           You can also add Tower access credentials in your Nextflow configuration
           file using the following snippet:
         </p>
-        <pre class="p-3 bg-light text-dark">{{nextflowConfig}}</pre>
+        <pre><code [highlight]="nextflowConfig"></code></pre>
       </div>
     </div>
   </div>
