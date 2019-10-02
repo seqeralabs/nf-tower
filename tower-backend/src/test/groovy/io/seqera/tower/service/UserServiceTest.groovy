@@ -25,6 +25,7 @@ import io.seqera.tower.util.AbstractContainerBaseTest
 import io.seqera.tower.util.DomainCreator
 import io.seqera.util.StringUtils
 import org.grails.datastore.mapping.validation.ValidationException as GrailsValidationException
+import spock.lang.IgnoreIf
 
 @MicronautTest(application = Application.class, environments = ['test','trusted'])
 @Transactional
@@ -241,7 +242,7 @@ class UserServiceTest extends AbstractContainerBaseTest {
     }
 
 
-
+    @IgnoreIf({ System.getenv('CODEBUILD_BUILD_ID') })
     def 'should fetch avatar image url from the email' () {
 
         given:
