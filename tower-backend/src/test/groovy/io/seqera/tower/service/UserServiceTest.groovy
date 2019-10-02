@@ -240,4 +240,21 @@ class UserServiceTest extends AbstractContainerBaseTest {
         thrown(GrailsValidationException)
     }
 
+
+
+    def 'should fetch avatar image url from the email' () {
+
+        given:
+        def svc = userService as UserServiceImpl
+
+        expect:
+        svc.getAvatarUrl(EMAIL) == AVATAR
+
+        where:
+        EMAIL                       | AVATAR
+        'paolo.ditommaso@gmail.com' | 'https://www.gravatar.com/avatar/21c5e4164ca1573516b6a378fc279df2?d=404'
+        'unknown@foo.com'           | null
+
+    }
+
 }
