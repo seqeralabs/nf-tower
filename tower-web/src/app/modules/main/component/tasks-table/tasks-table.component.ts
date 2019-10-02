@@ -58,10 +58,10 @@ export class TasksTableComponent implements OnInit, OnChanges {
 
   private initializeDataTable(): void {
     this.dataTable = $('#tasks-table').DataTable({
+      dom: 'frtpl',
       scrollX: true,
       serverSide: true,
-      pageLength: 30,
-      lengthChange: false,
+      pageLength: 25,
       orderMulti: false,
       rowId: (rowData) => `tr-${rowData[0]}`,
       columns: [
@@ -271,9 +271,9 @@ export class TasksTableComponent implements OnInit, OnChanges {
 
               <h5 class="card-title">Resources requested</h5>
               ${this.renderTable(data, res_requested)}
-              
+
               <h5 class="card-title">Resources usage</h5>
-              ${this.renderTable(data, res_used)}    
+              ${this.renderTable(data, res_used)}
             </div>
           </div>`;
   }
