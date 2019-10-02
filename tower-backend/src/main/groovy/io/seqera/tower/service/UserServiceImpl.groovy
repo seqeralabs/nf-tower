@@ -11,6 +11,8 @@
 
 package io.seqera.tower.service
 
+import static io.seqera.tower.domain.AccessToken.*
+
 import javax.annotation.Nullable
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -25,6 +27,10 @@ import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import io.micronaut.context.annotation.Value
+import io.micronaut.http.HttpRequest
+import io.micronaut.http.HttpStatus
+import io.micronaut.http.client.RxHttpClient
+import io.micronaut.http.client.annotation.Client
 import io.seqera.tower.domain.AccessToken
 import io.seqera.tower.domain.Role
 import io.seqera.tower.domain.User
@@ -35,8 +41,6 @@ import io.seqera.util.StringUtils
 import io.seqera.util.TokenHelper
 import org.springframework.validation.FieldError
 
-import static io.seqera.tower.domain.AccessToken.DEFAULT_TOKEN
-
 @Slf4j
 @Singleton
 @Transactional
@@ -44,6 +48,10 @@ import static io.seqera.tower.domain.AccessToken.DEFAULT_TOKEN
 class UserServiceImpl implements UserService {
 
     WorkflowService workflowService
+
+    @Inject
+    @Client("/")
+    RxHttpClient httpClient
 
     @Nullable
     @Value('${tower.trusted-emails}')
@@ -143,11 +151,33 @@ class UserServiceImpl implements UserService {
         UserRole userRole = new UserRole(user: user, role: role)
         userRole.save()
 
+        // Try to get a gravatar avatar URL
+        user.avatar = getAvatarUrl(email)
+
         checkUserSaveErrors(user)
 
         return user
     }
 
+
+    protected String getAvatarUrl(String email) {
+        assert email
+        try {
+            final emailHash = email.trim().toLowerCase().md5()
+            final url = "https://www.gravatar.com/avatar/${emailHash}?d=404"
+
+            // make an http request to probe if the avatar exists
+            final resp = httpClient
+                    .toBlocking()
+                    .exchange(HttpRequest.HEAD(url))
+
+            return resp.status() == HttpStatus.OK ? url : null
+        }
+        catch (Exception e) {
+            log.error("Couldn't fetch Gravatar for email=$email | ${e.message}")
+            return null
+        }
+    }
 
     protected boolean isTrustedEmail(String email) {
         if( trustedEmails==null ) {
