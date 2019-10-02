@@ -31,6 +31,7 @@
               "node_modules/@mdi/font/css/materialdesignicons.min.css",
               "node_modules/chartist/dist/chartist.min.css",
               "node_modules/datatables.net-dt/css/jquery.dataTables.min.css",
+              "node_modules/highlight.js/styles/github.css",
               "src/styles.scss"
             ],
             "scripts": [

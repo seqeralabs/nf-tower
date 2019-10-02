@@ -21,11 +21,13 @@ export class WorkflowMainTabsComponent implements OnInit {
   @Input()
   workflow: Workflow;
 
+  commandLine: string;
   resolved_config: string;
 
   constructor() { }
 
   ngOnInit() {
+    this.commandLine = this.workflow.data.commandLine;
     this.resolved_config = this.workflow.data.configText ? this.workflow.data.configText : 'n/a';
   }
 

@@ -16,31 +16,21 @@
   <div class="card-body">
     <div class="tab-content">
       <div class="tab-pane fade show active" id="commandLine" role="tabpanel" aria-labelledby="processes-tab">
-        <div class="container h-100 command-line-box">
-          <div class="tab-max-height" >{{workflow.data.commandLine}}</div>
-        </div>
+        <pre class="command-line-box"><code class="rounded p-3" [highlight]="commandLine"></code></pre>
       </div>
       <div class="tab-pane fade" id="parameters" role="tabpanel" aria-labelledby="params-tab">
-        <div class="container">
-          <div class="tab-max-height">
-            <wt-tree-list [workflow]="workflow" > </wt-tree-list>
-          </div>
-        </div>
+        <wt-tree-list [workflow]="workflow" > </wt-tree-list>
       </div>
       <div class="tab-pane fade" id="configuration" role="tabpanel" aria-labelledby="configuration-tab">
-        <div class="container">
-          <h5>Configuration files</h5>
-          <div class="pt-2 pb-2">
-            <ul>
-              <li *ngFor="let cfg of workflow.data.configFiles">{{cfg}}</li>
-            </ul>
-          </div>
-
-          <h5>Resolved configuration</h5>
-          <div class="tab-config tab-max-height">
-            <pre class="tab-config"><code [highlight]="resolved_config"></code></pre>
-          </div>
+        <h5>Configuration files</h5>
+        <div class="pt-2 pb-2">
+          <ul>
+            <li *ngFor="let cfg of workflow.data.configFiles"><samp>{{cfg}}</samp></li>
+          </ul>
         </div>
+
+        <h5>Resolved configuration</h5>
+        <pre class="tab-config"><code class="rounded p-3" [highlight]="resolved_config"></code></pre>
       </div>
     </div>
   </div>
