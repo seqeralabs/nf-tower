@@ -144,16 +144,20 @@ class UserServiceImpl implements UserService {
         userRole.save()
 
         // Try to get a gravatar avatar URL
-        String emailHash = email.trim().toLowerCase().md5()
-        String gravatarURL = "https://www.gravatar.com/avatar/${emailHash}"
-        def gravatarConnection = new URL("${gravatarURL}?d=404").openConnection().with {
-            requestMethod = 'HEAD'
-            connect()
-            responseCode
-        }
-        if( gravatarConnection != 404 ) {
-            user.avatar =  gravatarURL
-            user.save()
+        try {
+            String emailHash = email.trim().toLowerCase().md5()
+            String gravatarURL = "https://www.gravatar.com/avatar/${emailHash}"
+            def gravatarConnection = new URL("${gravatarURL}?d=404").openConnection().with {
+                requestMethod = 'HEAD'
+                connect()
+                responseCode
+            }
+            if( gravatarConnection != 404 ) {
+                user.avatar = gravatarURL
+                user.save()
+            }
+        } catch (Exception e) {
+            log.error("Couldn't fetch Gravatar URL: ${e.message}", e)
         }
 
         checkUserSaveErrors(user)
