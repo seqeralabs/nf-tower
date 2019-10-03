@@ -88,7 +88,7 @@ By default it uses [H2](https://www.h2database.com), an embedded database meant 
 
 ## Support 
 
-* For commons problems, doubts and feedback please use the [Gitter community channel](https://gitter.im/nf-tower/community) 
+* For common problems, doubts and feedback please use the [Gitter community channel](https://gitter.im/nf-tower/community) 
   or the [GitHub issues page](https://github.com/seqeralabs/nf-tower/issues). 
 * Commercial support is provided by [Seqera Labs](https://www.seqera.io/).
  
