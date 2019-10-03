@@ -29,14 +29,19 @@ abstract class BaseController {
     @Error
     HttpResponse handleException(HttpRequest request, Exception e) {
 
-        final err =
-                "Oops.. something went wrong\n" +
-                "- request: [${request.method}] ${request.uri}\n" +
-                "- params : ${request.parameters.collect { k,v -> "$k=$v"}}\n" +
-                "- user   : ${request.userPrincipal.isPresent() ? request.userPrincipal.get().getName() : '-'}\n" +
-                "- message: [${e.getClass().getName()}] ${e.message ?: e.toString()}\n"
-        log.error(err,e)
         final msg = "Oops.. something went wrong -- ${e.message?:e.toString()}"
+        try {
+            final err =
+                    "Oops.. something went wrong\n" +
+                            "- request: [${request.method}] ${request.uri}\n" +
+                            "- params : ${request.parameters?.asMap()?.collect { k,v -> "$k=$v"}}\n" +
+                            "- user   : ${request.userPrincipal.isPresent() ? request.userPrincipal.get().getName() : '-'}\n" +
+                            "- message: [${e.getClass().getName()}] ${e.message ?: e.toString()}\n"
+            log.error(err,e)
+        }
+        catch(Throwable t) {
+            log.error("Dawn.. something went really wrong | ${e}", t)
+        }
         return HttpResponse.badRequest(new MessageResponse(msg))
     }
 
