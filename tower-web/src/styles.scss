@@ -51,6 +51,7 @@ code {
 }
 
 #sidebar-wrapper {
+  border-right: $sidebar-border;
   min-height: 100vh;
   margin-left: $sidebar-width * -1;
   -webkit-transition: margin .25s ease-in-out;
@@ -69,7 +70,6 @@ code {
   width: $sidebar-width;
   max-width: 100%;
   background-color: $sidebar-background;
-  border-right: $sidebar-border;
   overflow-x: hidden;
   overflow-y: auto;
 }
