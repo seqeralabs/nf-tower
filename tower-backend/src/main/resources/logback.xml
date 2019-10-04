@@ -26,6 +26,5 @@
     </root>
     <logger name="io.seqera" level="${TOWER_LOG_LEVEL:-DEBUG}"/>
     <logger name="com.amazonaws" level="WARN" />
-    <logger name="io.micronaut.security.token.jwt.validator.JwtTokenValidator" level="OFF" />
 
 </configuration>
