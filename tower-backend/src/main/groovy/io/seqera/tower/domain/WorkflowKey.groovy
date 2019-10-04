@@ -20,13 +20,11 @@ import groovy.transform.CompileDynamic
 @CompileDynamic
 class WorkflowKey {
     Long id
-    String sessionId
     String workflowId
     OffsetDateTime dateCreated
     OffsetDateTime lastUpdated
 
     static constraints = {
-        sessionId(nullable: true, maxSize: 36)
         workflowId(nullable: true, unique: true, maxSize: 16)
     }
 }

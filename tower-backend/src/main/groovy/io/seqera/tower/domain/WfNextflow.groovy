@@ -27,4 +27,8 @@ class WfNextflow {
     String build
     Instant timestamp
 
+    static constraints = {
+        version(maxSize: 20)
+        build(maxSize: 10)
+    }
 }

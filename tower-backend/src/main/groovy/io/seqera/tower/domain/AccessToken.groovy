@@ -38,8 +38,8 @@ class AccessToken {
     static belongsTo = [user: User]
 
     static constraints = {
-        name unique: 'user'
-        token unique: true
+        name unique: 'user', maxSize: 50
+        token unique: true, maxSize: 40
         lastUsed nullable: true
     }
 

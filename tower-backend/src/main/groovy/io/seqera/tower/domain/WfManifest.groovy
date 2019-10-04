@@ -26,7 +26,7 @@ class WfManifest {
     String defaultBranch
     String version
     String homePage
-    String gitmodules
+    Boolean gitmodules
     String description
     String name
     String mainScript
@@ -34,15 +34,15 @@ class WfManifest {
 
 
     static constraints = {
-        nextflowVersion(nullable: true)
-        defaultBranch(nullable: true)
-        version(nullable: true)
-        homePage(nullable: true)
+        nextflowVersion(nullable: true, maxSize: 20)
+        defaultBranch(nullable: true, maxSize: 20)
+        version(nullable: true, maxSize: 20)
+        homePage(nullable: true, maxSize: 150)
         gitmodules(nullable: true)
-        description(nullable: true)
-        name(nullable: true)
-        mainScript(nullable: true)
-        author(nullable: true)
+        description(nullable: true, maxSize: 1024)
+        name(nullable: true, maxSize: 150)
+        mainScript(nullable: true, maxSize: 100)
+        author(nullable: true, maxSize: 80)
     }
 
 }

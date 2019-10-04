@@ -70,12 +70,12 @@ class TaskData implements TaskDef {
     Integer cpus
     Long memory
     Long disk
-    String time
+    Long time
     String env
 
     String errorAction
 
-    Long exitStatus
+    Integer exitStatus
     Long duration
     Long realtime
     String nativeId
@@ -107,7 +107,7 @@ class TaskData implements TaskDef {
         submit(nullable: true)
         start(nullable: true)
         complete(nullable: true)
-        module(nullable: true, maxSize: 255)
+        module(nullable: true, maxSize: 100)
         container(nullable: true, maxSize: 255)
         attempt(nullable: true)
         script(nullable: true)
@@ -119,7 +119,7 @@ class TaskData implements TaskDef {
         disk(nullable: true)
         time(nullable: true)
         env(nullable: true, maxSize: 2048)
-        errorAction(nullable: true)
+        errorAction(nullable: true, maxSize: 10)
         duration(nullable: true)
         realtime(nullable: true)
         nativeId(nullable: true, maxSize: 100)

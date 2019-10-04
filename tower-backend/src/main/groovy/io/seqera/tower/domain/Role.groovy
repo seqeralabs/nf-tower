@@ -20,7 +20,7 @@ class Role {
     String authority
 
     static constraints = {
-        authority(nullable: false, unique: true)
+        authority(nullable: false, unique: true, maxSize: 20)
     }
 
 }

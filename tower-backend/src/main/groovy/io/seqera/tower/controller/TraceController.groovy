@@ -155,7 +155,7 @@ class TraceController extends BaseController {
     @Secured(['ROLE_USER'])
     HttpResponse<TraceInitResponse> init(TraceInitRequest req, Authentication authentication) {
         log.info "Receiving trace init [user=${authentication.getName()}]"
-        final record = transactionService.withTransaction { new WorkflowKey(sessionId: req.sessionId) .save() }
+        final record = transactionService.withTransaction { new WorkflowKey() .save() }
         final workflowId = HashSequenceGenerator.getHash(record.id)
         log.info "Created new workflow ID=${workflowId} [user=${authentication.getName()}]"
         transactionService.withTransaction { record.workflowId=workflowId; record.save() }
