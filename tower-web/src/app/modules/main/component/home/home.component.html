@@ -2,7 +2,7 @@
 
 <wt-loading [loadingText]="'Loading'" *ngIf="shouldShowLoadingScreen"></wt-loading>
 
-<wt-navbar *ngIf="!shouldShowLandingPage" [shouldShowSidebar]="shouldShowSidebar" (sidebarToggleEvent)="recieveSidebarToggleEvent($event)" ></wt-navbar>
+<wt-navbar *ngIf="!shouldShowLandingPage" [shouldShowSidebar]="shouldShowSidebar" (sidebarToggleEvent)="recieveSidebarToggleEvent($event)"></wt-navbar>
 <div *ngIf="!shouldShowLandingPage && !shouldShowLoadingScreen" id="layout" class="d-flex pb-4">
 
   <div id="sidebar-wrapper" *ngIf="shouldShowSidebar" (scroll)="onSidebarScroll($event)" [class.toggled]="!isSidebarShown">

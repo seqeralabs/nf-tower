@@ -84,9 +84,6 @@ code {
   #sidebar-wrapper {
     margin-left: 0;
   }
-  #sidebar-wrapper.toggled {
-    margin-left: $sidebar-width * -1;
-  }
   // Stretch content instead of going off-canvas
   #central {
     min-width: 0;
