@@ -56,6 +56,7 @@ class WorkflowMetrics {
     ]
 
     static constraints = {
+        process(maxSize: 255)
         cpu(nullable: true)
         mem(nullable: true)
         vmem(nullable: true)

@@ -85,7 +85,7 @@ class Task implements TaskDef {
     }
 
     @JsonSetter('exit')
-    void deserializeExistStatus(Long exit) {
+    void deserializeExistStatus(Integer exit) {
         exitStatus = exit
     }
 
@@ -101,6 +101,7 @@ class Task implements TaskDef {
     
     static constraints = {
         taskId(unique: 'workflow')
+        status(maxSize: 10)
     }
 
     static transients = [
@@ -166,12 +167,12 @@ class Task implements TaskDef {
     Integer getCpus() { _data().cpus }
     Long getMemory() { _data().memory }
     Long getDisk() { _data().disk }
-    String getTime() { _data().time }
+    Long getTime() { _data().time }
     String getEnv() { _data().env }
 
     String getErrorAction() { _data().errorAction }
 
-    Long getExitStatus() { _data().exitStatus }
+    Integer getExitStatus() { _data().exitStatus }
     Long getDuration() { _data().duration }
     Long getRealtime() { _data().realtime }
     String getNativeId() { _data().nativeId }
@@ -213,12 +214,12 @@ class Task implements TaskDef {
     void setCpus(Integer x) { _data().cpus = x }
     void setMemory(Long x) { _data().memory = x }
     void setDisk(Long x) { _data().disk= x }
-    void setTime(String x) { _data().time = x }
+    void setTime(Long x) { _data().time = x }
     void setEnv(String x) { _data().env = x }
 
     void setErrorAction(String x) { _data().errorAction = x }
 
-    void setExitStatus(Long x) { _data().exitStatus = x }
+    void setExitStatus(Integer x) { _data().exitStatus = x }
     void setDuration(Long x) { _data().duration = x }
     void setRealtime(Long x) { _data().realtime = x }
     void setNativeId(String x) { _data().nativeId = x }

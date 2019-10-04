@@ -49,7 +49,7 @@ class User {
     static constraints = {
         email(email: true, unique: true, maxSize: 255)
         userName(unique: true, blank:false, matches: USERNAME_REGEX, maxSize: 40)
-        authToken(unique: true, nullable: true)
+        authToken(unique: true, nullable: true, maxSize: 40)
         authTime(nullable: true)
         disabled(nullable: true)
         firstName(nullable: true, maxSize: 100)

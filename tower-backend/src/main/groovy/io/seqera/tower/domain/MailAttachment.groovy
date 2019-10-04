@@ -56,7 +56,8 @@ class MailAttachment {
         contentId(nullable: true, maxSize: 50)
         description(nullable: true, maxSize: 515)
         disposition(nullable: true, maxSize: 50)
-        fileName(nullable: true, maxSize: 255)
+        fileName(nullable: true, maxSize: 150)
+        resource(maxSize: 250)
     }
 
     static MailAttachment resource(Map params, String path) {

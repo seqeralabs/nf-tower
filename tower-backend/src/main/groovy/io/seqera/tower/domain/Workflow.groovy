@@ -61,7 +61,7 @@ class Workflow {
     String errorReport
     String scriptId
     String revision
-    String exitStatus
+    Integer exitStatus
     String commandLine
     String projectName
     String scriptName
@@ -129,7 +129,7 @@ class Workflow {
 
     static constraints = {
         id(maxSize: 16)
-        runName(unique: 'sessionId') // <-- the runName has to be unique for the same sessionId
+        runName(unique: 'sessionId', maxSize: 40) // <-- the runName has to be unique for the same sessionId
         sessionId(maxSize: 36)
 
         resume(nullable: true)
@@ -138,18 +138,22 @@ class Workflow {
 
         commandLine(maxSize: 8096)
         params(nullable: true)
-        commitId(nullable: true)
+        commitId(nullable: true, maxSize: 40)
         configFiles(nullable: true)
         configText(nullable: true)
         repository(nullable: true)
-        scriptId(nullable: true)
-        revision(nullable: true)
+        scriptId(nullable: true, maxSize: 40)
+        revision(nullable: true, maxSize: 40)
         container(nullable: true)
         containerEngine(nullable: true)
         exitStatus(nullable: true)
         duration(nullable: true)
         errorReport(nullable: true)
         errorMessage(nullable: true)
+        userName(maxSize: 40)
+        profile(maxSize: 50)
+        projectName(maxSize: 100)
+        scriptName(maxSize: 100)
 
         manifest(nullable: true)
         nextflow(nullable: true)

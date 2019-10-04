@@ -71,9 +71,9 @@ class Mail {
         cc(nullable: true, maxSize: 100)
         bcc(nullable: true, maxSize: 100)
         subject(nullable: true, maxSize: 512)
-        charset(nullable: true)
+        charset(nullable: true, maxSize: 20)
         text(nullable: true)
-        type(nullable: true)
+        type(nullable: true, maxSize: 50)
         lastError(nullable: true, lastError: 1024)
     }
 

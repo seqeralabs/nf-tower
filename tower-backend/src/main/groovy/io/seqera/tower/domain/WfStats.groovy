@@ -43,6 +43,7 @@ class WfStats {
     Long succeedDuration
 
     static constraints = {
+        computeTimeFmt(nullable: true, maxSize: 50)
         cachedCount(nullable: true)
         failedCount(nullable: true)
         ignoredCount(nullable: true)
