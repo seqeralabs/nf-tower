@@ -36,6 +36,7 @@ code {
 
 #layout {
   padding-top: $navbar-height;
+  min-height: calc(100% - #{$navbar-height});
 }
 
 .sidebar-toggler-btn {
