@@ -151,7 +151,7 @@ class Workflow {
         errorReport(nullable: true)
         errorMessage(nullable: true)
         userName(maxSize: 40)
-        profile(maxSize: 50)
+        profile(maxSize: 100)
         projectName(maxSize: 100)
         scriptName(maxSize: 100)
 
