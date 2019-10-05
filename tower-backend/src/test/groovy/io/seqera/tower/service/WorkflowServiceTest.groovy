@@ -18,11 +18,14 @@ import java.time.temporal.ChronoUnit
 
 import grails.gorm.transactions.TransactionService
 import grails.gorm.transactions.Transactional
+import groovy.json.JsonSlurper
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.tower.Application
 import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.TaskData
 import io.seqera.tower.domain.User
+import io.seqera.tower.domain.WfManifest
+import io.seqera.tower.domain.WfNextflow
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.domain.WorkflowComment
 import io.seqera.tower.domain.WorkflowProcess
@@ -30,6 +33,7 @@ import io.seqera.tower.exceptions.NonExistingWorkflowException
 import io.seqera.tower.exchange.trace.TraceWorkflowRequest
 import io.seqera.tower.util.AbstractContainerBaseTest
 import io.seqera.tower.util.DomainCreator
+import io.seqera.tower.util.DomainHelper
 import io.seqera.tower.util.TracesJsonBank
 import io.seqera.tower.util.WorkflowTraceSnapshotStatus
 import org.springframework.dao.DataIntegrityViolationException
@@ -433,7 +437,6 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         and:
         tx.withTransaction { Workflow.count() } ==2
 
-
         when:
         def w3 = creator.createWorkflow(owner: user, id: 'ABC')
         tx.withTransaction { w3.save() }
@@ -441,5 +444,89 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         thrown(DataIntegrityViolationException)
     }
 
+    def 'should save versions' () {
+        given:
+        def creator = new DomainCreator()
+        def user = creator.createUser()
+        def meta = new WfNextflow(version_: '20.01.1', build: '12345')
+        def manifest = new WfManifest(version_: '1.2.3', nextflowVersion: '18.0.0', author: 'Mr foo')
+
+        when:
+        def w1 = creator.createWorkflow(owner: user, nextflow: meta, manifest: manifest)
+        then:
+        w1.version == 0
+        w1.nextflow.version_ == '20.01.1'
+        w1.nextflow.build == '12345'
+        w1.manifest.version_ == '1.2.3'
+        w1.manifest.nextflowVersion == '18.0.0'
+        w1.manifest.author == 'Mr foo'
+
+        when:
+        def w2 = Workflow.get(w1.id)
+        then:
+        w2.version == 0
+        w2.nextflow.version_ == '20.01.1'
+        w2.nextflow.build == '12345'
+        w2.manifest.version_ == '1.2.3'
+        w2.manifest.nextflowVersion == '18.0.0'
+        w2.manifest.author == 'Mr foo'
+
+    }
+
+
+    def 'should map version to json object' () {
+
+        given:
+        def nextflow = new WfNextflow(version_: '20.01.1', build: '12345')
+        def manifest = new WfManifest(version_: '1.2.3', nextflowVersion: '18.0.0', author: 'Mr foo')
+        def workflow = new Workflow( nextflow: nextflow, manifest: manifest )
+
+        when:
+        def json = DomainHelper.toJson(workflow)
+        def map = new JsonSlurper().parseText(json) as Map
+        then:
+        map.nextflow.version == '20.01.1'
+        map.nextflow.build == '12345'
+        map.manifest.version == '1.2.3'
+        map.manifest.nextflowVersion == '18.0.0'
+
+    }
+
+    def 'should parse version strings' () {
+
+        given:
+        def REQ = '''
+            {
+                "id": "abc",
+                "manifest": {
+                    "nextflowVersion": "18.0.0",
+                    "defaultBranch": "master",
+                    "version": "3.3.3",
+                    "gitmodules": true,
+                    "mainScript": "main.nf",
+                    "author": "Mr Bar"
+                },
+                "nextflow": {
+                  "build": "54321",
+                  "version": "19.01.01"
+                }
+            }
+            '''.stripIndent()
+
+        when:
+        def wf = DomainHelper.mapper.readValue(REQ, Workflow)
+        then:
+        wf.id == "abc"
+        and:
+        wf.manifest.version_ == "3.3.3"
+        wf.manifest.nextflowVersion == "18.0.0"
+        wf.manifest.gitmodules
+        wf.manifest.mainScript == 'main.nf'
+        wf.manifest.defaultBranch == 'master'
+        and:
+        wf.nextflow.version_ == "19.01.01"
+        wf.nextflow.build == "54321"
+
+    }
 
 }
