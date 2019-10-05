@@ -38,12 +38,12 @@ class WfManifest {
         nextflowVersion(nullable: true, maxSize: 20)
         defaultBranch(nullable: true, maxSize: 20)
         version_(nullable: true, maxSize: 20)
-        homePage(nullable: true, maxSize: 150)
+        homePage(nullable: true, maxSize: 200)
         gitmodules(nullable: true)
         description(nullable: true, maxSize: 1024)
         name(nullable: true, maxSize: 150)
         mainScript(nullable: true, maxSize: 100)
-        author(nullable: true, maxSize: 80)
+        author(nullable: true, maxSize: 150)
     }
 
     static mapping = {
