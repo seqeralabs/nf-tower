@@ -19,7 +19,7 @@ import grails.gorm.annotation.Entity
 import groovy.transform.CompileDynamic
 
 @Entity
-@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'workflows', 'accessTokens'])
+@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version', 'workflows', 'accessTokens'])
 @CompileDynamic
 class User {
 

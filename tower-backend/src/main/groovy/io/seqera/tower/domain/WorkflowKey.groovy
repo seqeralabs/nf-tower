@@ -13,11 +13,13 @@ package io.seqera.tower.domain
 
 import java.time.OffsetDateTime
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import grails.gorm.annotation.Entity
 import groovy.transform.CompileDynamic
 
 @Entity
 @CompileDynamic
+@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version'])
 class WorkflowKey {
     Long id
     String workflowId

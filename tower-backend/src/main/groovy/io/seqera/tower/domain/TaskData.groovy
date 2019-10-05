@@ -21,7 +21,7 @@ import groovy.transform.CompileDynamic
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
 @Entity
-@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'workflow', 'sessionId'])
+@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version', 'workflow', 'sessionId'])
 @CompileDynamic
 class TaskData implements TaskDef {
 

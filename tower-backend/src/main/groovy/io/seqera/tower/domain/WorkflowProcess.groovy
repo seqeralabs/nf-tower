@@ -22,7 +22,7 @@ import groovy.transform.CompileDynamic
  */
 @Entity
 @CompileDynamic
-@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'workflow'])
+@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version', 'workflow'])
 class WorkflowProcess {
     Long id
     String name
