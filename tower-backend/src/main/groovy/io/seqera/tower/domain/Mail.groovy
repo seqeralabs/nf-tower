@@ -15,6 +15,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.time.OffsetDateTime
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import grails.gorm.annotation.Entity
 import groovy.transform.CompileDynamic
 import io.seqera.util.CheckHelper
@@ -25,6 +26,7 @@ import io.seqera.util.CheckHelper
  */
 @Entity
 @CompileDynamic
+@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version'])
 class Mail {
 
     static hasMany = [attachments: MailAttachment]

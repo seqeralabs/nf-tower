@@ -26,7 +26,7 @@ import io.seqera.tower.enums.WorkflowStatus
  *  see https://www.nextflow.io/docs/latest/tracing.html#execution-report
  */
 @Entity
-@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'tasks', 'owner'])
+@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version', 'tasks', 'owner'])
 @CompileDynamic
 class Workflow {
 

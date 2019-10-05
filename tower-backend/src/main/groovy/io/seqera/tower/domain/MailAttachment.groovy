@@ -13,6 +13,7 @@ package io.seqera.tower.domain
 
 import java.nio.file.Path
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import grails.gorm.annotation.Entity
 import groovy.transform.CompileDynamic
 import groovy.transform.EqualsAndHashCode
@@ -22,6 +23,7 @@ import groovy.transform.EqualsAndHashCode
 @Entity
 @EqualsAndHashCode
 @CompileDynamic
+@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version'])
 class MailAttachment {
 
     public static final Map ATTACH_HEADERS = [
