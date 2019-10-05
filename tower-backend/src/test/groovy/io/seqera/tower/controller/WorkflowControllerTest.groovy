@@ -76,7 +76,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
                 owner: user,
                 manifest: new WfManifest(defaultBranch: 'master'),
                 stats: new WfStats(computeTimeFmt: '(a few seconds)'),
-                nextflow: new WfNextflow(version: "19.05.0-TOWER", timestamp: Instant.now(), build: '19.01.1'),
+                nextflow: new WfNextflow(version_: "19.05.0-TOWER", timestamp: Instant.now(), build: '19.01.1'),
         )
 
         creator.createWorkflowMetrics(workflow)
@@ -393,7 +393,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         Workflow workflow = creator.createWorkflow(
                 manifest: new WfManifest(defaultBranch: 'master'),
                 stats: new WfStats(computeTimeFmt: '(a few seconds)'),
-                nextflow: new WfNextflow(version: "19.05.0-TOWER"),
+                nextflow: new WfNextflow(version_: "19.05.0-TOWER"),
         )
 
         def metrics = [

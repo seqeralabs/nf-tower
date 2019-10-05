@@ -44,7 +44,7 @@ class WorkflowTest extends Specification {
             configFiles == "/home/user/.nextflow/assets/nextflow-io/hello/nextflow.config"
             manifest.defaultBranch == 'master'
             manifest.mainScript == 'main.nf'
-            nextflow.version == "19.05.0-TOWER"
+            nextflow.version_ == "19.05.0-TOWER"
             nextflow.build == 5078
             nextflow.timestamp == Instant.parse("2019-05-05T16:30:00Z")
         }

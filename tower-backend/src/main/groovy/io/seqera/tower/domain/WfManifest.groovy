@@ -11,9 +11,9 @@
 
 package io.seqera.tower.domain
 
+
+import com.fasterxml.jackson.annotation.JsonProperty
 import groovy.transform.CompileDynamic
-
-
 /**
  * Model workflow manifest attribute
  *
@@ -24,7 +24,8 @@ class WfManifest {
 
     String nextflowVersion
     String defaultBranch
-    String version
+    @JsonProperty('version')
+    String version_ // <-- GORM mess-up the component `version` field with the entity implicit `version` attribute, add an `_` to avoid name collision
     String homePage
     Boolean gitmodules
     String description
@@ -36,13 +37,17 @@ class WfManifest {
     static constraints = {
         nextflowVersion(nullable: true, maxSize: 20)
         defaultBranch(nullable: true, maxSize: 20)
-        version(nullable: true, maxSize: 20)
+        version_(nullable: true, maxSize: 20)
         homePage(nullable: true, maxSize: 150)
         gitmodules(nullable: true)
         description(nullable: true, maxSize: 1024)
         name(nullable: true, maxSize: 150)
         mainScript(nullable: true, maxSize: 100)
         author(nullable: true, maxSize: 80)
+    }
+
+    static mapping = {
+        version_(column: 'manifest_version')
     }
 
 }
