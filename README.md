@@ -2,9 +2,38 @@
 
 [![Chat on Gitter](https://img.shields.io/gitter/room/nf-tower/community.svg?colorB=26af64&style=popout)](https://gitter.im/nf-tower/community)
 
+# Intro
 
-Nextflow Tower is an open source monitoring and managing platform 
-for [Nextflow](https://www.nextflow.io/) workflows. Learn more at [tower.nf](https://tower.nf/).
+Nextflow Tower is an open source monitoring and management platform 
+for [Nextflow](https://www.nextflow.io/) workflows. Tower can be used to track your workflows wherever they run either locally, 
+on your cluster, in the cloud, or any combination of these. Learn more at [tower.nf](https://tower.nf/).
+
+
+# Running locally
+
+Nextflow Tower can be run locally using Docker, and requires only configuration of an SMTP for login emails. 
+
+## Backend settings
+
+The backend can be configured in one of two places:
+  - `application.yml` in the backend class-path (`tower-backend/src/main/resources/application.yml`)
+  - `tower.yml` in the launching directory
+
+
+An example minimal `tower.yml` is provided below.
+
+```
+tower:
+    contactEmail: nftower@example.com
+---
+mail:
+  from: nftower@example.com
+  smtp:
+    host: smtp.example.com
+    port: 587
+    user: username
+    password: password
+```
 
 ## Build the environment 
 
@@ -17,24 +46,10 @@ for [Nextflow](https://www.nextflow.io/) workflows. Learn more at [tower.nf](htt
 See: `docker-compose.yml` file for details
 
 
-## Backend settings  
-
-Tower backend settings can be provided either:
-  - `application.yml` in the backend class-path
-  - `tower.yml` in the launching directory
-
-A minimal config requires the settings for the SMTP 
-server, using the following variables: 
-
-- TOWER_SMTP_HOST: The SMTP server host name e.g. `email-smtp.eu-west-1.amazonaws.com`.
-- TOWER_SMTP_PORT: The SMTP server port number e.g. `587`.
-- TOWER_SMTP_USER: The SMTP user name.
-- TOWER_SMTP_PASSWORD: The SMTP user password.
-
-
 ## Basic use case
     
-Navigate to GUI in `http://localhost:8000` and follow the instructions.
+Navigate to the GUI at `http://localhost:8000` and follow the instructions to run your workflow with Tower. 
+
 
 # Development 
 
