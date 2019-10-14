@@ -10,7 +10,6 @@
  */
 import {WorkflowData} from "./workflow-data";
 import {WorkflowStatus} from "./workflow-status.enum";
-import * as dateFormat from "date-fns/format";
 import {Progress} from "../progress/progress";
 import {FormatterUtil} from "../../util/formatter-util";
 
@@ -32,31 +31,27 @@ export class Workflow {
   }
 
   get isRunning(): boolean {
-    return (this.computeStatus() === WorkflowStatus.RUNNING);
+    return (this.data.status == WorkflowStatus.RUNNING);
   }
 
   get isSuccessful(): boolean {
-    return (this.computeStatus() === WorkflowStatus.SUCCEEDED);
+    return (this.data.status == WorkflowStatus.SUCCEEDED && this.data.stats.ignoredCount==0);
   }
 
   get isFailed(): boolean {
-    return (this.computeStatus() === WorkflowStatus.FAILED);
+    return (this.data.status == WorkflowStatus.FAILED);
   }
 
   get isPartialFailed(): boolean {
-    return (this.computeStatus() === WorkflowStatus.PARTIAL_FAILED);
+    return (this.data.status == WorkflowStatus.SUCCEEDED && this.data.stats.ignoredCount>0);
   }
 
   get isCompleted(): boolean {
-    return !this.isRunning;
+    return !this.isRunning && !this.isUnknownStatus;
   }
 
-  private computeStatus(): WorkflowStatus {
-    return (!this.data.complete)                               ? WorkflowStatus.RUNNING   :
-           (this.data.success && this.data.stats.ignoredCount) ? WorkflowStatus.PARTIAL_FAILED :
-           (this.data.success)                                 ? WorkflowStatus.SUCCEEDED :
-                                                                 WorkflowStatus.FAILED
-
+  get isUnknownStatus(): boolean {
+    return this.data.status == null || this.data.status == WorkflowStatus.UNKNOWN;
   }
 
   get humanizedDuration(): string {

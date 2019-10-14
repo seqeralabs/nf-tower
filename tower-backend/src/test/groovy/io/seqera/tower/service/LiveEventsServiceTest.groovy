@@ -27,7 +27,7 @@ import spock.lang.Ignore
 class LiveEventsServiceTest extends AbstractContainerBaseTest {
 
     @Inject
-    LiveEventsServiceImpl serverSentEventsService
+    LiveEventsServiceImpl liveEventsService
 
 
     void "publish a single element, the element is received after the time window passes"() {
@@ -35,16 +35,16 @@ class LiveEventsServiceTest extends AbstractContainerBaseTest {
         LiveUpdate trace = LiveUpdate.of(1, '1', LiveAction.WORKFLOW_UPDATE)
 
         and: 'subscribe to the events stream'
-        TestSubscriber subscriber = serverSentEventsService.eventsFlowable.test()
+        TestSubscriber subscriber = liveEventsService.eventPublisher.test()
 
         when: 'publish the trace'
-        serverSentEventsService.publishEvent(trace)
+        liveEventsService.publishEvent(trace)
 
         then: 'after the event is published, the data is no received right away'
         subscriber.assertValueCount(0)
 
         and: 'the event is received after the buffer time window passes'
-        sleep(serverSentEventsService.bufferTimeout.toMillis() + 100) // --> Sleep the time window and add a prudential time to make sure the data has been received
+        sleep(liveEventsService.bufferTimeout.toMillis() + 100) // --> Sleep the time window and add a prudential time to make sure the data has been received
         subscriber.assertValueCount(1)
         subscriber.events.first()[0].data.userId == [trace.userId]
         subscriber.events.first()[0].data.workflowId == [trace.workflowId]
@@ -53,28 +53,28 @@ class LiveEventsServiceTest extends AbstractContainerBaseTest {
     @Ignore
     void "publish as many elements as the buffer size windows, the elements are received"() {
         given: 'several traces to publish'
-        List<LiveUpdate> traces = (1..serverSentEventsService.bufferCount).collect {
+        List<LiveUpdate> traces = (1..liveEventsService.bufferCount).collect {
             LiveUpdate.of(it, it.toString(), LiveAction.WORKFLOW_UPDATE)
         }
 
         and: 'more traces overflowing the buffer'
-        Integer overflow = serverSentEventsService.bufferCount.intdiv(2)
+        Integer overflow = liveEventsService.bufferCount.intdiv(2)
         (1..overflow).each {
             LiveUpdate.of(it, it.toString(), LiveAction.WORKFLOW_UPDATE)
         }
 
         and: 'subscribe to the events stream'
-        TestSubscriber subscriber = serverSentEventsService.eventsFlowable.test()
+        TestSubscriber subscriber = liveEventsService.eventPublisher.test()
 
         when: 'publish all the traces'
         traces.each {
-            serverSentEventsService.publishEvent(it)
+            liveEventsService.publishEvent(it)
         }
 
         then: 'the data is received right away and the buffer contains just as many elements as the size window'
         subscriber.assertValueCount(1)
-        subscriber.events.first()[0].data.userId == (1..serverSentEventsService.bufferCount)
-        subscriber.events.first()[0].data.workflowId == (1..serverSentEventsService.bufferCount)*.toString()
+        subscriber.events.first()[0].data.userId == (1..liveEventsService.bufferCount)
+        subscriber.events.first()[0].data.workflowId == (1..liveEventsService.bufferCount)*.toString()
     }
 
 }

@@ -11,6 +11,7 @@
 import {Manifest} from "./manifest";
 import {Nextflow} from "./nextflow";
 import {Stats} from "./stats";
+import {WorkflowStatus} from "./workflow-status.enum";
 
 export interface WorkflowData {
 
@@ -27,6 +28,7 @@ export interface WorkflowData {
   start: Date;
   complete?: Date;
   duration: number;
+  status: WorkflowStatus;
 
   projectDir: string;
   profile: string;
@@ -55,7 +57,4 @@ export interface WorkflowData {
   configFiles: string[];
   configText: string;
 
-  peakLoadCpus: number;
-  peakLoadTasks: number;
-  peakLoadMemory: number;
 }

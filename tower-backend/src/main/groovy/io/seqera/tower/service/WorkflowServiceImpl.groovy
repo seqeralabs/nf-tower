@@ -63,7 +63,11 @@ class WorkflowServiceImpl implements WorkflowService {
     }
 
     Workflow processTraceWorkflowRequest(TraceWorkflowRequest request, User owner) {
-        if( request.workflow.checkIsStarted() ) {
+        if( request.workflow.status == null ) {
+            request.workflow.status = request.workflow.computeStatus()
+        }
+
+        if( request.workflow.checkIsRunning() ) {
             def ret = saveWorkflow(request.workflow, owner)
 
             // save the process names
@@ -117,6 +121,7 @@ class WorkflowServiceImpl implements WorkflowService {
         workflowToUpdate.exitStatus = originalWorkflow.exitStatus
         workflowToUpdate.errorMessage = originalWorkflow.errorMessage
         workflowToUpdate.errorReport = originalWorkflow.errorReport
+        workflowToUpdate.status = originalWorkflow.status
 
         workflowToUpdate.stats = originalWorkflow.stats
     }

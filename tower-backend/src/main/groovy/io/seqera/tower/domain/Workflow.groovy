@@ -67,6 +67,7 @@ class Workflow {
     String scriptName
 
     Long duration
+    WorkflowStatus status
 
     //Multi-value properties encoded as JSON
     String configFiles
@@ -83,23 +84,32 @@ class Workflow {
 
     static embedded = ['manifest', 'nextflow', 'stats']
 
-    boolean checkIsStarted() {
-        computeStatus() == WorkflowStatus.STARTED
+    boolean checkIsRunning() {
+        getStatus() == WorkflowStatus.RUNNING
+    }
+
+    boolean checkIsComplete() {
+        return !checkIsRunning()
     }
 
     boolean checkIsSucceeded() {
-        computeStatus() == WorkflowStatus.SUCCEEDED
+        getStatus() == WorkflowStatus.SUCCEEDED
     }
 
     boolean checkIsFailed() {
-        computeStatus() == WorkflowStatus.FAILED
+        getStatus() == WorkflowStatus.FAILED
     }
 
-    private computeStatus() {
-        (!complete) ? WorkflowStatus.STARTED   :
-        (success)   ? WorkflowStatus.SUCCEEDED :
-                      WorkflowStatus.FAILED
+    WorkflowStatus getStatus() {
+        status ?: computeStatus()
+    }
 
+    WorkflowStatus computeStatus() {
+        if( complete==null )
+            return WorkflowStatus.RUNNING
+        ( success
+            ? WorkflowStatus.SUCCEEDED
+            : WorkflowStatus.FAILED )
     }
 
     @JsonSetter('configFiles')
@@ -135,6 +145,7 @@ class Workflow {
         resume(nullable: true)
         success(nullable: true)
         complete(nullable: true)
+        status(nullable: true)
 
         commandLine(maxSize: 8096)
         params(nullable: true)
@@ -172,6 +183,7 @@ class Workflow {
         configFiles(type: 'text')
         configText(type: 'text')
         tasks( cascade: 'save-update')
+        status(length: 10)
     }
 
 }

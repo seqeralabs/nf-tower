@@ -11,25 +11,25 @@
 
 package io.seqera.tower.service
 
+import javax.inject.Inject
+import javax.validation.ValidationException
+
 import io.micronaut.test.annotation.MicronautTest
 import io.micronaut.test.annotation.MockBean
 import io.seqera.tower.Application
 import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.exceptions.NonExistingWorkflowException
+import io.seqera.tower.exchange.trace.TraceTaskRequest
 import io.seqera.tower.util.AbstractContainerBaseTest
 import io.seqera.tower.util.DomainCreator
-
-import javax.inject.Inject
-import javax.validation.ValidationException
-
-import spock.lang.Ignore
 
 @MicronautTest(application = Application.class)
 class TraceServiceTest extends AbstractContainerBaseTest {
 
     @Inject
     WorkflowService workflowService
+
     @MockBean(WorkflowServiceImpl)
     WorkflowService workflowService() {
         Mock(WorkflowService)
@@ -37,10 +37,9 @@ class TraceServiceTest extends AbstractContainerBaseTest {
 
     @Inject
     TaskService taskService
+    
     @MockBean(TaskServiceImpl)
-    TaskService taskService() {
-        Mock(TaskService)
-    }
+    TaskService taskService() { Mock(TaskService) }
 
     @Inject
     TraceService traceService
@@ -114,11 +113,12 @@ class TraceServiceTest extends AbstractContainerBaseTest {
 
     void "process a successful task trace"() {
         given: "mock the task JSON processor to return a successful task"
+        def request = new TraceTaskRequest(workflowId: 'xyz')
         Task task = new DomainCreator().createTask()
         taskService.processTaskTraceRequest(_) >> [task]
 
         when: "process the task (we don't mind about the given JSON because the processor is mocked)"
-        Task processedTask = traceService.processTaskTrace(null).first()
+        def processedTask = traceService.processTaskTrace(request).first()
 
         then: "the result indicates a successful processing"
         processedTask.workflowId
@@ -126,12 +126,13 @@ class TraceServiceTest extends AbstractContainerBaseTest {
 
     void "process a task task trace to try to submit a task without taskId"() {
         given: "mock the task JSON processor to return a task without taskId"
+        def request = new TraceTaskRequest(workflowId: 'xyz')
         Workflow workflow = new DomainCreator().createWorkflow()
         Task task = new DomainCreator(failOnError: false).createTask(workflow: workflow, taskId: null)
         taskService.processTaskTraceRequest(_) >> [task]
 
         when: "process the task (we don't mind about the given JSON because the processor is mocked)"
-        traceService.processTaskTrace(null)
+        traceService.processTaskTrace(request)
 
         then: "the result indicates a failed processing"
         Exception e = thrown(ValidationException)
@@ -140,13 +141,14 @@ class TraceServiceTest extends AbstractContainerBaseTest {
 
     void "process a task trace to try to submit a task with the same taskId of a previous one for the same workflow"() {
         given: "mock the task JSON processor to return a task with the same taskId of a previous one for the same workflow"
+        def request = new TraceTaskRequest(workflowId: 'xyz')
         Workflow workflow = new DomainCreator().createWorkflow()
         Task task1 = new DomainCreator().createTask(workflow: workflow)
         Task task2 = new DomainCreator(failOnError: false).createTask(workflow: workflow, taskId: task1.taskId)
         taskService.processTaskTraceRequest(_) >> [task2]
 
         when: "process the task (we don't mind about the given JSON because the processor is mocked)"
-        traceService.processTaskTrace(null)
+        traceService.processTaskTrace(request)
 
         then: "the result indicates a successful processing"
         Exception e = thrown(ValidationException)

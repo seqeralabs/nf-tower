@@ -12,6 +12,7 @@
 package io.seqera.tower.exchange.trace
 
 /**
+ * Model the workflow tracing initialization request
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */

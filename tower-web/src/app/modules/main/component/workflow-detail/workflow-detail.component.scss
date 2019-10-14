@@ -19,8 +19,8 @@
     border-top-color: $failed-red;
   }
 
-  &.partialFailed {
-    border-top-color: $partialFailed-orange;
+  &.partial {
+    border-top-color: $partial-orange;
   }
 
 }

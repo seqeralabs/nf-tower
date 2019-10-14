@@ -109,7 +109,7 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         )
 
         then: 'the workflow has been saved successfully'
-        response.status == HttpStatus.CREATED
+        response.status == HttpStatus.OK
         response.body().status == TraceProcessingStatus.OK
         response.body().workflowId
         response.body().watchUrl == 'http://localhost:8000/watch/' + response.body().workflowId
@@ -143,7 +143,7 @@ class TraceControllerTest extends AbstractContainerBaseTest {
                 .exchange(request, TraceTaskResponse )
 
         then: 'the task has been saved successfully'
-        response.status == HttpStatus.CREATED
+        response.status == HttpStatus.OK
         response.body().status == TraceProcessingStatus.OK
         response.body().workflowId
         !response.body().message
