@@ -1,5 +1,5 @@
 # Launch backend server
-java \
+exec java \
   -XX:+UnlockExperimentalVMOptions \
   -XX:+UseCGroupMemoryLimitForHeap \
   -Dcom.sun.management.jmxremote \
