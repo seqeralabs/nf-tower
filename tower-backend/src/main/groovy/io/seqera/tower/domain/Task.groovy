@@ -97,11 +97,11 @@ class Task implements TaskDef {
     static mapping = {
         data lazy: false
         workflow lazy: true
+        status(length: 10)
     }
-    
+
     static constraints = {
         taskId(unique: 'workflow')
-        status(maxSize: 10)
     }
 
     static transients = [
