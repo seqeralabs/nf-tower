@@ -39,7 +39,9 @@ class Workflow {
     OffsetDateTime submit
     OffsetDateTime start //TODO For now, submitTime and startTime are the same, when using Launchpad they would differ.
     OffsetDateTime complete
-
+    OffsetDateTime dateCreated
+    OffsetDateTime lastUpdated
+    
     Boolean resume
     Boolean success
 
@@ -173,6 +175,9 @@ class Workflow {
         peakLoadCpus(nullable: true)
         peakLoadTasks(nullable: true)
         peakLoadMemory(nullable: true)
+
+        dateCreated(nullable: true)
+        lastUpdated(nullable: true)
     }
 
     static mapping = {

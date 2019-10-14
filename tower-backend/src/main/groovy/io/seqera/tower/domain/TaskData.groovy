@@ -58,7 +58,9 @@ class TaskData implements TaskDef {
     OffsetDateTime submit
     OffsetDateTime start
     OffsetDateTime complete
-
+    OffsetDateTime dateCreated
+    OffsetDateTime lastUpdated
+    
     String module
     String container
     Integer attempt
@@ -137,6 +139,8 @@ class TaskData implements TaskDef {
         writeBytes(nullable: true)
         volCtxt(nullable: true)
         invCtxt(nullable: true)
+        dateCreated(nullable: true)
+        lastUpdated(nullable: true)
     }
 
     static mapping = {

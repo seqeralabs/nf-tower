@@ -53,6 +53,10 @@ class Task implements TaskDef {
      */
     TaskData data
 
+    OffsetDateTime dateCreated
+    
+    OffsetDateTime lastUpdated
+
     private TaskData _data() {
         if( data==null )
             data = new TaskData()
@@ -102,6 +106,8 @@ class Task implements TaskDef {
 
     static constraints = {
         taskId(unique: 'workflow')
+        dateCreated(nullable: true)
+        lastUpdated(nullable: true)
     }
 
     static transients = [
