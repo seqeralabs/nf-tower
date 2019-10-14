@@ -31,6 +31,7 @@ import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.RxHttpClient
 import io.micronaut.http.client.annotation.Client
+import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.seqera.tower.domain.AccessToken
 import io.seqera.tower.domain.Role
 import io.seqera.tower.domain.User
@@ -174,7 +175,11 @@ class UserServiceImpl implements UserService {
             return resp.status() == HttpStatus.OK ? url : null
         }
         catch (Exception e) {
-            log.error("Couldn't fetch Gravatar for email=$email | ${e.message}")
+            final message = "Couldn't fetch Gravatar for email=$email | ${e.message}"
+            if( e instanceof HttpClientResponseException && e.response?.code()==404 )
+                log.debug(message)
+            else
+                log.error(message)
             return null
         }
     }
