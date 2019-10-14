@@ -21,7 +21,7 @@ import { WorkflowDetailComponent } from './component/workflow-detail/workflow-de
 import { WorkflowMetricsComponent } from './component/workflow-metrics/metrics.component';
 import { WelcomeComponent } from './component/welcome/welcome.component';
 import { LoginComponent } from './component/login/login.component';
-import {FormsModule, ReactiveFormsModule} from "@angular/forms";
+import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { JwtInterceptor } from "./interceptor/jwt.interceptor";
 import { ErrorInterceptor } from "./interceptor/error.interceptor";
 import { LogoutComponent } from './component/logout/logout.component';
@@ -42,10 +42,11 @@ import { WorkflowStatsComponent } from './component/workflow-stats/workflow-stat
 import { WorkflowUtilizationComponent } from './component/workflow-utilization/workflow-utilization.component';
 import { ChartistModule } from "ng-chartist";
 import { WorkflowLoadComponent } from './component/workflow-load/workflow-load.component';
-import {WorkflowErrorComponent} from "./component/workflow-error/workflow-error.component";
+import { WorkflowErrorComponent } from "./component/workflow-error/workflow-error.component";
+import { WorkflowUnknownComponent } from "./component/workflow-unknown/workflow-unknown.component";
 import { LoadingComponent } from './component/loading/loading.component';
-import {TreeListComponent} from "./component/tree-list/TreeListComponent";
-import {WorkflowStatusIconComponent} from "../../workflow-status-icon/workflow-status-icon.component";
+import { TreeListComponent } from "./component/tree-list/TreeListComponent";
+import { WorkflowStatusIconComponent } from "../../workflow-status-icon/workflow-status-icon.component";
 
 /*
  * Main application routing strategy
@@ -85,7 +86,7 @@ export class MainRoutingModule { }
     WorkflowCardComponent,
     WorkflowDetailComponent, WorkflowStatusIconComponent,
     WorkflowMainTabsComponent, WorkflowGeneralComponent, WorkflowStatusComponent,
-    WorkflowStatsComponent, WorkflowUtilizationComponent, WorkflowLoadComponent, WorkflowErrorComponent,
+    WorkflowStatsComponent, WorkflowUtilizationComponent, WorkflowLoadComponent, WorkflowErrorComponent, WorkflowUnknownComponent,
     WelcomeComponent,
     LoadingComponent,
     LoginComponent,

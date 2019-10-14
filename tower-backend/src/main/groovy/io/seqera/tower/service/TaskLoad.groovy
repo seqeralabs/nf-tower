@@ -9,15 +9,14 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 
-package io.seqera.tower.enums
+package io.seqera.tower.service
 
-enum WorkflowStatus {
-
-    RUNNING,
-    SUCCEEDED,
-    FAILED,
-    UNKNOWN
-
-    String toString() { super.toString() }
-
+/**
+ * Models the load metrics at task level
+ * 
+ * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
+ */
+class TaskLoad {
+    int cpus
+    long memory
 }

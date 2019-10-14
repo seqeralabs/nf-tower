@@ -20,6 +20,8 @@ import groovy.util.logging.Slf4j
 import io.micronaut.context.annotation.Value
 import io.micronaut.http.sse.Event
 import io.reactivex.processors.PublishProcessor
+import io.seqera.tower.domain.Workflow
+import io.seqera.tower.enums.LiveAction
 import io.seqera.tower.exchange.live.LiveUpdate
 import io.seqera.tower.util.BackpressureBuffer
 import org.reactivestreams.Publisher
@@ -40,13 +42,13 @@ class LiveEventsServiceImpl implements LiveEventsService {
 
     BackpressureBuffer<LiveUpdate> buffer
 
-    PublishProcessor<List<LiveUpdate>> eventPublisher
+    PublishProcessor<List<LiveUpdate>> eventProcessor
 
     @PostConstruct
     void initialize() {
         log.info "Creating SSE event buffer flowable timeout=$bufferTimeout count=$bufferCount heartbeat=$heartbeatDuration"
 
-        eventPublisher = PublishProcessor.create()
+        eventProcessor = PublishProcessor.create()
 
         // -- implements the back pressure logic
         buffer = new BackpressureBuffer<LiveUpdate>()
@@ -56,15 +58,24 @@ class LiveEventsServiceImpl implements LiveEventsService {
                 .setMaxCount(bufferCount)
                 .onNext { List<LiveUpdate> updates ->
                     log.trace "Publishing live updates -> (${updates.size()}) ${updates}"
-                    eventPublisher.onNext(updates)
+                    eventProcessor.onNext(updates)
                 }
                 .start()
-
     }
 
+    @Override
+    void publishWorkflowEvent(Workflow workflow) {
+        publishEvent(LiveUpdate.of(workflow.owner.id, workflow.id, LiveAction.WORKFLOW_UPDATE));
+    }
 
-    Publisher<Event<List<LiveUpdate>>> getEventsFlowable() {
-        return eventPublisher
+    @Override
+    void publishProgressEvent(Workflow workflow) {
+        publishEvent(LiveUpdate.of(workflow.owner.id, workflow.id, LiveAction.PROGRESS_UPDATE));
+    }
+
+    @Override
+    Publisher<Event<List<LiveUpdate>>> getEventPublisher() {
+        return eventProcessor
                 .map { List<LiveUpdate> traces ->
                     log.trace "Publishing map traces (${traces.size()}) $traces"
                     Event.of(traces)

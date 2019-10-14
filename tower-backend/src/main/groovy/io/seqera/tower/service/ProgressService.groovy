@@ -11,16 +11,25 @@
 
 package io.seqera.tower.service
 
+import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.exchange.progress.ProgressData
-import io.seqera.tower.exchange.workflow.GetWorkflowResponse
 
+/**
+ * Define the workflow execution progress operations
+ *
+ * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
+ */
 interface ProgressService {
 
-    GetWorkflowResponse buildWorkflowGet(Workflow workflow)
+    ProgressData getProgress(Workflow workflow)
 
-    ProgressData fetchWorkflowProgress(Workflow workflow)
+    void progressCreate(String workflowId)
 
-    void updateLoadPeaks(Workflow workflow)
+    void progressUpdate(String workflowId, List<Task> tasks)
+
+    void progressComplete(String workflowId)
+
+    Map<String,LoadStats> getLoadStats()
 
 }

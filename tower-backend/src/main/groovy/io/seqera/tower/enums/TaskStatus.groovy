@@ -30,4 +30,8 @@ enum TaskStatus {
 
     String toString() { super.toString() }
 
+    boolean isTerminated() {
+        this == COMPLETED || this == FAILED || this == ABORTED
+    }
+
 }

@@ -1,5 +1,8 @@
 <div *ngIf="workflow" class="tw-workflow">
-  <div class="card" [ngClass]="{'running': workflow.isRunning, 'succeed': workflow.isSuccessful, 'failed': workflow.isFailed, 'partialFailed': workflow.isPartialFailed}">
+  <div class="card" [ngClass]="{'running': workflow.isRunning,
+                                'succeed': workflow.isSuccessful,
+                                'failed': workflow.isFailed || workflow.isUnknownStatus,
+                                'partial': workflow.isPartialFailed}">
     <div class="card-header">
       <div class="row">
         <div class="col">
@@ -20,6 +23,11 @@
       <div class="row mb-4" *ngIf="workflow.isFailed">
         <div class="col">
           <wt-workflow-error [workflow]="workflow"></wt-workflow-error>
+        </div>
+      </div>
+      <div class="row mb-4" *ngIf="workflow.isUnknownStatus">
+        <div class="col">
+          <wt-workflow-unknown [workflow]="workflow"></wt-workflow-unknown>
         </div>
       </div>
       <div class="row mb-4">

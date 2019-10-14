@@ -11,60 +11,136 @@
 
 package io.seqera.tower.service
 
+import javax.annotation.PostConstruct
+import javax.inject.Inject
 import javax.inject.Singleton
+import java.time.Duration
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.TimeUnit
 
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
+import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
+import io.micronaut.context.annotation.Value
+import io.reactivex.Observable
 import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.Workflow
+import io.seqera.tower.enums.TaskStatus
+import io.seqera.tower.enums.WorkflowStatus
 import io.seqera.tower.exchange.progress.ProcessProgress
 import io.seqera.tower.exchange.progress.ProgressData
 import io.seqera.tower.exchange.progress.WorkflowProgress
-import io.seqera.tower.exchange.workflow.GetWorkflowResponse
 import org.hibernate.Session
+import org.springframework.transaction.annotation.Propagation
 
+/**
+ * Implements the workflow execution progress & monitoring logic
+ *
+ * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
+ */
 @Slf4j
-@Transactional
 @Singleton
+@CompileStatic
 class ProgressServiceImpl implements ProgressService {
 
-    @CompileDynamic
+    Map<String, LoadStats> loadStats = new ConcurrentHashMap<>()
+
+    @Value('${tower.metrics.interval:`1m`}')
+    Duration metrics
+
+    @Value('${tower.trace.timeout:`190s`}')
+    Duration aliveTimeout
+
+    @Inject
+    LiveEventsService liveEventsService
+
+    @PostConstruct
+    void init() {
+        log.info "Creating execution load watcher metrics-interval=${metrics}; trace-timeout=${aliveTimeout}"
+        Observable
+                .interval(metrics.toMillis(), TimeUnit.MILLISECONDS)
+                .subscribe { doPeriodicLoadCheck() }
+    }
+
+    @Override
+    Map<String, LoadStats> getLoadStats() {
+        new HashMap<String, LoadStats>(loadStats)
+    }
+
+    @Override
+    void progressCreate(String workflowId) {
+        doEventCreate(workflowId)
+    }
+
+    @Override
+    void progressUpdate(String workflowId, List<Task> tasks) {
+        final load = new HashMap<Long,TaskLoad>(tasks.size())
+        final terminated = new ArrayList<Long>(tasks.size())
+        for( Task task : tasks ) {
+            if( task.status == TaskStatus.RUNNING ) {
+                load[task.id] = new TaskLoad(cpus: task.cpus?:0, memory: task.memory?:0)
+            }
+            else if( task.status?.isTerminated() ) {
+                terminated.add(task.id)
+            }
+        }
+
+        doEventUpdate(workflowId, load, terminated)
+    }
+
+
+    @Override
+    void progressComplete(String workflowId) {
+        assert workflowId
+        doEventComplete(workflowId)
+    }
+
+    protected doEventCreate(String workflowId) {
+        assert workflowId
+        loadStats.put(workflowId, new LoadStats(workflowId))
+    }
+
+    protected doEventUpdate(String workflowId, Map<Long,TaskLoad> tasks, List<Long> terminated) {
+        assert workflowId
+        final stats = loadStats
+                .computeIfAbsent(workflowId, {new LoadStats(workflowId)})
+                .update(tasks, terminated)
+        loadStats.put(workflowId, stats)
+    }
+
+    protected doEventComplete(String workflowId) {
+        assert workflowId
+        final stats = loadStats.remove(workflowId)
+        if( stats ) {
+            updateLoadStats(stats)
+        }
+        else {
+            log.error "Unable to find load stats for workflow Id=$workflowId"
+        }
+    }
+
     @Transactional(readOnly = true)
-    GetWorkflowResponse buildWorkflowGet(Workflow workflow) {
-        final result = new GetWorkflowResponse(workflow: workflow)
-        // fetch progress
-        result.progress = fetchWorkflowProgress(workflow)
-        return result
-    }
+    ProgressData getProgress(Workflow workflow) {
+        final progress = computeWorkflowProgress(workflow.id)
 
-    private void updatePeaks(Workflow workflow, WorkflowProgress progress, boolean save) {
-
-        if( workflow.peakLoadCpus < progress.loadCpus ) {
-            workflow.peakLoadCpus = progress.loadCpus
+        final stats = loadStats.get(workflow.id)
+        if( stats ) {
+            progress.workflowProgress.withLoad(stats)
         }
-        if( workflow.peakLoadTasks < progress.loadTasks ) {
-            workflow.peakLoadTasks = progress.loadTasks
+        else if( workflow.checkIsComplete() ) {
+            // return the peak values stored in the workflow entity
+            progress.workflowProgress.peakCpus = workflow.peakLoadCpus ?: 0
+            progress.workflowProgress.peakTasks = workflow.peakLoadTasks ?: 0
+            progress.workflowProgress.peakMemory = workflow.peakLoadMemory ?: 0
         }
-        if( workflow.peakLoadMemory < progress.loadMemory ) {
-            workflow.peakLoadMemory = progress.loadMemory
+        else {
+            log.warn "Unable to find load peak for workflow with Id=$workflow.id"
         }
 
-        progress.peakLoadCpus = workflow.peakLoadCpus
-        progress.peakLoadTasks = workflow.peakLoadTasks
-        progress.peakLoadMemory = workflow.peakLoadMemory
-
-        if( save )
-            workflow.save()
+        return progress
     }
 
-    @Transactional(readOnly = true)
-    @CompileDynamic
-    ProgressData fetchWorkflowProgress(Workflow workflow) {
-        final result = computeWorkflowProgress(workflow.id)
-        updatePeaks(workflow, result.workflowProgress,false)
-        return result
-    }
 
     @CompileDynamic
     ProgressData computeWorkflowProgress(String workflowId) {
@@ -96,7 +172,7 @@ class ProgressServiceImpl implements ProgressService {
              where
                 p.workflow_id = '$workflowId'
              group by 
-                p.name, t.status
+                p.name, t.status, p.position
              order by 
                 p.position """.stripIndent()
 
@@ -125,8 +201,72 @@ class ProgressServiceImpl implements ProgressService {
         new ProgressData(workflowProgress: workflowProgress, processesProgress: processProgresses)
     }
 
-    void updateLoadPeaks(Workflow workflow) {
-        final result = computeWorkflowProgress(workflow.id)
-        updatePeaks(workflow, result.workflowProgress,true)
+    protected void doPeriodicLoadCheck() {
+        log.trace "Running periodic workflow load house cleaning"
+        // delete stalled workflow execution
+        // and delete if need
+        final ids = findZombies(loadStats.values())
+        if( ids ) {
+            killZombies(ids)
+        }
     }
+
+    protected List<String> findZombies(Collection<LoadStats> loadStats) {
+        loadStats
+                .findAll { it.olderThan(aliveTimeout) }
+                .collect { it.workflowId }
+    }
+
+    protected void killZombies(List<String> zombies) {
+        log.warn "Unknown execution status for workflow=$zombies"
+        for( String workflowId : zombies ) {
+            loadStats.remove(workflowId)
+            markWorkflowUnknownStatus(workflowId)
+        }
+    }
+
+    protected void markWorkflowUnknownStatus(String workflowId) {
+        try {
+            log.debug "Marking workflow Id=$workflowId with unknown status"
+            markWorkflowUnknownStatus0(workflowId)
+        }
+        catch( Exception e ) {
+            log.error("Unable to save workflow with Id=$workflowId", e)
+        }
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    protected void markWorkflowUnknownStatus0(String workflowId) {
+        final workflow = Workflow.get(workflowId)
+        if( workflow ) {
+            workflow.status = WorkflowStatus.UNKNOWN
+            workflow.save()
+            // notify the status change
+            liveEventsService.publishWorkflowEvent(workflow)
+        }
+    }
+
+    protected updateLoadStats(LoadStats stats) {
+        try {
+            updateLoadStats0(stats)
+        }
+        catch( Exception e ) {
+            log.error "Unable to update workflow peaks | ${e.message}"
+        }
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    protected updateLoadStats0(LoadStats stats) {
+        def workflow = Workflow.get(stats.workflowId)
+        if( !workflow ) {
+            log.warn "Unable to update workflow peaks | Missing workflow id=$stats.workflowId"
+            return
+        }
+
+        workflow.peakLoadCpus = stats.peakCpus
+        workflow.peakLoadTasks = stats.peakTasks
+        workflow.peakLoadMemory = stats.peakMemory
+        workflow.save()
+    }
+
 }

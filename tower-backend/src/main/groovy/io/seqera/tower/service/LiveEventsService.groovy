@@ -12,6 +12,7 @@
 package io.seqera.tower.service
 
 import io.micronaut.http.sse.Event
+import io.seqera.tower.domain.Workflow
 import io.seqera.tower.exchange.live.LiveUpdate
 import org.reactivestreams.Publisher
 
@@ -19,8 +20,12 @@ interface LiveEventsService {
 
     void publishEvent(LiveUpdate traceSseResponse)
 
-    Publisher<Event> getEventsFlowable()
+    Publisher<Event> getEventPublisher()
 
     void stop()
+
+    void publishWorkflowEvent(Workflow workflow)
+
+    void publishProgressEvent(Workflow workflow)
 
 }

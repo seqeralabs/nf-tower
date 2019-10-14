@@ -115,8 +115,10 @@ class WorkflowController extends BaseController {
             return HttpResponse.badRequest(GetWorkflowResponse.error("Invalid workflow request: $workflowId"))
         }
 
-        final resp = progressService.buildWorkflowGet(workflow)
-        workflow.discard()
+        final resp = new GetWorkflowResponse(workflow: workflow)
+        // fetch progress
+        resp.progress = progressService.getProgress(workflow)
+
         HttpResponse.ok(resp)
     }
 
@@ -136,9 +138,8 @@ class WorkflowController extends BaseController {
             if (!workflow) {
                 return HttpResponse.notFound(new GetProgressResponse(message: "Oops... Can't find workflow ID $workflowId"))
             }
-            // TODO check the user is allowed to fetch this data
-            final ProgressData progress = progressService.fetchWorkflowProgress(workflow)
-            workflow.discard()
+
+            final ProgressData progress = progressService.getProgress(workflow)
             HttpResponse.ok(new GetProgressResponse(progress: progress))
         }
         catch( Exception e ) {

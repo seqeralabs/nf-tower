@@ -40,11 +40,11 @@ export class WorkflowProgress {
   get loadTasks(): number {
     return this.data.loadTasks;
   }
-  get peakLoadCpus(): number {
-    return this.data.peakLoadCpus;
+  get peakCpus(): number {
+    return this.data.peakCpus;
   }
-  get peakLoadTasks(): number {
-    return this.data.peakLoadTasks;
+  get peakTasks(): number {
+    return this.data.peakTasks;
   }
 }
 
@@ -54,8 +54,8 @@ interface WorkflowProgressState extends ProgressState {
   loadTasks: number;
   loadMemory: number;
 
-  peakLoadCpus: number;
-  peakLoadTasks: number;
-  peakLoadMemory: number;
+  peakCpus: number;
+  peakTasks: number;
+  peakMemory: number;
 
 }

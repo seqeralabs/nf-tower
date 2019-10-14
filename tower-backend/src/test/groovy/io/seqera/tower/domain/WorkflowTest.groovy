@@ -16,6 +16,7 @@ import java.time.OffsetDateTime
 import java.time.ZoneId
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import io.seqera.tower.enums.WorkflowStatus
 import io.seqera.tower.exchange.trace.TraceWorkflowRequest
 import spock.lang.Specification
 
@@ -58,5 +59,24 @@ class WorkflowTest extends Specification {
         then:
         true
 
+    }
+
+    static final DATE = OffsetDateTime.now()
+
+    def 'should validate compute status' () {
+
+        given:
+
+        when:
+        def workflow = new Workflow(complete: COMPLETE, success: SUCCESS)
+        then:
+        workflow.computeStatus() == STATUS
+
+        where:
+        COMPLETE    | SUCCESS   | STATUS
+        null        | null      | WorkflowStatus.RUNNING
+        DATE        | null      | WorkflowStatus.FAILED
+        DATE        | false     | WorkflowStatus.FAILED
+        DATE        | true      | WorkflowStatus.SUCCEEDED
     }
 }

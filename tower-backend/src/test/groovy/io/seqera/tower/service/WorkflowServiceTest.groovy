@@ -66,7 +66,7 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         then: "the workflow has been correctly saved"
         workflow.id == '123'
         workflow.owner
-        workflow.checkIsStarted()
+        workflow.checkIsRunning()
         workflow.submit
         !workflow.complete
         Workflow.withNewTransaction { Workflow.count() } == 1
@@ -88,7 +88,7 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         then: "the workflow has been correctly saved"
         workflowStarted.id
         workflowStarted.owner
-        workflowStarted.checkIsStarted()
+        workflowStarted.checkIsRunning()
         workflowStarted.submit
         !workflowStarted.complete
 
@@ -135,7 +135,7 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         then: "the workflow has been correctly saved"
         workflowStarted.id
         workflowStarted.owner
-        workflowStarted.checkIsStarted()
+        workflowStarted.checkIsRunning()
         workflowStarted.submit
         !workflowStarted.complete
         Workflow.withNewTransaction {
@@ -185,7 +185,7 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         then: "the workflow has been correctly saved"
         workflowStarted1.id == WORKFLOW_ID
         workflowStarted1.owner
-        workflowStarted1.checkIsStarted()
+        workflowStarted1.checkIsRunning()
         workflowStarted1.submit
         !workflowStarted1.complete
         Workflow.withNewTransaction { Workflow.count() } == 1

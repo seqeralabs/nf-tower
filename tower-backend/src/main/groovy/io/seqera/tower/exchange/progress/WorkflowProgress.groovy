@@ -17,6 +17,7 @@ import com.fasterxml.jackson.annotation.JsonGetter
 import com.fasterxml.jackson.annotation.JsonIgnore
 import groovy.transform.CompileStatic
 import io.seqera.tower.enums.TaskStatus
+import io.seqera.tower.service.LoadStats
 import io.seqera.tower.service.ProgressRow
 import io.seqera.tower.service.ProgressState
 /**
@@ -44,9 +45,9 @@ class WorkflowProgress implements ProgressState {
     long loadCpus
     long loadMemory
 
-    long peakLoadCpus
-    long peakLoadTasks
-    long peakLoadMemory
+    long peakCpus
+    long peakTasks
+    long peakMemory
 
     @JsonGetter('memoryEfficiency')
     float getMemoryEfficiency() {
@@ -75,13 +76,17 @@ class WorkflowProgress implements ProgressState {
             volCtxSwitch += row.volCtxSwitch
             invCtxSwitch += row.invCtxSwitch
         }
-        else if( row.status == RUNNING ) {
-            loadTasks += row.count
-            loadCpus += row.totalCpus
-            loadMemory += row.memoryReq
-        }
 
         return this
     }
 
+    WorkflowProgress withLoad( LoadStats stats ) {
+        this.loadTasks = stats.loadTasks
+        this.loadCpus = stats.loadCpus
+        this.loadMemory = stats.loadMemory
+        this.peakCpus = stats.peakCpus
+        this.peakTasks = stats.peakTasks
+        this.peakMemory = stats.peakMemory
+        return this
+    }
 }

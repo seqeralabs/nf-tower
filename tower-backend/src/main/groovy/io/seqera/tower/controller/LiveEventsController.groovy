@@ -37,7 +37,7 @@ class LiveEventsController {
     Publisher<Event<List<LiveUpdate>>> live(HttpRequest request) {
         log.debug("== Client subscribing to live events [remoteAddress=${request.remoteAddress}]")
         try {
-            return serverSentEventsService.getEventsFlowable()
+            return serverSentEventsService.getEventPublisher()
         }
         catch (Exception e) {
             String message = "Unexpected error while obtaining event emitter"

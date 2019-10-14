@@ -14,7 +14,7 @@ package io.seqera.tower.exchange.trace
 import io.seqera.tower.exchange.BaseResponse
 
 /**
- *
+ * Model the workflow tracing initialization response
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
 class TraceInitResponse implements BaseResponse {
