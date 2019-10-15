@@ -13,6 +13,7 @@ package io.seqera.tower.service
 
 import javax.inject.Inject
 import javax.validation.ValidationException
+import java.time.OffsetDateTime
 
 import grails.gorm.transactions.TransactionService
 import grails.gorm.transactions.Transactional
@@ -256,6 +257,24 @@ class UserServiceTest extends AbstractContainerBaseTest {
         'paolo.ditommaso@gmail.com' | 'https://www.gravatar.com/avatar/21c5e4164ca1573516b6a378fc279df2?d=404'
         'unknown@foo.com'           | null
 
+    }
+
+    def 'should update last access ts' () {
+        given:
+        def ts = OffsetDateTime.now()
+        def creator = new DomainCreator()
+
+        when:
+        def user = creator.createUser()
+        then:
+        user.lastAccess == null
+
+        when:
+        def done = userService.updateLastAccessTime(user.id)
+        then:
+        done 
+        User.get(user.id).lastAccess >= ts
+        User.get(user.id).lastAccess <= OffsetDateTime.now()
     }
 
 }
