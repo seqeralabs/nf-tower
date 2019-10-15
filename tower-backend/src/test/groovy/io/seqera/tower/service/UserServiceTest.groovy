@@ -273,8 +273,8 @@ class UserServiceTest extends AbstractContainerBaseTest {
         def done = userService.updateLastAccessTime(user.id)
         then:
         done 
-        User.get(user.id).lastAccess >= ts
-        User.get(user.id).lastAccess <= OffsetDateTime.now()
+        User.get(user.id).lastAccess >= ts.minusSeconds(2)
+        User.get(user.id).lastAccess <= ts.plusSeconds(2)
     }
 
 }

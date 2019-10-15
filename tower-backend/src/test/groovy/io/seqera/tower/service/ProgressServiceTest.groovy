@@ -13,6 +13,7 @@ package io.seqera.tower.service
 
 import javax.inject.Inject
 import java.time.Instant
+import java.time.OffsetDateTime
 
 import grails.gorm.transactions.TransactionService
 import grails.gorm.transactions.Transactional
@@ -367,8 +368,9 @@ class ProgressServiceTest extends AbstractContainerBaseTest {
 
     def 'should delete zombie execution' () {
         given:
+        def ts = OffsetDateTime.now().minusHours(1)
         def creator = new DomainCreator()
-        def workflow = creator.createWorkflow()
+        def workflow = creator.createWorkflow(start: ts)
         and:
         def service = progressService as ProgressServiceImpl
 
@@ -384,6 +386,7 @@ class ProgressServiceTest extends AbstractContainerBaseTest {
         !service.loadStats.containsKey(workflow.id)
         and:
         tx.withTransaction {Workflow.get(workflow.id).status} == WorkflowStatus.UNKNOWN
+        tx.withTransaction {Workflow.get(workflow.id).duration} > 0
     }
 
 
