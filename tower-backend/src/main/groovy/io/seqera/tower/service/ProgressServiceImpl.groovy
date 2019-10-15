@@ -15,6 +15,8 @@ import javax.annotation.PostConstruct
 import javax.inject.Inject
 import javax.inject.Singleton
 import java.time.Duration
+import java.time.Instant
+import java.time.OffsetDateTime
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 
@@ -33,7 +35,6 @@ import io.seqera.tower.exchange.progress.ProgressData
 import io.seqera.tower.exchange.progress.WorkflowProgress
 import org.hibernate.Session
 import org.springframework.transaction.annotation.Propagation
-
 /**
  * Implements the workflow execution progress & monitoring logic
  *
@@ -240,10 +241,17 @@ class ProgressServiceImpl implements ProgressService {
         final workflow = Workflow.get(workflowId)
         if( workflow ) {
             workflow.status = WorkflowStatus.UNKNOWN
+            workflow.duration = computeDuration(workflow.start)
             workflow.save()
             // notify the status change
             liveEventsService.publishWorkflowEvent(workflow)
         }
+    }
+
+    protected Long computeDuration(OffsetDateTime ts) {
+        if( ts==null ) return null
+        final result = Instant.now().toEpochMilli()-ts.toInstant().toEpochMilli()
+        result>=0 ? result : 0
     }
 
     protected updateLoadStats(LoadStats stats) {
