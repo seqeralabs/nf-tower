@@ -294,9 +294,10 @@ class UserServiceImpl implements UserService {
         }.get()
     }
 
-    User updateLastAccessTime(User user) {
-        user.lastAccess = OffsetDateTime.now()
-        user.save()
+    @Override
+    boolean updateLastAccessTime(Long userId) {
+        def args = [ts: OffsetDateTime.now(), userId: userId]
+        User.executeUpdate('update User set lastAccess=:ts where id=:userId', args)>0
     }
 
 }

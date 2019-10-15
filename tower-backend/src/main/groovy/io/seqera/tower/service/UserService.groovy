@@ -44,6 +44,6 @@ interface UserService {
 
     User getByAccessToken(String token)
 
-    User updateLastAccessTime(User user)
+    boolean updateLastAccessTime(Long userId)
 
 }

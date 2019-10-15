@@ -65,7 +65,7 @@ class AuthenticationByMailAuthToken implements AuthenticationProvider {
         }
 
         // user is OK -- update last access timestamp
-        userService.updateLastAccessTime(user)
+        userService.updateLastAccessTime(user.id)
 
         List<String> authorities = userService.findAuthoritiesOfUser(user)
         return new UserDetails(user.email, authorities)
