@@ -14,10 +14,9 @@ package io.seqera.tower.service
 import javax.inject.Inject
 import javax.inject.Singleton
 
-import grails.gorm.DetachedCriteria
-import grails.gorm.PagedResultList
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
+import groovy.util.logging.Slf4j
 import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.TaskData
 import io.seqera.tower.domain.Workflow
@@ -25,6 +24,7 @@ import io.seqera.tower.enums.TaskStatus
 import io.seqera.tower.exceptions.NonExistingWorkflowException
 import io.seqera.tower.exchange.trace.TraceTaskRequest
 
+@Slf4j
 @Transactional
 @Singleton
 class TaskServiceImpl implements TaskService {
@@ -143,38 +143,71 @@ class TaskServiceImpl implements TaskService {
         taskToUpdate.invCtxt = originalTask.invCtxt
     }
 
+    private static List<String> TASK_DATA_SORTABLE_FIELDS = ['submit','duration','realtime','peakRss','peakVmem','rchar','wchar','volCtxt','invCtxt']
+
+    private static List<String> ORDER_DIRECTION = ['asc','desc','ASC','DESC']
+
     @CompileDynamic
-    PagedResultList<Task> findTasks(String workflowId, Long max, Long offset, String orderProperty, String orderDirection, String sqlRegex) {
-        def statusesToSearch = TaskStatus.findStatusesByRegex(sqlRegex)
+    List<Task> findTasks(String workflowId, String filter, String orderProperty, String orderDirection, Long max, Long offset) {
+        log.debug "findTasks workflowId=$workflowId; max=$max; offset=$offset; filter=$filter; orderProperty=$orderProperty; orderDirection=$orderDirection"
+        if( !(orderDirection in ORDER_DIRECTION))
+            throw new IllegalArgumentException("Invalid order direction: $orderDirection")
 
-        if( orderProperty != 'taskId' && orderProperty != 'status' )
-            orderProperty = 'data.' + orderProperty
-
-        final criteria  = new DetachedCriteria<Task>(Task).build {
-            workflow {
-                eq('id', workflowId)
-            }
-
-            if (sqlRegex) {
-                or {
-                    data {
-                        or {
-                            ilike('process', sqlRegex)
-                            ilike('tag', sqlRegex)
-                            ilike('hash', sqlRegex)
-                        }
-                    }
-
-                    if (statusesToSearch) {
-                        'in'('status', statusesToSearch)
-                    }
-                }
-            }
-
-           order(orderProperty, orderDirection)
+        def params = [workflowId: workflowId]
+        def query = createTaskQuery(params, filter)
+        if( orderProperty ) {
+            if( orderProperty == 'taskId')
+                orderProperty  = "t.${orderProperty}"
+            else if( orderProperty in TASK_DATA_SORTABLE_FIELDS )
+                orderProperty  = "d.${orderProperty}"
+            else
+                throw new IllegalStateException("Invalid Task sort field: $orderProperty")
+            query += " order by $orderProperty ${orderDirection.toLowerCase()}".toString()
         }
 
-        return criteria.list(max: max, offset: offset, fetch: [data: 'join'])
+        final args = [max: max, offset: offset, fetchSize: max]
+        Task.executeQuery(query, params, args)
+    }
+
+    long countTasks(String workflowId, String filter) {
+        def params = [workflowId: workflowId]
+        def query = createTaskQuery(params, filter, true)
+        def result = Task.executeQuery(query, params)
+        return result[0] as long
+    }
+
+    private String createTaskQuery(Map params, String filter, boolean count=false) {
+        def statusesToSearch = TaskStatus.findStatusesByRegex(filter)
+        def query = (count ?
+                """\
+                select count(*)
+                from Task t
+                join t.data d
+                where t.workflow.id = :workflowId 
+                """
+            :
+                """\
+                select t
+                from Task t
+                join fetch t.data d
+                where t.workflow.id = :workflowId 
+                """ ).stripIndent()
+
+        if( filter )
+            params.filter = filter.toLowerCase()
+        if( statusesToSearch  )
+            params.statuses = statusesToSearch
+
+        if( params.filter ) {
+            query += " and ("
+            query += "lower(d.process) like :filter or lower(d.tag) like :filter or lower(d.hash) like :filter"
+            if( params.statuses ) {
+                query += " or t.status in :statuses"
+            }
+            query += ")"
+        }
+
+        return query
     }
 
 }

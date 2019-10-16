@@ -11,7 +11,8 @@
 
 package io.seqera.tower.service
 
-import grails.gorm.PagedResultList
+import javax.inject.Inject
+
 import grails.gorm.transactions.Transactional
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.tower.Application
@@ -25,8 +26,6 @@ import io.seqera.tower.util.DomainCreator
 import io.seqera.tower.util.TaskTraceSnapshotStatus
 import io.seqera.tower.util.TracesJsonBank
 import spock.lang.Unroll
-
-import javax.inject.Inject
 
 @MicronautTest(application = Application.class)
 @Transactional
@@ -305,7 +304,8 @@ class TaskServiceTest extends AbstractContainerBaseTest {
     @Unroll
     void "find some tasks belonging to a workflow"() {
         given: 'a first task'
-        Task firstTask = new DomainCreator().createTask(taskId: 1)
+        def rnd = new Random()
+        Task firstTask = new DomainCreator().createTask(taskId: 1, status: TaskStatus.RUNNING, duration: rnd.nextLong())
         List<Task> tasks = [firstTask]
 
         and: 'extract its workflow'
@@ -313,25 +313,57 @@ class TaskServiceTest extends AbstractContainerBaseTest {
 
         and: 'generate more tasks associated with the workflow'
         (2..nTasks).each {
-            tasks << new DomainCreator().createTask(workflow: workflow, taskId: it)
+            tasks << new DomainCreator().createTask(workflow: workflow, taskId: it, duration: rnd.nextLong())
         }
 
         when: 'search for the tasks associated with the workflow'
-        PagedResultList<Task> obtainedTasks = taskService.findTasks(workflow.id, max, offset, orderProperty, orderDirection, null)
+        List<Task> obtainedTasks = taskService.findTasks(workflow.id, null, orderProperty, orderDirection, max, offset)
+        long totalCount = taskService.countTasks(workflow.id, null)
 
         then: 'the obtained tasks are as expected'
-        obtainedTasks.totalCount == nTasks
+        totalCount == nTasks
         obtainedTasks.size() == max
         obtainedTasks.id == tasks.sort { t1, t2 ->
             (orderDirection == 'asc') ? t1[orderProperty] <=> t2[orderProperty] : t2[orderProperty] <=> t1[orderProperty]
         }[offset..<(offset + max)].id
 
         where: 'the pagination params are'
-        nTasks | max | offset | orderProperty | orderDirection
-        20     | 10  | 0      | 'hash'        | 'asc'
-        20     | 10  | 10     | 'hash'        | 'asc'
-        20     | 10  | 0      | 'hash'        | 'desc'
-        20     | 10  | 10     | 'hash'        | 'desc'
+        nTasks | max | offset | orderProperty | orderDirection  | filter
+        20     | 10  | 0      | 'taskId'      | 'asc'           | null
+        20     | 10  | 0      | 'taskId'      | 'desc'          | null
+        20     | 10  | 10     | 'taskId'      | 'asc'           | null
+        20     | 1   | 0      | 'taskId'      | 'asc'           | 'running'
+        20     | 10  | 0      | 'submit'      | 'asc'           | null
+        20     | 10  | 10     | 'submit'      | 'asc'           | null
+        20     | 10  | 10     | 'duration'    | 'desc'          | null
+        20     | 9   | 10     | 'submit'      | 'asc'           | 'SUBMITTED'
+
+    }
+
+    def 'should sort by task duration' () {
+        given:
+        def wf = new DomainCreator().createWorkflow()
+        Task t1 = new DomainCreator().createTask(workflow: wf, taskId: 1, duration: 300, process: 'foo 1', status: TaskStatus.COMPLETED)
+        Task t2 = new DomainCreator().createTask(workflow: wf, taskId: 2, duration: 200, process: 'foo 2', status: TaskStatus.RUNNING)
+        Task t3 = new DomainCreator().createTask(workflow: wf, taskId: 3, duration: 100, process: 'bar 3', status: TaskStatus.RUNNING)
+
+        when:
+        def result = taskService.findTasks(wf.id, FILTER, SORT, DIR,  MAX, OFFSET)
+        then:
+        result.taskId == EXPECTED
+
+        where:
+        FILTER      | SORT        | DIR    | MAX   | OFFSET | EXPECTED
+        null        | 'taskId'    | 'asc'  | 10    | 0      | [1,2,3]
+        null        | 'taskId'    | 'desc' | 10    | 0      | [3,2,1]
+        null        | 'duration'  | 'asc'  | 10    | 0      | [3,2,1]
+        null        | 'duration'  | 'desc' | 10    | 0      | [1,2,3]
+        'foo%'      | 'taskId'    | 'asc'  | 10    | 0      | [1,2]
+        'FOO%'      | 'duration'  | 'asc'  | 10    | 0      | [2,1]
+        'bar%'      | 'duration'  | 'asc'  | 10    | 0      | [3]
+        'running'   | 'taskId'    | 'asc'  | 10    | 0      | [2,3]
+        'COMPLETED' |'taskId'     | 'asc'  | 10    | 0      | [1]
+        'UNKNOWN'   | 'taskId'    | 'asc'  | 10    | 0      | []
     }
 
     @Unroll
@@ -349,7 +381,7 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         }
 
         when: 'search for the tasks associated with the workflow'
-        PagedResultList<Task> obtainedTasks = taskService.findTasks(workflow.id, 10, 0, 'taskId', 'asc', search)
+        List<Task> obtainedTasks = taskService.findTasks(workflow.id, 10, 0, 'taskId', 'asc', search)
 
         then: 'the obtained tasks are as expected'
         obtainedTasks.taskId == expectedTaskIds
@@ -376,14 +408,19 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         'comp%'     | [4l]
     }
 
-    @Unroll
     void "try to find some tasks for a nonexistent workflow"() {
         when: 'search for the tasks associated with a nonexistent workflow'
-        PagedResultList<Task> obtainedTasks = taskService.findTasks('100', 10l, 0l, 'taskId', 'asc', null)
+        List<Task> obtainedTasks = taskService.findTasks('100', 10l, 0l, 'taskId', 'asc', null)
 
         then: 'there are no tasks'
-        obtainedTasks.totalCount == 0
         obtainedTasks.size() == 0
+    }
+
+    void "should return zero tasks" () {
+        when:
+        def result = taskService.countTasks('100',null)
+        then:
+        result == 0
     }
 
 }

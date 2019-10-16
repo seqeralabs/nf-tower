@@ -13,7 +13,6 @@ package io.seqera.tower.controller
 
 import javax.inject.Inject
 
-import grails.gorm.PagedResultList
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
 import groovy.util.logging.Slf4j
@@ -42,11 +41,11 @@ import io.seqera.tower.exchange.workflow.AddWorkflowCommentResponse
 import io.seqera.tower.exchange.workflow.DeleteWorkflowCommentRequest
 import io.seqera.tower.exchange.workflow.DeleteWorkflowCommentResponse
 import io.seqera.tower.exchange.workflow.GetWorkflowMetricsResponse
+import io.seqera.tower.exchange.workflow.GetWorkflowResponse
 import io.seqera.tower.exchange.workflow.ListWorkflowCommentsResponse
 import io.seqera.tower.exchange.workflow.ListWorklowResponse
 import io.seqera.tower.exchange.workflow.UpdateWorkflowCommentRequest
 import io.seqera.tower.exchange.workflow.UpdateWorkflowCommentResponse
-import io.seqera.tower.exchange.workflow.GetWorkflowResponse
 import io.seqera.tower.service.ProgressService
 import io.seqera.tower.service.TaskService
 import io.seqera.tower.service.UserService
@@ -158,14 +157,14 @@ class WorkflowController extends BaseController {
         String orderDir = filterParams.getFirst('order[0][dir]', String.class, 'asc')
 
         String search = filterParams.getFirst('search', String.class, '')
-        String searchRegex = search ? search.contains('*') ? search.replaceAll(/\*/, '%') : "${search}%" : null
+        String filter = search ? search.contains('*') ? search.replaceAll(/\*/, '%') : "${search}%" : null
 
-        PagedResultList<Task> taskPagedResultList = taskService.findTasks(workflowId, max, offset, orderProperty, orderDir, searchRegex)
-
-        List<TaskGet> result = taskPagedResultList.collect {
+        List<Task> tasks = taskService.findTasks(workflowId, filter, orderProperty, orderDir, max, offset)
+        long total = tasks.size()<max ? tasks.size() : taskService.countTasks(workflowId, filter)
+        List<TaskGet> result = tasks.collect {
             TaskGet.of(it)
         }
-        HttpResponse.ok(TaskList.of(result, taskPagedResultList.totalCount))
+        HttpResponse.ok(TaskList.of(result, total))
     }
 
     @Transactional
