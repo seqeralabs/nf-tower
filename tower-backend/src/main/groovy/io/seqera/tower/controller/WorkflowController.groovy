@@ -155,7 +155,7 @@ class WorkflowController extends BaseController {
         Long offset = filterParams.getFirst('start', Long.class, 0l)
         String orderProperty = filterParams.getFirst('order[0][column]', String.class, 'taskId')
         String orderDir = filterParams.getFirst('order[0][dir]', String.class, 'asc')
-        String search = filterParams.getFirst('search', String.class)
+        String search = filterParams.getFirst('search', String.class, null)
 
         List<Task> tasks = taskService.findTasks(workflowId, search, orderProperty, orderDir, max, offset)
         long total = tasks.size()<max ? tasks.size() : taskService.countTasks(workflowId, search)

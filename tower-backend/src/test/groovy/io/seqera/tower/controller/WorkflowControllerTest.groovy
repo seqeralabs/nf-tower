@@ -305,10 +305,9 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
 
         where: 'the search params are'
         search      | expectedTaskIds  | orderProperty | orderDirection
-        'hash%'     | [1l, 2l, 3l, 4l] | 'hash'        | 'asc'
-        'tag%'      | [1l, 2l, 3l, 4l] | 'process'     | 'asc'
-        'process%'  | [1l, 2l, 3l, 4l] | 'tag'         | 'asc'
-//        '%a%'       | [4l, 3l, 2l, 1l] | 'hash'        | 'desc'
+        'hash*'     | [1l, 2l, 3l, 4l] | 'hash'        | 'asc'
+        'tag*'      | [1l, 2l, 3l, 4l] | 'process'     | 'asc'
+        'process*'  | [1l, 2l, 3l, 4l] | 'tag'         | 'asc'
 
         'hash1'     | [1l]             | 'hash'        | 'asc'
         'HASH1'     | [1l]             | 'hash'        | 'asc'
@@ -317,12 +316,12 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         'tag3'      | [3l]             | 'hash'        | 'asc'
         'TAG3'      | [3l]             | 'hash'        | 'asc'
 
-        'submit%'   | [1l]             | 'hash'        | 'asc'
+        'submit*'   | [1l]             | 'hash'        | 'asc'
         'SUBMITTED' | [1l]             | 'hash'        | 'asc'
         'submitted' | [1l]             | 'hash'        | 'asc'
-        'run%'      | [2l]             | 'hash'        | 'asc'
-        'fail%'     | [3l]             | 'hash'        | 'asc'
-        'comp%'     | [4l]             | 'hash'        | 'asc'
+        'run*'      | [2l]             | 'hash'        | 'asc'
+        'fail*'     | [3l]             | 'hash'        | 'asc'
+        'comp*'     | [4l]             | 'hash'        | 'asc'
     }
 
     void "try to get the list of tasks from a nonexistent workflow"() {
