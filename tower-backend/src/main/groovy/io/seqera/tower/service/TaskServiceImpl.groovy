@@ -149,12 +149,12 @@ class TaskServiceImpl implements TaskService {
 
     @CompileDynamic
     List<Task> findTasks(String workflowId, String filter, String orderProperty, String orderDirection, Long max, Long offset) {
-        log.debug "findTasks workflowId=$workflowId; max=$max; offset=$offset; filter=$filter; orderProperty=$orderProperty; orderDirection=$orderDirection"
+        log.trace "findTasks workflowId=$workflowId; max=$max; offset=$offset; filter=$filter; orderProperty=$orderProperty; orderDirection=$orderDirection"
         if( !(orderDirection in ORDER_DIRECTION))
             throw new IllegalArgumentException("Invalid order direction: $orderDirection")
 
         def params = [workflowId: workflowId]
-        def query = createTaskQuery(params, filter)
+        def query = createTaskQuery0(params, filter)
         if( orderProperty ) {
             if( orderProperty == 'taskId')
                 orderProperty  = "t.${orderProperty}"
@@ -171,13 +171,15 @@ class TaskServiceImpl implements TaskService {
 
     long countTasks(String workflowId, String filter) {
         def params = [workflowId: workflowId]
-        def query = createTaskQuery(params, filter, true)
+        def query = createTaskQuery0(params, filter, true)
         def result = Task.executeQuery(query, params)
         return result[0] as long
     }
 
-    private String createTaskQuery(Map params, String filter, boolean count=false) {
-        def statusesToSearch = TaskStatus.findStatusesByRegex(filter)
+    private String createTaskQuery0(Map params, String search, boolean count=false) {
+        final statusesToSearch = TaskStatus.findStatusesByRegex(search)
+        final filter = search ? search.contains('*') ? search.replaceAll(/\*/, '%') : "${search}%".toString() : null
+
         def query = (count ?
                 """\
                 select count(*)
@@ -201,9 +203,8 @@ class TaskServiceImpl implements TaskService {
         if( params.filter ) {
             query += " and ("
             query += "lower(d.process) like :filter or lower(d.tag) like :filter or lower(d.hash) like :filter"
-            if( params.statuses ) {
+            if( params.statuses )
                 query += " or t.status in :statuses"
-            }
             query += ")"
         }
 

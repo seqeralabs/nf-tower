@@ -36,6 +36,7 @@ class StringUtilsTest extends Specification {
         'paolo@gmail.com'   | '*@gmail.com' | true
         'paolo@yahoo.com'   | '*@gmail.com' | false
         'x.y_w-z@this.com'  | '*@this.com'  | true
+        'x.y_w-z@THIS.com'  | '*@this.com'  | true
         'x.y_w-z@that.com'  | '*@this.com'  | false
     }
 

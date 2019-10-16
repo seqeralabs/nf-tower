@@ -358,11 +358,11 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         null        | 'taskId'    | 'desc' | 10    | 0      | [3,2,1]
         null        | 'duration'  | 'asc'  | 10    | 0      | [3,2,1]
         null        | 'duration'  | 'desc' | 10    | 0      | [1,2,3]
-        'foo%'      | 'taskId'    | 'asc'  | 10    | 0      | [1,2]
-        'FOO%'      | 'duration'  | 'asc'  | 10    | 0      | [2,1]
-        'bar%'      | 'duration'  | 'asc'  | 10    | 0      | [3]
+        'foo'       | 'taskId'    | 'asc'  | 10    | 0      | [1,2]
+        'FOO*'      | 'duration'  | 'asc'  | 10    | 0      | [2,1]
+        'bar*'      | 'duration'  | 'asc'  | 10    | 0      | [3]
         'running'   | 'taskId'    | 'asc'  | 10    | 0      | [2,3]
-        'COMPLETED' |'taskId'     | 'asc'  | 10    | 0      | [1]
+        'COMPLET*'  |'taskId'     | 'asc'  | 10    | 0      | [1]
         'UNKNOWN'   | 'taskId'    | 'asc'  | 10    | 0      | []
     }
 
@@ -381,17 +381,17 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         }
 
         when: 'search for the tasks associated with the workflow'
-        List<Task> obtainedTasks = taskService.findTasks(workflow.id, 10, 0, 'taskId', 'asc', search)
+        List<Task> obtainedTasks = taskService.findTasks(workflow.id, search, 'taskId', 'asc',10, 0)
 
         then: 'the obtained tasks are as expected'
         obtainedTasks.taskId == expectedTaskIds
 
         where: 'the search params are'
         search      | expectedTaskIds
-        'hash%'     | [1l, 2l, 3l, 4l]
-        'tag%'      | [1l, 2l, 3l, 4l]
-        'process%'  | [1l, 2l, 3l, 4l]
-        '%a%'       | [1l, 2l, 3l, 4l]
+        'hash*'     | [1l, 2l, 3l, 4l]
+        'tag*'      | [1l, 2l, 3l, 4l]
+        'process*'  | [1l, 2l, 3l, 4l]
+        '*a*'       | [1l, 2l, 3l, 4l]
 
         'hash1'     | [1l]
         'HASH1'     | [1l]
@@ -400,17 +400,17 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         'tag3'      | [3l]
         'TAG3'      | [3l]
 
-        'submit%'   | [1l]
+        'submit*'   | [1l]
         'SUBMITTED' | [1l]
         'submitted' | [1l]
-        'run%'      | [2l]
-        'fail%'     | [3l]
-        'comp%'     | [4l]
+        'run*'      | [2l]
+        'fail*'     | [3l]
+        'comp*'     | [4l]
     }
 
     void "try to find some tasks for a nonexistent workflow"() {
         when: 'search for the tasks associated with a nonexistent workflow'
-        List<Task> obtainedTasks = taskService.findTasks('100', 10l, 0l, 'taskId', 'asc', null)
+        List<Task> obtainedTasks = taskService.findTasks('100', 'ab(','taskId', 'asc',10l, 0l)
 
         then: 'there are no tasks'
         obtainedTasks.size() == 0
