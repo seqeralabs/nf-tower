@@ -16,6 +16,7 @@ import javax.inject.Singleton
 
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
+import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.TaskData
@@ -27,6 +28,7 @@ import io.seqera.tower.exchange.trace.TraceTaskRequest
 @Slf4j
 @Transactional
 @Singleton
+@CompileStatic
 class TaskServiceImpl implements TaskService {
 
     WorkflowService workflowService
@@ -178,7 +180,7 @@ class TaskServiceImpl implements TaskService {
 
     private String createTaskQuery0(Map params, String search, boolean count=false) {
         final statusesToSearch = TaskStatus.findStatusesByRegex(search)
-        final filter = search ? search.contains('*') ? search.replaceAll(/\*/, '%') : "${search}%".toString() : null
+        final String filter = search ? search.contains('*') ? search.replaceAll(/\*/, '%') : "${search}%".toString() : null
 
         def query = (count ?
                 """\
