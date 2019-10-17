@@ -520,7 +520,7 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         and:
         wf.manifest.version_ == "3.3.3"
         wf.manifest.nextflowVersion == "18.0.0"
-        wf.manifest.gitmodules
+        wf.manifest.gitmodules == 'true'
         wf.manifest.mainScript == 'main.nf'
         wf.manifest.defaultBranch == 'master'
         and:
@@ -528,5 +528,35 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         wf.nextflow.build == "54321"
 
     }
+
+    def 'should deserialize list of modules' () {
+        when:
+        def REQ1 = '''
+        {
+            "defaultBranch": "master",
+            "version": "3.3.3",
+            "gitmodules": ["foo","bar"],
+            "mainScript": "main.nf",
+            "author": "Mr Bar"
+        }
+        '''
+        def manifest1 = DomainHelper.mapper.readValue(REQ1, WfManifest)
+        then:
+        manifest1.gitmodules == 'foo,bar'
+
+        when:
+        def REQ2 = '''
+        {
+            "defaultBranch": "other",
+            "gitmodules": "long_module_name",
+            "mainScript": "main.nf",
+            "author": "Mr Bar"
+        }
+        '''
+        def manifest2 = DomainHelper.mapper.readValue(REQ2, WfManifest)
+        then:
+        manifest2.gitmodules == 'long_module_name'
+    }
+
 
 }
