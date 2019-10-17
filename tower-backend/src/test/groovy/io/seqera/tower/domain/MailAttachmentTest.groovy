@@ -11,14 +11,15 @@
 
 package io.seqera.tower.domain
 
-
-import spock.lang.Specification
-
+import io.micronaut.test.annotation.MicronautTest
+import io.seqera.tower.Application
+import io.seqera.tower.util.AbstractContainerBaseTest
 /**
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
-class MailAttachmentTest extends Specification {
+@MicronautTest(application = Application.class)
+class MailAttachmentTest extends AbstractContainerBaseTest {
 
     void 'should create resource attachment' () {
         when:
