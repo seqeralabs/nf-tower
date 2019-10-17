@@ -42,6 +42,7 @@ abstract class AbstractContainerBaseTest extends Specification {
         new FixedHostPortGenericContainer("mysql:5.6")
                 .withFixedExposedPort(3307, 3306)
                 .withEnv([MYSQL_ROOT_PASSWORD: 'root', MYSQL_USER: 'tower', MYSQL_PASSWORD: 'tower', MYSQL_DATABASE: 'tower'])
+                .withTmpFs(['/var/lib/mysql':'rw,noexec,nosuid,size=1024m'])
                 .waitingFor(Wait.forListeningPort())
                 .waitingFor(Wait.forLogMessage(/.*MySQL init process done.*/, 1))
     }
