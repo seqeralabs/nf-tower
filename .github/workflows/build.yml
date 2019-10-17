@@ -30,8 +30,9 @@ jobs:
         GRADLE_OPTS: '-Dorg.gradle.daemon=false'
 
     - name: Tests
-      run: make test
+      run: ./gradlew clean test
       env:
+        MICRONAUT_ENVIRONMENTS: mysql
         GRADLE_OPTS: '-Dorg.gradle.daemon=false'
 
     - name: Build backend
@@ -40,7 +41,7 @@ jobs:
     - name: Build frontend
       run: docker build -t tower-web:latest tower-web
 
-    - name: Publish
+    - name: Publish tests
       if: failure()
       run: bash pub-tests.sh
       env:

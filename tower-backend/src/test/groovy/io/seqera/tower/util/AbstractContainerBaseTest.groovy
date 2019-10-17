@@ -43,7 +43,7 @@ abstract class AbstractContainerBaseTest extends Specification {
                 .withFixedExposedPort(3307, 3306)
                 .withEnv([MYSQL_ROOT_PASSWORD: 'root', MYSQL_USER: 'tower', MYSQL_PASSWORD: 'tower', MYSQL_DATABASE: 'tower'])
                 .waitingFor(Wait.forListeningPort())
-                .waitingFor(Wait.forLogMessage(/MySQL init process done.*/, 1))
+                .waitingFor(Wait.forLogMessage(/.*MySQL init process done.*/, 1))
     }
 
     protected String doJwtLogin(User user, HttpClient client) {
