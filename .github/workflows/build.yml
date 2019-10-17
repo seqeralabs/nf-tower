@@ -24,13 +24,13 @@ jobs:
         java-version: '8.0.222' 
         architecture: x64
 
-    - name: Assemble
-      run: ./gradlew check assemble
+    - name: Tests
+      run: ./gradlew clean test
       env:
         GRADLE_OPTS: '-Dorg.gradle.daemon=false'
 
-    - name: Tests
-      run: ./gradlew clean test
+    - name: Tests MySql
+      run: ./gradlew clean build
       env:
         MICRONAUT_ENVIRONMENTS: mysql
         GRADLE_OPTS: '-Dorg.gradle.daemon=false'
