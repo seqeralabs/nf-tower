@@ -47,7 +47,7 @@ class WfManifest {
         defaultBranch(nullable: true, maxSize: 20)
         version_(nullable: true, maxSize: 20)
         homePage(nullable: true, maxSize: 200)
-        gitmodules(nullable: true, maxSize: 75)
+        gitmodules(nullable: true, maxSize: 150)
         description(nullable: true, maxSize: 1024)
         name(nullable: true, maxSize: 150)
         mainScript(nullable: true, maxSize: 100)
