@@ -33,7 +33,7 @@ import io.seqera.tower.util.DomainCreator
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
-@MicronautTest(application = Application.class, environments = ['test','trusted'])
+@MicronautTest(application = Application.class, environments = ['trusted'])
 @Transactional
 class GateControllerTest extends AbstractContainerBaseTest {
 
