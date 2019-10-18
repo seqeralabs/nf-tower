@@ -190,9 +190,22 @@ class DomainCreator {
     }
 
     User createUserWithRole(Map fields = [:], String authority) {
-        User user = createUser(fields)
-        createUserRole(user: user, role: createRole(authority: authority))
-        return user
+        def create = {
+            boolean bak = this.withNewTransaction
+            this.withNewTransaction = false
+            try {
+                // creat the user and role if not exists
+                User user = createUser(fields)
+                Role role = Role.findByAuthority(authority) ?: createRole(authority: authority)
+                createUserRole(user: user, role: role)
+                return user
+            }
+            finally {
+                this.withNewTransaction = bak
+            }
+        }
+
+        this.withNewTransaction ? User.withNewTransaction(create) : create.call()
     }
 
     UserRole createUserRole(Map fields = [:]) {

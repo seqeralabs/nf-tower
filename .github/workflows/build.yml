@@ -26,14 +26,11 @@ jobs:
 
     - name: Tests
       run: ./gradlew clean test
-      env:
-        GRADLE_OPTS: '-Dorg.gradle.daemon=false'
 
     - name: Tests MySql
       run: ./gradlew clean build
       env:
         MICRONAUT_ENVIRONMENTS: mysql
-        GRADLE_OPTS: '-Dorg.gradle.daemon=false'
 
     - name: Build backend
       run: docker build -t tower-backend:latest tower-backend

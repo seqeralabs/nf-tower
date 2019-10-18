@@ -28,7 +28,7 @@ import io.seqera.util.StringUtils
 import org.grails.datastore.mapping.validation.ValidationException as GrailsValidationException
 import spock.lang.IgnoreIf
 
-@MicronautTest(application = Application.class, environments = ['test','trusted'])
+@MicronautTest(application = Application.class, environments = ['trusted'])
 @Transactional
 class UserServiceTest extends AbstractContainerBaseTest {
 
