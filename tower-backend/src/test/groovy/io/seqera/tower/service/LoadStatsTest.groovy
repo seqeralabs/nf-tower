@@ -54,6 +54,10 @@ class LoadStatsTest extends Specification {
         stats1.peakTasks == 1
         stats1.peakCpus == 1
         stats1.peakMemory == 2
+        and:
+        stats1.load == [
+                1L: new TaskLoad(cpus:1, memory: 2)
+        ]
 
         when:
         def stats2 = stats1.update([2L: new TaskLoad(cpus:10, memory: 20)], [])
@@ -65,6 +69,11 @@ class LoadStatsTest extends Specification {
         stats2.peakTasks == 2
         stats2.peakCpus == 11
         stats2.peakMemory == 22
+        and:
+        stats2.load == [
+                1L: new TaskLoad(cpus:1, memory: 2),
+                2L: new TaskLoad(cpus:10, memory: 20)
+        ]
 
         when:
         def stats3 = stats2.update([3L: new TaskLoad(cpus:3, memory: 4)], [1L,2L])
@@ -76,5 +85,9 @@ class LoadStatsTest extends Specification {
         stats3.peakTasks == 2
         stats3.peakCpus == 11
         stats3.peakMemory == 22
+        and:
+        stats3.load == [
+                3L: new TaskLoad(cpus:3, memory: 4)
+        ]
     }
 }
