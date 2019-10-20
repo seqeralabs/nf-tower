@@ -11,11 +11,14 @@
 
 package io.seqera.tower.service
 
+import groovy.transform.EqualsAndHashCode
+
 /**
  * Models the load metrics at task level
  * 
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
+@EqualsAndHashCode
 class TaskLoad {
     int cpus
     long memory
