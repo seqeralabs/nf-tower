@@ -70,7 +70,7 @@
       </div>
       <div class="row" *ngIf="workflow.isCompleted">
         <div class="col">
-          <wt-workflow-metrics></wt-workflow-metrics>
+          <wt-workflow-metrics [workflowId]="workflow.id"></wt-workflow-metrics>
         </div>
       </div>
     </div>
