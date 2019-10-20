@@ -26,6 +26,7 @@ import io.seqera.tower.domain.Workflow
 import io.seqera.tower.domain.WorkflowComment
 import io.seqera.tower.domain.WorkflowMetrics
 import io.seqera.tower.domain.WorkflowProcess
+import io.seqera.tower.enums.WorkflowStatus
 import io.seqera.tower.exceptions.NonExistingWorkflowException
 import io.seqera.tower.exchange.trace.TraceWorkflowRequest
 
@@ -63,30 +64,27 @@ class WorkflowServiceImpl implements WorkflowService {
     }
 
     Workflow processTraceWorkflowRequest(TraceWorkflowRequest request, User owner) {
-        if( request.workflow.status == null ) {
-            request.workflow.status = request.workflow.computeStatus()
-        }
-
         if( request.workflow.checkIsRunning() ) {
-            def ret = saveWorkflow(request.workflow, owner)
+            final workflow = saveNewWorkflow(request.workflow, owner)
 
             // save the process names
             for( int i=0; i<request.processNames?.size(); i++ ) {
                 final name = request.processNames[i]
-                final p = new WorkflowProcess(name: name, position: i, workflow: ret)
+                final p = new WorkflowProcess(name: name, position: i, workflow: workflow)
                 p.save()
             }
 
-            return ret
+            return workflow
         }
         else {
             updateWorkflow(request.workflow, request.metrics)
         }
     }
 
-    private Workflow saveWorkflow(Workflow workflow, User owner) {
+    private Workflow saveNewWorkflow(Workflow workflow, User owner) {
         workflow.submit = workflow.start
         workflow.owner = owner
+        workflow.status = WorkflowStatus.RUNNING
         // invoke validation explicitly due to gorm bug
         // https://github.com/grails/gorm-hibernate5/issues/110
         if (workflow.validate()) {
