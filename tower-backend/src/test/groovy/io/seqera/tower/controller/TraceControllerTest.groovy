@@ -27,6 +27,7 @@ import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.User
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.enums.TraceProcessingStatus
+import io.seqera.tower.enums.WorkflowStatus
 import io.seqera.tower.exchange.trace.TraceAliveRequest
 import io.seqera.tower.exchange.trace.TraceAliveResponse
 import io.seqera.tower.exchange.trace.TraceInitRequest
@@ -95,12 +96,13 @@ class TraceControllerTest extends AbstractContainerBaseTest {
     void "save a new workflow given a start trace"() {
         given: 'an allowed user'
         User user = new DomainCreator().generateAllowedUser()
-
         and: 'a workflow started JSON trace'
-        TraceWorkflowRequest workflowStartedJsonTrace = TracesJsonBank.extractWorkflowJsonTrace('success', null, WorkflowTraceSnapshotStatus.STARTED)
+        TraceWorkflowRequest trace = TracesJsonBank.extractWorkflowJsonTrace('success', null, WorkflowTraceSnapshotStatus.STARTED)
+        and:
+        assert trace.workflow.status == WorkflowStatus.RUNNING
 
         when: 'send a save request'
-        MutableHttpRequest request = HttpRequest.POST('/trace/workflow', workflowStartedJsonTrace)
+        MutableHttpRequest request = HttpRequest.POST('/trace/workflow', trace)
         request = appendBasicAuth(user, request)
 
         HttpResponse<TraceWorkflowResponse> response = client.toBlocking().exchange(
@@ -111,12 +113,13 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         then: 'the workflow has been saved successfully'
         response.status == HttpStatus.OK
         response.body().status == TraceProcessingStatus.OK
-        response.body().workflowId
-        response.body().watchUrl == 'http://localhost:8000/watch/' + response.body().workflowId
+        response.body().workflowId == trace.workflow.id
+        response.body().watchUrl == 'http://localhost:8000/watch/' + trace.workflow.id
         !response.body().message
 
         and: 'the workflow is in the database'
-        Workflow.withNewTransaction { Workflow.count() } ==1
+        Workflow.get(trace.workflow.id).status == WorkflowStatus.RUNNING
+        Workflow.get(trace.workflow.id).@status == WorkflowStatus.RUNNING
 
         and: 'the user has been associated with the workflow'
         User.withNewTransaction {

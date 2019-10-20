@@ -29,6 +29,7 @@ import io.seqera.tower.domain.WfNextflow
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.domain.WorkflowComment
 import io.seqera.tower.domain.WorkflowProcess
+import io.seqera.tower.enums.WorkflowStatus
 import io.seqera.tower.exceptions.NonExistingWorkflowException
 import io.seqera.tower.exchange.trace.TraceWorkflowRequest
 import io.seqera.tower.util.AbstractContainerBaseTest
@@ -67,6 +68,8 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         workflow.id == '123'
         workflow.owner
         workflow.checkIsRunning()
+        workflow.@status == WorkflowStatus.RUNNING
+        workflow.status == WorkflowStatus.RUNNING
         workflow.submit
         !workflow.complete
         Workflow.withNewTransaction { Workflow.count() } == 1
@@ -89,6 +92,8 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         workflowStarted.id
         workflowStarted.owner
         workflowStarted.checkIsRunning()
+        workflowStarted.@status == WorkflowStatus.RUNNING
+        workflowStarted.status == WorkflowStatus.RUNNING
         workflowStarted.submit
         !workflowStarted.complete
 
@@ -101,6 +106,8 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         then: "the workflow has been completed"
         workflowSucceeded.id == workflowStarted.id
         workflowSucceeded.checkIsSucceeded()
+        workflowSucceeded.@status == WorkflowStatus.SUCCEEDED
+        workflowSucceeded.status == WorkflowStatus.SUCCEEDED
         workflowSucceeded.submit
         workflowSucceeded.complete
         Workflow.withNewTransaction {
@@ -136,6 +143,8 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         workflowStarted.id
         workflowStarted.owner
         workflowStarted.checkIsRunning()
+        workflowStarted.@status == WorkflowStatus.RUNNING
+        workflowStarted.status == WorkflowStatus.RUNNING
         workflowStarted.submit
         !workflowStarted.complete
         Workflow.withNewTransaction {
@@ -152,6 +161,8 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         then: "the workflow has been completed"
         workflowFailed.id == workflowStarted.id
         workflowFailed.checkIsFailed()
+        workflowFailed.status == WorkflowStatus.FAILED
+        workflowFailed.status == WorkflowStatus.FAILED
         workflowFailed.submit
         workflowFailed.complete
         Workflow.withNewTransaction {
@@ -186,6 +197,8 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         workflowStarted1.id == WORKFLOW_ID
         workflowStarted1.owner
         workflowStarted1.checkIsRunning()
+        workflowStarted1.@status == WorkflowStatus.RUNNING
+        workflowStarted1.status == WorkflowStatus.RUNNING
         workflowStarted1.submit
         !workflowStarted1.complete
         Workflow.withNewTransaction { Workflow.count() } == 1
