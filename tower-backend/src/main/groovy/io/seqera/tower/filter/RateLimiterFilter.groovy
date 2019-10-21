@@ -101,7 +101,7 @@ class RateLimiterFilter extends OncePerRequestHttpServerFilter implements Filter
         }
         else {
             final metrics = limiter.getDetailedMetrics()
-            log.trace "Too many request for key: $key -- Wait ${TimeUnit.NANOSECONDS.toMillis(metrics.getNanosToWait())} millis issuing a new request"
+            log.warn "Too many request for key: $key -- Wait ${TimeUnit.NANOSECONDS.toMillis(metrics.getNanosToWait())} millis issuing a new request"
             return createOverLimitResponse(metrics);
         }
     }

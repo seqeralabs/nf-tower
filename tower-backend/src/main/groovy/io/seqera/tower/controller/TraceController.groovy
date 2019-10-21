@@ -97,7 +97,7 @@ class TraceController extends BaseController {
     @Transactional
     @Secured(['ROLE_USER'])
     HttpResponse<TraceTaskResponse> task(@Body TraceTaskRequest req, Authentication authentication) {
-        log.info "Receiving task trace request [workflowId=${req.workflowId}; user=${authentication.name}]"
+        log.info "Receiving task trace request [workflowId=${req.workflowId}; tasks=${req.tasks?.size()}; user=${authentication.name}]"
 
         HttpResponse<TraceTaskResponse> response
         if( !req.workflowId )

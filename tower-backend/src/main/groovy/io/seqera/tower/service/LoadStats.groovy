@@ -73,7 +73,7 @@ class LoadStats implements Serializable {
             if( !copy.remove(taskId) ) {
                 // this can happen when a task is acquired in a termination status without
                 // showing before as running (ie. quick completion or fail/aborted execution)
-                log.debug "Unable to drop taskId=$taskId from load stats for workflow Id=$workflowId"
+                log.trace "Unable to drop taskId=$taskId from load stats for workflow Id=$workflowId"
             }
         }
 
