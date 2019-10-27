@@ -80,7 +80,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         )
 
         creator.createWorkflowMetrics(workflow)
-        creator.createWorkflowSum(workflow: workflow)
+        creator.createWorkflowLoad(workflow: workflow)
 
 
         when: "perform the request to obtain the workflow"

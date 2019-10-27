@@ -327,11 +327,12 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         def creator = new DomainCreator()
         def workflow = creator.createWorkflow()
         creator.createWorkflowMetrics(workflow)
-        creator.createWorkflowMetrics(workflow)
-
         and:
         creator.createProcess(workflow: workflow, position: 0, name: 'foo')
-        
+        and:
+        creator.createProcessLoad(workflow: workflow, process: 'foo')
+        creator.createWorkflowLoad(workflow: workflow)
+
         and: 'some tasks associated with the workflow'
         (1..3).each {
             creator.createTask(taskId: it, workflow: workflow)

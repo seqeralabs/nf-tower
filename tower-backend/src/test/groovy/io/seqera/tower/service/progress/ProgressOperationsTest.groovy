@@ -219,7 +219,7 @@ class ProgressOperationsTest extends AbstractContainerBaseTest {
             succeeded == 0
             cached == 0
             //
-            cpus == 0 
+            cpus == 0
         }
 
         /*
@@ -380,11 +380,11 @@ class ProgressOperationsTest extends AbstractContainerBaseTest {
         def p2 = creator.createProcess(workflow: wf, name:'bravo', position: 1)
         def p3 = creator.createProcess(workflow: wf, name:'alpha', position: 0)
         and:
-        creator.createTaskSum(workflow: wf, process:'roger', peakCpus: 10)
-        creator.createTaskSum(workflow: wf, process:'bravo', peakCpus: 20)
-        creator.createTaskSum(workflow: wf, process:'alpha', peakCpus: 30)
+        creator.createProcessLoad(workflow: wf, process:'roger', peakCpus: 10)
+        creator.createProcessLoad(workflow: wf, process:'bravo', peakCpus: 20)
+        creator.createProcessLoad(workflow: wf, process:'alpha', peakCpus: 30)
         and:
-        creator.createWorkflowSum(workflow: wf, running: 2, succeeded: 10, failed: 1)
+        creator.createWorkflowLoad(workflow: wf, running: 2, succeeded: 10, failed: 1)
 
         when:
         def result = progressOp.load(wf.id)

@@ -19,11 +19,13 @@ import java.time.OffsetDateTime
 import grails.gorm.DetachedCriteria
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
+import io.seqera.tower.domain.ProcessLoad
 import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.TaskData
 import io.seqera.tower.domain.User
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.domain.WorkflowComment
+import io.seqera.tower.domain.WorkflowLoad
 import io.seqera.tower.domain.WorkflowMetrics
 import io.seqera.tower.domain.WorkflowProcess
 import io.seqera.tower.enums.WorkflowStatus
@@ -133,6 +135,8 @@ class WorkflowServiceImpl implements WorkflowService {
     }
 
     void delete(Workflow workflowToDelete) {
+        ProcessLoad.where { workflow == workflowToDelete }.deleteAll()
+        WorkflowLoad.where { workflow == workflowToDelete }.deleteAll()
         WorkflowProcess.where { workflow == workflowToDelete }.deleteAll()
         WorkflowMetrics.where { workflow == workflowToDelete }.deleteAll()
         WorkflowComment.where { workflow == workflowToDelete }.deleteAll()
