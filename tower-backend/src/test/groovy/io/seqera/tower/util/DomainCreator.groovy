@@ -14,8 +14,10 @@ package io.seqera.tower.util
 import java.time.Instant
 import java.time.OffsetDateTime
 
+import groovy.util.logging.Slf4j
 import io.seqera.tower.domain.AccessToken
 import io.seqera.tower.domain.Mail
+import io.seqera.tower.domain.MailAttachment
 import io.seqera.tower.domain.ProcessLoad
 import io.seqera.tower.domain.ResourceData
 import io.seqera.tower.domain.Role
@@ -25,13 +27,14 @@ import io.seqera.tower.domain.User
 import io.seqera.tower.domain.UserRole
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.domain.WorkflowComment
+import io.seqera.tower.domain.WorkflowLoad
 import io.seqera.tower.domain.WorkflowMetrics
 import io.seqera.tower.domain.WorkflowProcess
-import io.seqera.tower.domain.WorkflowLoad
 import io.seqera.tower.enums.TaskStatus
 import org.grails.datastore.mapping.validation.ValidationException
 import org.hibernate.Session
 
+@Slf4j
 class DomainCreator {
 
     Boolean save = true
@@ -41,19 +44,20 @@ class DomainCreator {
 
     static void cleanupDatabase() {
         Workflow.withNewTransaction {
-            Mail.deleteAll(Mail.list())
-            ProcessLoad.deleteAll(ProcessLoad.list())
-            WorkflowLoad.deleteAll(WorkflowLoad.list())
-            WorkflowProcess.deleteAll(WorkflowProcess.list())
-            WorkflowComment.deleteAll(WorkflowComment.list())
-            WorkflowMetrics.deleteAll(WorkflowMetrics.list())
-            Task.deleteAll(Task.list())
-            TaskData.deleteAll(TaskData.list())
-            Workflow.deleteAll(Workflow.list())
-            AccessToken.deleteAll(AccessToken.list())
-            UserRole.deleteAll(UserRole.list())
-            Role.deleteAll(Role.list())
-            User.deleteAll(User.list())
+            MailAttachment.where { true }.deleteAll()
+            Mail.where { true }.deleteAll()
+            ProcessLoad.where { true }.deleteAll()
+            WorkflowLoad.where { true }.deleteAll()
+            WorkflowProcess.where { true }.deleteAll()
+            WorkflowComment.where { true }.deleteAll()
+            WorkflowMetrics.where { true }.deleteAll()
+            Task.where { true }.deleteAll()
+            TaskData.where { true }.deleteAll()
+            Workflow.where { true }.deleteAll()
+            AccessToken.where { true }.deleteAll()
+            UserRole.where { true }.deleteAll()
+            Role.where { true }.deleteAll()
+            User.where { true }.deleteAll()
         }
     }
 
@@ -107,11 +111,11 @@ class DomainCreator {
         WorkflowProcess process = new WorkflowProcess()
         fields.workflow = fields.containsKey('workflow') ? fields.workflow : createWorkflow()
         fields.name = fields.containsKey('name') ? fields.name : "process_${generateUniqueNamePart()}"
-        fields.index = fields.containsKey('index') ? fields.index : generateUniqueNumber()
+        fields.position = fields.containsKey('position') ? fields.position : generateUniqueNumber()
         createInstance(process, fields)
     }
 
-    ProcessLoad createTaskSum(Map fields = [:]) {
+    ProcessLoad createProcessLoad(Map fields = [:]) {
         def load = new ProcessLoad()
         fields.workflow = fields.containsKey('workflow') ? fields.workflow : createWorkflow()
         fields.process = fields.containsKey('process') ? fields.process : "process_${generateUniqueNamePart()}"
@@ -126,7 +130,7 @@ class DomainCreator {
         createInstance(load, fields)
     }
 
-    WorkflowLoad createWorkflowSum(Map fields = [:]) {
+    WorkflowLoad createWorkflowLoad(Map fields = [:]) {
         def result = new WorkflowLoad()
 
         fields.workflow = fields.containsKey('workflow') ? fields.workflow : createWorkflow()
