@@ -75,4 +75,8 @@ class ProcessLoad implements ProgressRecord, Serializable {
         return this
     }
 
+    static constraints = {
+        process(maxSize: 255, unique: ['workflow'])
+    }
+
 }
