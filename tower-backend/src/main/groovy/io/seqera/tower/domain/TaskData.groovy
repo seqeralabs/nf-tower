@@ -109,7 +109,7 @@ class TaskData implements TaskDef {
         submit(nullable: true)
         start(nullable: true)
         complete(nullable: true)
-        module(nullable: true, maxSize: 200)
+        module(nullable: true, maxSize: 255)
         container(nullable: true, maxSize: 255)
         attempt(nullable: true)
         script(nullable: true)
