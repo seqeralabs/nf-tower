@@ -54,5 +54,7 @@ interface WorkflowService {
 
     List<WorkflowComment> getComments(Workflow workflow)
 
+    List<String> getProcessNames(Workflow workflow)
+
 
 }

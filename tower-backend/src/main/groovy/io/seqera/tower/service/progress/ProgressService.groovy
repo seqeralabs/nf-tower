@@ -9,17 +9,19 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 
-package io.seqera.tower.service
+package io.seqera.tower.service.progress
 
-import groovy.transform.EqualsAndHashCode
 
+import io.seqera.tower.domain.Workflow
+import io.seqera.tower.exchange.progress.ProgressData
 /**
- * Models the load metrics at task level
- * 
+ * Defines the contract for th execution progress logic
+ *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
-@EqualsAndHashCode
-class TaskLoad {
-    int cpus
-    long memory
+interface ProgressService extends ProgressOperations {
+
+    @Deprecated
+    ProgressData getProgressQuery(Workflow workflow)
+
 }

@@ -21,6 +21,8 @@ import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.exceptions.NonExistingWorkflowException
 import io.seqera.tower.exchange.trace.TraceTaskRequest
+import io.seqera.tower.exchange.trace.TraceWorkflowRequest
+import io.seqera.tower.service.progress.ProgressService
 import io.seqera.tower.util.AbstractContainerBaseTest
 import io.seqera.tower.util.DomainCreator
 
@@ -37,6 +39,9 @@ class TraceServiceTest extends AbstractContainerBaseTest {
 
     @Inject
     TaskService taskService
+
+    @Inject
+    ProgressService progressService
     
     @MockBean(TaskServiceImpl)
     TaskService taskService() { Mock(TaskService) }
@@ -47,11 +52,12 @@ class TraceServiceTest extends AbstractContainerBaseTest {
 
     void "process a successful workflow trace"() {
         given: "mock the workflow JSON processor to return a successful workflow"
+        def req = new TraceWorkflowRequest(processNames: [])
         Workflow workflow = new DomainCreator().createWorkflow()
         workflowService.processTraceWorkflowRequest(_, _) >> workflow
 
         when: "process the workflow (we don't mind about the given JSON because the processor is mocked)"
-        Workflow processedWorkflow = traceService.processWorkflowTrace(null, null)
+        Workflow processedWorkflow = traceService.processWorkflowTrace(req, null)
 
         then: "the result indicates a successful processing"
         processedWorkflow.id
@@ -60,12 +66,13 @@ class TraceServiceTest extends AbstractContainerBaseTest {
 
     void "process a workflow trace to try to start a new workflow with the same sessionId+runName combination of a previous one"() {
         given: "mock the workflow JSON processor to return a workflow with the same sessionId+runName combination as a previous one"
+        def req = new TraceWorkflowRequest(processNames: [])
         Workflow workflow1 = new DomainCreator().createWorkflow()
         Workflow workflow2 = new DomainCreator(failOnError: false).createWorkflow(sessionId: workflow1.sessionId, runName: workflow1.runName)
         workflowService.processTraceWorkflowRequest(_, _) >> workflow2
 
         when: "process the workflow (we don't mind about the given JSON because the processor is mocked)"
-        traceService.processWorkflowTrace(null, null)
+        traceService.processWorkflowTrace(req, null)
 
         then: "the result indicates an error"
         Exception e = thrown(ValidationException)
@@ -74,11 +81,12 @@ class TraceServiceTest extends AbstractContainerBaseTest {
 
     void "process a workflow trace to try to start workflow without submitTime"() {
         given: "mock the workflow JSON processor to return a workflow without submitTime"
+        def req = new TraceWorkflowRequest(processNames: [])
         Workflow workflow = new DomainCreator(failOnError: false).createWorkflow(submit: null)
         workflowService.processTraceWorkflowRequest(_, _) >> workflow
 
         when: "process the workflow (we don't mind about the given JSON because the processor is mocked)"
-        traceService.processWorkflowTrace(null, null)
+        traceService.processWorkflowTrace(req, null)
 
         then: "the result indicates an error"
         Exception e = thrown(ValidationException)
@@ -113,12 +121,14 @@ class TraceServiceTest extends AbstractContainerBaseTest {
 
     void "process a successful task trace"() {
         given: "mock the task JSON processor to return a successful task"
-        def request = new TraceTaskRequest(workflowId: 'xyz')
+        def req = new TraceTaskRequest(workflowId: 'xyz')
         Task task = new DomainCreator().createTask()
         taskService.processTaskTraceRequest(_) >> [task]
+        progressService.create('xyz', [])
+        and:
 
         when: "process the task (we don't mind about the given JSON because the processor is mocked)"
-        def processedTask = traceService.processTaskTrace(request).first()
+        def processedTask = traceService.processTaskTrace(req).first()
 
         then: "the result indicates a successful processing"
         processedTask.workflowId

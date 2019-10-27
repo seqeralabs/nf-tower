@@ -29,6 +29,7 @@ import io.seqera.tower.domain.WorkflowProcess
 import io.seqera.tower.enums.WorkflowStatus
 import io.seqera.tower.exceptions.NonExistingWorkflowException
 import io.seqera.tower.exchange.trace.TraceWorkflowRequest
+import io.seqera.tower.service.progress.ProgressService
 
 @Transactional
 @Singleton
@@ -44,7 +45,7 @@ class WorkflowServiceImpl implements WorkflowService {
     @CompileDynamic
     @Transactional(readOnly = true)
     Workflow get(String id) {
-        Workflow.findById(id, [fetch: [tasksProgress: 'join', processesProgress: 'join']])
+        Workflow.findById(id)
     }
 
     @CompileDynamic
@@ -194,5 +195,9 @@ class WorkflowServiceImpl implements WorkflowService {
         return comment.save()
     }
 
-
+    @CompileDynamic
+    List<String> getProcessNames(Workflow workflow) {
+        List<WorkflowProcess> all = WorkflowProcess.executeQuery("from WorkflowProcess p where workflow=:workflow order by p.position", [workflow: workflow])
+        all.collect { WorkflowProcess it -> it.name }
+    }
 }

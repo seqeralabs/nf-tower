@@ -11,9 +11,16 @@
 
 package io.seqera.tower.exchange.progress
 
+import groovy.transform.ToString
+import io.seqera.tower.domain.ProcessLoad
+import io.seqera.tower.domain.WorkflowLoad
+
+@ToString(includePackage = false, includeNames = true)
 class ProgressData {
 
-    WorkflowProgress workflowProgress
-    List<ProcessProgress> processesProgress
+    static final ProgressData EMPTY = new ProgressData(workflowProgress: new WorkflowLoad(), processesProgress: Collections.<ProcessLoad>emptyList())
+
+    WorkflowLoad workflowProgress
+    List<ProcessLoad> processesProgress
 
 }

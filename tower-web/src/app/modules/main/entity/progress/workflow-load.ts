@@ -8,15 +8,15 @@
  * This Source Code Form is "Incompatible With Secondary Licenses", as
  * defined by the Mozilla Public License, v. 2.0.
  */
-import {ProgressState} from "./progress-state";
+import {ProgressRecord} from "./progress-record";
 import {FormatterUtil} from "../../util/formatter-util";
 
-export class WorkflowProgress {
+export class WorkflowLoad {
 
-  data: WorkflowProgressState;
+  data: ProgressRecord;
 
   constructor(json: any) {
-    this.data = <WorkflowProgressState> json;
+    this.data = <ProgressRecord> json;
   }
 
   get totalCpuHours(): string {
@@ -48,14 +48,3 @@ export class WorkflowProgress {
   }
 }
 
-interface WorkflowProgressState extends ProgressState {
-
-  loadCpus: number;
-  loadTasks: number;
-  loadMemory: number;
-
-  peakCpus: number;
-  peakTasks: number;
-  peakMemory: number;
-
-}

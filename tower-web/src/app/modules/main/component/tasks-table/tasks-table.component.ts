@@ -10,9 +10,9 @@
  */
 import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {Task} from "../../entity/task/task";
-import {Progress} from "../../entity/progress/progress";
+import {ProgressData} from "../../entity/progress/progress-data";
 import {WorkflowService} from "../../service/workflow.service";
-import {convertTaskStatusToProgressLabel, convertTaskStatusToProgressTag} from "../../entity/task/task-status.enum";
+import {convertTaskStatusToProgressLabel} from "../../entity/task/task-status.enum";
 
 declare var $: any;
 
@@ -24,9 +24,9 @@ declare var $: any;
 export class TasksTableComponent implements OnInit, OnChanges {
 
   @Input()
-  workflowId: number | string;
+  workflowId: string;
   @Input()
-  progress: Progress;
+  progress: ProgressData;
 
   dataTable: any;
 

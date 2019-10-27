@@ -36,7 +36,6 @@ import io.seqera.tower.exchange.trace.TraceTaskResponse
 import io.seqera.tower.exchange.trace.TraceWorkflowRequest
 import io.seqera.tower.exchange.trace.TraceWorkflowResponse
 import io.seqera.tower.service.LiveEventsService
-import io.seqera.tower.service.ProgressService
 import io.seqera.tower.service.TraceService
 import io.seqera.tower.service.UserService
 /**
@@ -52,7 +51,6 @@ class TraceController extends BaseController {
     String serverUrl
 
     @Inject TraceService traceService
-    @Inject ProgressService progressService
     @Inject UserService userService
     @Inject LiveEventsService liveEventsService
 

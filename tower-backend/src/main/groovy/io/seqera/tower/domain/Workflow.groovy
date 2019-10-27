@@ -80,9 +80,9 @@ class Workflow {
     WfNextflow nextflow
     WfStats stats
 
-    Long peakLoadCpus
-    Long peakLoadTasks
-    Long peakLoadMemory
+    @Deprecated Long peakLoadCpus
+    @Deprecated Long peakLoadTasks
+    @Deprecated Long peakLoadMemory
 
     static embedded = ['manifest', 'nextflow', 'stats']
 

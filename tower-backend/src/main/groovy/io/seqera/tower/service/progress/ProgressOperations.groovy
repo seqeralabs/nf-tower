@@ -9,27 +9,29 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 
-package io.seqera.tower.service
+package io.seqera.tower.service.progress
+
+import java.time.Duration
 
 import io.seqera.tower.domain.Task
-import io.seqera.tower.domain.Workflow
 import io.seqera.tower.exchange.progress.ProgressData
 
 /**
- * Define the workflow execution progress operations
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
-interface ProgressService {
+interface ProgressOperations {
 
-    ProgressData getProgress(Workflow workflow)
+    void create(String workflowId, List<String> processNames)
 
-    void progressCreate(String workflowId)
+    void updateStats(String workflowId, List<Task> tasks)
 
-    void progressUpdate(String workflowId, List<Task> tasks)
+    ProgressData getProgressData(String workflowId)
 
-    void progressComplete(String workflowId)
+    void complete(String workflowId)
 
-    Map<String,LoadStats> getLoadStats()
+    List<String> findExpired(Duration duration)
+
+    List<ProgressState> getStats()
 
 }

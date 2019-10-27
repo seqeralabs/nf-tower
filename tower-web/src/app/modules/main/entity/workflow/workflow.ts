@@ -10,19 +10,19 @@
  */
 import {WorkflowData} from "./workflow-data";
 import {WorkflowStatus} from "./workflow-status.enum";
-import {Progress} from "../progress/progress";
+import {ProgressData} from "../progress/progress-data";
 import {FormatterUtil} from "../../util/formatter-util";
 
 export class Workflow {
 
   data: WorkflowData;
-  progress: Progress;
+  progress: ProgressData;
 
   constructor(json: any) {
     this.data = <WorkflowData> json.workflow;
 
     if (json.progress) {
-      this.progress = new Progress(json.progress);
+      this.progress = new ProgressData(json.progress);
     }
   }
 

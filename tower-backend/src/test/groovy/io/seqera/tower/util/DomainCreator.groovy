@@ -16,6 +16,7 @@ import java.time.OffsetDateTime
 
 import io.seqera.tower.domain.AccessToken
 import io.seqera.tower.domain.Mail
+import io.seqera.tower.domain.ProcessLoad
 import io.seqera.tower.domain.ResourceData
 import io.seqera.tower.domain.Role
 import io.seqera.tower.domain.Task
@@ -26,6 +27,7 @@ import io.seqera.tower.domain.Workflow
 import io.seqera.tower.domain.WorkflowComment
 import io.seqera.tower.domain.WorkflowMetrics
 import io.seqera.tower.domain.WorkflowProcess
+import io.seqera.tower.domain.WorkflowLoad
 import io.seqera.tower.enums.TaskStatus
 import org.grails.datastore.mapping.validation.ValidationException
 import org.hibernate.Session
@@ -40,6 +42,8 @@ class DomainCreator {
     static void cleanupDatabase() {
         Workflow.withNewTransaction {
             Mail.deleteAll(Mail.list())
+            ProcessLoad.deleteAll(ProcessLoad.list())
+            WorkflowLoad.deleteAll(WorkflowLoad.list())
             WorkflowProcess.deleteAll(WorkflowProcess.list())
             WorkflowComment.deleteAll(WorkflowComment.list())
             WorkflowMetrics.deleteAll(WorkflowMetrics.list())
@@ -105,6 +109,35 @@ class DomainCreator {
         fields.name = fields.containsKey('name') ? fields.name : "process_${generateUniqueNamePart()}"
         fields.index = fields.containsKey('index') ? fields.index : generateUniqueNumber()
         createInstance(process, fields)
+    }
+
+    ProcessLoad createTaskSum(Map fields = [:]) {
+        def load = new ProcessLoad()
+        fields.workflow = fields.containsKey('workflow') ? fields.workflow : createWorkflow()
+        fields.process = fields.containsKey('process') ? fields.process : "process_${generateUniqueNamePart()}"
+
+        fields.running = fields.containsKey('running') ? fields.running : generateUniqueNumber()
+        fields.pending = fields.containsKey('pending') ? fields.pending : generateUniqueNumber()
+        fields.submitted = fields.containsKey('submitted') ? fields.submitted : generateUniqueNumber()
+        fields.succeeded = fields.containsKey('succeeded') ? fields.succeeded : generateUniqueNumber()
+        fields.failed = fields.containsKey('failed') ? fields.failed : generateUniqueNumber()
+        fields.cached = fields.containsKey('cached') ? fields.cached : generateUniqueNumber()
+
+        createInstance(load, fields)
+    }
+
+    WorkflowLoad createWorkflowSum(Map fields = [:]) {
+        def result = new WorkflowLoad()
+
+        fields.workflow = fields.containsKey('workflow') ? fields.workflow : createWorkflow()
+        fields.running = fields.containsKey('running') ? fields.running : generateUniqueNumber()
+        fields.pending = fields.containsKey('pending') ? fields.pending : generateUniqueNumber()
+        fields.submitted = fields.containsKey('submitted') ? fields.submitted : generateUniqueNumber()
+        fields.succeeded = fields.containsKey('succeeded') ? fields.succeeded : generateUniqueNumber()
+        fields.failed = fields.containsKey('failed') ? fields.failed : generateUniqueNumber()
+        fields.cached = fields.containsKey('cached') ? fields.cached : generateUniqueNumber()
+
+        createInstance(result, fields)
     }
 
     Task createTask(Map fields = [:]) {

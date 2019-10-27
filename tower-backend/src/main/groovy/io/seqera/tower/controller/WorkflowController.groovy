@@ -46,10 +46,10 @@ import io.seqera.tower.exchange.workflow.ListWorkflowCommentsResponse
 import io.seqera.tower.exchange.workflow.ListWorklowResponse
 import io.seqera.tower.exchange.workflow.UpdateWorkflowCommentRequest
 import io.seqera.tower.exchange.workflow.UpdateWorkflowCommentResponse
-import io.seqera.tower.service.ProgressService
 import io.seqera.tower.service.TaskService
 import io.seqera.tower.service.UserService
 import io.seqera.tower.service.WorkflowService
+import io.seqera.tower.service.progress.ProgressService
 import io.seqera.tower.validation.ValidationHelper
 import org.grails.datastore.mapping.validation.ValidationException
 /**
@@ -59,19 +59,23 @@ import org.grails.datastore.mapping.validation.ValidationException
 @Slf4j
 class WorkflowController extends BaseController {
 
-    WorkflowService workflowService
-    TaskService taskService
-    ProgressService progressService
-    UserService userService
+    @Inject WorkflowService workflowService
+    @Inject TaskService taskService
+    @Inject UserService userService
+    @Inject ProgressService progressService
 
-    @Inject
-    WorkflowController(WorkflowService workflowService, TaskService taskService, ProgressService progressService, UserService userService) {
-        this.workflowService = workflowService
-        this.taskService = taskService
-        this.progressService = progressService
-        this.userService = userService
+    protected ProgressData getProgressData(Workflow workflow) {
+        def result = progressService.getProgressData(workflow.id)
+        if( result == null ) {
+            log.warn "Cannot find workflow stats for Id=$workflow.id -- Fallback on legacy progress query"
+            result = progressService.getProgressQuery(workflow)
+        }
+        if( result == null ) {
+            log.error "Cannot retrive progress stats for workflow with Id=$workflow.id"
+            result = ProgressData.EMPTY
+        }
+        return result
     }
-
 
     @Get("/list")
     @Transactional
@@ -116,7 +120,7 @@ class WorkflowController extends BaseController {
 
         final resp = new GetWorkflowResponse(workflow: workflow)
         // fetch progress
-        resp.progress = progressService.getProgress(workflow)
+        resp.progress = getProgressData(workflow)
 
         HttpResponse.ok(resp)
     }
@@ -138,7 +142,7 @@ class WorkflowController extends BaseController {
                 return HttpResponse.notFound(new GetProgressResponse(message: "Oops... Can't find workflow ID $workflowId"))
             }
 
-            final ProgressData progress = progressService.getProgress(workflow)
+            final ProgressData progress = getProgressData(workflow)
             HttpResponse.ok(new GetProgressResponse(progress: progress))
         }
         catch( Exception e ) {
