@@ -20,12 +20,11 @@ import groovy.util.logging.Slf4j
 import io.seqera.tower.domain.ProcessLoad
 import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.Workflow
-import io.seqera.tower.domain.WorkflowProcess
 import io.seqera.tower.domain.WorkflowLoad
+import io.seqera.tower.domain.WorkflowProcess
 import io.seqera.tower.enums.TaskStatus
 import io.seqera.tower.exchange.progress.ProgressData
 import org.springframework.transaction.annotation.Propagation
-
 /**
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
@@ -165,7 +164,12 @@ class ProgressOperationsImpl implements ProgressOperations {
      *      and workflow execution progress metadata
      */
     ProgressData load(String workflowId) {
-        def query = '''
+        final params = [workflowId: workflowId]
+        final workflow = (WorkflowLoad) WorkflowProcess.executeQuery('from WorkflowLoad p where p.workflow.id=:workflowId',params) [0]
+        if( workflow == null )
+            return null
+
+        final query = '''
                 select p
                 from WorkflowProcess w
                 join fetch ProcessLoad p on p.process = w.name
@@ -174,9 +178,7 @@ class ProgressOperationsImpl implements ProgressOperations {
                 order by 
                     w.position 
             '''
-        final params = [workflowId: workflowId]
         final list = ProcessLoad.executeQuery(query, params)
-        final workflow = (WorkflowLoad) WorkflowProcess.executeQuery('from WorkflowLoad p where p.workflow.id=:workflowId',params) [0]
         new ProgressData(processesProgress: list, workflowProgress: workflow)
     }
 
