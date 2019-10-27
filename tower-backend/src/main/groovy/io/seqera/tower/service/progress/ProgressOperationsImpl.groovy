@@ -172,7 +172,8 @@ class ProgressOperationsImpl implements ProgressOperations {
         final query = '''
                 select p
                 from WorkflowProcess w
-                join fetch ProcessLoad p on p.process = w.name
+                join fetch ProcessLoad p 
+                  on p.process = w.name and p.workflow = w.workflow
                 where 
                   w.workflow.id = :workflowId
                 order by 
