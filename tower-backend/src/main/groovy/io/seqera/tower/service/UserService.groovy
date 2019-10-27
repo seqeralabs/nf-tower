@@ -21,7 +21,9 @@ interface UserService {
 
     User updateUserAuthToken(User user)
 
-    User getFromAuthData(Principal userSecurityData)
+    User getByAuth(Principal principal)
+
+    User getByEmail(String email)
 
     User update(User existingUser, User updatedUserData)
 

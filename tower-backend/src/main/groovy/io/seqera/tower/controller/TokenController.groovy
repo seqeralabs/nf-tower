@@ -51,7 +51,7 @@ class TokenController  extends BaseController {
     @Get("/list")
     HttpResponse<ListAccessTokensResponse> list(Authentication authentication) {
         try {
-            final user = userService.getFromAuthData(authentication)
+            final user = userService.getByAuth(authentication)
             final result = accessTokenService.findByUser(user)
             HttpResponse.ok(new ListAccessTokensResponse(tokens: result))
         }
@@ -64,7 +64,7 @@ class TokenController  extends BaseController {
     @Post("/create")
     HttpResponse<CreateAccessTokenResponse> create(Authentication authentication, String name) {
         try {
-            final user = userService.getFromAuthData(authentication)
+            final user = userService.getByAuth(authentication)
             final token = accessTokenService.createToken(name, user)
             HttpResponse.ok(new CreateAccessTokenResponse(token: token))
         }
@@ -96,7 +96,7 @@ class TokenController  extends BaseController {
     @Delete("/delete-all")
     HttpResponse deleteAll(Authentication authentication) {
         try {
-            final user = userService.getFromAuthData(authentication)
+            final user = userService.getByAuth(authentication)
             final count = accessTokenService.deleteByUser(user)
             return ( count>0 ?
                     HttpResponse.status(HttpStatus.NO_CONTENT):
@@ -110,7 +110,7 @@ class TokenController  extends BaseController {
 
     @Get('/default')
     HttpResponse<GetDefaultTokenResponse> getDefaultToken(Authentication authentication) {
-        final user = userService.getFromAuthData(authentication)
+        final user = userService.getByAuth(authentication)
         if( !user )
             return HttpResponse.badRequest(new GetDefaultTokenResponse(message: "Cannot find user: ${authentication.name}"))
         AccessToken result = user.accessTokens.find { it.name == AccessToken.DEFAULT_TOKEN }
