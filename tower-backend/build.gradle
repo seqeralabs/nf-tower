@@ -24,7 +24,7 @@ repositories {
 
 dependencyManagement {
     imports {
-        mavenBom 'io.micronaut:micronaut-bom:1.2.3'
+        mavenBom 'io.micronaut:micronaut-bom:1.2.5'
     }
 }
 
@@ -70,7 +70,7 @@ dependencies {
     testCompile("org.spockframework:spock-core") {
         exclude group: "org.codehaus.groovy", module: "groovy-all"
     }
-    testCompile "io.micronaut.test:micronaut-test-spock:1.0.3"
+    testCompile "io.micronaut.test:micronaut-test-spock"
 
     testCompile "org.testcontainers:testcontainers:1.11.2"
     testCompile "org.testcontainers:spock:1.11.2"
