@@ -23,20 +23,20 @@ import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
+import io.micronaut.cache.annotation.Cacheable
 import io.micronaut.context.annotation.Value
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
+import io.seqera.tower.domain.ProcessLoad
 import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.Workflow
-import io.seqera.tower.enums.WorkflowStatus
-import io.seqera.tower.domain.ProcessLoad
-import io.seqera.tower.exchange.progress.ProgressData
 import io.seqera.tower.domain.WorkflowLoad
+import io.seqera.tower.enums.WorkflowStatus
+import io.seqera.tower.exchange.progress.ProgressData
 import io.seqera.tower.service.LiveEventsService
 import org.hibernate.Session
 import org.springframework.transaction.annotation.Propagation
-
 /**
  * Implements the workflow execution progress logic
  *
@@ -66,7 +66,7 @@ class ProgressServiceImpl implements ProgressService {
 
     @PostConstruct
     void init() {
-        log.info "Creating execution load watcher metrics-interval=${metrics}; trace-timeout=${aliveTimeout}"
+        log.info "Creating execution progress watcher -- store=${store.getClass().getSimpleName()}; metrics-interval=${metrics}; trace-timeout=${aliveTimeout}"
         publisher = PublishSubject.create()
 
         publisher

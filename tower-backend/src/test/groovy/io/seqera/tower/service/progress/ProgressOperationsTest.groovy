@@ -403,6 +403,11 @@ class ProgressOperationsTest extends AbstractContainerBaseTest {
         result.processesProgress[2].peakCpus == 10
     }
 
+    def 'should return null load' () {
+        expect:
+        progressOp.load('unknow-xx') == null
+    }
+    
     def 'should persist progress' () {
         given:
         def workflow = new DomainCreator().createWorkflow()
