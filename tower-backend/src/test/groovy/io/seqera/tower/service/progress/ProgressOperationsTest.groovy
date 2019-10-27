@@ -375,23 +375,32 @@ class ProgressOperationsTest extends AbstractContainerBaseTest {
     def 'should load saved data' () {
         given:
         def creator = new DomainCreator()
-        def wf = creator.createWorkflow()
-        def p1 = creator.createProcess(workflow: wf, name:'roger', position: 2)
-        def p2 = creator.createProcess(workflow: wf, name:'bravo', position: 1)
-        def p3 = creator.createProcess(workflow: wf, name:'alpha', position: 0)
+        def wf1 = creator.createWorkflow()
+        creator.createProcess(workflow: wf1, name:'roger', position: 2)
+        creator.createProcess(workflow: wf1, name:'bravo', position: 1)
+        creator.createProcess(workflow: wf1, name:'alpha', position: 0)
         and:
-        creator.createProcessLoad(workflow: wf, process:'roger', peakCpus: 10)
-        creator.createProcessLoad(workflow: wf, process:'bravo', peakCpus: 20)
-        creator.createProcessLoad(workflow: wf, process:'alpha', peakCpus: 30)
+        creator.createProcessLoad(workflow: wf1, process:'roger', peakCpus: 10)
+        creator.createProcessLoad(workflow: wf1, process:'bravo', peakCpus: 20)
+        creator.createProcessLoad(workflow: wf1, process:'alpha', peakCpus: 30)
         and:
-        creator.createWorkflowLoad(workflow: wf, running: 2, succeeded: 10, failed: 1)
+        creator.createWorkflowLoad(workflow: wf1, running: 2, succeeded: 10, failed: 1)
+
+        and:
+        def wf2 = creator.createWorkflow()
+        creator.createProcess(workflow: wf2, name:'roger', position: 2)
+        creator.createProcess(workflow: wf2, name:'bravo', position: 1)
+        creator.createProcessLoad(workflow: wf2, process:'roger', peakCpus: 10)
+        creator.createProcessLoad(workflow: wf2, process:'bravo', peakCpus: 20)
 
         when:
-        def result = progressOp.load(wf.id)
+        def result = progressOp.load(wf1.id)
         then:
         result.workflowProgress.running ==2
         result.workflowProgress.succeeded ==10
         result.workflowProgress.failed ==1
+        and:
+        result.processesProgress.size() == 3
         and:
         result.processesProgress[0].process == 'alpha'
         result.processesProgress[0].peakCpus == 30
