@@ -83,7 +83,7 @@ class WorkflowController extends BaseController {
         String search = filterParams.getFirst('search', String.class, '')
         String searchRegex = search ? search.contains('*') ? search.replaceAll(/\*/, '%') : "${search}%" : null
 
-        List<Workflow> workflows = workflowService.listByOwner(userService.getFromAuthData(authentication), max, offset, searchRegex)
+        List<Workflow> workflows = workflowService.listByOwner(userService.getByAuth(authentication), max, offset, searchRegex)
 
         List<GetWorkflowResponse> result = workflows.collect { Workflow workflow ->
             GetWorkflowResponse.of(workflow)
@@ -104,7 +104,7 @@ class WorkflowController extends BaseController {
         final workflow = workflowService.get(workflowId)
         if (!workflow)
             return HttpResponse.notFound(GetWorkflowResponse.error("Unknown workflow ID: $workflowId"))
-        final user = userService.getFromAuthData(authentication)
+        final user = userService.getByAuth(authentication)
         if( !user ) {
             log.error "Unknown user=${authentication.name}"
             return HttpResponse.badRequest(GetWorkflowResponse.error("Invalid user authenticaton: $authentication.name"))
@@ -223,7 +223,7 @@ class WorkflowController extends BaseController {
     @CompileDynamic
     HttpResponse<AddWorkflowCommentResponse> addComment(Authentication authentication, String workflowId, AddWorkflowCommentRequest request) {
         try {
-            final user = userService.getFromAuthData(authentication)
+            final user = userService.getByAuth(authentication)
             final workflow = workflowService.get(workflowId)
             if (!workflow)
                 return HttpResponse.notFound(new AddWorkflowCommentResponse(message:"Oops... Can't find workflow ID $workflowId"))
@@ -257,7 +257,7 @@ class WorkflowController extends BaseController {
     @CompileDynamic
     HttpResponse<UpdateWorkflowCommentResponse> updateComment(Authentication authentication, String workflowId, UpdateWorkflowCommentRequest request) {
         try {
-            final user = userService.getFromAuthData(authentication)
+            final user = userService.getByAuth(authentication)
 
             // check `commentId` and `workflowId` are provided
             if( !request.commentId )
@@ -303,7 +303,7 @@ class WorkflowController extends BaseController {
     @CompileDynamic
     HttpResponse<DeleteWorkflowCommentResponse> deleteComment(Authentication authentication, String workflowId, DeleteWorkflowCommentRequest request) {
         try {
-            final user = userService.getFromAuthData(authentication)
+            final user = userService.getByAuth(authentication)
 
             // check `commentId` and `workflowId` are provided
             if( !request.commentId )

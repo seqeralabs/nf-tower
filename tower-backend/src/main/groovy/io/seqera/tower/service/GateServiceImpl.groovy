@@ -16,12 +16,11 @@ import javax.inject.Singleton
 
 import grails.gorm.transactions.Transactional
 import groovy.text.GStringTemplateEngine
-import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import io.micronaut.context.annotation.Value
-import io.seqera.tower.domain.MailAttachment
 import io.seqera.tower.domain.Mail
+import io.seqera.tower.domain.MailAttachment
 import io.seqera.tower.domain.User
 import io.seqera.tower.exchange.gate.AccessGateResponse
 /**
@@ -53,11 +52,10 @@ class GateServiceImpl implements GateService {
     @Inject
     MailService mailService
 
-    @CompileDynamic
     @Override
     AccessGateResponse access(String email) {
         final result = new AccessGateResponse()
-        result.user = User.findByEmail(email)
+        result.user = userService.getByEmail(email)
         boolean isNew
         if( !result.user ) {
             isNew = true

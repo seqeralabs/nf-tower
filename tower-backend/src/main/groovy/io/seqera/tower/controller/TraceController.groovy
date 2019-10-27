@@ -76,7 +76,7 @@ class TraceController extends BaseController {
                     : "Receiving trace for workflow completion [workflowId=${req.workflow.id}; user=${authentication.name}]")
             log.info(msg)
 
-            final user = userService.getFromAuthData(authentication)
+            final user = userService.getByAuth(authentication)
             final workflow = traceService.processWorkflowTrace(req, user)
 
             final resp = new TraceWorkflowResponse(

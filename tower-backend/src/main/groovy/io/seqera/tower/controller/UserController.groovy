@@ -52,7 +52,7 @@ class UserController extends BaseController {
     @Get('/')
     @Transactional
     HttpResponse<GetUserResponse> profile(Authentication authentication) {
-        final User user = userService.getFromAuthData(authentication)
+        final User user = userService.getByAuth(authentication)
         if (!user) {
             return HttpResponse.badRequest(new GetUserResponse(message: "Cannot find user with name ${authentication.getName()}"))
         }
@@ -65,7 +65,7 @@ class UserController extends BaseController {
     @Produces(MediaType.TEXT_PLAIN)
     HttpResponse<String> update(@Body User userData, Authentication authentication) {
         try {
-            userService.update(userService.getFromAuthData(authentication), userData)
+            userService.update(userService.getByAuth(authentication), userData)
 
             HttpResponse.ok('User successfully updated!')
         } catch (Exception e) {
@@ -78,7 +78,7 @@ class UserController extends BaseController {
     @Produces(MediaType.TEXT_PLAIN)
     HttpResponse<String> delete(Authentication authentication) {
         try {
-            userService.delete(userService.getFromAuthData(authentication))
+            userService.delete(userService.getByAuth(authentication))
 
             HttpResponse.ok('User successfully deleted!')
         } catch (Exception e) {

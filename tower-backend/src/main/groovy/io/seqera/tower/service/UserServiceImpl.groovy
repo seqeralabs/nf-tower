@@ -72,7 +72,10 @@ class UserServiceImpl implements UserService {
 
     @CompileDynamic
     User findByEmailAndAuthToken(String email, String token) {
-        User.findByEmailAndAuthToken(email, token, [fetch: [accessTokens: 'join']])
+        final params = [email:email?.toLowerCase(), token: token]
+        // make sure to use *left* join to retrieve the user even if no access token exists
+        final query = "from User u left join fetch u.accessTokens where lower(u.email) = :email and u.authToken=:token"
+        User.executeQuery(query, params) [0]
     }
 
     @CompileDynamic
@@ -86,8 +89,7 @@ class UserServiceImpl implements UserService {
 
     @CompileDynamic
     List<String> findAuthoritiesByEmail(String email) {
-        User user = User.findByEmail(email)
-
+        User user = getByEmail(email)
         findAuthoritiesOfUser(user)
     }
 
@@ -130,9 +132,13 @@ class UserServiceImpl implements UserService {
         return result
     }
 
+    User create(String email, String authority) {
+        assert email, "Missing user email field"
+        create0(email.toLowerCase(), authority)
+    }
 
     @CompileDynamic
-    User create(String email, String authority) {
+    User create0(String email, String authority) {
         // create the user name starting from the email user name
         String userName = makeUserNameFromEmail(email)
         userName = checkUniqueName(userName)
@@ -246,9 +252,18 @@ class UserServiceImpl implements UserService {
         throw new ValidationException("Can't save user. Validation errors: ${uncustomizedErrors}")
     }
 
-    @CompileDynamic
-    User getFromAuthData(Principal userSecurityData) {
-        User.findByEmail(userSecurityData.name)
+    @Override
+    User getByAuth(Principal principal) {
+        assert principal
+        final email = principal.getName()
+        if( !email )
+            throw new IllegalArgumentException("Missing principal name field")
+        getByEmail(email)
+    }
+
+    @Override
+    User getByEmail(String email) {
+        User.executeQuery("from User where lower(email) = :email", [email: email?.toLowerCase()]) [0]
     }
 
     @CompileDynamic
