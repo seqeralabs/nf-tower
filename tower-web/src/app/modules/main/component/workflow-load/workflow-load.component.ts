@@ -10,7 +10,7 @@
  */
 import {Component, Input, OnChanges, OnInit} from '@angular/core';
 import {Workflow} from "../../entity/workflow/workflow";
-import {WorkflowProgress} from "../../entity/progress/workflow-progress";
+import {WorkflowLoad} from "../../entity/progress/workflow-load";
 
 @Component({
   selector: 'wt-workflow-load',
@@ -21,7 +21,7 @@ export class WorkflowLoadComponent implements OnInit, OnChanges {
 
 
   @Input()
-  workflowProgress: WorkflowProgress;
+  workflowProgress: WorkflowLoad;
 
   coresGaugeSeries: any;
   tasksGaugeSeries: any;

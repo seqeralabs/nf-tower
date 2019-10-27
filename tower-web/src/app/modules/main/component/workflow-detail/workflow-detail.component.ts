@@ -16,7 +16,7 @@ import {HttpErrorResponse} from "@angular/common/http";
 import {NotificationService} from "../../service/notification.service";
 import {LiveEventsService} from "../../service/live-events.service";
 import {Subscription} from "rxjs";
-import {Progress} from "../../entity/progress/progress";
+import {ProgressData} from "../../entity/progress/progress-data";
 import {LiveUpdate} from "../../entity/live/live-update";
 
 @Component({
@@ -47,7 +47,7 @@ export class WorkflowDetailComponent implements OnInit, OnDestroy {
     this.unsubscribeFromWorkflowLiveEvents();
   }
 
-  private fetchWorkflow(workflowId: string | number): void {
+  private fetchWorkflow(workflowId: string): void {
     console.log(`Fetching workflow ${workflowId}`);
 
     this.workflowService.getWorkflow(workflowId, true).subscribe(
@@ -99,7 +99,7 @@ export class WorkflowDetailComponent implements OnInit, OnDestroy {
   }
 
   private reactToProgressUpdateEvent(event: LiveUpdate): void {
-    this.workflowService.getProgress(event.workflowId).subscribe((progress: Progress) => {
+    this.workflowService.getProgress(event.workflowId).subscribe((progress: ProgressData) => {
       this.workflowService.updateProgress(progress, this.workflow);
     })
   }

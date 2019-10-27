@@ -8,16 +8,16 @@
  * This Source Code Form is "Incompatible With Secondary Licenses", as
  * defined by the Mozilla Public License, v. 2.0.
  */
-import {ProgressState} from "./progress-state";
+import {ProgressRecord} from "./progress-record";
 
-export class ProcessProgress {
+export class ProcessLoad {
 
   process: string;
-  data: ProgressState;
+  data: ProgressRecord;
 
   constructor(json: any) {
     this.process = json.process;
-    this.data = <ProgressState> json;
+    this.data = <ProgressRecord> json;
   }
 
   get total(): number {

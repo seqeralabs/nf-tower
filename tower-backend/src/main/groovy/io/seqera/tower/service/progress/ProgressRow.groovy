@@ -9,11 +9,12 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 
-package io.seqera.tower.service
+package io.seqera.tower.service.progress
 
 import groovy.transform.CompileStatic
 import io.seqera.tower.enums.TaskStatus
 
+@Deprecated
 @CompileStatic
 class ProgressRow {
 

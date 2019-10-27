@@ -32,10 +32,12 @@ enum TaskStatus {
         values().findAll { StringUtils.like(it.name(), criteria) }
     }
 
+    static private List<TaskStatus> TERMINAL = [COMPLETED, FAILED, ABORTED, CACHED]
+
     String toString() { super.toString() }
 
-    boolean isTerminated() {
-        this == COMPLETED || this == FAILED || this == ABORTED
-    }
+    boolean isTerminated() { this in TERMINAL }
+
+    boolean isRunning() { this == RUNNING }
 
 }

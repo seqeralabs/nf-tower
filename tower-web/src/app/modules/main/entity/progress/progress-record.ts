@@ -8,7 +8,7 @@
  * This Source Code Form is "Incompatible With Secondary Licenses", as
  * defined by the Mozilla Public License, v. 2.0.
  */
-export interface ProgressState {
+export interface ProgressRecord {
 
   pending: number;
   running: number;
@@ -17,7 +17,7 @@ export interface ProgressState {
   succeeded: number;
   failed: number;
 
-  totalCpus: number;
+  cpus: number;
   cpuTime: number;
   cpuLoad: number;
   memoryRss: number;
@@ -28,5 +28,13 @@ export interface ProgressState {
   invCtxSwitch: number;
   memoryEfficiency: number;
   cpuEfficiency: number;
+
+  loadCpus: number;
+  loadTasks: number;
+  loadMemory: number;
+
+  peakCpus: number;
+  peakTasks: number;
+  peakMemory: number;
 
 }

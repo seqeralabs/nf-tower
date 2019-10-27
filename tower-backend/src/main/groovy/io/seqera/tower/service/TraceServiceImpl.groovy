@@ -26,6 +26,7 @@ import io.seqera.tower.domain.Workflow
 import io.seqera.tower.domain.WorkflowKey
 import io.seqera.tower.exchange.trace.TraceTaskRequest
 import io.seqera.tower.exchange.trace.TraceWorkflowRequest
+import io.seqera.tower.service.progress.ProgressService
 import org.springframework.validation.FieldError
 
 @Slf4j
@@ -43,15 +44,17 @@ class TraceServiceImpl implements TraceService {
         final record = transactionService.withTransaction { new WorkflowKey() .save() }
         final workflowId = HashSequenceGenerator.getHash(record.id)
         transactionService.withTransaction { record.workflowId=workflowId; record.save() }
-        progressService.progressCreate(workflowId)
         return workflowId
     }
 
 
     Workflow processWorkflowTrace(TraceWorkflowRequest request, User owner) {
         final workflow = workflowService.processTraceWorkflowRequest(request, owner)
-        if( workflow.checkIsComplete() ) {
-            progressService.progressComplete(workflow.id)
+        if( workflow.checkIsRunning() ) {
+            progressService.create(workflow.id, request.processNames)
+        }
+        else {
+            progressService.complete(workflow.id)
         }
         checkWorkflowSaveErrors(workflow)
 
@@ -65,7 +68,7 @@ class TraceServiceImpl implements TraceService {
             checkTaskSaveErrors(task)
         }
 
-        progressService.progressUpdate(request.workflowId, tasks)
+        progressService.updateStats(request.workflowId, tasks)
 
         return tasks
     }
@@ -114,6 +117,6 @@ class TraceServiceImpl implements TraceService {
 
     @Override
     void keepAlive(String workflowId) {
-        progressService.progressUpdate(workflowId, Collections.<Task>emptyList())
+        progressService.updateStats(workflowId, Collections.<Task>emptyList())
     }
 }

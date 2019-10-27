@@ -571,5 +571,19 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         manifest2.gitmodules == 'long_module_name'
     }
 
+    def 'should get process names' () {
+
+        given:
+        def creator = new DomainCreator()
+        def wf = creator.createWorkflow()
+        def p1 = creator.createProcess(workflow: wf, name:'roger', position: 2)
+        def p2 = creator.createProcess(workflow: wf, name:'bravo', position: 1)
+        def p3 = creator.createProcess(workflow: wf, name:'alpha', position: 0)
+
+        when:
+        def names = workflowService.getProcessNames(wf)
+        then:
+        names == ['alpha','bravo','roger']
+    }
 
 }

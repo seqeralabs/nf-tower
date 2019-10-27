@@ -15,7 +15,7 @@ import javax.inject.Inject
 
 import io.micronaut.management.endpoint.annotation.Endpoint
 import io.micronaut.management.endpoint.annotation.Read
-import io.seqera.tower.service.ProgressService
+import io.seqera.tower.service.progress.ProgressService
 /**
  * Expose current load stats
  *
@@ -29,7 +29,7 @@ class StatsEndpoint {
 
     @Read
     Map getLoad() {
-        final list = progressService.getLoadStats().values()
+        final list = progressService.getStats()
         final result = [
             count:list.size(),
             workflows: list
