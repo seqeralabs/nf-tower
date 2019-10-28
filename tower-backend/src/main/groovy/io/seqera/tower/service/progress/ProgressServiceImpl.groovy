@@ -11,6 +11,8 @@
 
 package io.seqera.tower.service.progress
 
+import static io.seqera.tower.enums.WorkflowStatus.*
+
 import javax.annotation.PostConstruct
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -32,7 +34,6 @@ import io.seqera.tower.domain.ProcessLoad
 import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.domain.WorkflowLoad
-import io.seqera.tower.enums.WorkflowStatus
 import io.seqera.tower.exchange.progress.ProgressData
 import io.seqera.tower.service.LiveEventsService
 import org.hibernate.Session
@@ -148,12 +149,18 @@ class ProgressServiceImpl implements ProgressService {
     @Transactional(propagation = Propagation.REQUIRED)
     protected void markWorkflowUnknownStatus0(String workflowId) {
         final workflow = Workflow.get(workflowId)
-        if( workflow ) {
-            workflow.status = WorkflowStatus.UNKNOWN
+        if( !workflow ) {
+            log.warn "Unknown workflow for Id=$workflowId | Ignore timeout marking event"
+        }
+        else if( workflow.status==null || workflow.status==RUNNING ) {
+            workflow.status = UNKNOWN
             workflow.duration = computeDuration(workflow.start)
             workflow.save()
             // notify the status change
             liveEventsService.publishWorkflowEvent(workflow)
+        }
+        else {
+            log.warn "Invalid status for workflow Id=$workflowId | Expected status=RUNNIG; found=$workflow.status"
         }
     }
 
