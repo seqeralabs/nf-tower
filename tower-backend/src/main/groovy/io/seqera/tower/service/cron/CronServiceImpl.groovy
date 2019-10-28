@@ -5,6 +5,7 @@ import javax.inject.Singleton
 import java.time.Duration
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
 
 import grails.gorm.transactions.Transactional
@@ -42,6 +43,12 @@ class CronServiceImpl implements CronService {
     @Value('${tower.cron.enabled:`false`}')
     boolean enabled
 
+    ScheduledFuture jobHandle
+
+    long jobCounter
+
+    int emptyQuery
+
     @Override
     void start() {
         if( enabled ) {
@@ -55,7 +62,7 @@ class CronServiceImpl implements CronService {
     private void start0() {
         log.info "Starting cron service"
         scheduler = Executors.newScheduledThreadPool(1);
-        scheduler.scheduleWithFixedDelay({saveLoadRecords()} as Runnable, initialDelay.toMillis(), schedulerDelay.toMillis(), TimeUnit.MILLISECONDS);
+        jobHandle = scheduler.scheduleWithFixedDelay({saveLoadRecords()} as Runnable, initialDelay.toMillis(), schedulerDelay.toMillis(), TimeUnit.MILLISECONDS);
 
     }
 
@@ -88,19 +95,27 @@ class CronServiceImpl implements CronService {
     @Transactional(propagation = Propagation.REQUIRED)
     protected void saveRecordsTx() {
         final workflow = findWorkflowWithMissingProgress()
-        if( workflow == null ) return
+        if( workflow == null ) {
+            if( emptyQuery++>5 ) {
+                log.warn "Reconciling activity done! Terminating background task"
+                jobHandle.cancel(false)
+            }
+            return
+        }
         saveLoadRecords(workflow)
     }
 
     protected void saveLoadRecords(Workflow workflow) {
-        log.debug "Reconciling execution progress for workflow with Id=$workflow.id"
+        log.debug "Reconciling execution progress for workflow Id=$workflow.id (${++jobCounter})"
         def data = progressSvc.getProgressQuery(workflow)
         progressOp.persistProgressData(workflow, data)
-        log.debug "Reconciling done for workflow Id=${workflow.id}"
+        log.debug "Reconciling execution progress for workflow Id=${workflow.id} DONE"
     }
 
     protected Workflow findWorkflowWithMissingProgress() {
         def query = "from Workflow w where w.status is not null and w.status != 'RUNNING' and w not in (select distinct l.workflow from WorkflowLoad l)"
-        (Workflow)Workflow.executeQuery(query, [max:1]) [0]
+        def result = Workflow.executeQuery(query, [max:1])
+        assert result.size() < 2
+        return (Workflow) result[0]
     }
 }

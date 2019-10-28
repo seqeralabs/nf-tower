@@ -45,4 +45,19 @@ class CronServiceTest extends Specification {
 
     }
 
+    def 'should find only one with progress' () {
+        given:
+        def creator = new DomainCreator()
+        def user = creator.createUser()
+        creator.createWorkflow(owner: user, id: 'x1', status: WorkflowStatus.SUCCEEDED)
+        creator.createWorkflow(owner: user, id: 'x2', status: WorkflowStatus.SUCCEEDED)
+        creator.createWorkflow(owner: user, id: 'x3', status: WorkflowStatus.SUCCEEDED)
+
+        when:
+        def wf = tx.withNewTransaction { cron.findWorkflowWithMissingProgress() }
+        then:
+        wf.id 
+
+    }
+
 }
