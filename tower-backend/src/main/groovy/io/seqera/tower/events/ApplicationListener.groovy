@@ -24,6 +24,8 @@ import io.micronaut.security.authentication.UserDetails
 import io.micronaut.security.event.LoginSuccessfulEvent
 import io.seqera.mail.MailSpooler
 import io.seqera.tower.service.LiveEventsService
+import io.seqera.tower.service.cron.CronService
+
 /**
  * Object listening for application events
  * 
@@ -40,10 +42,14 @@ class ApplicationListener {
     @Inject
     LiveEventsService liveEventsService
 
+    @Inject
+    CronService cronService
+
     @EventListener
     void onStartup(StartupEvent event) {
         log.info "Application started up"
         mailSpooler.start()
+        cronService.start()
     }
 
     @EventListener
@@ -51,6 +57,7 @@ class ApplicationListener {
         log.info "Application shutting down"
         mailSpooler.stop()
         liveEventsService.stop()
+        cronService.stop()
     }
 
     @EventListener
