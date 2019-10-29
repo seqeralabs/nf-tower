@@ -29,7 +29,7 @@ import io.seqera.tower.service.progress.ProgressRecord
 @Entity
 @CompileDynamic
 @ToString(includeNames = true, includePackage = false, includes='id,cpus,cpuTime,cpuLoad,memoryReq,memoryRss,readBytes,writeBytes,volCtxSwitch,invCtxSwitch,peakCpus,peakTasks,peakMemory,loadTasks,loadCpus,loadMemory,dateCreated,lastUpdated')
-@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version','workflow'])
+@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version','workflow','id'])
 class WorkflowLoad implements ProgressRecord, Serializable {
 
     Long id
