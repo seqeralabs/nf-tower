@@ -191,29 +191,32 @@ class ProgressOperationsImpl implements ProgressOperations {
      */
     void complete(String workflowId) {
         log.trace("Completing progress state for workflow Id=$workflowId")
-        persist0(workflowId)
+        persistProgressData(workflowId)
         store.deleteProgress(workflowId)
     }
 
     /*
      * persist logic
      */
-    protected void persist0(String workflowId) {
+    void persistProgressData(String workflowId) {
         final data = computeStats(workflowId)
         try {
-            persist0(workflowId, data)
+            persistProgressData(workflowId, data)
         }
         catch( Exception e ) {
-            log.warn "Unable to persists workflow progress stats=${data} | ${e.message}"
+            log.warn "Unable to persists workflow=$workflowId progress stats=${data} | ${e.message}"
         }
     }
 
     @CompileDynamic
     @Transactional(propagation = Propagation.REQUIRED)
-    protected void persist0(String workflowId, ProgressData data) {
+    void persistProgressData(String workflowId, ProgressData data) {
         log.trace "Persisting workflow stats=$data"
         final workflow = Workflow.get(workflowId)
+        persistProgressData(workflow, data)
+    }
 
+    void persistProgressData(Workflow workflow, ProgressData data) {
         for( ProcessLoad process : data.processesProgress ) {
             process.workflow = workflow
             process.save()
