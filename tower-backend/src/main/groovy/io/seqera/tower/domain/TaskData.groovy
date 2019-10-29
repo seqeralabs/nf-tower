@@ -74,6 +74,8 @@ class TaskData implements TaskDef {
     Long disk
     Long time
     String env
+    String executor
+    String machineType
 
     String errorAction
 
@@ -121,6 +123,8 @@ class TaskData implements TaskDef {
         disk(nullable: true)
         time(nullable: true)
         env(nullable: true, maxSize: 2048)
+        executor(nullable: true, maxSize: 25)
+        machineType(nullable: true, maxSize: 25)
         errorAction(nullable: true, maxSize: 10)
         duration(nullable: true)
         realtime(nullable: true)

@@ -43,6 +43,8 @@ interface TaskDef {
     Long getDisk()
     Long getTime()
     String getEnv()
+    String getExecutor()
+    String getMachineType()
 
     String getErrorAction()
 
@@ -92,7 +94,8 @@ interface TaskDef {
     void setDisk(Long x)
     void setTime(Long x)
     void setEnv(String x)
-
+    void setExecutor(String x)
+    void setMachineType(String x)
     void setErrorAction(String x)
 
     void setExitStatus(Integer x)

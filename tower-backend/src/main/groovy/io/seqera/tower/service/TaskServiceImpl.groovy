@@ -123,6 +123,8 @@ class TaskServiceImpl implements TaskService {
         taskToUpdate.disk = originalTask.disk
         taskToUpdate.time = originalTask.time
         taskToUpdate.env = originalTask.env
+        taskToUpdate.executor = originalTask.executor
+        taskToUpdate.machineType = originalTask.machineType
 
         taskToUpdate.errorAction = originalTask.errorAction
         taskToUpdate.exitStatus = originalTask.exitStatus

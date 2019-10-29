@@ -102,6 +102,8 @@ export class TasksTableComponent implements OnInit, OnChanges {
         {name: "vmem", visible: false},
         {name: "attempt", visible: false},
         {name: "errorAction", visible: false},
+        {name: "executor", visible: false},
+        {name: "machineType", visible: false},
       ],
       ajax: {
         url: this.workflowService.buildTasksGetUrl(this.workflowId),
@@ -158,7 +160,9 @@ export class TasksTableComponent implements OnInit, OnChanges {
               task.humanizedRss,
               task.humanizedVmem,
               task.data.attempt,
-              task.data.errorAction
+              task.data.errorAction,
+              task.data.executor,
+              task.data.machineType,
             ]) : [];
 
           return JSON.stringify(json);
@@ -199,12 +203,12 @@ export class TasksTableComponent implements OnInit, OnChanges {
   }
 
   private str(x): string {
-    return x == null || x == '' ? '-' : x.toString().trim()
+    return x == null || x == '' ? '-' : x.toString().trim();
   }
 
   private col(row, col:string) {
-    let result = this.dataTable.cell(row, col+':name').data();
-    return this.str(result)
+    const result = this.dataTable.cell(row, col+':name').data();
+    return this.str(result);
   }
 
   private generateRowDataChildFormat(data): string {
@@ -217,17 +221,19 @@ export class TasksTableComponent implements OnInit, OnChanges {
     const action = this.col(data, 'errorAction');
     const env = this.col(data, 'env');
 
-    let res_requested = [
+    const res_requested = [
       {name: 'container', description: 'Container image name used to execute the task'},
       {name: 'queue', description: 'The queue that the executor attempted to run the process on'},
       {name: 'cpus', description: 'The cpus number request for the task execution'},
       {name: 'memory', description: 'The memory request for the task execution'},
       {name: 'disk', description: 'The disk space request for the task execution'},
       {name: 'time', description: 'The time request for the task execution'},
+      {name: 'executor', description: 'The Nextflow executor used to carry out this task'},
+      {name: 'machineType', description: 'The virtual machine type used to carry out by this task'},
     ];
 
 
-    let res_time = [
+    const res_time = [
       {name: 'submit', description: 'Timestamp when the task has been submitted'},
       {name: 'start', description: 'Timestamp when the task execution has started'},
       {name: 'complete', description: 'Timestamp when task execution has completed'},

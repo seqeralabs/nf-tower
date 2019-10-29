@@ -42,7 +42,9 @@
       "peakRss": 0,
       "volCtxt": 0,
       "invCtxt": 0,
-      "nativeId": 28417
+      "nativeId": 28417,
+      "executor": "aws-batch",
+      "machineType": "x1.large"
     }
   ],
   "workflowId": "12345"

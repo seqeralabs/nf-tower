@@ -24,7 +24,9 @@
       "disk": null,
       "time": null,
       "env": null,
-      "nativeId": null
+      "nativeId": null,
+      "executor": "aws-batch",
+      "machineType": null
     }
   ],
   "workflowId": "12345"
