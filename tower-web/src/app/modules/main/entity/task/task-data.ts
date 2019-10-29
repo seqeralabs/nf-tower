@@ -33,6 +33,8 @@ export interface TaskData {
   disk?: any;
   time?: any;
   env?: any;
+  executor: string;
+  machineType: string;
   errorAction: string;
   complete: Date;
   duration: number;

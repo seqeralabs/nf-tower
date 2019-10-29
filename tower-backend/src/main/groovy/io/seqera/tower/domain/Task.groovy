@@ -130,6 +130,8 @@ class Task implements TaskDef {
             'disk',
             'time',
             'env',
+            'executor',
+            'machineType',
             'errorAction',
             'exitStatus',
             'duration',
@@ -175,6 +177,8 @@ class Task implements TaskDef {
     Long getDisk() { _data().disk }
     Long getTime() { _data().time }
     String getEnv() { _data().env }
+    String getExecutor() { _data().executor }
+    String getMachineType() { _data().machineType }
 
     String getErrorAction() { _data().errorAction }
 
@@ -222,7 +226,8 @@ class Task implements TaskDef {
     void setDisk(Long x) { _data().disk= x }
     void setTime(Long x) { _data().time = x }
     void setEnv(String x) { _data().env = x }
-
+    void setExecutor(String x) { _data().executor = x }
+    void setMachineType(String x) { _data().machineType = x }
     void setErrorAction(String x) { _data().errorAction = x }
 
     void setExitStatus(Integer x) { _data().exitStatus = x }

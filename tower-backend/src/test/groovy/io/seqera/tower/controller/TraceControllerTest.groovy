@@ -26,6 +26,7 @@ import io.seqera.tower.Application
 import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.User
 import io.seqera.tower.domain.Workflow
+import io.seqera.tower.enums.TaskStatus
 import io.seqera.tower.enums.TraceProcessingStatus
 import io.seqera.tower.enums.WorkflowStatus
 import io.seqera.tower.exchange.trace.TraceAliveRequest
@@ -152,7 +153,15 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         !response.body().message
 
         and: 'the task is in the database'
-        Task.withNewTransaction { Task.count() } ==1
+        with( Task.withNewTransaction { Task.list().get(0) } )  {
+            taskId == 1
+            status == TaskStatus.SUBMITTED
+            hash == '2e/a112fb'
+            process == 'sayHello'
+            name == 'sayHello (2)'
+            container == 'nextflow/bash'
+            executor == 'aws-batch'
+        }
     }
 
     void "try to save a new workflow without being authenticated"() {

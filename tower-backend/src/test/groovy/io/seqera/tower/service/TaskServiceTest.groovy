@@ -111,9 +111,9 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         taskSubmitted.submit
         !taskSubmitted.start
         !taskSubmitted.complete
-        Task.withNewTransaction {
-            Task.count() == 1
-        }
+        taskSubmitted.executor == 'aws-batch'
+        taskSubmitted.machineType == null
+        Task.withNewTransaction { Task.count() } == 1
 
         when: "unmarshall the started task trace"
         tasks = Task.withNewTransaction {
@@ -128,9 +128,9 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         taskStarted.submit
         taskStarted.start
         !taskStarted.complete
-        Task.withNewTransaction {
-            Task.count() == 1
-        }
+        taskStarted.executor == 'aws-batch'
+        taskStarted.machineType == 'x1.large'
+        Task.withNewTransaction { Task.count() } == 1
 
         when: "unmarshall the succeeded task trace"
         Task.withNewTransaction {
@@ -145,9 +145,9 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         taskCompleted.submit
         taskCompleted.start
         taskCompleted.complete
-        Task.withNewTransaction {
-            Task.count() == 1
-        }
+        taskCompleted.executor == 'aws-batch'
+        taskCompleted.machineType == 'x1.large'
+        Task.withNewTransaction { Task.count() } == 1
         
     }
 
