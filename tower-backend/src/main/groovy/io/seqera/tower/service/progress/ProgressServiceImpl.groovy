@@ -131,15 +131,19 @@ class ProgressServiceImpl implements ProgressService {
     protected void killZombies(List<String> zombies) {
         log.warn "Unknown execution status for workflow=$zombies"
         for( String workflowId : zombies ) {
-            store.deleteProgress(workflowId)
             markWorkflowUnknownStatus(workflowId)
         }
     }
 
     protected void markWorkflowUnknownStatus(String workflowId) {
         try {
-            log.debug "Marking workflow Id=$workflowId with unknown status"
-            markWorkflowUnknownStatus0(workflowId)
+            final workflow = markWorkflowUnknownStatus0(workflowId)
+            if( workflow ) {
+                // remove progress from the cache
+                store.deleteProgress(workflowId)
+                // notify the status change
+                liveEventsService.publishWorkflowEvent(workflow)
+            }
         }
         catch( Exception e ) {
             log.error("Unable to save workflow with Id=$workflowId", e)
@@ -147,20 +151,25 @@ class ProgressServiceImpl implements ProgressService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    protected void markWorkflowUnknownStatus0(String workflowId) {
+    protected Workflow markWorkflowUnknownStatus0(String workflowId) {
         final workflow = Workflow.get(workflowId)
         if( !workflow ) {
             log.warn "Unknown workflow for Id=$workflowId | Ignore timeout marking event"
+            return null
         }
-        else if( workflow.status==null || workflow.status==RUNNING ) {
+
+        if( workflow.status==null || workflow.status==RUNNING ) {
+            log.debug "Marking workflow Id=$workflowId with unknown status"
             workflow.status = UNKNOWN
             workflow.duration = computeDuration(workflow.start)
             workflow.save()
-            // notify the status change
-            liveEventsService.publishWorkflowEvent(workflow)
+            // save process state
+            target.persistProgressData(workflowId)
+            return workflow
         }
         else {
             log.warn "Invalid status for workflow Id=$workflowId | Expected status=RUNNIG; found=$workflow.status"
+            return null
         }
     }
 
