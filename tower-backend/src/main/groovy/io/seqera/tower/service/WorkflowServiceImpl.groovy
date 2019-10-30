@@ -54,7 +54,7 @@ class WorkflowServiceImpl implements WorkflowService {
     List<Workflow> listByOwner(User owner, Long max, Long offset, String sqlRegex) {
         new DetachedCriteria<Workflow>(Workflow).build {
             eq('owner', owner)
-
+            ne('deleted', true)
             if (sqlRegex) {
                 or {
                     ilike('projectName', sqlRegex)
@@ -161,8 +161,16 @@ class WorkflowServiceImpl implements WorkflowService {
 
     }
 
-    void deleteById(String workflowId) {
-        delete( get(workflowId) )
+    boolean markForDeletion(String workflowId) {
+        final result = Workflow.executeUpdate("update Workflow set deleted=true where id=:workflowId", [workflowId:workflowId])
+        return result > 0
+    }
+
+    List<Workflow> findMarkedForDeletion(int max) {
+        def args = new HashMap(1)
+        if( max>0 )
+            args.max = max
+        Workflow.executeQuery("from Workflow where deleted=true", Collections.emptyList(), args)
     }
 
     @CompileDynamic

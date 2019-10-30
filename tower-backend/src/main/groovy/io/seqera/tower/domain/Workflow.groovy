@@ -11,7 +11,6 @@
 
 package io.seqera.tower.domain
 
-
 import java.time.OffsetDateTime
 
 import com.fasterxml.jackson.annotation.JsonGetter
@@ -79,7 +78,8 @@ class Workflow {
     WfManifest manifest
     WfNextflow nextflow
     WfStats stats
-
+    Boolean deleted
+    
     @Deprecated Long peakLoadCpus
     @Deprecated Long peakLoadTasks
     @Deprecated Long peakLoadMemory
@@ -176,6 +176,7 @@ class Workflow {
         peakLoadTasks(nullable: true)
         peakLoadMemory(nullable: true)
 
+        deleted(nullable: true)
         dateCreated(nullable: true)
         lastUpdated(nullable: true)
     }
@@ -189,6 +190,10 @@ class Workflow {
         configText(type: 'text')
         tasks( cascade: 'save-update')
         status(length: 10)
+    }
+
+    def beforeValidate() {
+        if( deleted == null ) deleted = false
     }
 
 }
