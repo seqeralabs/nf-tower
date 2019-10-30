@@ -362,7 +362,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         then:
         resp.status == HttpStatus.NO_CONTENT
         and:
-        tx.withNewTransaction { workflowService.get(workflow.id) } == null
+        tx.withNewTransaction { workflowService.get(workflow.id) }.deleted
 
     }
 
@@ -382,7 +382,6 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         def e = thrown(HttpClientResponseException)
         e.status == HttpStatus.BAD_REQUEST
         e.message == "Oops... Failed to delete workflow with ID 1234"
-
     }
 
     void 'should get workflow metrics' () {
