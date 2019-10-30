@@ -76,7 +76,8 @@ class TaskData implements TaskDef {
     String env
     String executor
     String machineType
-
+    String cloudZone
+    String priceModel
     String errorAction
 
     Integer exitStatus
@@ -125,6 +126,8 @@ class TaskData implements TaskDef {
         env(nullable: true, maxSize: 2048)
         executor(nullable: true, maxSize: 25)
         machineType(nullable: true, maxSize: 25)
+        cloudZone(nullable: true, maxSize: 15)
+        priceModel(nullable: true, maxSize: 15)
         errorAction(nullable: true, maxSize: 10)
         duration(nullable: true)
         realtime(nullable: true)

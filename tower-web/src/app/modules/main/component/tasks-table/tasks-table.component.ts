@@ -104,6 +104,8 @@ export class TasksTableComponent implements OnInit, OnChanges {
         {name: "errorAction", visible: false},
         {name: "executor", visible: false},
         {name: "machineType", visible: false},
+        {name: "cloudZone", visible: false},
+        {name: "priceModel", visible: false}
       ],
       ajax: {
         url: this.workflowService.buildTasksGetUrl(this.workflowId),
@@ -163,6 +165,8 @@ export class TasksTableComponent implements OnInit, OnChanges {
               task.data.errorAction,
               task.data.executor,
               task.data.machineType,
+              task.data.cloudZone,
+              task.data.priceModel
             ]) : [];
 
           return JSON.stringify(json);
@@ -230,6 +234,8 @@ export class TasksTableComponent implements OnInit, OnChanges {
       {name: 'time', description: 'The time request for the task execution'},
       {name: 'executor', description: 'The Nextflow executor used to carry out this task'},
       {name: 'machineType', description: 'The virtual machine type used to carry out by this task'},
+      {name: 'cloudZone', description: 'The virtual machine type used to carry out by this task'},
+      {name: 'priceModel', description: 'The price model used to carry out this task'}
     ];
 
 

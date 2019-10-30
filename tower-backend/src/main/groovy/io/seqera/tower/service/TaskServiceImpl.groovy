@@ -125,6 +125,8 @@ class TaskServiceImpl implements TaskService {
         taskToUpdate.env = originalTask.env
         taskToUpdate.executor = originalTask.executor
         taskToUpdate.machineType = originalTask.machineType
+        taskToUpdate.cloudZone = originalTask.cloudZone
+        taskToUpdate.priceModel = originalTask.priceModel
 
         taskToUpdate.errorAction = originalTask.errorAction
         taskToUpdate.exitStatus = originalTask.exitStatus

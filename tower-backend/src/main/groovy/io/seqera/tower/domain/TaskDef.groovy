@@ -45,6 +45,8 @@ interface TaskDef {
     String getEnv()
     String getExecutor()
     String getMachineType()
+    String getCloudZone()
+    String getPriceModel()
 
     String getErrorAction()
 
@@ -96,6 +98,8 @@ interface TaskDef {
     void setEnv(String x)
     void setExecutor(String x)
     void setMachineType(String x)
+    void setCloudZone(String x)
+    void setPriceModel(String x)
     void setErrorAction(String x)
 
     void setExitStatus(Integer x)

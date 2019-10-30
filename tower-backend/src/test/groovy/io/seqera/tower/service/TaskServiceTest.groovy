@@ -89,12 +89,15 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         Workflow workflow = new DomainCreator().createWorkflow()
 
         and: "a task submitted trace"
+        // read from from src/test/resources/workflow_success/2_task_1_submitted.json
         TraceTaskRequest taskSubmittedTraceJson = TracesJsonBank.extractTaskJsonTrace('success', 1, workflow.id, TaskTraceSnapshotStatus.SUBMITTED)
 
         and: 'a task started trace'
+        // taken src/test/resources/workflow_success/3_task_1_running.json
         TraceTaskRequest taskStartedTrace = TracesJsonBank.extractTaskJsonTrace('success', 1, workflow.id, TaskTraceSnapshotStatus.RUNNING)
 
         and: 'a task succeeded trace'
+        // read from src/test/resources/workflow_success/5_task_1_succeeded.json
         TraceTaskRequest taskSucceededTraceJson = TracesJsonBank.extractTaskJsonTrace('success', 1, workflow.id, TaskTraceSnapshotStatus.SUCCEEDED)
 
         when: "unmarshall the JSON to a task"
@@ -130,6 +133,8 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         !taskStarted.complete
         taskStarted.executor == 'aws-batch'
         taskStarted.machineType == 'x1.large'
+        taskStarted.cloudZone == 'eu-west-1a'
+        taskStarted.priceModel == 'spot'
         Task.withNewTransaction { Task.count() } == 1
 
         when: "unmarshall the succeeded task trace"
@@ -147,6 +152,8 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         taskCompleted.complete
         taskCompleted.executor == 'aws-batch'
         taskCompleted.machineType == 'x1.large'
+        taskCompleted.cloudZone == 'eu-west-1a'
+        taskCompleted.priceModel == 'spot'
         Task.withNewTransaction { Task.count() } == 1
         
     }
