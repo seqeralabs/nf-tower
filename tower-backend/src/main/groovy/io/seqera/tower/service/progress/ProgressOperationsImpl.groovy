@@ -204,7 +204,7 @@ class ProgressOperationsImpl implements ProgressOperations {
             persistProgressData(workflowId, data)
         }
         catch( Exception e ) {
-            log.warn "Unable to persists workflow=$workflowId progress stats=${data} | ${e.message}"
+            log.error "Unable to persists progress stats for workflow=$workflowId", e
         }
     }
 
