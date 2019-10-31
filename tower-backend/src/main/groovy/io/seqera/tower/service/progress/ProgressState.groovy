@@ -14,6 +14,7 @@ package io.seqera.tower.service.progress
 import groovy.transform.CompileStatic
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
+import groovy.util.logging.Slf4j
 import io.seqera.tower.domain.ProcessLoad
 import io.seqera.tower.domain.WorkflowLoad
 
@@ -22,6 +23,7 @@ import io.seqera.tower.domain.WorkflowLoad
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
+@Slf4j
 @CompileStatic
 @EqualsAndHashCode
 @ToString(includeNames = true, includePackage = false)
@@ -44,8 +46,18 @@ class ProgressState implements Serializable {
 
     List<ProcessLoad> getProcesses() {
         def result = new ArrayList(processNames.size())
-        for( String name : processNames )
-            result.add(processes.get(name))
+        for( String name : processNames ) {
+            if( !name ) {
+                log.warn "Unexpected empty process name for workflow Id=$workflowId"
+                continue
+            }
+            def el = processes.get(name)
+            if( el == null ) {
+                log.warn "Missing progress stats for process $processes; workflow Id=$workflowId"
+                el = new ProcessLoad(process:name)
+            }
+            result.add(el)
+        }
         return result
     }
 
