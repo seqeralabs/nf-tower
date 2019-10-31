@@ -173,14 +173,10 @@ class WorkflowController extends BaseController {
     @Secured(['ROLE_USER'])
     @Delete('/{workflowId}')
     HttpResponse delete(String workflowId) {
-        try {
-            workflowService.deleteById(workflowId)
+        if( workflowService.markForDeletion(workflowId) )
             HttpResponse.status(HttpStatus.NO_CONTENT)
-        }
-        catch( Exception e ) {
-            log.error "Unable to delete workflow with id=$workflowId", e
+        else
             HttpResponse.badRequest(new MessageResponse("Oops... Failed to delete workflow with ID $workflowId"))
-        }
     }
 
     @Transactional

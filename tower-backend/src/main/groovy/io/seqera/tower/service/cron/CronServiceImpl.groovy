@@ -12,6 +12,7 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import io.micronaut.context.annotation.Value
 import io.seqera.tower.domain.Workflow
+import io.seqera.tower.service.WorkflowService
 import io.seqera.tower.service.progress.ProgressOperationsImpl
 import io.seqera.tower.service.progress.ProgressServiceImpl
 import org.springframework.transaction.annotation.Propagation
@@ -28,6 +29,9 @@ class CronServiceImpl implements CronService {
     ScheduledExecutorService scheduler
 
     @Inject
+    WorkflowService workflowService
+
+    @Inject
     ProgressServiceImpl progressSvc
 
     @Inject
@@ -36,11 +40,13 @@ class CronServiceImpl implements CronService {
     @Value('${tower.cron.initial-delay:`10s`}')
     Duration initialDelay
 
-    @Value('${tower.cron.delay:`15s`}')
+    @Value('${tower.cron.delay:`30s`}')
     Duration schedulerDelay
 
     @Value('${tower.cron.enabled:`false`}')
     boolean enabled
+
+    int progressSaveCounter
 
     @Override
     void start() {
@@ -55,8 +61,31 @@ class CronServiceImpl implements CronService {
     private void start0() {
         log.info "Starting cron service"
         scheduler = Executors.newScheduledThreadPool(1);
-        scheduler.scheduleWithFixedDelay({saveLoadRecords()} as Runnable, initialDelay.toMillis(), schedulerDelay.toMillis(), TimeUnit.MILLISECONDS);
+        scheduler.scheduleWithFixedDelay({scheduledTasks()} as Runnable, initialDelay.toMillis(), schedulerDelay.toMillis(), TimeUnit.MILLISECONDS);
+    }
 
+
+    protected void scheduledTasks() {
+        saveLoadRecords()
+        deleteWorkflowMarkedForDeletion()
+    }
+
+    protected void deleteWorkflowMarkedForDeletion() {
+        try {
+            deleteWorkflowMarkedForDeletion0()
+        }
+        catch( Exception e ) {
+            log.debug "Failed to delete"
+        }
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    protected void deleteWorkflowMarkedForDeletion0() {
+        def workflow = workflowService.findMarkedForDeletion(1)
+        if( workflow ) {
+            log.info "Dropping workflow marked for deletion=$workflow.id"
+            workflowService.delete(workflow[0])
+        }
     }
 
     @Override
@@ -88,19 +117,22 @@ class CronServiceImpl implements CronService {
     @Transactional(propagation = Propagation.REQUIRED)
     protected void saveRecordsTx() {
         final workflow = findWorkflowWithMissingProgress()
-        if( workflow == null ) return
-        saveLoadRecords(workflow)
+        if( workflow != null ) {
+            saveLoadRecords(workflow)
+        }
     }
 
     protected void saveLoadRecords(Workflow workflow) {
-        log.debug "Reconciling execution progress for workflow with Id=$workflow.id"
+        log.debug "Reconciling execution progress for workflow Id=$workflow.id (${++progressSaveCounter})"
         def data = progressSvc.getProgressQuery(workflow)
         progressOp.persistProgressData(workflow, data)
-        log.debug "Reconciling done for workflow Id=${workflow.id}"
+        log.debug "Reconciling execution progress for workflow Id=${workflow.id} DONE"
     }
 
     protected Workflow findWorkflowWithMissingProgress() {
         def query = "from Workflow w where w.status is not null and w.status != 'RUNNING' and w not in (select distinct l.workflow from WorkflowLoad l)"
-        (Workflow)Workflow.executeQuery(query, [max:1]) [0]
+        def result = Workflow.executeQuery(query, [max:1])
+        assert result.size() < 2
+        return (Workflow) result[0]
     }
 }

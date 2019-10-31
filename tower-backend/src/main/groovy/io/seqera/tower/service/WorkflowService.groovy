@@ -46,7 +46,22 @@ interface WorkflowService {
      */
     void delete(Workflow workflow)
 
-    void deleteById(String workflowId)
+    /**
+     * Mark the workflow record for deletion ie, logical delete
+     *
+     * @param workflowId The ID of the workflow to mark for deletion
+     * @return {@code true} if the record was marked successfully, {@code false} otherwise
+     */
+    boolean markForDeletion(String workflowId)
+
+    /**
+     * Should retrieve workflow records marked for deletion
+     *
+     * @param max The max number or record that should be retrieved
+     * @return A list of {@link Workflow} entity for which {@link Workflow#deleted} is true or
+     *   a empty list if no records are found
+     */
+    List<Workflow> findMarkedForDeletion(int max)
 
     Workflow processTraceWorkflowRequest(TraceWorkflowRequest request, User owner)
 
@@ -55,6 +70,5 @@ interface WorkflowService {
     List<WorkflowComment> getComments(Workflow workflow)
 
     List<String> getProcessNames(Workflow workflow)
-
 
 }

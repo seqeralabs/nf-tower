@@ -587,4 +587,74 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         names == ['alpha','bravo','roger']
     }
 
+    def 'should mark for deletion' () {
+        given:
+        def creator = new DomainCreator()
+        and:
+        def workflow = creator.createWorkflow()
+
+        when:
+        def record = workflowService.get(workflow.id)
+        then:
+        record.id == workflow.id
+        record.deleted == false
+
+        when:
+        def success = tx.withNewTransaction { workflowService.markForDeletion(workflow.id) }
+        then:
+        success
+        tx.withNewTransaction {workflowService.get(workflow.id)}.deleted == true
+
+        when:
+        success = tx.withNewTransaction { workflowService.markForDeletion('unknown') }
+        then:
+        !success
+    }
+
+    def 'should not list record marked for deletion' () {
+        given:
+        def creator = new DomainCreator()
+        def user = creator.createUser()
+        and:
+        def workflow = creator.createWorkflow(owner: user)
+
+        when:
+        def list = workflowService.listByOwner(user, 1, 0, null)
+        then:
+        list *. id == [workflow.id]
+
+        when:
+        tx.withNewTransaction { workflowService.markForDeletion(workflow.id) }
+        and:
+        list = tx.withNewTransaction { workflowService.listByOwner(user, 1, 0, null) }
+        then:
+        list == []
+    }
+
+    def 'should find marked for deletion' () {
+        given:
+        def creator = new DomainCreator()
+        def user = creator.createUser()
+        and:
+        def w1 = creator.createWorkflow(owner: user)
+        def w2 = creator.createWorkflow(owner: user)
+        def w3 = creator.createWorkflow(owner: user)
+
+        when:
+        def list = workflowService.findMarkedForDeletion(10)
+        then:
+        list.size()==0
+
+        when:
+        tx.withNewTransaction { w1.deleted=true; w1.save(); w2.deleted=true; w2.save(); w3.deleted=true; w3.save();  }
+        and:
+        list = tx.withNewTransaction { workflowService.findMarkedForDeletion(10) }
+        then:
+        list.size() == 3
+
+        when:
+        list = tx.withNewTransaction { workflowService.findMarkedForDeletion(1) }
+        then:
+        list.size() == 1
+    }
 }
