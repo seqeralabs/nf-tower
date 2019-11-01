@@ -14,6 +14,7 @@ package io.seqera.tower.service.auth
 import io.micronaut.security.authentication.UserDetails
 import io.micronaut.test.annotation.MicronautTest
 import io.micronaut.test.annotation.MockBean
+import io.seqera.tower.service.AccessTokenService
 import io.seqera.util.TokenHelper
 import io.seqera.tower.domain.AccessToken
 import io.seqera.tower.domain.User
@@ -53,13 +54,17 @@ class AuthenticationByApiTokenTest extends Specification {
         def TOKEN = 'xyz'
         def USER = new User(userName: NAME, email:EMAIL)
         def userService = Mock(UserService)
-        AuthenticationByApiToken provider = Spy(AuthenticationByApiToken, constructorArgs: [userService])
+        def tokenService = Mock(AccessTokenService)
+        def provider = Spy(AuthenticationByApiToken)
+        provider.userService = userService
+        provider.tokenService = tokenService
 
         when:
         def result = provider.authToken0(TOKEN)
         then:
         1 * userService.getByAccessToken(TOKEN) >> USER
         1 * userService.findAuthoritiesOfUser(USER) >> ['role_a', 'role_b']
+        1 * tokenService.updateLastUsedAsync(TOKEN)
         then:
         result instanceof UserDetails
         (result as UserDetails).username == EMAIL
