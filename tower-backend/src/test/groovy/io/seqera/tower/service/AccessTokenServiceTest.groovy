@@ -12,11 +12,15 @@
 package io.seqera.tower.service
 
 import javax.inject.Inject
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 import grails.gorm.transactions.TransactionService
 import grails.gorm.transactions.Transactional
+import io.micronaut.context.annotation.Property
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.tower.Application
+import io.seqera.tower.domain.AccessToken
 import io.seqera.tower.domain.User
 import io.seqera.tower.exceptions.EntityException
 import io.seqera.tower.util.AbstractContainerBaseTest
@@ -26,6 +30,7 @@ import io.seqera.tower.util.DomainCreator
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
 @MicronautTest(application = Application.class)
+@Property(name = "tower.access-token.flush.interval", value = "100ms")
 @Transactional
 class AccessTokenServiceTest extends AbstractContainerBaseTest {
 
@@ -181,5 +186,43 @@ class AccessTokenServiceTest extends AbstractContainerBaseTest {
             tokenService.countByUser(user1) ==3
             tokenService.countByUser(user2) ==1
         }
+    }
+
+    def 'should update last used timestamp' () {
+        given:
+        def creator = new DomainCreator()
+        def user = creator.createUser()
+        def token = creator.createAccesToken(user:user, name:'foo')
+        def ts = Instant.now().truncatedTo(ChronoUnit.SECONDS).plusSeconds(10)
+
+        when:
+        def result = tx.withNewTransaction { tokenService.updateLastUsed(token.token, ts) }
+        then:
+        result == 1
+
+        when:
+        token = tx.withNewTransaction { AccessToken.get(token.id) }
+        then:
+        token.lastUsed == ts
+
+    }
+
+    def 'should update timestamp async' () {
+        given:
+        def creator = new DomainCreator()
+        def user = creator.createUser()
+        def token = creator.createAccesToken(user:user, name:'foo')
+        and:
+        def subscriber =  tokenService.lastAccessUpdater.test()
+
+        when:
+        tokenService.updateLastUsedAsync(token.token)
+        then:
+        subscriber.assertValue(token.token)
+
+        when:
+        sleep (tokenService.flushInterval.toMillis() +500)
+        then:
+        tx.withNewTransaction { AccessToken.get(token.id) }.lastUsed != null
     }
 }
