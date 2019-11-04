@@ -57,23 +57,32 @@ class ProgressOperationsImpl implements ProgressOperations {
     void updateStats(String workflowId, List<Task> tasks) {
         assert workflowId
         log.trace("Updating progress state for workflow Id=$workflowId; tasks count=${tasks.size()}")
+        if( tasks ) {
+            final ts = System.currentTimeMillis()
+            final progress = store.getProgress(workflowId)
+            if( !progress ) {
+                log.warn "Missing workflow counters for Id=$workflowId"
+                return
+            }
 
-        final progress = store.getProgress(workflowId)
-        if( !progress ) {
-            log.warn "Missing workflow counters for Id=$workflowId"
-            return
+            Map<Long, TaskStatus> tasksState = new HashMap<>(tasks.size())
+            for( Task task : tasks ) {
+                updateStats0(task, progress, tasksState)
+            }
+
+            // update the process peaks
+            progress.updatePeaks()
+
+            store.storeProgress(workflowId, progress)
+            store.storeTaskStatuses(workflowId, tasksState)
+            final delta = System.currentTimeMillis()-ts
+            if( delta>1_000 )
+                log.debug "++ Process stats completed for worflow id=$workflowId; delta=${delta}"
         }
-
-        Map<Long, TaskStatus> tasksState = new HashMap<>(tasks.size())
-        for( Task task : tasks ) {
-            updateStats0(task, progress, tasksState)
+        else {
+            // store an empty map to force the timestamp update
+            store.storeTaskStatuses(workflowId, Collections.emptyMap())
         }
-
-        // update the process peaks
-        progress.updatePeaks()
-
-        store.storeProgress(workflowId, progress)
-        store.storeTaskStatuses(workflowId, tasksState)
     }
 
     private void updateStats0(Task task, ProgressState progress, Map<Long,TaskStatus> state) {
@@ -133,7 +142,7 @@ class ProgressOperationsImpl implements ProgressOperations {
         ProgressState progress = store.getProgress(workflowId)
         progress ? new ProgressData(
                 workflowProgress: progress.workflow,
-                processesProgress: progress.processes ) : null
+                processesProgress: progress.processLoads ) : null
     }
 
     @Override
