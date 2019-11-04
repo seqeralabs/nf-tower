@@ -17,7 +17,6 @@ import groovy.transform.ToString
 import groovy.util.logging.Slf4j
 import io.seqera.tower.domain.ProcessLoad
 import io.seqera.tower.domain.WorkflowLoad
-
 /**
  * Model a workflow execution progress metadata
  *
@@ -25,11 +24,11 @@ import io.seqera.tower.domain.WorkflowLoad
  */
 @Slf4j
 @CompileStatic
-@EqualsAndHashCode
+@EqualsAndHashCode(includeFields = true)
 @ToString(includeNames = true, includePackage = false)
 class ProgressState implements Serializable {
 
-    String workflowId
+    private String workflowId
     private List<String> processNames
     private Map<String, ProcessLoad> processes
     private WorkflowLoad workflow
@@ -44,7 +43,7 @@ class ProgressState implements Serializable {
         this.workflow = new WorkflowLoad()
     }
 
-    List<ProcessLoad> getProcesses() {
+    List<ProcessLoad> getProcessLoads() {
         def result = new ArrayList(processNames.size())
         for( String name : processNames ) {
             if( !name ) {
@@ -64,7 +63,7 @@ class ProgressState implements Serializable {
     WorkflowLoad getWorkflow() { workflow }
 
     ProcessLoad getState(String processName) {
-        processes.computeIfAbsent(processName, {new ProcessLoad()})
+        processes.computeIfAbsent(processName, {new ProcessLoad(process:processName)})
     }
 
     void updatePeaks() {

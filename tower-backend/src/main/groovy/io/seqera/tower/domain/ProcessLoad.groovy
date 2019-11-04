@@ -17,6 +17,7 @@ import java.time.OffsetDateTime
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import grails.gorm.annotation.Entity
 import groovy.transform.CompileDynamic
+import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
 import io.seqera.tower.service.progress.ProgressRow
 import io.seqera.tower.service.progress.ProgressRecord
@@ -26,6 +27,7 @@ import io.seqera.tower.service.progress.ProgressRecord
  */
 @Entity
 @CompileDynamic
+@EqualsAndHashCode
 @ToString(includeNames = true, includePackage = false, includes='id,process,cpus,cpuTime,cpuLoad,memoryReq,memoryRss,readBytes,writeBytes,volCtxSwitch,invCtxSwitch,peakCpus,peakTasks,peakMemory,loadTasks,loadCpus,loadMemory,dateCreated,lastUpdated')
 @JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version', 'workflow', 'id'])
 class ProcessLoad implements ProgressRecord, Serializable {
