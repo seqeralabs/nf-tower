@@ -61,6 +61,8 @@ export class TasksTableComponent implements OnInit, OnChanges {
       scrollX: true,
       serverSide: true,
       pageLength: 30,
+      info: false,
+      pagingType: "full",
       lengthChange: false,
       orderMulti: false,
       rowId: (rowData) => `tr-${rowData[0]}`,

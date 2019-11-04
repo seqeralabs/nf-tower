@@ -155,17 +155,18 @@ class WorkflowController extends BaseController {
     @Transactional
     @Secured(SecurityRule.IS_ANONYMOUS)
     HttpResponse<TaskList> tasks(String workflowId, HttpParameters filterParams) {
-        Long max = filterParams.getFirst('length', Long.class, 10l)
+        int max = filterParams.getFirst('length', Integer.class, 10)
         Long offset = filterParams.getFirst('start', Long.class, 0l)
         String orderProperty = filterParams.getFirst('order[0][column]', String.class, 'taskId')
         String orderDir = filterParams.getFirst('order[0][dir]', String.class, 'asc')
         String search = filterParams.getFirst('search', String.class, null)
 
         List<Task> tasks = taskService.findTasks(workflowId, search, orderProperty, orderDir, max, offset)
-        long total = tasks.size()<max ? tasks.size() : taskService.countTasks(workflowId, search)
         List<TaskGet> result = tasks.collect {
             TaskGet.of(it)
         }
+
+        long total = result.size()==max ? offset+max+1 : offset+result.size()
         HttpResponse.ok(TaskList.of(result, total))
     }
 
