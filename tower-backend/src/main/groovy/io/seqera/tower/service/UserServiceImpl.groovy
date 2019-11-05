@@ -70,11 +70,9 @@ class UserServiceImpl implements UserService {
         User.list(offset:offset, max:max)
     }
 
-    @CompileDynamic
     User findByEmailAndAuthToken(String email, String token) {
         final params = [email:email?.toLowerCase(), token: token]
-        // make sure to use *left* join to retrieve the user even if no access token exists
-        final query = "from User u left join fetch u.accessTokens where lower(u.email) = :email and u.authToken=:token"
+        final query = "from User u where lower(u.email) = :email and u.authToken=:token"
         User.executeQuery(query, params) [0]
     }
 
