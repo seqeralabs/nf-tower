@@ -53,7 +53,10 @@ class AuthenticationByMailAuthToken implements AuthenticationProvider {
             return new AuthFailure('Missing user identity')
         }
 
-        User user = userService.findByEmailAndAuthToken(identity, token)
+        if( identity==AuthenticationByApiToken.ID )
+            return new AuthFailure('Skipping mail auth for API token')
+
+        final user = userService.findByEmailAndAuthToken(identity, token)
         if (!user) {
             // a more explanatory message should be returned
             return new AuthFailure("Unknow user with identity: $identity")

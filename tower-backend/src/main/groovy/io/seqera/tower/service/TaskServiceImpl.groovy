@@ -188,7 +188,7 @@ class TaskServiceImpl implements TaskService {
 
         def query = (count ?
                 """\
-                select count(*)
+                select count(t.id)
                 from Task t
                 join t.data d
                 where t.workflow.id = :workflowId 
