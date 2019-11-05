@@ -99,7 +99,12 @@ class TraceController extends BaseController {
 
         HttpResponse<TraceTaskResponse> response
         if( !req.workflowId )
-            HttpResponse.badRequest(TraceTaskResponse.ofError("Missing workflow ID"))
+            return HttpResponse.badRequest(TraceTaskResponse.ofError("Missing workflow ID"))
+
+        if( req.tasks?.size()>100 ) {
+            log.warn "Too many tasks for workflow Id=$req.workflowId; size=${req.tasks.size()}"
+            return HttpResponse.badRequest(TraceTaskResponse.ofError("Workflow trace request too big"))
+        }
 
         try {
             List<Task> tasks = traceService.processTaskTrace(req)
