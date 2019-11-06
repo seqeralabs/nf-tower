@@ -21,7 +21,6 @@ import java.security.Principal
 import java.time.Instant
 import java.time.OffsetDateTime
 
-import grails.gorm.DetachedCriteria
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
@@ -40,6 +39,7 @@ import io.seqera.tower.domain.Workflow
 import io.seqera.tower.exceptions.NonExistingUserException
 import io.seqera.util.StringUtils
 import io.seqera.util.TokenHelper
+import io.seqera.util.TupleUtils
 import org.springframework.validation.FieldError
 
 @Slf4j
@@ -74,15 +74,6 @@ class UserServiceImpl implements UserService {
         final params = [email:email?.toLowerCase(), token: token]
         final query = "from User u where lower(u.email) = :email and u.authToken=:token"
         User.executeQuery(query, params) [0]
-    }
-
-    @CompileDynamic
-    User findByUserNameAndAccessToken(String userName, String token) {
-        new DetachedCriteria<User>(User).build {
-            accessTokens {
-                eq('token', token)
-            }
-        }.get()
     }
 
     @CompileDynamic
@@ -298,13 +289,11 @@ class UserServiceImpl implements UserService {
         existingUser.delete()
     }
 
-    @CompileDynamic
     User getByAccessToken(String token) {
-        new DetachedCriteria<User>(User).build {
-            accessTokens {
-                eq('token', token)
-            }
-        }.get()
+        final params = TupleUtils.map('token', token)
+        final args = TupleUtils.map('cache', true)
+        final result = (List<User>)User.executeQuery('select t.user from AccessToken t where t.token=:token', params, args)
+        result ? result[0] : null
     }
 
     @Override
