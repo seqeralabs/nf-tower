@@ -37,9 +37,6 @@ interface UserService {
 
     List<User> list(int offset, int max)
 
-    @Deprecated
-    User findByUserNameAndAccessToken(String userName, String token)
-
     List<String> findAuthoritiesByEmail(String email)
 
     List<String> findAuthoritiesOfUser(User user)

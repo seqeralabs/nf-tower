@@ -11,6 +11,7 @@
 
 package io.seqera.tower.enums
 
+import io.seqera.util.TupleUtils
 import spock.lang.Specification
 
 /**
@@ -32,5 +33,12 @@ class TaskStatusTest extends Specification {
         'C'         | [TaskStatus.CACHED, TaskStatus.COMPLETED]
         'c*'        | [TaskStatus.CACHED, TaskStatus.COMPLETED]
         '*ing'      | [TaskStatus.RUNNING]
+    }
+
+    def 'should create a map' () {
+        expect:
+        TupleUtils.map('x',1) == [x:1]
+        TupleUtils.map('x',1, 'y',2) == [x:1,y:2]
+        TupleUtils.map('x',1, 'y',2, 'z', 3) == [x:1,y:2,z:3]
     }
 }
