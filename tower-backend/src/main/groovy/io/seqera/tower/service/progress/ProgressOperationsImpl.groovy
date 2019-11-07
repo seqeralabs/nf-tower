@@ -21,7 +21,6 @@ import io.seqera.tower.domain.ProcessLoad
 import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.domain.WorkflowLoad
-import io.seqera.tower.domain.WorkflowProcess
 import io.seqera.tower.enums.TaskStatus
 import io.seqera.tower.exchange.progress.ProgressData
 import org.springframework.transaction.annotation.Propagation
@@ -174,7 +173,7 @@ class ProgressOperationsImpl implements ProgressOperations {
      */
     ProgressData load(String workflowId) {
         final params = [workflowId: workflowId]
-        final workflow = (WorkflowLoad) WorkflowProcess.executeQuery('from WorkflowLoad p where p.workflow.id=:workflowId',params) [0]
+        final workflow = WorkflowLoad.find('from WorkflowLoad p where p.workflow.id=:workflowId',params)
         if( workflow == null )
             return null
 
