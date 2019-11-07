@@ -120,7 +120,7 @@ abstract class AccessTokenService {
         for( Map.Entry<String,Instant> entry : new HashMap<>(tokenTimestamps) ) {
             final token = entry.key
             final ts = entry.value
-            log.debug "Flushing access token=${token.substring(0,5)}.. lastUsed=$ts"
+            log.trace "Flushing access token=${token.substring(0,5)}.. lastUsed=$ts"
             updateLastUsed(token, ts)
             tokenTimestamps.remove(token, ts)
         }
