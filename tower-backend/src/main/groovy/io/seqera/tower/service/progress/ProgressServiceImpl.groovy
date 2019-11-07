@@ -129,7 +129,7 @@ class ProgressServiceImpl implements ProgressService {
 
 
     protected void killZombies(List<String> zombies) {
-        log.warn "Unknown execution status for workflow=$zombies"
+        log.info "Unknown execution status for workflow=$zombies"
         for( String workflowId : zombies ) {
             markWorkflowUnknownStatus(workflowId)
         }
@@ -139,11 +139,11 @@ class ProgressServiceImpl implements ProgressService {
         try {
             final workflow = markWorkflowUnknownStatus0(workflowId)
             if( workflow ) {
-                // remove progress from the cache
-                store.deleteProgress(workflowId)
                 // notify the status change
                 liveEventsService.publishWorkflowEvent(workflow)
             }
+            // remove progress from the cache in any case to avoid entering an endless re-try
+            store.deleteProgress(workflowId)
         }
         catch( Exception e ) {
             log.error("Unable to save workflow with Id=$workflowId", e)

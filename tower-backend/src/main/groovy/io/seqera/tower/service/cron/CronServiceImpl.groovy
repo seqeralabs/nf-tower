@@ -131,8 +131,6 @@ class CronServiceImpl implements CronService {
 
     protected Workflow findWorkflowWithMissingProgress() {
         def query = "from Workflow w where w.status is not null and w.status != 'RUNNING' and w not in (select distinct l.workflow from WorkflowLoad l)"
-        def result = Workflow.executeQuery(query, [max:1])
-        assert result.size() < 2
-        return (Workflow) result[0]
+        Workflow.find(query, [max:1])
     }
 }

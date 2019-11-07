@@ -73,7 +73,7 @@ class UserServiceImpl implements UserService {
     User findByEmailAndAuthToken(String email, String token) {
         final params = [email:email?.toLowerCase(), token: token]
         final query = "from User u where lower(u.email) = :email and u.authToken=:token"
-        User.executeQuery(query, params) [0]
+        User.find(query, params)
     }
 
     @CompileDynamic
@@ -252,7 +252,7 @@ class UserServiceImpl implements UserService {
 
     @Override
     User getByEmail(String email) {
-        User.executeQuery("from User where lower(email) = :email", [email: email?.toLowerCase()]) [0]
+        User.find("from User where lower(email) = :email", [email: email?.toLowerCase()])
     }
 
     @CompileDynamic
@@ -292,8 +292,7 @@ class UserServiceImpl implements UserService {
     User getByAccessToken(String token) {
         final params = TupleUtils.map('token', token)
         final args = TupleUtils.map('cache', true)
-        final result = (List<User>)User.executeQuery('select t.user from AccessToken t where t.token=:token', params, args)
-        result ? result[0] : null
+        User.find('select t.user from AccessToken t where t.token=:token', params, args)
     }
 
     @Override
