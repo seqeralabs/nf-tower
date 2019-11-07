@@ -48,6 +48,7 @@ import { LoadingComponent } from './component/loading/loading.component';
 import { TreeListComponent } from "./component/tree-list/TreeListComponent";
 import { WorkflowStatusIconComponent } from "../../workflow-status-icon/workflow-status-icon.component";
 import {TaskDetailsComponent} from "./component/task-details/task-details.component";
+import {TeamsComponent} from "./component/teams/teams.component";
 
 /*
  * Main application routing strategy
@@ -59,6 +60,7 @@ const routes: Routes = [
      {path: 'profile',      component: UserProfileComponent, canActivate: [AuthGuard]},
      {path: 'tokens',       component: AccessTokenComponent, canActivate: [AuthGuard]},
      {path: 'welcome',      component: WelcomeComponent, canActivate: [AuthGuard]},
+     {path: 'teams',        component: TeamsComponent, canActivate: [AuthGuard]},
      {path: 'login',        component: LoginComponent},
    ]
   },
@@ -101,7 +103,8 @@ export class MainRoutingModule { }
     NotificationComponent,
     LandingComponent,
     TreeListComponent,
-    TaskDetailsComponent
+    TaskDetailsComponent,
+    TeamsComponent
   ],
   imports: [
     BrowserModule,

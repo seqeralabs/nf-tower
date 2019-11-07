@@ -1,0 +1,43 @@
+<!--
+  ~ Copyright (c) 2019, Seqera Labs.
+  ~
+  ~ This Source Code Form is subject to the terms of the Mozilla Public
+  ~ License, v. 2.0. If a copy of the MPL was not distributed with this
+  ~ file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  ~
+  ~ This Source Code Form is "Incompatible With Secondary Licenses", as
+  ~ defined by the Mozilla Public License, v. 2.0.
+  -->
+
+<div class="container mt-5">
+  <h1 class="mb-4">Your Teams</h1>
+
+  <p>
+    Manage teams
+  </p>
+
+  <div class="btn-toolbar">
+
+    <div class="btn-group mr-2">
+      <button type="button" class="btn btn-primary btn-sm" (click)="createNewTeam()">New team</button>
+    </div>
+  </div>
+  <br>
+
+  <ul class="list-group">
+    <li class="list-group-item" *ngFor="let team of teams" >
+      <div class="d-flex w-100 justify-content-between">
+        <h5 class="mb-1">{{team.name}}</h5>
+        <small>(something)</small>
+      </div>
+      <samp class="mb-1">{{team.name}} </samp>
+      <button type="button" class="btn btn-outline-danger btn-sm btn-delete" (click)="deleteTeam(team)">Delete</button>
+    </li>
+  </ul>
+
+  <div class="card" *ngIf="teams?.length==0">
+    <div class="card-body">
+      No security tokens defined.
+    </div>
+  </div>
+</div>

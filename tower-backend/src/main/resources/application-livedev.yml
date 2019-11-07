@@ -81,3 +81,6 @@ endpoints:
       threshold: '500MB'
     jdbc:
       enabled: true
+---
+tower.cron.workflow-delete.enabled: false
+tower.cron.progress-stats.enabled: false

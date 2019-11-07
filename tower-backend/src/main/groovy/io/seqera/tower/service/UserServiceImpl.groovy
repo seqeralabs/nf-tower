@@ -88,7 +88,6 @@ class UserServiceImpl implements UserService {
     @CompileDynamic
     List<String> findAuthoritiesOfUser(User user) {
         List<UserRole> rolesOfUser = UserRole.findAllByUser(user)
-
         return rolesOfUser.role.authority
     }
 

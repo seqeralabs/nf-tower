@@ -27,6 +27,7 @@ import io.seqera.tower.util.AbstractContainerBaseTest
 import io.seqera.tower.util.DomainCreator
 import io.seqera.util.StringUtils
 import org.grails.datastore.mapping.validation.ValidationException as GrailsValidationException
+import spock.lang.Ignore
 import spock.lang.IgnoreIf
 
 @MicronautTest(application = Application.class, environments = ['trusted-test'])
@@ -367,5 +368,34 @@ class UserServiceTest extends AbstractContainerBaseTest {
         record = userService.getByEmail(null)
         then:
         record == null
+    }
+
+    def 'should find user authority' () {
+        given:
+        def creator = new DomainCreator()
+        def user = creator.createUser(email: 'foo@bar.com')
+        def role = creator.createRole(authority: 'admin')
+        def uxr = creator.createUserRole(user:user, role:role)
+
+        when:
+        def auth = userService.findAuthoritiesOfUser(user)
+        then:
+        auth == ['admin']
+    }
+
+    @Ignore
+    def 'should find user authority from team' () {
+        given:
+        def creator = new DomainCreator()
+        def user = creator.createUser(email: 'foo@bar.com')
+        def role1 = creator.createRole(authority: 'viewer')
+        def role2 = creator.createRole(authority: 'admin')
+        def uxr = creator.createUserRole(user:user, role:role2)
+        def team = creator.createTeam(role: role1, name:'team-x', users:[user])
+
+        when:
+        def auth = userService.findAuthoritiesOfUser(user)
+        then:
+        auth == ['admin',   'viewer']
     }
 }

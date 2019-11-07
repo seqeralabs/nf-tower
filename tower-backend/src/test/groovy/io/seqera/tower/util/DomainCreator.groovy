@@ -17,10 +17,12 @@ import java.time.OffsetDateTime
 import groovy.util.logging.Slf4j
 import io.seqera.tower.domain.AccessToken
 import io.seqera.tower.domain.ProcessLoad
+import io.seqera.tower.domain.Project
 import io.seqera.tower.domain.ResourceData
 import io.seqera.tower.domain.Role
 import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.TaskData
+import io.seqera.tower.domain.Team
 import io.seqera.tower.domain.User
 import io.seqera.tower.domain.UserRole
 import io.seqera.tower.domain.Workflow
@@ -42,6 +44,7 @@ class DomainCreator {
 
     static void cleanupDatabase() {
         Workflow.withNewTransaction {
+            Project.where { true }.deleteAll()
             ProcessLoad.where { true }.deleteAll()
             WorkflowLoad.where { true }.deleteAll()
             WorkflowProcess.where { true }.deleteAll()
@@ -50,6 +53,7 @@ class DomainCreator {
             Task.where { true }.deleteAll()
             TaskData.where { true }.deleteAll()
             Workflow.where { true }.deleteAll()
+            Team.where { true }.deleteAll()
             AccessToken.where { true }.deleteAll()
             UserRole.where { true }.deleteAll()
             Role.where { true }.deleteAll()
@@ -248,6 +252,14 @@ class DomainCreator {
         fields.role =  fields.containsKey('role') ? fields.role : createRole()
 
         createInstance(userRole, fields)
+    }
+
+    Team createTeam(Map fields=[:]) {
+        Team team = new Team()
+        fields.name = fields.containsKey('name') ? fields.name : "name_${generateUniqueNamePart()}"
+        fields.role =  fields.containsKey('role') ? fields.role : createRole()
+        fields.users =  fields.containsKey('users') ? fields.users : [createUser()]
+        createInstance(team, fields)
     }
 
     Role createRole(Map fields = [:]) {

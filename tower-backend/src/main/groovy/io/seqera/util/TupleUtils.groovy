@@ -61,4 +61,25 @@ class TupleUtils {
         result.put(k3,v3)
         return result
     }
- }
+
+    static Set set(x) {
+        final result = new HashSet(1)
+        result.add(x)
+        return result
+    }
+
+    static Set set(x, y) {
+        final result = new HashSet(2)
+        result.add(x)
+        result.add(y)
+        return result
+    }
+
+    static Set set(x, y, z) {
+        final result = new HashSet(3)
+        result.add(x)
+        result.add(y)
+        result.add(z)
+        return result
+    }
+}
