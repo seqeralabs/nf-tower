@@ -289,10 +289,10 @@ class UserServiceImpl implements UserService {
         existingUser.delete()
     }
 
+    @CompileDynamic
     User getByAccessToken(String token) {
-        final params = TupleUtils.map('token', token)
         final args = TupleUtils.map('cache', true)
-        User.find('select t.user from AccessToken t where t.token=:token', params, args)
+        AccessToken.findByToken(token, args)?.user
     }
 
     @Override

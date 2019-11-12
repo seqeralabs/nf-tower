@@ -60,4 +60,7 @@ class User {
         lastAccess(nullable: true)
     }
 
+    static mapping = {
+        cache  true
+    }
 }
