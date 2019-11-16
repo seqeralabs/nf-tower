@@ -58,7 +58,7 @@ class TraceController extends BaseController {
     @Transactional(readOnly = true)
     @Secured(['ROLE_USER'])
     HttpResponse<TraceAliveResponse> alive(@Body TraceAliveRequest req, Authentication authentication) {
-        log.trace "Receiving trace alive [workflowId=${req.workflowId}; user=${authentication.name}]"
+        log.debug "Receiving trace alive [workflowId=${req.workflowId}]"
         traceService.keepAlive(req.workflowId)
         HttpResponse.ok(new TraceAliveResponse(message: 'OK'))
     }

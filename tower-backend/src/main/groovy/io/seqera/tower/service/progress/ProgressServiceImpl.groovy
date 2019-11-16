@@ -54,7 +54,7 @@ class ProgressServiceImpl implements ProgressService {
     @Value('${tower.metrics.interval:`1m`}')
     Duration metrics
 
-    @Value('${tower.trace.timeout:`190s`}')
+    @Value('${tower.trace.timeout:`400s`}')
     Duration aliveTimeout
 
     @Inject
