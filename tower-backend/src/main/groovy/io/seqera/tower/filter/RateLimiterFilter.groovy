@@ -111,7 +111,10 @@ class RateLimiterFilter extends OncePerRequestHttpServerFilter implements Filter
             log.trace "Filter request\n- uri: ${request.getUri()}\n- address: ${request.getRemoteAddress()}\n- headers: ${request.getHeaders().asMap()}"
         }
         final  opt = request.getUserPrincipal()
-        opt.isPresent() ? opt.get() : request.getRemoteAddress().getAddress().getHostAddress()
+        return (opt.isPresent()
+                ? opt.get() :
+                (request.getHeaders().get('X-Forwarded-For')
+                        ?: request.getRemoteAddress().getAddress().getHostAddress()) )
     }
 
     private AtomicRateLimiter getLimiter(String key) {
