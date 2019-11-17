@@ -19,6 +19,7 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import io.micronaut.context.annotation.Value
 import io.micronaut.http.sse.Event
+import io.reactivex.Flowable
 import io.reactivex.processors.PublishProcessor
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.enums.LiveAction
@@ -44,11 +45,19 @@ class LiveEventsServiceImpl implements LiveEventsService {
 
     PublishProcessor<List<LiveUpdate>> eventProcessor
 
+    Flowable<Event<List<LiveUpdate>>> eventPublisher
+
     @PostConstruct
     void initialize() {
         log.info "Creating SSE event buffer flowable timeout=$bufferTimeout count=$bufferCount heartbeat=$heartbeatDuration"
 
         eventProcessor = PublishProcessor.create()
+
+        eventPublisher = eventProcessor
+                        .map { List<LiveUpdate> traces ->
+                            log.trace "Publishing map traces (${traces.size()}) $traces"
+                            Event.of(traces)
+                        }
 
         // -- implements the back pressure logic
         buffer = new BackpressureBuffer<LiveUpdate>()
@@ -75,11 +84,7 @@ class LiveEventsServiceImpl implements LiveEventsService {
 
     @Override
     Publisher<Event<List<LiveUpdate>>> getEventPublisher() {
-        return eventProcessor
-                .map { List<LiveUpdate> traces ->
-                    log.trace "Publishing map traces (${traces.size()}) $traces"
-                    Event.of(traces)
-                }
+        return eventPublisher.mergeWith( Flowable.just(Event.of(Collections.emptyList())) )
     }
 
     void publishEvent(LiveUpdate liveUpdate) {
