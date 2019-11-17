@@ -41,13 +41,16 @@ class LiveEventsServiceTest extends AbstractContainerBaseTest {
         liveEventsService.publishEvent(trace)
 
         then: 'after the event is published, the data is no received right away'
-        subscriber.assertValueCount(0)
+        subscriber.assertValueCount(1)
 
         and: 'the event is received after the buffer time window passes'
         sleep(liveEventsService.bufferTimeout.toMillis() + 100) // --> Sleep the time window and add a prudential time to make sure the data has been received
-        subscriber.assertValueCount(1)
-        subscriber.events.first()[0].data.userId == [trace.userId]
-        subscriber.events.first()[0].data.workflowId == [trace.workflowId]
+        subscriber.assertValueCount(2)
+        and:
+        subscriber.events.first()[0].data == []
+        and:
+        subscriber.events.first()[1].data.userId == [trace.userId]
+        subscriber.events.first()[1].data.workflowId == [trace.workflowId]
     }
 
     @Ignore

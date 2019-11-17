@@ -84,7 +84,10 @@ class LiveEventsServiceImpl implements LiveEventsService {
 
     @Override
     Publisher<Event<List<LiveUpdate>>> getEventPublisher() {
-        return eventPublisher.mergeWith( Flowable.just(Event.of(Collections.emptyList())) )
+        // to avoid the response to stall when no events are emitted
+        // merge the publisher with an empty event
+        return eventPublisher
+                .mergeWith( Flowable.just(Event.of(Collections.emptyList())) )
     }
 
     void publishEvent(LiveUpdate liveUpdate) {
