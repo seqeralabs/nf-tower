@@ -107,6 +107,9 @@ class RateLimiterFilter extends OncePerRequestHttpServerFilter implements Filter
     }
 
     private String getKey(HttpRequest<?> request) {
+        if( log.isTraceEnabled() ) {
+            log.trace "Filter request\n- uri: ${request.getUri()}\n- address: ${request.getRemoteAddress()}\n- headers: ${request.getHeaders().asMap()}"
+        }
         final  opt = request.getUserPrincipal()
         opt.isPresent() ? opt.get() : request.getRemoteAddress().getAddress().getHostAddress()
     }
