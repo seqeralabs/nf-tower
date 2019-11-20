@@ -12,7 +12,7 @@
 import {Component, OnInit} from '@angular/core';
 import {User} from "../../entity/user/user";
 import {AuthService} from "../../service/auth.service";
-import {NavigationEnd, Router} from "@angular/router";
+import {ActivatedRoute, NavigationEnd, Router} from "@angular/router";
 import {Workflow} from "../../entity/workflow/workflow";
 import {WorkflowService} from "../../service/workflow.service";
 import {LiveEventsService} from "../../service/live-events.service";
@@ -46,7 +46,8 @@ export class HomeComponent implements OnInit {
               private workflowService: WorkflowService,
               private serverSentEventsWorkflowService: LiveEventsService,
               private notificationService: NotificationService,
-              private router: Router) {
+              private router: Router,
+              private route: ActivatedRoute) {
   }
 
 
@@ -120,7 +121,7 @@ export class HomeComponent implements OnInit {
   }
 
   private get isAtRoot(): boolean {
-    return (this.router.url == '/');
+    return (this.router.url.split("?")[0] == '/');
   }
 
   get shouldShowLandingPage(): boolean {
