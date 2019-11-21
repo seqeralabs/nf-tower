@@ -59,6 +59,7 @@ const routes: Routes = [
      {path: 'tokens',       component: AccessTokenComponent, canActivate: [AuthGuard]},
      {path: 'welcome',      component: WelcomeComponent, canActivate: [AuthGuard]},
      {path: 'login',        component: LoginComponent},
+     {path: '**',           redirectTo: '/'},
    ]
   },
   {path: 'metrics/:id',  component: WorkflowMetricsComponent},

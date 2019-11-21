@@ -46,8 +46,7 @@ export class HomeComponent implements OnInit {
               private workflowService: WorkflowService,
               private serverSentEventsWorkflowService: LiveEventsService,
               private notificationService: NotificationService,
-              private router: Router,
-              private route: ActivatedRoute) {
+              private router: Router) {
   }
 
 
@@ -121,7 +120,7 @@ export class HomeComponent implements OnInit {
   }
 
   private get isAtRoot(): boolean {
-    return (this.router.url.split("?")[0] == '/');
+    return (this.router.url == '/');
   }
 
   get shouldShowLandingPage(): boolean {
