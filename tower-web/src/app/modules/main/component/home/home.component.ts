@@ -120,7 +120,12 @@ export class HomeComponent implements OnInit {
   }
 
   private get isAtRoot(): boolean {
-    return (this.router.url == '/');
+    if (this.router.url.startsWith('/?')) {
+      this.router.navigate(['/']);
+      return false;
+    } else {
+      return (this.router.url === '/' );
+    }
   }
 
   get shouldShowLandingPage(): boolean {
