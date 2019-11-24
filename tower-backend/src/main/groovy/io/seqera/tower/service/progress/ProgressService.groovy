@@ -11,6 +11,7 @@
 
 package io.seqera.tower.service.progress
 
+import java.time.Duration
 
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.exchange.progress.ProgressData
@@ -23,5 +24,7 @@ interface ProgressService extends ProgressOperations {
 
     @Deprecated
     ProgressData getProgressQuery(Workflow workflow)
+
+    void checkForExpiredWorkflow(Duration expireTimeout, Duration zombieTimeout)
 
 }

@@ -23,6 +23,8 @@ import io.seqera.tower.domain.Mail
 import io.seqera.tower.domain.MailAttachment
 import io.seqera.tower.domain.User
 import io.seqera.tower.exchange.gate.AccessGateResponse
+import io.seqera.tower.service.mail.MailService
+
 /**
  * Implements the Gate services
  *

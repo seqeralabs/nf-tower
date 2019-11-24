@@ -75,17 +75,17 @@ export class TasksTableComponent implements OnInit, OnChanges {
         {name: "exit", orderable: false},
         {name: "container", orderable: false },
         {name: "nativeId", orderable: false},
-        {name: "submit", orderable: true},
-        {name: "duration", orderable: true},
-        {name: "realtime", orderable: true},
+        {name: "submit", orderable: false},
+        {name: "duration", orderable: false},
+        {name: "realtime", orderable: false},
         {name: "pcpu", orderable: false},
         {name: "pmem", orderable: false},
-        {name: "peakRss", orderable: true},
-        {name: "peakVmem", orderable: true},
-        {name: "rchar", orderable: true},
-        {name: "wchar", orderable: true},
-        {name: "volCtxt", orderable: true},
-        {name: "invCtxt", orderable: true},
+        {name: "peakRss", orderable: false},
+        {name: "peakVmem", orderable: false},
+        {name: "rchar", orderable: false},
+        {name: "wchar", orderable: false},
+        {name: "volCtxt", orderable: false},
+        {name: "invCtxt", orderable: false},
         // hidden columns
         {name: "workdir", visible: false},
         {name: "script", visible: false},
@@ -106,6 +106,8 @@ export class TasksTableComponent implements OnInit, OnChanges {
         {name: "errorAction", visible: false},
         {name: "executor", visible: false},
         {name: "machineType", visible: false},
+        {name: "cloudZone", visible: false},
+        {name: "priceModel", visible: false},
       ],
       ajax: {
         url: this.workflowService.buildTasksGetUrl(this.workflowId),
@@ -165,6 +167,8 @@ export class TasksTableComponent implements OnInit, OnChanges {
               task.data.errorAction,
               task.data.executor,
               task.data.machineType,
+              task.data.cloudZone,
+              task.data.priceModel,
             ]) : [];
 
           return JSON.stringify(json);
@@ -232,8 +236,9 @@ export class TasksTableComponent implements OnInit, OnChanges {
       {name: 'time', description: 'The time request for the task execution'},
       {name: 'executor', description: 'The Nextflow executor used to carry out this task'},
       {name: 'machineType', description: 'The virtual machine type used to carry out by this task'},
+      {name: 'cloudZone', description: 'The cloud zone where the job get executed'},
+      {name: 'priceModel', description: 'The price model used to charge the job computation'},
     ];
-
 
     const res_time = [
       {name: 'submit', description: 'Timestamp when the task has been submitted'},

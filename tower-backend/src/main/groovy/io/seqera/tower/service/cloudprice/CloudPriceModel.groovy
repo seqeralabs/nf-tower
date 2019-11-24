@@ -9,25 +9,17 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 
-package io.seqera.mail
+package io.seqera.tower.service.cloudprice
 
-import javax.inject.Singleton
+import groovy.transform.CompileStatic
 
 /**
- * Define mail spooler operations
+ * Defines cloud prices retrieval and storing service
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
-@Singleton
-interface MailSpooler {
-
-    void start()
-
-    void stop()
-
-    void pause(boolean value)
-
-    void newMail()
-
-    MailerStatus getStatus()
+@CompileStatic
+enum CloudPriceModel {
+    standard, spot;
+    String toString() { super.toString() }
 }

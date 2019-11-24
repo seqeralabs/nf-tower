@@ -35,9 +35,9 @@ import io.seqera.tower.exchange.trace.TraceTaskRequest
 import io.seqera.tower.exchange.trace.TraceTaskResponse
 import io.seqera.tower.exchange.trace.TraceWorkflowRequest
 import io.seqera.tower.exchange.trace.TraceWorkflowResponse
-import io.seqera.tower.service.LiveEventsService
 import io.seqera.tower.service.TraceService
 import io.seqera.tower.service.UserService
+import io.seqera.tower.service.live.LiveEventsService
 /**
  * Implements the `trace` API
  *

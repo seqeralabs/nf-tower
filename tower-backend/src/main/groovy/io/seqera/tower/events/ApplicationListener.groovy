@@ -15,70 +15,47 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 import groovy.transform.CompileStatic
-import groovy.util.logging.Slf4j
 import io.micronaut.context.event.ShutdownEvent
 import io.micronaut.context.event.StartupEvent
 import io.micronaut.runtime.context.scope.refresh.RefreshEvent
 import io.micronaut.runtime.event.annotation.EventListener
-import io.micronaut.security.authentication.UserDetails
 import io.micronaut.security.event.LoginSuccessfulEvent
-import io.seqera.mail.MailSpooler
-import io.seqera.tower.service.AccessTokenService
-import io.seqera.tower.service.LiveEventsService
-import io.seqera.tower.service.cron.CronService
+import io.seqera.tower.service.audit.AuditEvent
 /**
  * Object listening for application events
  * 
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
-@Slf4j
 @Singleton
 @CompileStatic
 class ApplicationListener {
 
     @Inject
-    MailSpooler mailSpooler
-
-    @Inject
-    LiveEventsService liveEventsService
-
-    @Inject
-    CronService cronService
-
-    @Inject AccessTokenService tokenService
+    ApplicationEventDispatcher dispatcher
 
     @EventListener
     void onStartup(StartupEvent event) {
-        log.info "Application started up"
-        mailSpooler.start()
-        cronService.start()
+        dispatcher.onStartup(event)
     }
 
     @EventListener
     void onShutdown(ShutdownEvent event) {
-        log.info "Application shutting down"
-        mailSpooler.stop()
-        liveEventsService.stop()
-        cronService.stop()
-        tokenService.stop()
+        dispatcher.onShutdown(event)
     }
 
     @EventListener
     void onConfigRefresh(RefreshEvent event) {
-        log.info "Got refresh event: " + event.getSource()
+        dispatcher.onConfigRefresh(event)
     }
 
     @EventListener
     void onUserLogin(LoginSuccessfulEvent event) {
-        log.info "Login event | user=${fetchUserDetails(event.source)}"
+        dispatcher.onUserLogin(event)
     }
 
-    private String fetchUserDetails(source) {
-        if(!source)
-            return null
-        if( source instanceof UserDetails ) {
-            return "user=${source.username}; roles=${source.roles}"
-        }
-        return "user=${source.toString()} [class=${source.getClass().getName()}]"
+    @EventListener
+    void onAuditEvent(AuditEvent event) {
+        dispatcher.onAuditEvent(event)
     }
+
 }

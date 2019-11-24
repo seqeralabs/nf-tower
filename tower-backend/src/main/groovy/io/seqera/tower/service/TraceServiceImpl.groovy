@@ -26,6 +26,7 @@ import io.seqera.tower.domain.Workflow
 import io.seqera.tower.domain.WorkflowKey
 import io.seqera.tower.exchange.trace.TraceTaskRequest
 import io.seqera.tower.exchange.trace.TraceWorkflowRequest
+import io.seqera.tower.service.audit.AuditEventPublisher
 import io.seqera.tower.service.progress.ProgressService
 import org.springframework.validation.FieldError
 
@@ -38,6 +39,7 @@ class TraceServiceImpl implements TraceService {
     @Inject TaskService taskService
     @Inject TransactionService transactionService
     @Inject ProgressService progressService
+    @Inject AuditEventPublisher eventPublisher
 
     @NotTransactional
     String createWorkflowKey() {
@@ -52,9 +54,11 @@ class TraceServiceImpl implements TraceService {
         final workflow = workflowService.processTraceWorkflowRequest(request, owner)
         if( workflow.checkIsRunning() ) {
             progressService.create(workflow.id, request.processNames)
+            eventPublisher.workflowCreation(workflow.id)
         }
         else {
             progressService.complete(workflow.id)
+            eventPublisher.workflowCompletion(workflow.id)
         }
         checkWorkflowSaveErrors(workflow)
 

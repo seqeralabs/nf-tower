@@ -9,18 +9,21 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 
-package io.seqera.tower.service
+package io.seqera.tower.service.live
+
+import javax.inject.Singleton
 
 import io.micronaut.http.sse.Event
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.exchange.live.LiveUpdate
 import org.reactivestreams.Publisher
 
+@Singleton
 interface LiveEventsService {
 
     void publishEvent(LiveUpdate traceSseResponse)
 
-    Publisher<Event> getEventPublisher()
+    Publisher<Event<List<LiveUpdate>>> getEventPublisher()
 
     void stop()
 

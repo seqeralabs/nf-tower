@@ -1,5 +1,0 @@
-tower:
-  rate-limiter:
-    timeout-duration: ${TOWER_RATELIMIT_TIMEOUT:`100ms`}
-    limit-refresh-period: ${TOWER_RATELIMIT_REFRESH:`1s`}
-    limit-for-period: ${TOWER_RATELIMIT_PERIOD:`5`}

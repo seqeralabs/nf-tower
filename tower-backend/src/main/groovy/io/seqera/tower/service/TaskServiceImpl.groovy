@@ -11,6 +11,8 @@
 
 package io.seqera.tower.service
 
+import static io.seqera.tower.enums.WorkflowStatus.*
+
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -24,6 +26,7 @@ import io.seqera.tower.domain.Workflow
 import io.seqera.tower.enums.TaskStatus
 import io.seqera.tower.exceptions.NonExistingWorkflowException
 import io.seqera.tower.exchange.trace.TraceTaskRequest
+import io.seqera.tower.service.audit.AuditEventPublisher
 
 @Slf4j
 @Transactional
@@ -31,12 +34,8 @@ import io.seqera.tower.exchange.trace.TraceTaskRequest
 @CompileStatic
 class TaskServiceImpl implements TaskService {
 
-    WorkflowService workflowService
-
-    @Inject
-    TaskServiceImpl(WorkflowService workflowService) {
-        this.workflowService = workflowService
-    }
+    @Inject WorkflowService workflowService
+    @Inject AuditEventPublisher auditEventPublisher
 
     @CompileDynamic
     TaskData getTaskDataBySessionIdAndHash(String sessionId, String hash) {
@@ -67,12 +66,24 @@ class TaskServiceImpl implements TaskService {
 
 
     List<Task> processTaskTraceRequest(TraceTaskRequest request) {
-        final Workflow existingWorkflow = Workflow.get(request.workflowId)
-        if (!existingWorkflow) {
-            throw new NonExistingWorkflowException("Can't find task for workflow ID: ${request.workflowId}")
+        final Workflow workflow = Workflow.get(request.workflowId)
+        if (!workflow) {
+            throw new NonExistingWorkflowException("Can't find task for workflow Id: ${request.workflowId}")
         }
 
-        request.tasks.collect { Task task -> saveTask(task, existingWorkflow) }
+        if( workflow.checkIsComplete() ) {
+            throw new IllegalStateException("Cannot acquire new tasks for workflow with Id: ${request.workflowId}")
+        }
+
+        if( workflow.status==UNKNOWN ) {
+            // change status to running
+            workflow.status = RUNNING
+            workflow.save()
+            // notify event
+            auditEventPublisher.workflowStatusChangeFromRequest(workflow.id, "new=$RUNNING; was=$UNKNOWN")
+        }
+
+        request.tasks.collect { Task task -> saveTask(task, workflow) }
     }
 
     @CompileDynamic
@@ -125,7 +136,8 @@ class TaskServiceImpl implements TaskService {
         taskToUpdate.env = originalTask.env
         taskToUpdate.executor = originalTask.executor
         taskToUpdate.machineType = originalTask.machineType
-
+        taskToUpdate.cloudZone = originalTask.cloudZone
+        taskToUpdate.priceModel = originalTask.priceModel
         taskToUpdate.errorAction = originalTask.errorAction
         taskToUpdate.exitStatus = originalTask.exitStatus
         taskToUpdate.duration = originalTask.duration

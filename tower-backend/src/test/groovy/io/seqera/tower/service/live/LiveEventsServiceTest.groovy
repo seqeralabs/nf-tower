@@ -9,7 +9,7 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 
-package io.seqera.tower.service
+package io.seqera.tower.service.live
 
 import javax.inject.Inject
 

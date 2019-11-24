@@ -19,15 +19,11 @@ import javax.inject.Singleton
 import java.time.Duration
 import java.time.Instant
 import java.time.OffsetDateTime
-import java.util.concurrent.TimeUnit
 
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
-import io.micronaut.cache.annotation.Cacheable
-import io.micronaut.context.annotation.Value
-import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import io.seqera.tower.domain.ProcessLoad
@@ -35,7 +31,8 @@ import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.domain.WorkflowLoad
 import io.seqera.tower.exchange.progress.ProgressData
-import io.seqera.tower.service.LiveEventsService
+import io.seqera.tower.service.audit.AuditEventPublisher
+import io.seqera.tower.service.live.LiveEventsService
 import org.hibernate.Session
 import org.springframework.transaction.annotation.Propagation
 /**
@@ -51,12 +48,6 @@ class ProgressServiceImpl implements ProgressService {
     @Inject
     ProgressStore store
 
-    @Value('${tower.metrics.interval:`1m`}')
-    Duration metrics
-
-    @Value('${tower.trace.timeout:`400s`}')
-    Duration aliveTimeout
-
     @Inject
     LiveEventsService liveEventsService
 
@@ -65,13 +56,15 @@ class ProgressServiceImpl implements ProgressService {
 
     PublishSubject publisher
 
+    @Inject
+    AuditEventPublisher auditEventPublisher
+
     @PostConstruct
     void init() {
-        log.info "Creating execution progress watcher -- store=${store.getClass().getSimpleName()}; metrics-interval=${metrics}; trace-timeout=${aliveTimeout}"
+        log.info "Creating workflow progress updater -- store=${store.getClass().getSimpleName()};"
         publisher = PublishSubject.create()
 
         publisher
-                .mergeWith( Observable.interval(metrics.toMillis(), TimeUnit.MILLISECONDS) )
                 .observeOn(Schedulers.io())
                 .subscribe { doEvent(it) }
     }
@@ -109,67 +102,97 @@ class ProgressServiceImpl implements ProgressService {
             event.call()
         }
         else {
-            doPeriodicLoadCheck()
+            log.warn "Illegal progress event=$event"
         }
     }
 
     /*
      * clean up logic
      */
+    @Override
+    void checkForExpiredWorkflow(Duration expireTimeout, Duration zombieTimeout) {
+        log.trace "Running periodic workflow cleaning"
 
-    protected void doPeriodicLoadCheck() {
-        log.trace "Running periodic workflow load house cleaning"
+        // check for execution not receiving updates for more than 1 day
+        final zombieIds = findExpired(zombieTimeout)
+        if( zombieIds ) {
+            log.trace "Zombie Ids=$zombieIds"
+            for( String id : zombieIds )  {
+                terminateWorkflowExecution(id)
+            }
+        }
+
         // delete stalled workflow execution
         // and delete if need
-        final ids = findExpired(aliveTimeout)
-        if( ids ) {
-            killZombies(ids)
-        }
-    }
-
-
-    protected void killZombies(List<String> zombies) {
-        log.info "Unknown execution status for workflow=$zombies"
-        for( String workflowId : zombies ) {
-            markWorkflowUnknownStatus(workflowId)
-        }
-    }
-
-    protected void markWorkflowUnknownStatus(String workflowId) {
-        try {
-            final workflow = markWorkflowUnknownStatus0(workflowId)
-            if( workflow ) {
-                // notify the status change
-                liveEventsService.publishWorkflowEvent(workflow)
+        final expiredIds = findExpired(expireTimeout) - zombieIds
+        if( expiredIds ) {
+            log.trace "Expired Ids=$expiredIds"
+            for( String id : expiredIds ) {
+                expireWorkflowExecution(id)
             }
-            // remove progress from the cache in any case to avoid entering an endless re-try
-            store.deleteProgress(workflowId)
+        }
+    }
+
+    protected void expireWorkflowExecution(String workflowId) {
+        try {
+            markWorkflowUnknownStatus0(workflowId)
         }
         catch( Exception e ) {
-            log.error("Unable to save workflow with Id=$workflowId", e)
+            log.error("Unable to expire workflow with Id=$workflowId", e)
         }
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    protected Workflow markWorkflowUnknownStatus0(String workflowId) {
+    protected void markWorkflowUnknownStatus0(String workflowId) {
         final workflow = Workflow.get(workflowId)
         if( !workflow ) {
             log.warn "Unknown workflow for Id=$workflowId | Ignore timeout marking event"
-            return null
+            return
         }
 
         if( workflow.status==null || workflow.status==RUNNING ) {
-            log.debug "Marking workflow Id=$workflowId with unknown status"
+            log.debug "Marking workflow with Id=$workflowId as UNKNOWN (expire)"
             workflow.status = UNKNOWN
             workflow.duration = computeDuration(workflow.start)
             workflow.save()
+            // notify audit event
+            auditEventPublisher.workflowStatusChangeBySystem(workflowId, "new=$UNKNOWN; was=$RUNNING")
+        }
+        else if( workflow.status!=UNKNOWN ) {
+            log.warn "Invalid status for workflow Id=$workflowId | Expected status=RUNNIG; found=$workflow.status"
+        }
+    }
+
+    protected void terminateWorkflowExecution(String workflowId) {
+        try {
+            markWorkflowUnknownStatus1(workflowId)
+            // remove progress from the cache in any case to avoid entering an endless re-try
+            store.deleteProgress(workflowId)
+        }
+        catch( Exception e ) {
+            log.error("Unable to terminate workflow with Id=$workflowId", e)
+        }
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    protected void markWorkflowUnknownStatus1(String workflowId) {
+        final workflow = Workflow.get(workflowId)
+        if( !workflow ) {
+            log.warn "Unknown workflow for Id=$workflowId | Ignore timeout marking event"
+            return
+        }
+
+        if( workflow.status==UNKNOWN ) {
+            log.debug "Marking workflow with Id=$workflowId as UNKNOWN (complete)"
+            workflow.complete = OffsetDateTime.now()
+            workflow.save()
             // save process state
             target.persistProgressData(workflowId)
-            return workflow
+            // notify audit event
+            auditEventPublisher.workflowStatusChangeBySystem(workflowId, "complete=${workflow.complete}")
         }
         else {
-            log.warn "Invalid status for workflow Id=$workflowId | Expected status=RUNNIG; found=$workflow.status"
-            return null
+            log.warn "Invalid status for workflow Id=$workflowId | Expected status=UNKNOWN; found=$workflow.status"
         }
     }
 
@@ -257,6 +280,5 @@ class ProgressServiceImpl implements ProgressService {
         final processProgresses = new ArrayList<ProcessLoad>(aggregate.values()).sort{it.process}
         new ProgressData(workflowProgress: workflowProgress, processesProgress: processProgresses)
     }
-
 
 }

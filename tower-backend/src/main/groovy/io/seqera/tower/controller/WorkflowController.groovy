@@ -49,6 +49,7 @@ import io.seqera.tower.exchange.workflow.UpdateWorkflowCommentResponse
 import io.seqera.tower.service.TaskService
 import io.seqera.tower.service.UserService
 import io.seqera.tower.service.WorkflowService
+import io.seqera.tower.service.audit.AuditEventPublisher
 import io.seqera.tower.service.progress.ProgressService
 import io.seqera.tower.validation.ValidationHelper
 import org.grails.datastore.mapping.validation.ValidationException
@@ -63,6 +64,7 @@ class WorkflowController extends BaseController {
     @Inject TaskService taskService
     @Inject UserService userService
     @Inject ProgressService progressService
+    @Inject AuditEventPublisher eventPublisher
 
     protected ProgressData getProgressData(Workflow workflow) {
         def result = progressService.getProgressData(workflow.id)
@@ -173,7 +175,9 @@ class WorkflowController extends BaseController {
     @Transactional
     @Secured(['ROLE_USER'])
     @Delete('/{workflowId}')
-    HttpResponse delete(String workflowId) {
+    HttpResponse delete(String workflowId, Authentication authentication) {
+        final user = userService.getByAuth(authentication)
+        eventPublisher.workflowDeletion(workflowId)
         if( workflowService.markForDeletion(workflowId) )
             HttpResponse.status(HttpStatus.NO_CONTENT)
         else

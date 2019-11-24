@@ -26,7 +26,9 @@
       "env": null,
       "nativeId": null,
       "executor": "aws-batch",
-      "machineType": null
+      "machineType": null,
+      "cloudZone": "some-region",
+      "priceModel": "spot"
     }
   ],
   "workflowId": "12345"

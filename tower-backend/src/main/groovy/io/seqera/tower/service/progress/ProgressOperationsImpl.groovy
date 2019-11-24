@@ -42,7 +42,7 @@ class ProgressOperationsImpl implements ProgressOperations {
      */
     @Override
     void create(String workflowId, List<String> processNames) {
-        log.trace("Creating progress state for workflow Id=$workflowId")
+        log.debug("Creating progress state for workflow Id=$workflowId; processNames=$processNames")
         store.storeProgress(workflowId, new ProgressState(workflowId, processNames))
     }
 
