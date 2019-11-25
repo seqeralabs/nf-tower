@@ -405,14 +405,14 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         def t1 = t0.minusMinutes(10)
         def t2 = t0
         WorkflowComment.withNewTransaction {
-            new WorkflowComment(author: user,
+            new WorkflowComment(user: user,
                     text: 'First hello',
                     workflow: workflow,
                     lastUpdated: t1,
                     dateCreated: t1)
                     .save(failOnError:true)
 
-            new WorkflowComment(author: user,
+            new WorkflowComment(user: user,
                     text: 'Second hello',
                     workflow: workflow,
                     lastUpdated: t2,

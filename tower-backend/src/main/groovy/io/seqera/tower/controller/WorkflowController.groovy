@@ -230,14 +230,14 @@ class WorkflowController extends BaseController {
                 return HttpResponse.notFound(new AddWorkflowCommentResponse(message:"Oops... Can't find workflow ID $workflowId"))
 
             final comment = new WorkflowComment()
-            comment.author = user
+            comment.user = user
             comment.workflow = workflow
             comment.text = request.text
             comment.dateCreated = request.timestamp
             comment.lastUpdated = request.timestamp
-            final commentId = comment.save(failOnError: true).id
+            final record = comment.save(failOnError: true)
 
-            return HttpResponse.ok( AddWorkflowCommentResponse.withId(commentId) )
+            return HttpResponse.ok( AddWorkflowCommentResponse.withComment(record) )
         }
         catch(ValidationException e) {
             final msg = "Oops... Unable to add comment -- " + ValidationHelper.formatErrors(e)
@@ -272,7 +272,7 @@ class WorkflowController extends BaseController {
                 return HttpResponse.notFound(new UpdateWorkflowCommentResponse(message:"Oops... Can't find workflow comment with ID $request.commentId"))
 
             // user can only modify it's own comment
-            if( comment.author.id != user.id )
+            if( comment.user.id != user.id )
                 return HttpResponse.badRequest(new UpdateWorkflowCommentResponse(message:"Oops.. You are not allowed to modify this comment"))
 
             // make sure it match the workflow id
@@ -318,7 +318,7 @@ class WorkflowController extends BaseController {
                 return HttpResponse.notFound(new DeleteWorkflowCommentResponse(message:"Oops... Can't find workflow comment with ID $request.commentId"))
 
             // user can only modify it's own comment
-            if( comment.author.id != user.id )
+            if( comment.user.id != user.id )
                 return HttpResponse.badRequest(new DeleteWorkflowCommentResponse(message:"Oops.. You are not allowed to delete this comment"))
 
             // make sure it match the workflow id

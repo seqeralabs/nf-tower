@@ -349,7 +349,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
             user = creator.generateAllowedUser()
             workflow = creator.createWorkflow(owner: user)
             creator.createWorkflowMetrics(workflow)
-            new WorkflowComment(author: user, text: 'Hello', workflow: workflow, dateCreated: now, lastUpdated: now).save(failOnError:true)
+            new WorkflowComment(user: user, text: 'Hello', workflow: workflow, dateCreated: now, lastUpdated: now).save(failOnError:true)
         }
         
         when:
@@ -443,7 +443,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         def t0 = OffsetDateTime.now()
         WorkflowComment.withNewTransaction {
             new WorkflowComment(
-                    author: user,
+                    user: user,
                     text: 'First hello',
                     workflow: workflow,
                     dateCreated: t0,
@@ -452,7 +452,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
                     .save(failOnError:true)
 
             new WorkflowComment(
-                    author: user,
+                    user: user,
                     text: 'Second hello',
                     workflow: workflow,
                     dateCreated: t0.plusMinutes(5),
@@ -472,8 +472,14 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         then:
         response.status == HttpStatus.OK
         response.body().comments.size() == 2
+        and:
         response.body().comments[0].text == 'Second hello'
+        response.body().comments[0].author.id == user.id
+        response.body().comments[0].author.displayName == user.userName
+        and:
         response.body().comments[1].text == 'First hello'
+        response.body().comments[1].author.id == user.id
+        response.body().comments[1].author.displayName == user.userName
     }
 
     def 'should add a workflow comment' () {
@@ -493,11 +499,14 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
 
         then:
         resp.status == HttpStatus.OK
-        resp.body().commentId != null
-
+        resp.body().comment.text == 'Great job'
+        resp.body().comment.id != null
+        resp.body().comment.author.id == user.id
+        resp.body().comment.author.displayName == user.userName
+        
         and:
         workflowService.getComments(workflow).size() ==1
-        workflowService.getComments(workflow)[0].id == resp.body().commentId
+        workflowService.getComments(workflow)[0].id == resp.body().comment.id
     }
 
     def 'should update a workflow comment' () {
@@ -509,7 +518,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         def t0 = OffsetDateTime.now().truncatedTo(ChronoUnit.MINUTES).minusMinutes(10)
         def comment = tx.withNewTransaction {
             new WorkflowComment(
-                    author: user,
+                    user: user,
                     text: 'First comment',
                     workflow: workflow,
                     dateCreated: t0,
@@ -546,7 +555,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         def t0 = OffsetDateTime.now().truncatedTo(ChronoUnit.MINUTES).minusMinutes(10)
         def comment1 = tx.withNewTransaction {
             new WorkflowComment(
-                    author: user,
+                    user: user,
                     text: 'First comment',
                     workflow: workflow,
                     dateCreated: t0,
@@ -556,7 +565,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
 
         def comment2 = tx.withNewTransaction {
             new WorkflowComment(
-                    author: user,
+                    user: user,
                     text: 'Second comment',
                     workflow: workflow,
                     dateCreated: t0,
