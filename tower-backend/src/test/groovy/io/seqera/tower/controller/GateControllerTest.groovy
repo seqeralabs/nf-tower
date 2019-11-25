@@ -23,17 +23,17 @@ import io.micronaut.http.client.annotation.Client
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.tower.Application
-import io.seqera.tower.domain.Mail
 import io.seqera.tower.domain.User
 import io.seqera.tower.exchange.gate.AccessGateRequest
 import io.seqera.tower.exchange.gate.AccessGateResponse
+import io.seqera.tower.service.mail.MailServiceImpl
 import io.seqera.tower.util.AbstractContainerBaseTest
 import io.seqera.tower.util.DomainCreator
 /**
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
-@MicronautTest(application = Application.class, environments = ['trusted'])
+@MicronautTest(application = Application.class, environments = ['trusted-test'])
 @Transactional
 class GateControllerTest extends AbstractContainerBaseTest {
 
@@ -44,6 +44,11 @@ class GateControllerTest extends AbstractContainerBaseTest {
     @Value('${tower.contact-email}')
     String contactEmail
 
+    @Inject MailServiceImpl mailService
+
+    def setup() {
+        mailService.pendingMails.clear()
+    }
 
     void "register a user given an email"() {
         given: 'a valid email'
@@ -63,8 +68,8 @@ class GateControllerTest extends AbstractContainerBaseTest {
         !registeredUser.authToken
 
         and: "the access link was sent to the user"
-        Mail.withNewTransaction { Mail.count() } == 1
-        Mail.withNewTransaction { Mail.list().first().to } == contactEmail
+        mailService.pendingMails.size() == 1
+        mailService.pendingMails[0].to == contactEmail
     }
 
     void "register a user, then register the same user again"() {
@@ -86,8 +91,8 @@ class GateControllerTest extends AbstractContainerBaseTest {
         !registeredUser.authToken
 
         and: "no mail was sent"
-        Mail.withNewTransaction { Mail.count() } == 1
-        Mail.withNewTransaction { Mail.list().first().to } == contactEmail
+        mailService.pendingMails.size() == 1
+        mailService.pendingMails[0].to == contactEmail
 
     }
 
@@ -111,8 +116,8 @@ class GateControllerTest extends AbstractContainerBaseTest {
         registeredUser.authTime
 
         and:
-        Mail.withNewTransaction { Mail.count() } == 1
-        Mail.withNewTransaction { Mail.list().first().to } == EMAIL
+        mailService.pendingMails.size() == 1
+        mailService.pendingMails[0].to == EMAIL
 
     }
 
@@ -128,7 +133,8 @@ class GateControllerTest extends AbstractContainerBaseTest {
         HttpClientResponseException e = thrown(HttpClientResponseException)
         e.status == HttpStatus.BAD_REQUEST
         e.message == "Can't save a user with bad email format"
-        User.withNewTransaction { User.count() } == 0
+        and:
+        mailService.pendingMails.size() == 0
 
     }
 

@@ -45,7 +45,7 @@
       "nativeId": 28417,
       "executor": "aws-batch",
       "machineType": "x1.large",
-      "cloudZone": "eu-west-1a",
+      "cloudZone": "eu-west-1",
       "priceModel": "spot"
     }
   ],

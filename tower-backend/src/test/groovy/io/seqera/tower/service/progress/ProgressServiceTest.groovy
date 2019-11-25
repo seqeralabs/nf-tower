@@ -19,16 +19,16 @@ import groovy.json.JsonSlurper
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.tower.Application
 import io.seqera.tower.domain.Workflow
-import io.seqera.tower.enums.TaskStatus
 import io.seqera.tower.domain.WorkflowLoad
-import io.seqera.tower.service.LiveEventsService
+import io.seqera.tower.enums.TaskStatus
+import io.seqera.tower.service.live.LiveEventsService
 import io.seqera.tower.util.AbstractContainerBaseTest
 import io.seqera.tower.util.DomainCreator
 import io.seqera.tower.util.DomainHelper
 
 @MicronautTest(application = Application.class)
 @Transactional
-class ProgressServiceDeprecatedTest extends AbstractContainerBaseTest {
+class ProgressServiceTest extends AbstractContainerBaseTest {
 
     @Inject
     ProgressService progressService
@@ -37,6 +37,7 @@ class ProgressServiceDeprecatedTest extends AbstractContainerBaseTest {
     LiveEventsService liveEventsService
 
     @Inject TransactionService tx
+
 
     void "compute simple progress" () {
         given:

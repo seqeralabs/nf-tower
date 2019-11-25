@@ -16,8 +16,6 @@ import java.time.OffsetDateTime
 
 import groovy.util.logging.Slf4j
 import io.seqera.tower.domain.AccessToken
-import io.seqera.tower.domain.Mail
-import io.seqera.tower.domain.MailAttachment
 import io.seqera.tower.domain.ProcessLoad
 import io.seqera.tower.domain.ResourceData
 import io.seqera.tower.domain.Role
@@ -44,8 +42,6 @@ class DomainCreator {
 
     static void cleanupDatabase() {
         Workflow.withNewTransaction {
-            MailAttachment.where { true }.deleteAll()
-            Mail.where { true }.deleteAll()
             ProcessLoad.where { true }.deleteAll()
             WorkflowLoad.where { true }.deleteAll()
             WorkflowProcess.where { true }.deleteAll()
@@ -64,7 +60,7 @@ class DomainCreator {
     static void cleanupMysqlDb() {
         User.withNewSession { Session session ->
             User.withNewTransaction {
-                def tables = session.createSQLQuery("select t.table_name from information_schema.tables t where t.table_schema = 'tower' and t.table_name not like 'flyway%'").list()
+                def tables = session.createSQLQuery("select t.table_name from information_schema.tables t where t.table_schema = 'tower' and t.table_name not like 'flyway%' and t.table_type like '%TABLE'").list()
                 session.createSQLQuery("SET FOREIGN_KEY_CHECKS=0;").executeUpdate()
                 try {
                     tables.each {

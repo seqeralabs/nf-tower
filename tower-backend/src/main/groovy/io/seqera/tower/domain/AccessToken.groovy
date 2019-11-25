@@ -44,6 +44,7 @@ class AccessToken {
     }
 
     static mapping = {
+        cache true
         user index: 'nxd_token_user_name'
         name index: 'nxd_token_user_name'
     }

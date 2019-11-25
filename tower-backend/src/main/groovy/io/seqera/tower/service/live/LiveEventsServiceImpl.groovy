@@ -9,7 +9,7 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 
-package io.seqera.tower.service
+package io.seqera.tower.service.live
 
 import javax.annotation.PostConstruct
 import javax.inject.Singleton
@@ -19,9 +19,8 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import io.micronaut.context.annotation.Value
 import io.micronaut.http.sse.Event
+import io.reactivex.Flowable
 import io.reactivex.processors.PublishProcessor
-import io.seqera.tower.domain.Workflow
-import io.seqera.tower.enums.LiveAction
 import io.seqera.tower.exchange.live.LiveUpdate
 import io.seqera.tower.util.BackpressureBuffer
 import org.reactivestreams.Publisher
@@ -29,7 +28,7 @@ import org.reactivestreams.Publisher
 @Singleton
 @Slf4j
 @CompileStatic
-class LiveEventsServiceImpl implements LiveEventsService {
+class LiveEventsServiceImpl implements LiveEventsService, LiveEventsTrait {
 
     @Value('${live.buffer.time:1s}')
     Duration bufferTimeout
@@ -44,11 +43,19 @@ class LiveEventsServiceImpl implements LiveEventsService {
 
     PublishProcessor<List<LiveUpdate>> eventProcessor
 
+    Flowable<Event<List<LiveUpdate>>> eventPublisher
+
     @PostConstruct
     void initialize() {
         log.info "Creating SSE event buffer flowable timeout=$bufferTimeout count=$bufferCount heartbeat=$heartbeatDuration"
 
         eventProcessor = PublishProcessor.create()
+
+        eventPublisher = eventProcessor
+                        .map { List<LiveUpdate> traces ->
+                            log.trace "Publishing map traces (${traces.size()}) $traces"
+                            Event.of(traces)
+                        }
 
         // -- implements the back pressure logic
         buffer = new BackpressureBuffer<LiveUpdate>()
@@ -63,23 +70,13 @@ class LiveEventsServiceImpl implements LiveEventsService {
                 .start()
     }
 
-    @Override
-    void publishWorkflowEvent(Workflow workflow) {
-        publishEvent(LiveUpdate.of(workflow.owner.id, workflow.id, LiveAction.WORKFLOW_UPDATE));
-    }
-
-    @Override
-    void publishProgressEvent(Workflow workflow) {
-        publishEvent(LiveUpdate.of(workflow.owner.id, workflow.id, LiveAction.PROGRESS_UPDATE));
-    }
 
     @Override
     Publisher<Event<List<LiveUpdate>>> getEventPublisher() {
-        return eventProcessor
-                .map { List<LiveUpdate> traces ->
-                    log.trace "Publishing map traces (${traces.size()}) $traces"
-                    Event.of(traces)
-                }
+        // to avoid the response to stall when no events are emitted
+        // merge the publisher with an empty event
+        return eventPublisher
+                .mergeWith( Flowable.just(Event.of(Collections.emptyList())) )
     }
 
     void publishEvent(LiveUpdate liveUpdate) {

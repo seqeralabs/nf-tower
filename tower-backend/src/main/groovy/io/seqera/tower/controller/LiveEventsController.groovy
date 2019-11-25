@@ -1,3 +1,14 @@
+/*
+ * Copyright (c) 2019, Seqera Labs.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ * This Source Code Form is "Incompatible With Secondary Licenses", as
+ * defined by the Mozilla Public License, v. 2.0.
+ */
+
 package io.seqera.tower.controller
 
 import javax.inject.Inject
@@ -11,7 +22,7 @@ import io.micronaut.security.annotation.Secured
 import io.micronaut.security.rules.SecurityRule
 import io.reactivex.Flowable
 import io.seqera.tower.exchange.live.LiveUpdate
-import io.seqera.tower.service.LiveEventsService
+import io.seqera.tower.service.live.LiveEventsService
 import io.seqera.tower.service.UserService
 import org.reactivestreams.Publisher
 /**

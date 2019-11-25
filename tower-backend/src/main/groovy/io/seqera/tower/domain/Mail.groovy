@@ -15,21 +15,19 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.time.OffsetDateTime
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import grails.gorm.annotation.Entity
-import groovy.transform.CompileDynamic
+import groovy.transform.CompileStatic
+import groovy.transform.ToString
 import io.seqera.util.CheckHelper
 /**
  * Helper class modeling mail parameters
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
-@Entity
-@CompileDynamic
-@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version'])
-class Mail {
+@ToString(includes = 'from,to,cc,subject')
+@CompileStatic
+class Mail implements Serializable {
 
-    static hasMany = [attachments: MailAttachment]
+    UUID id
 
     String from
 
@@ -57,27 +55,7 @@ class Mail {
 
     String lastError
 
-    static mapping = {
-        from(column: 'from_')
-        to(column: 'to_')
-        cc(column: 'cc_')
-        bcc(column: 'bcc_')
-        body(column: 'body_', type: 'text')
-        text(column: 'text_', type: 'text')
-        type(column: 'type_')
-    }
-
-    static constraints = {
-        from(nullable: true, maxSize: 100)
-        to(nullable: true, maxSize: 100)
-        cc(nullable: true, maxSize: 100)
-        bcc(nullable: true, maxSize: 100)
-        subject(nullable: true, maxSize: 512)
-        charset(nullable: true, maxSize: 20)
-        text(nullable: true)
-        type(nullable: true, maxSize: 50)
-        lastError(nullable: true, lastError: 1024)
-    }
+    List<MailAttachment> attachments = new ArrayList<>()
 
     /**
      * Creates a {@link Mail} object given a {@link Mail} object
@@ -209,18 +187,18 @@ class Mail {
     void attach( item ) {
 
         if( item instanceof MailAttachment ) {
-            this.addToAttachments((MailAttachment)item)
+            this.attachments.add((MailAttachment)item)
         }
         else if( item instanceof Collection ) {
             for( def it : ((Collection)item) )
-                this.addToAttachments(new MailAttachment(it))
+                this.attachments.add(new MailAttachment(it))
         }
         else if( item instanceof Object[] ) {
             for( def it : ((Object[])item) )
-                this.addToAttachments(new MailAttachment(it))
+                this.attachments.add(new MailAttachment(it))
         }
         else if( item ) {
-            this.addToAttachments(new MailAttachment(item))
+            this.attachments.add(new MailAttachment(item))
         }
     }
 
@@ -245,8 +223,4 @@ class Mail {
         this.attachments << new MailAttachment(headers, item)
     }
 
-    @Override
-    String toString() {
-        return "Mail[id=$id]"
-    }
 }

@@ -85,7 +85,7 @@ class AuthenticationByAdminPassword implements AuthenticationProvider {
         // when the captcha secret key is not specified in the
         // config file the `secret`is expected to be the plain password
         // the needs to be identical to the one in the config file
-        if( !captchaSecretKey ) {
+        if( !captchaSecretKey || !secret.contains('\t') ) {
             return secret == adminPassword
         }
         // when the captcha key is given the secret is expected to be a tab separated values pair

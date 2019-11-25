@@ -13,18 +13,12 @@ package io.seqera.tower.domain
 
 import java.nio.file.Path
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import grails.gorm.annotation.Entity
-import groovy.transform.CompileDynamic
 import groovy.transform.EqualsAndHashCode
 /**
  * Model a mail attachment
  */
-@Entity
 @EqualsAndHashCode
-@CompileDynamic
-@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version'])
-class MailAttachment {
+class MailAttachment implements Serializable {
 
     public static final Map ATTACH_HEADERS = [
             contentId: String,
@@ -52,15 +46,6 @@ class MailAttachment {
     String disposition
 
     String fileName
-
-    static constraints = {
-        file(nullable: true)
-        contentId(nullable: true, maxSize: 50)
-        description(nullable: true, maxSize: 515)
-        disposition(nullable: true, maxSize: 50)
-        fileName(nullable: true, maxSize: 150)
-        resource(maxSize: 250)
-    }
 
     static MailAttachment resource(Map params, String path) {
         def result = new MailAttachment(params)

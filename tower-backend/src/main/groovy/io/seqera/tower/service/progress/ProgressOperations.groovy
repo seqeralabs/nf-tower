@@ -17,6 +17,7 @@ import io.seqera.tower.domain.Task
 import io.seqera.tower.exchange.progress.ProgressData
 
 /**
+ * Defines progress service operations
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */

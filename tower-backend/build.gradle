@@ -55,8 +55,6 @@ dependencies {
     compileOnly "io.micronaut:micronaut-inject-groovy"
 
     compile "io.micronaut:micronaut-management"
-    compile "io.micronaut.configuration:micronaut-micrometer-core"
-    compile "io.micronaut.configuration:micronaut-micrometer-registry-statsd"
     
     annotationProcessor "io.micronaut:micronaut-security"
     compile "io.micronaut:micronaut-security-jwt"
@@ -66,7 +64,7 @@ dependencies {
     annotationProcessor "io.micronaut.configuration:micronaut-openapi"
     compile "io.swagger.core.v3:swagger-annotations"
 
-    testCompile "io.micronaut:micronaut-inject-groovy"
+    testCompileOnly "io.micronaut:micronaut-inject-groovy"
     testCompile("org.spockframework:spock-core") {
         exclude group: "org.codehaus.groovy", module: "groovy-all"
     }

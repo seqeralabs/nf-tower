@@ -20,6 +20,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import grails.gorm.annotation.Entity
 import groovy.transform.CompileDynamic
 import io.seqera.tower.enums.TaskStatus
+import io.seqera.tower.service.cloudprice.CloudPriceModel
+
 /**
  * Workflow task info
  * see https://www.nextflow.io/docs/latest/tracing.html#execution-report
@@ -182,7 +184,7 @@ class Task implements TaskDef {
     String getExecutor() { _data().executor }
     String getMachineType() { _data().machineType }
     String getCloudZone() { _data().cloudZone }
-    String getPriceModel() { _data().priceModel }
+    CloudPriceModel getPriceModel() { _data().priceModel }
     String getErrorAction() { _data().errorAction }
 
     Integer getExitStatus() { _data().exitStatus }
@@ -232,7 +234,7 @@ class Task implements TaskDef {
     void setExecutor(String x) { _data().executor = x }
     void setMachineType(String x) { _data().machineType = x }
     void setCloudZone(String x) { _data().cloudZone = x }
-    void setPriceModel(String x) { _data().priceModel = x }
+    void setPriceModel(CloudPriceModel x) { _data().priceModel = x }
     void setErrorAction(String x) { _data().errorAction = x }
 
     void setExitStatus(Integer x) { _data().exitStatus = x }

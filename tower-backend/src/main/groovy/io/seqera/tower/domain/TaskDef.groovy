@@ -13,6 +13,8 @@ package io.seqera.tower.domain
 
 import java.time.OffsetDateTime
 
+import io.seqera.tower.service.cloudprice.CloudPriceModel
+
 /**
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
@@ -46,8 +48,7 @@ interface TaskDef {
     String getExecutor()
     String getMachineType()
     String getCloudZone()
-    String getPriceModel()
-
+    CloudPriceModel getPriceModel()
     String getErrorAction()
 
     Integer getExitStatus()
@@ -99,7 +100,7 @@ interface TaskDef {
     void setExecutor(String x)
     void setMachineType(String x)
     void setCloudZone(String x)
-    void setPriceModel(String x)
+    void setPriceModel(CloudPriceModel x)
     void setErrorAction(String x)
 
     void setExitStatus(Integer x)

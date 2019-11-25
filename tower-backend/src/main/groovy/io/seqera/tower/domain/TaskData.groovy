@@ -16,6 +16,8 @@ import java.time.OffsetDateTime
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import grails.gorm.annotation.Entity
 import groovy.transform.CompileDynamic
+import io.seqera.tower.service.cloudprice.CloudPriceModel
+
 /**
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
@@ -77,7 +79,7 @@ class TaskData implements TaskDef {
     String executor
     String machineType
     String cloudZone
-    String priceModel
+    CloudPriceModel priceModel
     String errorAction
 
     Integer exitStatus
@@ -126,8 +128,8 @@ class TaskData implements TaskDef {
         env(nullable: true, maxSize: 2048)
         executor(nullable: true, maxSize: 25)
         machineType(nullable: true, maxSize: 25)
-        cloudZone(nullable: true, maxSize: 15)
-        priceModel(nullable: true, maxSize: 15)
+        cloudZone(nullable: true, maxSize: 25)
+        priceModel(nullable: true)
         errorAction(nullable: true, maxSize: 10)
         duration(nullable: true)
         realtime(nullable: true)
@@ -152,6 +154,7 @@ class TaskData implements TaskDef {
 
     static mapping = {
         script(type: 'text')
+        priceModel(length: 15)
     }
 
     String toString() {

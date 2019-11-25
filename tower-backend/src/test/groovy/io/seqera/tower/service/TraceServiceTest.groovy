@@ -18,6 +18,7 @@ import io.micronaut.test.annotation.MicronautTest
 import io.micronaut.test.annotation.MockBean
 import io.seqera.tower.Application
 import io.seqera.tower.domain.Task
+import io.seqera.tower.domain.User
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.exceptions.NonExistingWorkflowException
 import io.seqera.tower.exchange.trace.TraceTaskRequest
@@ -52,12 +53,13 @@ class TraceServiceTest extends AbstractContainerBaseTest {
 
     void "process a successful workflow trace"() {
         given: "mock the workflow JSON processor to return a successful workflow"
+        def user = new User(id:1)
         def req = new TraceWorkflowRequest(processNames: [])
         Workflow workflow = new DomainCreator().createWorkflow()
         workflowService.processTraceWorkflowRequest(_, _) >> workflow
 
         when: "process the workflow (we don't mind about the given JSON because the processor is mocked)"
-        Workflow processedWorkflow = traceService.processWorkflowTrace(req, null)
+        Workflow processedWorkflow = traceService.processWorkflowTrace(req, user)
 
         then: "the result indicates a successful processing"
         processedWorkflow.id
@@ -66,13 +68,14 @@ class TraceServiceTest extends AbstractContainerBaseTest {
 
     void "process a workflow trace to try to start a new workflow with the same sessionId+runName combination of a previous one"() {
         given: "mock the workflow JSON processor to return a workflow with the same sessionId+runName combination as a previous one"
+        def user = new User(id: 1)
         def req = new TraceWorkflowRequest(processNames: [])
         Workflow workflow1 = new DomainCreator().createWorkflow()
         Workflow workflow2 = new DomainCreator(failOnError: false).createWorkflow(sessionId: workflow1.sessionId, runName: workflow1.runName)
         workflowService.processTraceWorkflowRequest(_, _) >> workflow2
 
         when: "process the workflow (we don't mind about the given JSON because the processor is mocked)"
-        traceService.processWorkflowTrace(req, null)
+        traceService.processWorkflowTrace(req, user)
 
         then: "the result indicates an error"
         Exception e = thrown(ValidationException)
@@ -81,12 +84,13 @@ class TraceServiceTest extends AbstractContainerBaseTest {
 
     void "process a workflow trace to try to start workflow without submitTime"() {
         given: "mock the workflow JSON processor to return a workflow without submitTime"
+        def user = new User(id: 1)
         def req = new TraceWorkflowRequest(processNames: [])
         Workflow workflow = new DomainCreator(failOnError: false).createWorkflow(submit: null)
         workflowService.processTraceWorkflowRequest(_, _) >> workflow
 
         when: "process the workflow (we don't mind about the given JSON because the processor is mocked)"
-        traceService.processWorkflowTrace(req, null)
+        traceService.processWorkflowTrace(req, user)
 
         then: "the result indicates an error"
         Exception e = thrown(ValidationException)

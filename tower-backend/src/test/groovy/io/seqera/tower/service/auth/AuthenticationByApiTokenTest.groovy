@@ -18,7 +18,7 @@ import io.seqera.tower.service.AccessTokenService
 import io.seqera.util.TokenHelper
 import io.seqera.tower.domain.AccessToken
 import io.seqera.tower.domain.User
-import io.seqera.tower.service.MailService
+import io.seqera.tower.service.mail.MailService
 import io.seqera.tower.service.UserService
 import io.seqera.tower.service.UserServiceImpl
 import spock.lang.Specification

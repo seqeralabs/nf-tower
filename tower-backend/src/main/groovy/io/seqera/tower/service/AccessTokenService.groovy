@@ -41,7 +41,7 @@ import org.springframework.transaction.annotation.Propagation
 @Service(AccessToken)
 abstract class AccessTokenService {
 
-    @Value('${tower.access-token.flush.interval:`10s`}')
+    @Value('${tower.access-token.flush.interval:`45s`}')
     Duration flushInterval
 
     abstract AccessToken getByNameAndUser(String name, User user)

@@ -35,9 +35,9 @@ import io.seqera.tower.exchange.trace.TraceTaskRequest
 import io.seqera.tower.exchange.trace.TraceTaskResponse
 import io.seqera.tower.exchange.trace.TraceWorkflowRequest
 import io.seqera.tower.exchange.trace.TraceWorkflowResponse
-import io.seqera.tower.service.LiveEventsService
 import io.seqera.tower.service.TraceService
 import io.seqera.tower.service.UserService
+import io.seqera.tower.service.live.LiveEventsService
 /**
  * Implements the `trace` API
  *
@@ -58,7 +58,7 @@ class TraceController extends BaseController {
     @Transactional(readOnly = true)
     @Secured(['ROLE_USER'])
     HttpResponse<TraceAliveResponse> alive(@Body TraceAliveRequest req, Authentication authentication) {
-        log.trace "Receiving trace alive [workflowId=${req.workflowId}; user=${authentication.name}]"
+        log.debug "Receiving trace alive [workflowId=${req.workflowId}]"
         traceService.keepAlive(req.workflowId)
         HttpResponse.ok(new TraceAliveResponse(message: 'OK'))
     }

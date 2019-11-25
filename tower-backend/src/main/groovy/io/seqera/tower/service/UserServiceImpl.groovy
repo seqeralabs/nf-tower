@@ -37,6 +37,7 @@ import io.seqera.tower.domain.User
 import io.seqera.tower.domain.UserRole
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.exceptions.NonExistingUserException
+import io.seqera.tower.service.audit.AuditEventPublisher
 import io.seqera.util.StringUtils
 import io.seqera.util.TokenHelper
 import io.seqera.util.TupleUtils
@@ -57,6 +58,8 @@ class UserServiceImpl implements UserService {
     @Nullable
     @Value('${tower.trusted-emails}')
     List<String> trustedEmails
+
+    @Inject AuditEventPublisher eventPublisher
 
     UserServiceImpl() { }
 
@@ -123,7 +126,9 @@ class UserServiceImpl implements UserService {
 
     User create(String email, String authority) {
         assert email, "Missing user email field"
-        create0(email.toLowerCase(), authority)
+        final result = create0(email.toLowerCase(), authority)
+        eventPublisher.userCreated(result.id)
+        return result
     }
 
     @CompileDynamic
@@ -289,10 +294,12 @@ class UserServiceImpl implements UserService {
         existingUser.delete()
     }
 
+    @CompileDynamic
     User getByAccessToken(String token) {
-        final params = TupleUtils.map('token', token)
         final args = TupleUtils.map('cache', true)
-        User.find('select t.user from AccessToken t where t.token=:token', params, args)
+        final params = TupleUtils.map('token', token)
+        final userId = (Long) AccessToken.executeQuery('select t.user.id from AccessToken t where t.token=:token', params, args) [0]
+        userId ? User.get(userId) : null
     }
 
     @Override

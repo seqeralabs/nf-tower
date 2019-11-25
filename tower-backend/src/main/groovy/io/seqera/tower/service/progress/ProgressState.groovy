@@ -52,7 +52,7 @@ class ProgressState implements Serializable {
             }
             def el = processes.get(name)
             if( el == null ) {
-                log.warn "Missing progress stats for process $processes; workflow Id=$workflowId"
+                log.warn "Missing progress stats for process name=$name; workflow Id=$workflowId; processes=$processes"
                 el = new ProcessLoad(process:name)
             }
             result.add(el)

@@ -91,7 +91,7 @@ class Workflow {
     }
 
     boolean checkIsComplete() {
-        return !checkIsRunning()
+        return complete!=null || status==WorkflowStatus.SUCCEEDED || status==WorkflowStatus.FAILED
     }
 
     boolean checkIsSucceeded() {
