@@ -50,3 +50,47 @@ pre.tab-config {
     max-width: 1140px;
   }
 }
+
+.panel-body {
+  max-width: 580px;
+  max-height: 650px;
+  overflow: auto;
+  padding: 20px;
+
+  .btn-success {
+    width: 100px;
+    min-width: 100px;
+  }
+
+  .cancel-edit {
+    color: blue;
+    margin-left: 1rem;
+    cursor: pointer;
+  }
+}
+
+.media {
+  width: 100%;
+  border-bottom: 1px dashed #efefef;
+  padding: 20px 0;
+
+  img {
+    width: 64px;
+    height: 64px;
+    border: 2px solid #e5e7e8;
+  }
+}
+
+.media-list {
+  max-height: 300px;
+  padding: 0;
+  overflow-y: auto;
+
+  li {
+    list-style: none;
+  }
+}
+.error{
+  color: red;
+  padding: 5px 0;
+}

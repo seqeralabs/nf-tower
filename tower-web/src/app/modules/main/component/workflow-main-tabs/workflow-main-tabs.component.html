@@ -10,6 +10,10 @@
       <li class="nav-item">
         <a class="nav-link" id="configuration-tab" data-toggle="tab" href="#configuration" role="tab" aria-controls="configuration">Configuration</a>
       </li>
+      <li class="nav-item">
+        <a class="nav-link" id="comments-tab" data-toggle="tab" href="#comments" role="tab"
+           aria-controls="configuration">Comments</a>
+      </li>
     </ul>
   </div>
 
@@ -39,6 +43,45 @@
           <h5>Resolved configuration</h5>
           <div class="tab-config tab-max-height">
             <pre class="tab-config">{{workflow.data.configText ? workflow.data.configText : 'n/a'}}</pre>
+          </div>
+        </div>
+      </div>
+      <div class="tab-pane fade" id="comments" role="tabpanel" aria-labelledby="comments-tab">
+        <div class="row bootstrap snippets">
+          <div class="col-md-8 col-md-offset-2 col-sm-9">
+            <div class="comment-wrapper">
+              <div class="panel panel-info">
+                <div class="panel-body">
+                  <ul class="media-list">
+                    <li *ngFor="let comment of allComments">
+                      <wt-comment [comment]="comment"
+                                  (editCommentOut)="getCommentForEdit($event)"
+                                  (deleteCommentOut)="deleteWorkflowComment($event)">
+                      </wt-comment>
+                    </li>
+                  </ul>
+                  <span class="error"
+                        *ngIf="commentTextFormControl.invalid && commentTextFormControl.touched">
+                    *The message must contain more than 5 symbols
+                  </span>
+                  <textarea rows="3"
+                            class="form-control"
+                            placeholder="Write a comment..."
+                            [formControl]="commentTextFormControl">
+                  </textarea>
+                  <br>
+                  <button type="button"
+                          class="btn btn-success pull-right"
+                          (click)="doComment(editComment?.id)">{{buttonEvent | titlecase}}
+                  </button>
+                  <span class="cancel-edit"
+                        (click)="cancelEditComment()"
+                        *ngIf="buttonEvent === eventEdit">
+                    Cancel
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -1,0 +1,27 @@
+<div class="comment-wrapper">
+  <a href="#" class="comment-avatar">
+    <img alt="avatar"
+         class="thumbnail rounded-circle"
+         [src]="getUserAvatar()">
+  </a>
+  <div class="message">
+    <strong class="message-author-name">{{comment?.author?.displayName}}</strong>
+    <span>
+      <small class="message-time">{{comment?.dateCreated | date: 'MMM d, h:mm a'}}</small>
+    </span>
+    <p class="message-content">
+      {{comment?.text}}
+    </p>
+  </div>
+  <div class="edit-delete-comment">
+    <img alt="edit" class="edit"
+         [src]="'assets/edit_button.svg'"
+         (click)="editComment(comment)"
+         *ngIf="isOwnerOfComment()">
+    <img alt="delete"
+         class="delete"
+         [src]="'assets/delete_button.svg'"
+         (click)="deleteComment(comment)"
+         *ngIf="isOwnerOfComment()">
+  </div>
+</div>
