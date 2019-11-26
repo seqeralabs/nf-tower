@@ -141,7 +141,7 @@ class Workflow {
 
     static constraints = {
         id(maxSize: 16)
-        runName(unique: 'sessionId', maxSize: 40) // <-- the runName has to be unique for the same sessionId
+        runName(unique: 'sessionId', maxSize: 80) // <-- the runName has to be unique for the same sessionId
         sessionId(maxSize: 36)
 
         resume(nullable: true)
