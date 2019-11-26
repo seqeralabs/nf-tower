@@ -19,6 +19,7 @@ import groovy.util.logging.Slf4j
 import io.micronaut.context.event.ShutdownEvent
 import io.micronaut.context.event.StartupEvent
 import io.micronaut.runtime.context.scope.refresh.RefreshEvent
+import io.micronaut.security.authentication.UserDetails
 import io.micronaut.security.event.LoginSuccessfulEvent
 import io.seqera.tower.service.AccessTokenService
 import io.seqera.tower.service.audit.AuditEvent
@@ -62,12 +63,32 @@ class ApplicationEventDispatcherImpl implements ApplicationEventDispatcher {
     }
 
     void onUserLogin(LoginSuccessfulEvent event) {
-        eventPublisher.userSignIn()
+        try {
+            final user = fetchUserDetails(event.source)
+            eventPublisher.userSignIn(user)
+        }
+        catch (Exception e) {
+            log.error "Unable to process user sign-in audit event | ${e.message ?: e}"
+        }
+    }
+
+    private String fetchUserDetails(source) {
+        if( source instanceof UserDetails ) {
+            return source.username
+        }
+
+        log.warn "Cannot fetch user details -- source=$source"
+        return null
     }
 
     void onAuditEvent(AuditEvent event) {
         log.trace "Saving audit event=$event [service=${auditService?.class?.getSimpleName()}]"
-        auditService?.save(event)
+        try {
+            auditService?.save(event)
+        }
+        catch ( Exception e ){
+            log.error "Unable to save audit event | ${e.message ?: e}"
+        }
     }
 
 }

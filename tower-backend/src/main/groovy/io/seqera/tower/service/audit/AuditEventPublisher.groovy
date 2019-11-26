@@ -164,13 +164,13 @@ class AuditEventPublisher {
         eventPublisher.publishEvent(event)
     }
 
-    void userSignIn() {
+    void userSignIn(String userId) {
         final address = getClientAddress()
         final event = new AuditEvent(
                 clientIp:address,
                 type: AuditEventType.user_sign_in,
-                principal: getPrincipal(),
-                target: getPrincipal() )
+                principal: userId,
+                target: userId )
 
         eventPublisher.publishEvent(event)
     }
