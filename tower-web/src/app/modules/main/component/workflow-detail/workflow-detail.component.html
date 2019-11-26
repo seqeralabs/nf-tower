@@ -8,10 +8,10 @@
         <div class="col">
           <h1>
             <ng-container *ngIf="workflow.data.repository!=null; else noLink">
-              <a class="project-name" [href]="workflow.data.repository" target="_blank">{{workflow.data.projectName}}</a>
+              <a class="project-name" [href]="workflow.data.repository" target="_blank">{{workflow.displayName}}</a>
             </ng-container>
             <ng-template #noLink>
-              <span >{{workflow.data.projectName}}</span>
+              <span >{{workflow.displayName}}</span>
             </ng-template>
           </h1>
           <h2>{{workflow.data.runName}}</h2>

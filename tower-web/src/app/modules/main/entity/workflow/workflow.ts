@@ -89,4 +89,7 @@ export class Workflow {
     return this.data.exitStatus != null ? this.data.exitStatus.toString() : '-';
   }
 
+  get displayName(): string {
+    return this.data.manifest.name != null ? this.data.manifest.name : this.data.projectName;
+  }
 }
