@@ -19,7 +19,7 @@ export class Workflow {
   progress: ProgressData;
 
   constructor(json: any) {
-    this.data = <WorkflowData> json.workflow;
+    this.data = json.workflow as WorkflowData;
 
     if (json.progress) {
       this.progress = new ProgressData(json.progress);
@@ -31,19 +31,19 @@ export class Workflow {
   }
 
   get isRunning(): boolean {
-    return (this.data.status == WorkflowStatus.RUNNING);
+    return (this.data.status === WorkflowStatus.RUNNING);
   }
 
   get isSuccessful(): boolean {
-    return (this.data.status == WorkflowStatus.SUCCEEDED && this.data.stats.ignoredCount==0);
+    return (this.data.status === WorkflowStatus.SUCCEEDED && this.data.stats.ignoredCount===0);
   }
 
   get isFailed(): boolean {
-    return (this.data.status == WorkflowStatus.FAILED);
+    return (this.data.status === WorkflowStatus.FAILED);
   }
 
   get isPartialFailed(): boolean {
-    return (this.data.status == WorkflowStatus.SUCCEEDED && this.data.stats.ignoredCount>0);
+    return (this.data.status === WorkflowStatus.SUCCEEDED && this.data.stats.ignoredCount>0);
   }
 
   get isCompleted(): boolean {
@@ -51,15 +51,15 @@ export class Workflow {
   }
 
   get isUnknownStatus(): boolean {
-    return this.data.status == null || this.data.status == WorkflowStatus.UNKNOWN;
+    return this.data.status == null || this.data.status === WorkflowStatus.UNKNOWN;
   }
 
   get humanizedDuration(): string {
-    return FormatterUtil.humanizeDuration(this.data.duration)
+    return FormatterUtil.humanizeDuration(this.data.duration);
   }
 
   get briefCommitId(): string {
-    return this.data.commitId ? this.data.commitId.substring(0, 6) : null
+    return this.data.commitId ? this.data.commitId.substring(0, 6) : null;
   }
 
   get humanizedRevision(): string {
@@ -68,7 +68,7 @@ export class Workflow {
       return 'n/a';
     if( this.briefCommitId )
       result += ` (${this.briefCommitId})`;
-    return result
+    return result;
   }
 
   get humanizedContainer(): string {
