@@ -19,6 +19,7 @@ import java.time.OffsetDateTime
 import grails.gorm.DetachedCriteria
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
+import groovy.util.logging.Slf4j
 import io.seqera.tower.domain.ProcessLoad
 import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.TaskData
@@ -33,6 +34,7 @@ import io.seqera.tower.exceptions.NonExistingWorkflowException
 import io.seqera.tower.exchange.trace.TraceWorkflowRequest
 import io.seqera.tower.service.progress.ProgressService
 
+@Slf4j
 @Transactional
 @Singleton
 class WorkflowServiceImpl implements WorkflowService {
@@ -130,6 +132,10 @@ class WorkflowServiceImpl implements WorkflowService {
     private void associateMetrics(Workflow workflow, List<WorkflowMetrics> allMetrics) {
         for( WorkflowMetrics metrics : allMetrics ) {
             metrics.workflow = workflow
+            final warns = metrics.sanitize()
+            if( warns ) {
+                log.warn "Workflow Id=$workflow.id report reports metrics warnings:\n${warns.join('\n')}"
+            }
             metrics.save()
         }
     }

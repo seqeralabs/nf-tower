@@ -41,6 +41,45 @@ class WorkflowMetrics {
     ResourceData memUsage
     ResourceData timeUsage
 
+    /**
+     * Sanitize object cutting fields too long
+     */
+    List<String> sanitize() {
+        cpu?.sanitize()
+        mem?.sanitize()
+        vmem?.sanitize()
+        time?.sanitize()
+        reads?.sanitize()
+        writes?.sanitize()
+        cpuUsage?.sanitize()
+        memUsage?.sanitize()
+        timeUsage?.sanitize()
+
+        return getWarnings() ?: Collections.<String> emptyList()
+    }
+
+    private List<String> getWarnings() {
+        List<String> result=null
+        result = addWarn(result, cpu)
+        result = addWarn(result, mem)
+        result = addWarn(result, vmem)
+        result = addWarn(result, time)
+        result = addWarn(result, reads)
+        result = addWarn(result, writes)
+        result = addWarn(result, cpuUsage)
+        result = addWarn(result, memUsage)
+        result = addWarn(result, timeUsage)
+        return result
+    }
+
+    private List<String> addWarn(List<String> result, ResourceData res) {
+        if( res?.hasWarnings() ) {
+            if( result==null ) result=new ArrayList<String>(10)
+            result.addAll(res.getWarnings())
+        }
+        return result
+    }
+
     static belongsTo = [workflow: Workflow]
 
     static embedded = [
@@ -85,4 +124,31 @@ class ResourceData {
     String q2Label
     String q3Label
 
+    transient List<String> warnings
+
+    List<String> getWarnings() { warnings ?: Collections.<String>emptyList() }
+
+    boolean hasWarnings() { warnings }
+
+    private void addWarn(String str) {
+        if( warnings==null )
+            warnings = new ArrayList<>(10)
+        warnings.add(str)
+    }
+
+    private String checkLen0(String value, String name) {
+        if( value?.size() > 255 ) {
+            addWarn("Value for $name longer expected (255) -- offending value: $value")
+            return value.substring(0,255)
+        }
+        return value
+    }
+
+    void sanitize() {
+        q1Label = checkLen0(q1Label, 'q1Label')
+        q2Label = checkLen0(q2Label, 'q2Label')
+        q3Label = checkLen0(q3Label, 'q3Label')
+        minLabel = checkLen0(minLabel, 'minLabel')
+        maxLabel = checkLen0(maxLabel, 'maxLabel')
+    }
 }
