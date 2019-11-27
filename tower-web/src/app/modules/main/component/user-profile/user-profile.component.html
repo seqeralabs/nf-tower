@@ -40,6 +40,16 @@
       </textarea>
       <div class="invalid-feedback">Max 1000 characters long</div>
     </div>
+    <div class="form-group">
+      <div class="custom-control custom-switch">
+        <input type="checkbox" name="notification" class="custom-control-input" id="customSwitch1"
+               [(ngModel)]="userCopy.data.notification">
+        <label class="custom-control-label" for="customSwitch1" *ngIf="!userCopy.data.notification">Enable email
+          notifications</label>
+        <label class="custom-control-label" for="customSwitch1" *ngIf="userCopy.data.notification">Disable email
+          notifications</label>
+      </div>
+    </div>
 
     <div class="row">
       <div class="col">
