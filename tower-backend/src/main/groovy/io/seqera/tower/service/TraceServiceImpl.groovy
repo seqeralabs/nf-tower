@@ -121,6 +121,7 @@ class TraceServiceImpl implements TraceService {
 
     @Override
     void keepAlive(String workflowId) {
+        workflowService.markForRunning(workflowId)
         progressService.updateStats(workflowId, Collections.<Task>emptyList())
     }
 }

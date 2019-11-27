@@ -54,6 +54,8 @@ interface WorkflowService {
      */
     boolean markForDeletion(String workflowId)
 
+    void markForRunning(String workflowId)
+
     /**
      * Should retrieve workflow records marked for deletion
      *

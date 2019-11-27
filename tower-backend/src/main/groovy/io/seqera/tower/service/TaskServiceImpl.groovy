@@ -11,7 +11,6 @@
 
 package io.seqera.tower.service
 
-import static io.seqera.tower.enums.WorkflowStatus.*
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -70,19 +69,9 @@ class TaskServiceImpl implements TaskService {
         if (!workflow) {
             throw new NonExistingWorkflowException("Can't find task for workflow Id: ${request.workflowId}")
         }
-
-        if( workflow.checkIsComplete() ) {
-            throw new IllegalStateException("Cannot acquire new tasks for workflow with Id: ${request.workflowId}")
-        }
-
-        if( workflow.status==UNKNOWN ) {
-            // change status to running
-            workflow.status = RUNNING
-            workflow.save()
-            // notify event
-            auditEventPublisher.workflowStatusChangeFromRequest(workflow.id, "new=$RUNNING; was=$UNKNOWN")
-        }
-
+        // mark it for running
+        workflowService.markForRunning(request.workflowId)
+        // save all the acquired tasks
         request.tasks.collect { Task task -> saveTask(task, workflow) }
     }
 

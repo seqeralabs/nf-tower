@@ -11,6 +11,8 @@
 
 package io.seqera.tower.service
 
+import static io.seqera.tower.enums.WorkflowStatus.*
+
 import javax.inject.Inject
 import javax.inject.Singleton
 import javax.validation.ValidationException
@@ -32,6 +34,7 @@ import io.seqera.tower.domain.WorkflowProcess
 import io.seqera.tower.enums.WorkflowStatus
 import io.seqera.tower.exceptions.NonExistingWorkflowException
 import io.seqera.tower.exchange.trace.TraceWorkflowRequest
+import io.seqera.tower.service.audit.AuditEventPublisher
 import io.seqera.tower.service.progress.ProgressService
 
 @Slf4j
@@ -39,12 +42,8 @@ import io.seqera.tower.service.progress.ProgressService
 @Singleton
 class WorkflowServiceImpl implements WorkflowService {
 
-    ProgressService progressService
-
-    @Inject
-    WorkflowServiceImpl(ProgressService progressService) {
-        this.progressService = progressService
-    }
+    @Inject ProgressService progressService
+    @Inject AuditEventPublisher auditEventPublisher
 
     @CompileDynamic
     @Transactional(readOnly = true)
@@ -165,6 +164,23 @@ class WorkflowServiceImpl implements WorkflowService {
         // finally delete workflow record
         workflowToDelete.delete()
 
+    }
+
+    @Override
+    void markForRunning(String workflowId) {
+        final workflow = Workflow.get(workflowId)
+        // if complete report an error
+        if( workflow.checkIsComplete() ) {
+            throw new IllegalStateException("Unexpected execution status workflow with Id: ${workflowId}")
+        }
+        // if status is UNKNOWN 
+        if( workflow.status==UNKNOWN ) {
+            // change status to running
+            workflow.status = RUNNING
+            workflow.save()
+            // notify event
+            auditEventPublisher.workflowStatusChangeFromRequest(workflow.id, "new=$RUNNING; was=$UNKNOWN")
+        }
     }
 
     boolean markForDeletion(String workflowId) {

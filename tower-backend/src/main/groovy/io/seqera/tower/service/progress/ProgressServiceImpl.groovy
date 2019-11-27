@@ -147,6 +147,8 @@ class ProgressServiceImpl implements ProgressService {
         final workflow = Workflow.get(workflowId)
         if( !workflow ) {
             log.warn "Unknown workflow for Id=$workflowId | Ignore timeout marking event"
+            // remove progress from the cache in any case to avoid entering an endless re-try
+            store.deleteProgress(workflowId)
             return
         }
 
