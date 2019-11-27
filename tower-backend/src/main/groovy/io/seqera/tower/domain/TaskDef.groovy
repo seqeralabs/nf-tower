@@ -13,6 +13,8 @@ package io.seqera.tower.domain
 
 import java.time.OffsetDateTime
 
+import io.seqera.tower.service.cloudprice.CloudPriceModel
+
 /**
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
@@ -41,12 +43,15 @@ interface TaskDef {
     Integer getCpus()
     Long getMemory()
     Long getDisk()
-    String getTime()
+    Long getTime()
     String getEnv()
-
+    String getExecutor()
+    String getMachineType()
+    String getCloudZone()
+    CloudPriceModel getPriceModel()
     String getErrorAction()
 
-    Long getExitStatus()
+    Integer getExitStatus()
     Long getDuration()
     Long getRealtime()
     String getNativeId()
@@ -90,12 +95,15 @@ interface TaskDef {
     void setCpus(Integer x)
     void setMemory(Long x)
     void setDisk(Long x)
-    void setTime(String x)
+    void setTime(Long x)
     void setEnv(String x)
-
+    void setExecutor(String x)
+    void setMachineType(String x)
+    void setCloudZone(String x)
+    void setPriceModel(CloudPriceModel x)
     void setErrorAction(String x)
 
-    void setExitStatus(Long x)
+    void setExitStatus(Integer x)
     void setDuration(Long x)
     void setRealtime(Long x)
     void setNativeId(String x)

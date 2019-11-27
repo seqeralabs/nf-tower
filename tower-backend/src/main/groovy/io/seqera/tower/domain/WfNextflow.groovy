@@ -13,6 +13,7 @@ package io.seqera.tower.domain
 
 import java.time.Instant
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import groovy.transform.CompileDynamic
 
 /**
@@ -23,8 +24,19 @@ import groovy.transform.CompileDynamic
 @CompileDynamic
 class WfNextflow {
 
-    String version
+    @JsonProperty('version')
+    String version_ // <-- GORM mess-up the component `version` field with the entity implicit `version` attribute, add an `_` to avoid name collision
     String build
     Instant timestamp
+
+    static constraints = {
+        version_(nullable: true, maxSize: 20)
+        build(nullable: true, maxSize: 10)
+        timestamp(nullable: true)
+    }
+
+    static mapping = {
+        version_(column: 'nextflow_version')
+    }
 
 }

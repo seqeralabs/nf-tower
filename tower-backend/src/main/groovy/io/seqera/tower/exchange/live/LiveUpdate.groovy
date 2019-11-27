@@ -18,7 +18,7 @@ import io.seqera.tower.exchange.BaseResponse
 
 @ToString(ignoreNulls = true)
 @EqualsAndHashCode
-class LiveUpdate implements BaseResponse {
+class LiveUpdate implements BaseResponse, Serializable {
 
     final Long userId
     final String workflowId

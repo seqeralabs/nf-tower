@@ -22,6 +22,6 @@ class RandomNamesTest extends Specification {
     def 'should get random name' () {
         expect:
         RandomNames.get().size() >0 
-        RandomNames.get() != RandomNames.get()
+        RandomNames.get() != RandomNames.get() || RandomNames.get() != RandomNames.get()
     }
 }

@@ -47,13 +47,22 @@
   }
 }
 
-.workflow--partialFailed {
-  border-left-color: $partialFailed-orange;
+.workflow--partial {
+  border-left-color: $partial-orange;
 
   .card-title, .sidebar-wf-icon {
-    color: $partialFailed-orange;
+    color: $partial-orange;
   }
 }
+
+.workflow--unknown {
+  border-left-color: $failed-red;
+
+  .card-title {
+    color: $failed-red;
+  }
+}
+
 
 div.btn-delete {
   position: relative;

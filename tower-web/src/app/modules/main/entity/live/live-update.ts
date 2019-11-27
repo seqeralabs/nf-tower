@@ -16,7 +16,7 @@ export enum LiveAction {
 export class LiveUpdate {
 
   userId: string | number;
-  workflowId: string | number;
+  workflowId: string;
   action: LiveAction;
   message: string;
 

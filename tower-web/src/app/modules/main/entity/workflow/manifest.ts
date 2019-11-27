@@ -9,13 +9,13 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 export interface Manifest {
-  nextflowVersion?: any;
+  nextflowVersion: string;
   defaultBranch: string;
-  version?: any;
-  homePage?: any;
+  version: string;
+  homePage: string;
   gitmodules?: any;
-  description?: any;
-  name?: any;
+  description: string;
+  name: string;
   mainScript: string;
-  author?: any;
+  author: string;
 }

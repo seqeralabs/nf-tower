@@ -16,12 +16,14 @@ import java.time.OffsetDateTime
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import grails.gorm.annotation.Entity
 import groovy.transform.CompileDynamic
+import io.seqera.tower.service.cloudprice.CloudPriceModel
+
 /**
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
 @Entity
-@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'workflow', 'sessionId'])
+@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version', 'workflow', 'sessionId'])
 @CompileDynamic
 class TaskData implements TaskDef {
 
@@ -58,7 +60,9 @@ class TaskData implements TaskDef {
     OffsetDateTime submit
     OffsetDateTime start
     OffsetDateTime complete
-
+    OffsetDateTime dateCreated
+    OffsetDateTime lastUpdated
+    
     String module
     String container
     Integer attempt
@@ -70,12 +74,15 @@ class TaskData implements TaskDef {
     Integer cpus
     Long memory
     Long disk
-    String time
+    Long time
     String env
-
+    String executor
+    String machineType
+    String cloudZone
+    CloudPriceModel priceModel
     String errorAction
 
-    Long exitStatus
+    Integer exitStatus
     Long duration
     Long realtime
     String nativeId
@@ -119,7 +126,11 @@ class TaskData implements TaskDef {
         disk(nullable: true)
         time(nullable: true)
         env(nullable: true, maxSize: 2048)
-        errorAction(nullable: true)
+        executor(nullable: true, maxSize: 25)
+        machineType(nullable: true, maxSize: 25)
+        cloudZone(nullable: true, maxSize: 25)
+        priceModel(nullable: true)
+        errorAction(nullable: true, maxSize: 10)
         duration(nullable: true)
         realtime(nullable: true)
         nativeId(nullable: true, maxSize: 100)
@@ -137,10 +148,13 @@ class TaskData implements TaskDef {
         writeBytes(nullable: true)
         volCtxt(nullable: true)
         invCtxt(nullable: true)
+        dateCreated(nullable: true)
+        lastUpdated(nullable: true)
     }
 
     static mapping = {
         script(type: 'text')
+        priceModel(length: 15)
     }
 
     String toString() {

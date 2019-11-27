@@ -8,7 +8,7 @@
  * This Source Code Form is "Incompatible With Secondary Licenses", as
  * defined by the Mozilla Public License, v. 2.0.
  */
-import {Component, OnInit} from '@angular/core';
+import {Component, Input, OnChanges, SimpleChanges} from '@angular/core';
 import {HttpClient, HttpErrorResponse} from '@angular/common/http';
 import {NotificationService} from 'src/app/modules/main/service/notification.service';
 import {WorkflowMetrics} from 'src/app/modules/main/entity/workflow/workflow-metrics';
@@ -23,22 +23,27 @@ declare let $: any;
   templateUrl: './metrics.component.html',
   styleUrls: ['./metrics.component.scss']
 })
-export class WorkflowMetricsComponent implements OnInit {
+export class WorkflowMetricsComponent implements OnChanges {
 
   constructor(private httpClient: HttpClient,
               private route: ActivatedRoute,
               private notificationService: NotificationService) { }
 
-  private data_byprocess = {};
+  private data_byprocess: any;
 
-  ngOnInit(): void {
+  @Input()
+  workflowId: string;
 
-    const workflowId = this.route.snapshot.paramMap.get('id');
+  ngOnChanges(changes: SimpleChanges): void {
+    this.loadMetrics(this.workflowId)
+  }
+
+  protected loadMetrics(workflowId: string) {
     const url = `${environment.apiUrl}/workflow/${workflowId}/metrics`;
     this.httpClient.get<any>(url)
       .subscribe(
         data => {
-            this.renderPlots(data.metrics); // <-- rename
+          this.renderPlots(data.metrics); // <-- rename
         },
         (resp: HttpErrorResponse) => {
           this.notificationService.showErrorNotification(resp.error.message);
@@ -47,6 +52,7 @@ export class WorkflowMetricsComponent implements OnInit {
   }
 
   public renderPlots(allMetrics: Array<WorkflowMetrics>) {
+    this.data_byprocess = {};
     // Collect metrics by process
     for(let i in allMetrics){
       let metrics = allMetrics[i];

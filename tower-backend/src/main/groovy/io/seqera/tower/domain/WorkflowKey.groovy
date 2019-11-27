@@ -13,20 +13,20 @@ package io.seqera.tower.domain
 
 import java.time.OffsetDateTime
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import grails.gorm.annotation.Entity
 import groovy.transform.CompileDynamic
 
 @Entity
 @CompileDynamic
+@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version'])
 class WorkflowKey {
     Long id
-    String sessionId
     String workflowId
     OffsetDateTime dateCreated
     OffsetDateTime lastUpdated
 
     static constraints = {
-        sessionId(nullable: true, maxSize: 36)
         workflowId(nullable: true, unique: true, maxSize: 16)
     }
 }

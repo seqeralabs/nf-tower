@@ -26,7 +26,9 @@ import io.seqera.tower.Application
 import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.User
 import io.seqera.tower.domain.Workflow
+import io.seqera.tower.enums.TaskStatus
 import io.seqera.tower.enums.TraceProcessingStatus
+import io.seqera.tower.enums.WorkflowStatus
 import io.seqera.tower.exchange.trace.TraceAliveRequest
 import io.seqera.tower.exchange.trace.TraceAliveResponse
 import io.seqera.tower.exchange.trace.TraceInitRequest
@@ -92,15 +94,35 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         response.status == HttpStatus.OK
     }
 
-    void "save a new workflow given a start trace"() {
+    void 'should update workflow status' () {
         given: 'an allowed user'
         User user = new DomainCreator().generateAllowedUser()
 
-        and: 'a workflow started JSON trace'
-        TraceWorkflowRequest workflowStartedJsonTrace = TracesJsonBank.extractWorkflowJsonTrace('success', null, WorkflowTraceSnapshotStatus.STARTED)
+        and: 'a workflow'
+        Workflow workflow = new DomainCreator().createWorkflow(status: WorkflowStatus.UNKNOWN)
 
         when: 'send a save request'
-        MutableHttpRequest request = HttpRequest.POST('/trace/workflow', workflowStartedJsonTrace)
+        MutableHttpRequest request = HttpRequest.POST('/trace/alive', new TraceAliveRequest(workflowId: workflow.id))
+        request = appendBasicAuth(user, request)
+
+        HttpResponse<TraceAliveResponse> response = client.toBlocking().exchange( request, TraceAliveResponse )
+
+        then:
+        response.status == HttpStatus.OK
+        and:
+        Workflow.withTransaction { Workflow.get(workflow.id) }.status == WorkflowStatus.RUNNING
+    }
+
+    void "save a new workflow given a start trace"() {
+        given: 'an allowed user'
+        User user = new DomainCreator().generateAllowedUser()
+        and: 'a workflow started JSON trace'
+        TraceWorkflowRequest trace = TracesJsonBank.extractWorkflowJsonTrace('success', null, WorkflowTraceSnapshotStatus.STARTED)
+        and:
+        assert trace.workflow.status == WorkflowStatus.RUNNING
+
+        when: 'send a save request'
+        MutableHttpRequest request = HttpRequest.POST('/trace/workflow', trace)
         request = appendBasicAuth(user, request)
 
         HttpResponse<TraceWorkflowResponse> response = client.toBlocking().exchange(
@@ -109,14 +131,15 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         )
 
         then: 'the workflow has been saved successfully'
-        response.status == HttpStatus.CREATED
+        response.status == HttpStatus.OK
         response.body().status == TraceProcessingStatus.OK
-        response.body().workflowId
-        response.body().watchUrl == 'http://localhost:8000/watch/' + response.body().workflowId
+        response.body().workflowId == trace.workflow.id
+        response.body().watchUrl == 'http://localhost:8000/watch/' + trace.workflow.id
         !response.body().message
 
         and: 'the workflow is in the database'
-        Workflow.withNewTransaction { Workflow.count() } ==1
+        Workflow.get(trace.workflow.id).status == WorkflowStatus.RUNNING
+        Workflow.get(trace.workflow.id).@status == WorkflowStatus.RUNNING
 
         and: 'the user has been associated with the workflow'
         User.withNewTransaction {
@@ -143,13 +166,21 @@ class TraceControllerTest extends AbstractContainerBaseTest {
                 .exchange(request, TraceTaskResponse )
 
         then: 'the task has been saved successfully'
-        response.status == HttpStatus.CREATED
+        response.status == HttpStatus.OK
         response.body().status == TraceProcessingStatus.OK
         response.body().workflowId
         !response.body().message
 
         and: 'the task is in the database'
-        Task.withNewTransaction { Task.count() } ==1
+        with( Task.withNewTransaction { Task.list().get(0) } )  {
+            taskId == 1
+            status == TaskStatus.SUBMITTED
+            hash == '2e/a112fb'
+            process == 'sayHello'
+            name == 'sayHello (2)'
+            container == 'nextflow/bash'
+            executor == 'aws-batch'
+        }
     }
 
     void "try to save a new workflow without being authenticated"() {

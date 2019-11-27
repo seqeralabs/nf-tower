@@ -42,7 +42,11 @@
       "peakRss": 0,
       "volCtxt": 0,
       "invCtxt": 0,
-      "nativeId": 28417
+      "nativeId": 28417,
+      "executor": "aws-batch",
+      "machineType": "x1.large",
+      "cloudZone": "eu-west-1",
+      "priceModel": "spot"
     }
   ],
   "workflowId": "12345"

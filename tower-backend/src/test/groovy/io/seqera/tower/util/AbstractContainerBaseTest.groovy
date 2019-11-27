@@ -28,9 +28,16 @@ import spock.lang.Specification
 @Slf4j
 abstract class AbstractContainerBaseTest extends Specification {
 
+    static final String env = System.getenv('MICRONAUT_ENVIRONMENTS')
     static GenericContainer DATABASE_CONTAINER
-    static boolean isMySql = System.getenv('MICRONAUT_ENVIRONMENTS')=='mysql'
+    static boolean isMySql = env?.contains('mysql')
 
+    static Map mysqlConfig = [
+            MYSQL_ROOT_PASSWORD: 'root',
+            MYSQL_USER: 'tower',
+            MYSQL_PASSWORD: 'tower',
+            MYSQL_DATABASE: 'tower' ]
+    
     static {
         if( isMySql ) {
             DATABASE_CONTAINER = createMySqlDatabase()
@@ -41,9 +48,10 @@ abstract class AbstractContainerBaseTest extends Specification {
     private static GenericContainer createMySqlDatabase() {
         new FixedHostPortGenericContainer("mysql:5.6")
                 .withFixedExposedPort(3307, 3306)
-                .withEnv([MYSQL_ROOT_PASSWORD: 'root', MYSQL_USER: 'tower', MYSQL_PASSWORD: 'tower', MYSQL_DATABASE: 'tower'])
+                .withEnv(mysqlConfig)
+                .withTmpFs(['/var/lib/mysql':'rw,noexec,nosuid,size=1024m'])
                 .waitingFor(Wait.forListeningPort())
-                .waitingFor(Wait.forLogMessage(/MySQL init process done.*/, 1))
+                .waitingFor(Wait.forLogMessage(/.*MySQL init process done.*/, 1))
     }
 
     protected String doJwtLogin(User user, HttpClient client) {

@@ -1,6 +1,5 @@
 <img src='./tower-web/src/assets/landing/assets/img/nf-tower-purple.svg' width='500' alt='Nextflow Tower logo'/>
 
-![build status](https://codebuild.eu-west-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoid1VqblVBMmVDbE54MUdrTUNra0l5eGl3WWcxR0xCaDU1UVFJV1IzRWdodTJNNmx0d2Q3SS84REdaN1BOTUg4VVd5bS9Xdk8zeW5leFRON1NRZTZSVzhvPSIsIml2UGFyYW1ldGVyU3BlYyI6InVyaGJMWktuOGpDVDQ0WGsiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
 [![Chat on Gitter](https://img.shields.io/gitter/room/nf-tower/community.svg?colorB=26af64&style=popout)](https://gitter.im/nf-tower/community)
 
 Nextflow Tower is an open source monitoring and managing platform
@@ -89,6 +88,13 @@ By default it uses [H2](https://www.h2database.com), an embedded database meant 
 * `TOWER_SMTP_AUTH`: SMTP server authentication eg `true`
 * `TOWER_SMTP_USER`: SMTP server user name.
 * `TOWER_SMTP_PASSWORD`: SMTP server user password.
+
+## Support 
+
+* For common problems, doubts and feedback please use the [Gitter community channel](https://gitter.im/nf-tower/community) 
+  or the [GitHub issues page](https://github.com/seqeralabs/nf-tower/issues). 
+* Commercial support is provided by [Seqera Labs](https://www.seqera.io/).
+ 
 
 ## License
 

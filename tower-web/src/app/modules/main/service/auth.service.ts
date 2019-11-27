@@ -54,7 +54,7 @@ export class AuthService {
   }
 
   private requestUserProfileInfo(authData: any): Observable<User> {
-    let userData: UserData = <UserData> {email: authData.username, jwtAccessToken: authData['access_token'], roles: authData.roles};
+    const userData: UserData = <UserData> {email: authData.username, jwtAccessToken: authData['access_token'], roles: authData.roles};
 
     return this.http.get(`${userEndpointUrl}/`, {headers: {'Authorization': `Bearer ${userData.jwtAccessToken}`}}).pipe(
       map((data: any) => {
@@ -104,8 +104,8 @@ export class AuthService {
   }
 
   private parseJwt(token: string): any {
-    let base64Url = token.split('.')[1];
-    let decodedBase64 = decodeURIComponent(atob(base64Url).split('')
+    const base64Url = token.split('.')[1];
+    const decodedBase64 = decodeURIComponent(atob(base64Url).split('')
       .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
       .join(''));
 

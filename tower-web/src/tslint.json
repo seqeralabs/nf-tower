@@ -10,8 +10,20 @@
     "component-selector": [
       true,
       "element",
-      "app",
       "kebab-case"
-    ]
+    ],
+    "quotemark": [
+      false,
+      "single",
+      "avoid-escape"
+    ],
+    "one-line": [
+      true,
+      "check-open-brace",
+      "check-catch"
+    ],
+    "curly": [false],
+    "whitespace": [false],
+    "no-trailing-whitespace": [false]
   }
 }

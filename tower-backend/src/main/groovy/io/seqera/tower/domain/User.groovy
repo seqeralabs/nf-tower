@@ -19,7 +19,7 @@ import grails.gorm.annotation.Entity
 import groovy.transform.CompileDynamic
 
 @Entity
-@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'workflows', 'accessTokens'])
+@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version', 'workflows', 'accessTokens'])
 @CompileDynamic
 class User {
 
@@ -49,7 +49,7 @@ class User {
     static constraints = {
         email(email: true, unique: true, maxSize: 255)
         userName(unique: true, blank:false, matches: USERNAME_REGEX, maxSize: 40)
-        authToken(unique: true, nullable: true)
+        authToken(unique: true, nullable: true, maxSize: 40)
         authTime(nullable: true)
         disabled(nullable: true)
         firstName(nullable: true, maxSize: 100)
@@ -60,4 +60,7 @@ class User {
         lastAccess(nullable: true)
     }
 
+    static mapping = {
+        cache  true
+    }
 }

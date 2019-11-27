@@ -24,7 +24,7 @@ repositories {
 
 dependencyManagement {
     imports {
-        mavenBom 'io.micronaut:micronaut-bom:1.2.3'
+        mavenBom 'io.micronaut:micronaut-bom:1.2.5'
     }
 }
 
@@ -55,8 +55,6 @@ dependencies {
     compileOnly "io.micronaut:micronaut-inject-groovy"
 
     compile "io.micronaut:micronaut-management"
-    compile "io.micronaut.configuration:micronaut-micrometer-core"
-    compile "io.micronaut.configuration:micronaut-micrometer-registry-statsd"
     
     annotationProcessor "io.micronaut:micronaut-security"
     compile "io.micronaut:micronaut-security-jwt"
@@ -66,11 +64,11 @@ dependencies {
     annotationProcessor "io.micronaut.configuration:micronaut-openapi"
     compile "io.swagger.core.v3:swagger-annotations"
 
-    testCompile "io.micronaut:micronaut-inject-groovy"
+    testCompileOnly "io.micronaut:micronaut-inject-groovy"
     testCompile("org.spockframework:spock-core") {
         exclude group: "org.codehaus.groovy", module: "groovy-all"
     }
-    testCompile "io.micronaut.test:micronaut-test-spock:1.0.3"
+    testCompile "io.micronaut.test:micronaut-test-spock"
 
     testCompile "org.testcontainers:testcontainers:1.11.2"
     testCompile "org.testcontainers:spock:1.11.2"
