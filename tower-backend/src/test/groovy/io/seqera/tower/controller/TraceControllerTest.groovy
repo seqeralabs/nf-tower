@@ -94,6 +94,25 @@ class TraceControllerTest extends AbstractContainerBaseTest {
         response.status == HttpStatus.OK
     }
 
+    void 'should update workflow status' () {
+        given: 'an allowed user'
+        User user = new DomainCreator().generateAllowedUser()
+
+        and: 'a workflow'
+        Workflow workflow = new DomainCreator().createWorkflow(status: WorkflowStatus.UNKNOWN)
+
+        when: 'send a save request'
+        MutableHttpRequest request = HttpRequest.POST('/trace/alive', new TraceAliveRequest(workflowId: workflow.id))
+        request = appendBasicAuth(user, request)
+
+        HttpResponse<TraceAliveResponse> response = client.toBlocking().exchange( request, TraceAliveResponse )
+
+        then:
+        response.status == HttpStatus.OK
+        and:
+        Workflow.withTransaction { Workflow.get(workflow.id) }.status == WorkflowStatus.RUNNING
+    }
+
     void "save a new workflow given a start trace"() {
         given: 'an allowed user'
         User user = new DomainCreator().generateAllowedUser()
