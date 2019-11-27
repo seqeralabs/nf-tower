@@ -55,7 +55,7 @@ class TraceController extends BaseController {
     @Inject LiveEventsService liveEventsService
 
     @Post("/alive")
-    @Transactional(readOnly = true)
+    @Transactional
     @Secured(['ROLE_USER'])
     HttpResponse<TraceAliveResponse> alive(@Body TraceAliveRequest req, Authentication authentication) {
         log.debug "Receiving trace alive [workflowId=${req.workflowId}]"
