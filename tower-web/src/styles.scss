@@ -39,35 +39,13 @@ code {
   min-height: calc(100% - #{$navbar-height});
 }
 
-.sidebar-toggler-btn {
-  color: rgba(0,0,0,.5);
-  cursor: pointer;
-  padding: .25rem .75rem;
-  font-size: 1.25rem;
-  line-height: 1;
-  background-color: transparent;
-  border: 1px solid rgba(0,0,0,.1);
-  border-radius: .25rem;
-}
-
 #sidebar-wrapper {
   border-right: $sidebar-border;
   min-height: 100vh;
-  margin-left: $sidebar-width * -1;
-  -webkit-transition: margin .25s ease-in-out;
-  -moz-transition: margin .25s ease-in-out;
-  -o-transition: margin .25s ease-in-out;
-  transition: margin .25s ease-in-out;
-  width: $sidebar-width;
-}
-
-#sidebar-wrapper.toggled {
-  margin-left: 0;
 }
 
 #sidebar {
   top: 62px;
-  width: $sidebar-width;
   max-width: 100%;
   background-color: $sidebar-background;
   overflow-x: hidden;
@@ -77,20 +55,6 @@ code {
 #central {
   min-width: 100%;
 }
-
-
-// Reverse behaviour on larger screens
-@media (min-width: 960px) {
-  #sidebar-wrapper {
-    margin-left: 0;
-  }
-  // Stretch content instead of going off-canvas
-  #central {
-    min-width: 0;
-    width: 100%;
-  }
-}
-
 
 #notification-container {
   position: absolute;

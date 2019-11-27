@@ -1,17 +1,35 @@
-<div class="row">
-  <div class="col m-2">
-    <div class="form-group">
+
+<div class="row no-gutters">
+  <!-- Button to expand / collapse sidebar -->
+  <div [class.col-4]="!sidebarCollapsed" [class.col-12]="sidebarCollapsed">
+    <button class="btn btn-block my-2 mr-1" (click)="collapseSidebar()" [class.btn-outline-secondary]="!sidebarCollapsed" [class.btn-secondary]="sidebarCollapsed">
+      <span class="mdi mdi-chevron-double-left" *ngIf="!sidebarCollapsed"></span>
+      <span class="mdi mdi-chevron-double-right mdi-18px" *ngIf="sidebarCollapsed"></span>
+      <span *ngIf="!sidebarCollapsed">Collapse</span>
+    </button>
+  </div>
+  <!-- Workflow search input -->
+  <div class="col-8" *ngIf="!sidebarCollapsed">
+    <div class="form-group my-2 ml-1">
       <input id="search" name="search" type="search" class="form-control" placeholder="Search..."
              [ngClass]="{'loading': isSearchTriggered}"
              [formControl]="searchBoxFormControl">
     </div>
   </div>
 </div>
+<!-- Search button shown when sidebar collapsed. Opens sidebar -->
+<button class="btn btn-info btn-block mr-1" *ngIf="sidebarCollapsed" (click)="collapseSidebar()">
+  <span class="mdi mdi-magnify mdi-18px"></span>
+</button>
 
+<!-- List of workflow cards -->
 <wt-workflow-card *ngFor="let workflow of workflows"
                   [workflow]="workflow"
+                  [sidebarCollapsed]="sidebarCollapsed"
                   (onDeleteWorkflow)="deleteWorkflow($event)"
                   (click)="showWorkflowDetail(workflow)" >
 </wt-workflow-card>
 
-<div *ngIf="workflows.length == 0" class="alert text-center" role="alert">Nothing found</div>
+<div *ngIf="workflows.length == 0" class="alert text-center" role="alert">
+  Nothing found
+</div>

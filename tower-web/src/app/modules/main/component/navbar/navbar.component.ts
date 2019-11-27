@@ -20,17 +20,7 @@ import {User} from "../../entity/user/user";
 })
 export class NavbarComponent implements OnInit {
 
-  @Input()
-  shouldShowSidebar: string;
-
-  @Output()
-  sidebarToggleEvent: EventEmitter<boolean> = new EventEmitter<boolean>();
-
   user: User;
-
-  // Don't pay too much attention to the actual value -
-  // shown/hidden behaviour alternates depending on window size
-  private isSidebarShown: boolean = true;
 
   constructor(private authService: AuthService) {
 
@@ -40,11 +30,6 @@ export class NavbarComponent implements OnInit {
     this.authService.user$.subscribe(
       (user: User) => this.user = user
     )
-  }
-
-  private toggleSidebar(): void {
-    this.isSidebarShown = !this.isSidebarShown;
-    this.sidebarToggleEvent.emit(this.isSidebarShown);
   }
 
 }

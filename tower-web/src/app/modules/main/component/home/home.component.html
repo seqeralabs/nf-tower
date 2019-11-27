@@ -2,11 +2,11 @@
 
 <wt-loading [loadingText]="'Loading'" *ngIf="shouldShowLoadingScreen"></wt-loading>
 
-<wt-navbar *ngIf="!shouldShowLandingPage" [shouldShowSidebar]="shouldShowSidebar" (sidebarToggleEvent)="recieveSidebarToggleEvent($event)"></wt-navbar>
+<wt-navbar *ngIf="!shouldShowLandingPage"></wt-navbar>
 <div *ngIf="!shouldShowLandingPage && !shouldShowLoadingScreen" id="layout" class="d-flex pb-4">
 
-  <div id="sidebar-wrapper" *ngIf="shouldShowSidebar" (scroll)="onSidebarScroll($event)" [class.toggled]="!isSidebarShown">
-    <div id="sidebar" class="sticky-top">
+  <div id="sidebar-wrapper" *ngIf="shouldShowSidebar" (scroll)="onSidebarScroll($event)">
+    <div id="sidebar" class="sticky-top px-2">
       <wt-sidebar [workflows]="workflows" (onDeleteWorkflow)="deleteWorkflow($event)"
                   (onSearchingWorkflows)="searchWorkflows($event)">
       </wt-sidebar>

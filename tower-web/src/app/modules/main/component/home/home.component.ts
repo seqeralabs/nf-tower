@@ -36,7 +36,6 @@ export class HomeComponent implements OnInit {
 
   searchingText: string;
   offset: number = 0;
-  isSidebarShown: boolean = true;
   isSearchTriggered: boolean;
   isNextPageLoadTriggered: boolean;
 
@@ -172,10 +171,6 @@ export class HomeComponent implements OnInit {
     this.isSearchTriggered = true;
 
     this.workflowService.emitWorkflowsFromServer(new FilteringParams(10, 0, searchText), true);
-  }
-
-  recieveSidebarToggleEvent($event){
-    this.isSidebarShown = $event;
   }
 
   onSidebarScroll(event) {

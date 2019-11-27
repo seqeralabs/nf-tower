@@ -2,13 +2,17 @@
 
 .card {
   cursor: pointer;
-  margin: 5px 6px;
   border-left: solid 6px;
   border-radius: 2px;
   border-top: 1px solid #f0f0f0;
   border-right: 1px solid #ddd;
   border-bottom: 1px solid #ddd;
   padding: 0;
+  width: $sidebar-width;
+
+  &.collapsed {
+    width: auto;
+  }
 
   p {
     font-size: 0.9em;
@@ -22,7 +26,7 @@
 .workflow--succeed {
   border-left-color: $succeed-green;
 
-  .card-title {
+  .card-title, .sidebar-wf-icon {
     color: $succeed-green;
   }
 }
@@ -30,7 +34,7 @@
 .workflow--running {
   border-left-color: $running-blue;
 
-  .card-title {
+  .card-title, .sidebar-wf-icon {
     color: $running-blue;
   }
 }
@@ -38,7 +42,7 @@
 .workflow--failed {
   border-left-color: $failed-red;
 
-  .card-title {
+  .card-title, .sidebar-wf-icon {
     color: $failed-red;
   }
 }
@@ -46,7 +50,7 @@
 .workflow--partialFailed {
   border-left-color: $partialFailed-orange;
 
-  .card-title {
+  .card-title, .sidebar-wf-icon {
     color: $partialFailed-orange;
   }
 }

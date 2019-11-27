@@ -20,6 +20,8 @@ export class WorkflowCardComponent implements OnInit {
 
   @Input()
   workflow: Workflow;
+  @Input()
+  sidebarCollapsed: boolean;
 
   @Output()
   onDeleteWorkflow: EventEmitter<Workflow> = new EventEmitter();

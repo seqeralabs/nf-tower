@@ -1,8 +1,9 @@
-<div class="card" [ngClass]="{'workflow--succeed': workflow.isSuccessful, 'workflow--running': workflow.isRunning, 'workflow--failed': workflow.isFailed, 'workflow--partialFailed': workflow.isPartialFailed}">
-  <div class="card-body">
+<div class="card my-2" [class.collapsed]="sidebarCollapsed" [ngClass]="{'workflow--succeed': workflow.isSuccessful, 'workflow--running': workflow.isRunning, 'workflow--failed': workflow.isFailed, 'workflow--partialFailed': workflow.isPartialFailed}">
+  <!-- Full card for expanded sidebar -->
+  <div class="card-body" *ngIf="!sidebarCollapsed">
     <h5 class="card-title">
-      <span class="mdi" [ngClass]="{'mdi-check-circle-outline': workflow.isSuccessful, 'mdi-progress-check': workflow.isRunning, 'mdi-alert-circle-outline': workflow.isFailed || workflow.isPartialFailed}"></span>
-      {{workflow.data.projectName}}
+      <span class="mdi mr-1" [ngClass]="{'mdi-check-circle-outline': workflow.isSuccessful, 'mdi-progress-check': workflow.isRunning, 'mdi-alert-circle-outline': workflow.isFailed || workflow.isPartialFailed}"></span>
+      <span class="project-name">{{workflow.data.projectName}}</span>
     </h5>
     <div class="card-content">
         <p class="mb-0"><span class="mdi mdi-run"></span> {{workflow.data.runName}}</p>
@@ -12,5 +13,10 @@
     <div class="btn-delete">
       <button type="button" class="btn btn-outline-danger btn-sm" [disabled]="workflow.isRunning" (click)="deleteWorkflow(workflow, $event)"><span class="mdi mdi-trash-can"></span></button>
     </div>
+  </div>
+
+  <!-- Mini icon button for collapsed sidebar -->
+  <div class="sidebar-wf-icon" *ngIf="sidebarCollapsed">
+    <span data-toggle="tooltip" title="{{workflow.data.projectName}} - {{workflow.data.runName}}" class="mdi mdi-24px m-2" [ngClass]="{'mdi-check-circle-outline': workflow.isSuccessful, 'mdi-progress-check': workflow.isRunning, 'mdi-alert-circle-outline': workflow.isFailed || workflow.isPartialFailed}"></span>
   </div>
 </div>

@@ -19,6 +19,8 @@ import {debounceTime, distinctUntilChanged, filter} from 'rxjs/operators';
 import {FormControl} from "@angular/forms";
 import {FilteringParams} from "../../util/filtering-params";
 
+declare let $: any;
+
 @Component({
   selector: 'wt-sidebar',
   templateUrl: './sidebar.component.html',
@@ -33,6 +35,9 @@ export class SidebarComponent implements OnInit, OnDestroy, OnChanges {
   onDeleteWorkflow: EventEmitter<Workflow> = new EventEmitter();
   @Output()
   onSearchingWorkflows: EventEmitter<string> = new EventEmitter();
+
+  sidebarCollapsed: boolean = false;
+  private tooltips_init: boolean = false;
 
   searchBoxFormControl: FormControl = new FormControl();
   offset: number = 0;
@@ -85,6 +90,19 @@ export class SidebarComponent implements OnInit, OnDestroy, OnChanges {
 
   ngOnDestroy(): void {
     this.router.navigate(['/'])
+  }
+
+  private collapseSidebar(): void {
+    this.sidebarCollapsed = !this.sidebarCollapsed;
+
+    // initialise the tooltips for the collapsed sidebar icons
+    if(!this.tooltips_init && this.sidebarCollapsed){
+      setTimeout(() => {
+        $('.sidebar-wf-icon span[data-toggle="tooltip"]').tooltip({ placement: 'right', boundary: 'window' });
+        this.tooltips_init = true;
+        console.log($('.sidebar-wf-icon span[data-toggle="tooltip"]'));
+      }, 100);
+    }
   }
 
   private subscribeToSearchTextInput(): void {

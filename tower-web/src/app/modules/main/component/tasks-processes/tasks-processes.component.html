@@ -12,7 +12,7 @@
             {{progress.data.succeeded + progress.data.cached}} of {{progress.total}}
           </div>
         </div>
-        <div class="progress-wrapper" [title]="getTooltipText(progress)" data-toggle="tooltip" data-placement="top" data-html="true">
+        <div class="progress-wrapper" [title]="getTooltipText(progress)" data-toggle="tooltip">
           <div class="progress">
             <div class="progress-bar"
                  *ngFor="let status of statusesTags"
