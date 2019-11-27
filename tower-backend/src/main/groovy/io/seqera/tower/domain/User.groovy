@@ -39,6 +39,7 @@ class User {
 
     boolean trusted
     Boolean disabled
+    Boolean notification;
 
     OffsetDateTime dateCreated
     OffsetDateTime lastUpdated
@@ -52,6 +53,7 @@ class User {
         authToken(unique: true, nullable: true, maxSize: 40)
         authTime(nullable: true)
         disabled(nullable: true)
+        notification(nullable: true)
         firstName(nullable: true, maxSize: 100)
         lastName(nullable: true, maxSize: 100)
         organization(nullable: true, maxSize: 100)

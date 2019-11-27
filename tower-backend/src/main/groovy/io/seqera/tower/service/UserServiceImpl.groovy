@@ -273,6 +273,7 @@ class UserServiceImpl implements UserService {
         existingUser.organization = updatedUserData.organization
         existingUser.description = updatedUserData.description
         existingUser.avatar = updatedUserData.avatar
+        existingUser.notification = updatedUserData.notification
 
         existingUser.save()
         checkUserSaveErrors(existingUser)
