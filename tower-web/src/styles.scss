@@ -34,7 +34,6 @@ code {
 }
 
 #layout {
-  padding-top: $navbar-height;
   min-height: calc(100% - #{$navbar-height});
 }
 
@@ -44,30 +43,20 @@ code {
 }
 
 #sidebar {
-  top: 62px;
-  max-width: 100%;
+  padding-top: $navbar-height;
   background-color: $sidebar-background;
-  overflow-x: hidden;
-  overflow-y: auto;
+  overflow: hidden;
+  height: calc(100vh);
 }
 
 #central {
-
+  width: calc(100% - #{$sidebar-collapsed-width});
+  padding-top: $navbar-height;
 }
 @media (max-width: 960px) {
   #layout {
+    width: 100vw;
     overflow-x: hidden;
-  }
-  #central {
-    width: calc(100% - #{$sidebar-collapsed-width});
-  }
-  /*
-  The #layout overflow breaks the sticky top for the sidebar.
-  I don't think we mind though, as on screens this size you can't see the page anyway
-  So this just removes the extra whitespace and we scroll the sidebar normally
-  */
-  #sidebar {
-    top: 0;
   }
 }
 

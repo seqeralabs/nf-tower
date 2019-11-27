@@ -23,12 +23,14 @@
 </button>
 
 <!-- List of workflow cards -->
-<wt-workflow-card *ngFor="let workflow of workflows"
-                  [workflow]="workflow"
-                  [sidebarCollapsed]="sidebarCollapsed"
-                  (onDeleteWorkflow)="deleteWorkflow($event)"
-                  (click)="showWorkflowDetail(workflow)" >
-</wt-workflow-card>
+<div class="wf-card-wrapper">
+  <wt-workflow-card *ngFor="let workflow of workflows"
+                    [workflow]="workflow"
+                    [sidebarCollapsed]="sidebarCollapsed"
+                    (onDeleteWorkflow)="deleteWorkflow($event)"
+                    (click)="showWorkflowDetail(workflow)" >
+ </wt-workflow-card>
+</div>
 
 <div *ngIf="workflows.length == 0" class="alert text-center" role="alert">
   Nothing found

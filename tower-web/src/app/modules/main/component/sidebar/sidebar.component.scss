@@ -11,3 +11,8 @@
 .form-group {
   margin: 0;
 }
+
+.wf-card-wrapper {
+  height: calc(100vh - 123px);
+  overflow-y: auto;
+}
