@@ -10,7 +10,6 @@ html {
 body {
   height: 100%;
   width: 100%;
-  overflow-x: hidden;
   background-color: $body-background;
 }
 
@@ -45,6 +44,7 @@ code {
 }
 
 #sidebar {
+  top: 62px;
   max-width: 100%;
   background-color: $sidebar-background;
   overflow-x: hidden;
@@ -60,6 +60,14 @@ code {
   }
   #central {
     width: calc(100% - #{$sidebar-collapsed-width});
+  }
+  /*
+  The #layout overflow breaks the sticky top for the sidebar.
+  I don't think we mind though, as on screens this size you can't see the page anyway
+  So this just removes the extra whitespace and we scroll the sidebar normally
+  */
+  #sidebar {
+    top: 0;
   }
 }
 

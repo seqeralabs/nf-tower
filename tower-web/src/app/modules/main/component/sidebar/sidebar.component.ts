@@ -98,9 +98,8 @@ export class SidebarComponent implements OnInit, OnDestroy, OnChanges {
     // initialise the tooltips for the collapsed sidebar icons
     if(!this.tooltips_init && this.sidebarCollapsed){
       setTimeout(() => {
-        $('.sidebar-wf-icon span[data-toggle="tooltip"]').tooltip({ placement: 'right', boundary: 'window' });
+        $('.sidebar-wf-icon span[data-toggle="tooltip"]').tooltip({ boundary: 'window' });
         this.tooltips_init = true;
-        console.log($('.sidebar-wf-icon span[data-toggle="tooltip"]'));
       }, 100);
     }
   }
