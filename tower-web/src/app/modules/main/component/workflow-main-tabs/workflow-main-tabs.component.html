@@ -2,13 +2,16 @@
   <div class="card-header pb-0 border-bottom-0">
     <ul class="nav nav-tabs">
       <li class="nav-item">
-        <a class="nav-link active" id="commandLine-tab" data-toggle="tab" href="#commandLine" role="tab" aria-controls="commandLine">Command line</a>
+        <a class="nav-link active" id="commandLine-tab" data-toggle="tab" href="#commandLine" role="tab"
+           aria-controls="commandLine">Command line</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" id="parameters-tab" data-toggle="tab" href="#parameters" role="tab" aria-controls="parameters">Parameters</a>
+        <a class="nav-link" id="parameters-tab" data-toggle="tab" href="#parameters" role="tab"
+           aria-controls="parameters">Parameters</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" id="configuration-tab" data-toggle="tab" href="#configuration" role="tab" aria-controls="configuration">Configuration</a>
+        <a class="nav-link" id="configuration-tab" data-toggle="tab" href="#configuration" role="tab"
+           aria-controls="configuration">Configuration</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" id="comments-tab" data-toggle="tab" href="#comments" role="tab"
@@ -21,13 +24,13 @@
     <div class="tab-content">
       <div class="tab-pane fade show active" id="commandLine" role="tabpanel" aria-labelledby="processes-tab">
         <div class="container h-100 command-line-box">
-          <div class="tab-max-height" >{{workflow.data.commandLine}}</div>
+          <div class="tab-max-height">{{workflow.data.commandLine}}</div>
         </div>
       </div>
       <div class="tab-pane fade" id="parameters" role="tabpanel" aria-labelledby="params-tab">
         <div class="container">
           <div class="tab-max-height">
-            <wt-tree-list [workflow]="workflow" > </wt-tree-list>
+            <wt-tree-list [workflow]="workflow"></wt-tree-list>
           </div>
         </div>
       </div>
@@ -55,7 +58,8 @@
                   <ul class="media-list">
                     <li *ngFor="let comment of allComments">
                       <wt-comment [comment]="comment"
-                                  (editCommentOut)="getCommentForEdit($event)"
+                                  [workflow]="workflow"
+                                  [allComments]="allComments"
                                   (deleteCommentOut)="deleteWorkflowComment($event)">
                       </wt-comment>
                     </li>
@@ -72,13 +76,9 @@
                   <br>
                   <button type="button"
                           class="btn btn-success pull-right"
-                          (click)="doComment(editComment?.id)">{{buttonEvent | titlecase}}
+                          (click)="postWorkflowComment()">
+                    Post
                   </button>
-                  <span class="cancel-edit"
-                        (click)="cancelEditComment()"
-                        *ngIf="buttonEvent === eventEdit">
-                    Cancel
-                  </span>
                 </div>
               </div>
             </div>

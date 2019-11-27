@@ -4,6 +4,7 @@
   .nav-link {
     color: #555;
   }
+
   .nav-link.active {
     font-weight: 600;
     color: #212529;
@@ -90,7 +91,12 @@ pre.tab-config {
     list-style: none;
   }
 }
-.error{
+
+textarea {
+  padding: 5px;
+}
+
+.error {
   color: red;
   padding: 5px 0;
 }

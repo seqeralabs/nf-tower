@@ -5,9 +5,10 @@
   padding: 25px 10px 25px 0;
 
   .comment-avatar {
-    width: 4.5rem;
-    height: 4.5rem;
+    width: 4rem;
+    height: 4rem;
     object-fit: cover;
+    align-self: flex-start;
 
     img {
       object-fit: cover;
@@ -33,26 +34,45 @@
     }
 
     &-content {
-      margin-left: 1rem;
+      margin: 1rem 0 0 .5rem;
 
       &-text {
 
       }
     }
+
+    &-edit {
+      margin: 1rem;
+
+      textarea {
+        width: 88%;
+        padding: 5px;
+      }
+
+      .btn-outline-danger {
+        margin-left: .3rem;
+      }
+    }
   }
 
-  .edit-delete-comment {
+  .edit-delete-btns {
     display: flex;
     justify-content: space-between;
     width: 35px;
     position: absolute;
     right: 115px;
-    top: 31px;
+    top: 24px;
     opacity: .6;
 
-    img {
+    .edit-btn, .delete-btn {
       width: 12.5px;
-      cursor: pointer;
+      background: none;
+      border: none;
+      opacity: .4;
+
+      &:focus {
+        outline: none;
+      }
     }
   }
 }

@@ -9,19 +9,36 @@
     <span>
       <small class="message-time">{{comment?.dateCreated | date: 'MMM d, h:mm a'}}</small>
     </span>
-    <p class="message-content">
+    <p class="message-content"
+       *ngIf="!showTextarea">
       {{comment?.text}}
     </p>
+    <div class="message-edit"
+         *ngIf="showTextarea">
+      <textarea placeholder="Edit a comment..."
+                [rows]="textareaRow"
+                [formControl]="commentTextEditFormControl">
+      </textarea>
+      <br>
+      <button class="btn btn-success"
+              (click)="editComment(comment)">Edit
+      </button>
+      <button class="btn btn-outline-danger"
+              (click)="showTextarea = false">Cancel
+      </button>
+    </div>
   </div>
-  <div class="edit-delete-comment">
-    <img alt="edit" class="edit"
-         [src]="'assets/edit_button.svg'"
-         (click)="editComment(comment)"
-         *ngIf="isOwnerOfComment()">
-    <img alt="delete"
-         class="delete"
-         [src]="'assets/delete_button.svg'"
-         (click)="deleteComment(comment)"
-         *ngIf="isOwnerOfComment()">
+  <div class="edit-delete-btns">
+    <button class="edit-btn"
+            (click)="showTextAreaForEdit()"
+            *ngIf="isOwnerOfComment()">
+      <span class="mdi mdi-pencil"></span>
+    </button>
+    <button class="delete-btn"
+            (click)="deleteComment(comment)"
+            *ngIf="isOwnerOfComment()"
+            [disabled]="showTextarea">
+      <span class="mdi mdi-delete"></span>
+    </button>
   </div>
 </div>

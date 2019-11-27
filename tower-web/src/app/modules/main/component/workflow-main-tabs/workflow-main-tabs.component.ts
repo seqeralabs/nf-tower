@@ -21,14 +21,9 @@ import {WorkflowComment} from "../../entity/comment/workflow-comment";
 })
 export class WorkflowMainTabsComponent implements OnChanges {
 
-  readonly eventEdit: string = 'edit';
-  readonly eventPost: string = 'post';
-
   @Input()
   workflow: Workflow;
-  buttonEvent = this.eventPost;
   allComments: Array<WorkflowComment> = [];
-  editComment: WorkflowComment; // for pass to HTML params in post Func
   commentTextFormControl: FormControl = new FormControl('', [
     Validators.required,
     Validators.minLength(5)
@@ -47,10 +42,6 @@ export class WorkflowMainTabsComponent implements OnChanges {
     });
   }
 
-  doComment(commentId) {
-    this.buttonEvent === this.eventPost ? this.postWorkflowComment() : this.editWorkflowComment(commentId)
-  }
-
   postWorkflowComment() {
     if (this.commentTextFormControl.valid) {
       this.commentsService.saveWorkFlowComment(this.workflow.id, {
@@ -63,27 +54,6 @@ export class WorkflowMainTabsComponent implements OnChanges {
     }
   }
 
-  editWorkflowComment(commentId: number) {
-    if (this.commentTextFormControl.valid) {
-      let newText = this.commentTextFormControl.value;
-      this.commentsService.updateWorkFlowCommentById(this.workflow.id, {
-        commentId,
-        text: newText,
-        timestamp: new Date()
-      }).subscribe(value => {
-        this.allComments = this.allComments.map(comment => {
-          if (comment.id === commentId) {
-            comment.text = newText;
-            comment.dateCreated = new Date();
-          }
-          return comment;
-        })
-      });
-      this.buttonEvent = this.eventPost;
-      this.commentTextFormControl.reset();
-    }
-  }
-
   deleteWorkflowComment(event: WorkflowComment): void {
     this.commentsService.deleteWorkFlowCommentById(this.workflow.id,
       {commentId: event.id, timestamp: new Date()})
@@ -92,17 +62,6 @@ export class WorkflowMainTabsComponent implements OnChanges {
           return comment.id !== event.id
         });
       });
-  }
-
-  getCommentForEdit(event: WorkflowComment): void {
-    this.editComment = event;
-    this.buttonEvent = this.eventEdit;
-    this.commentTextFormControl.setValue(event.text);
-  }
-
-  cancelEditComment(): void {
-    this.buttonEvent = this.eventPost;
-    this.commentTextFormControl.reset();
   }
 
 }
