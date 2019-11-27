@@ -58,7 +58,7 @@
 .workflow--unknown {
   border-left-color: $failed-red;
 
-  .card-title {
+  .card-title, .sidebar-wf-icon {
     color: $failed-red;
   }
 }
