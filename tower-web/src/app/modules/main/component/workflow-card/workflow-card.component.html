@@ -17,6 +17,6 @@
 
   <!-- Mini icon button for collapsed sidebar -->
   <div class="sidebar-wf-icon" *ngIf="sidebarCollapsed">
-    <span data-toggle="tooltip" title="{{workflow.data.projectName}} - {{workflow.data.runName}}" class="mdi mdi-24px m-2" [ngClass]="{'mdi-check-circle-outline': workflow.isSuccessful, 'mdi-progress-check': workflow.isRunning, 'mdi-alert-circle-outline': workflow.isFailed || workflow.isPartialFailed, 'mdi-help-circle-outline': workflow.isUnknownStatus}"></span>
+    <span data-toggle="tooltip" title="{{workflow.data.projectName}} - {{workflow.data.runName}}" class="mdi mdi-24px d-block p-2" [ngClass]="{'mdi-check-circle-outline': workflow.isSuccessful, 'mdi-progress-check': workflow.isRunning, 'mdi-alert-circle-outline': workflow.isFailed || workflow.isPartialFailed, 'mdi-help-circle-outline': workflow.isUnknownStatus}"></span>
   </div>
 </div>

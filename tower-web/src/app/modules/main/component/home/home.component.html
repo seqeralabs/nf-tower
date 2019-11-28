@@ -6,7 +6,7 @@
 <div *ngIf="!shouldShowLandingPage && !shouldShowLoadingScreen" id="layout" class="d-flex pb-4">
 
   <div id="sidebar-wrapper" *ngIf="shouldShowSidebar" (scroll)="onSidebarScroll($event)">
-    <div id="sidebar" class="sticky-top px-2">
+    <div id="sidebar" class="px-2">
       <wt-sidebar [workflows]="workflows" (onDeleteWorkflow)="deleteWorkflow($event)"
                   (onSearchingWorkflows)="searchWorkflows($event)">
       </wt-sidebar>

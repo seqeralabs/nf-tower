@@ -10,8 +10,17 @@
   padding: 0;
   width: $sidebar-width;
 
+  :hover, :focus {
+    background-color: #faf9f2;
+  }
+
   &.collapsed {
     width: auto;
+
+    // Stronger colour for a smaller area
+    :hover, :focus {
+      background-color: #fcf8de;
+    }
   }
 
   p {
@@ -20,6 +29,10 @@
 
   .card-content {
     margin-right: 2rem;
+  }
+
+  .sidebar-wf-icon {
+    line-height: 1;
   }
 }
 

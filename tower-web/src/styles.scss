@@ -37,21 +37,19 @@ code {
   min-height: calc(100% - #{$navbar-height});
 }
 
-#sidebar-wrapper {
-  border-right: $sidebar-border;
-  min-height: 100vh;
-}
-
 #sidebar {
-  padding-top: $navbar-height;
+  position: fixed;
+  top: $navbar-height;
+  bottom: 0;
+  z-index: 2;
   background-color: $sidebar-background;
-  overflow: hidden;
-  height: calc(100vh);
+  border-right: $sidebar-border;
 }
 
 #central {
   width: calc(100% - #{$sidebar-collapsed-width});
   padding-top: $navbar-height;
+  margin-left: #{$sidebar-collapsed-width};
 }
 @media (max-width: 960px) {
   #layout {
