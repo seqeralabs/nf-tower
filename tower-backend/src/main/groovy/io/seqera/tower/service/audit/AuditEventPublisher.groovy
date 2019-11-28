@@ -11,27 +11,42 @@
 
 package io.seqera.tower.service.audit
 
+
+import static io.seqera.mail.MailHelper.getTemplateFile
+
 import javax.inject.Inject
 import javax.inject.Singleton
 
 import groovy.transform.CompileStatic
+import groovy.util.logging.Slf4j
+import io.micronaut.context.annotation.Value
 import io.micronaut.context.event.ApplicationEventPublisher
 import io.micronaut.http.context.ServerRequestContext
 import io.micronaut.http.server.util.HttpClientAddressResolver
 import io.micronaut.security.authentication.Authentication
 import io.micronaut.security.utils.SecurityService
+import io.seqera.tower.domain.Mail
+import io.seqera.tower.domain.MailAttachment
+import io.seqera.tower.domain.Workflow
+import io.seqera.tower.service.mail.MailService
+
 /**
  * Creates and publish application audit events
  * 
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
+@Slf4j
 @Singleton
 @CompileStatic
 class AuditEventPublisher {
 
+    @Value('${tower.server-url}')
+    String serverUrl
+
     @Inject SecurityService securityService
     @Inject ApplicationEventPublisher eventPublisher
     @Inject HttpClientAddressResolver addressResolver
+    @Inject MailService mailService
 
     protected String getClientAddress() {
         final req = ServerRequestContext.currentRequest()
@@ -64,6 +79,7 @@ class AuditEventPublisher {
                 principal: getPrincipal() )
 
         eventPublisher.publishEvent(event)
+        sendCompletionEmail(workflowId)
     }
 
     void workflowDeletion(String workflowId) {
@@ -173,5 +189,93 @@ class AuditEventPublisher {
                 target: userId )
 
         eventPublisher.publishEvent(event)
+    }
+
+    /**
+     * Send an email notification the user when the workflow execution completes
+     *
+     * @param workflowId The workflow ID
+     */
+    void sendCompletionEmail(String workflowId) {
+        final workflow = Workflow.get(workflowId)
+        if( !workflow ) {
+            log.warn "Unknown workflow Id=$workflowId -- ignore notification event"
+            return
+        }
+
+        if( !workflow.checkIsComplete() ) {
+            log.warn "Illegal completion status workflow Id=$workflowId -- ignore notification event"
+            return
+        }
+
+        if( workflow.owner.notification ) {
+            final mail = buildCompletionEmail(workflow)
+            mailService.sendMail(mail)
+        }
+    }
+
+    /**
+     * Create the {@link Mail} object representing the notification message
+     * to deliver to the user
+     * @param workflow The {@link Workflow} object about which notify the completion event
+     * @return The {@link Mail} object to be sent.
+     */
+    protected Mail buildCompletionEmail(Workflow workflow) {
+        // create template binding
+        def binding = new HashMap(5)
+        binding.put('workflow', workflow)
+        binding.put('duration_str', parseDuration(workflow.duration ?: 0))
+        binding.put('server_url', serverUrl)
+
+        Mail mail = new Mail()
+        mail.to(workflow.owner.email)
+        mail.subject("Workflow completion [${workflow.runName}] - ${workflow.success ? 'SUCCEED' : 'FAILED'}!")
+        mail.text(getTemplateFile('/io/seqera/tower/service/workflow-notification.txt', binding))
+        mail.body(getTemplateFile('/io/seqera/tower/service/workflow-notification.html', binding))
+        mail.attach(MailAttachment.resource('/io/seqera/tower/service/tower-logo.png', contentId: '<tower-logo>', disposition: 'inline'))
+        return mail
+    }
+
+
+    private String parseDuration(long durationInMillis) {
+
+        // just prints the milliseconds
+        if( durationInMillis < 1_000 ) {
+            return durationInMillis + 'ms'
+        }
+
+        // when less than 60 seconds round up to 100th of millis
+        if( durationInMillis < 60_000 ) {
+            return String.valueOf( Math.round(durationInMillis / 1_000 * 10 as float) / 10 ) + 's'
+        }
+
+        def secs
+        def mins
+        def hours
+        def days
+        def result = []
+
+        // round up to seconds
+        secs = Math.round( (double)(durationInMillis / 1_000) )
+
+        mins = secs.intdiv(60)
+        secs = secs % 60
+        if( secs )
+            result.add( secs+'s' )
+
+        hours = mins.intdiv(60)
+        mins = mins % 60
+        if( mins )
+            result.add(0, mins+'m' )
+
+        days = hours.intdiv(24)
+        hours = hours % 24
+        if( hours )
+            result.add(0, hours+'h' )
+
+        if( days )
+            result.add(0, days+'d')
+
+        return result.join(' ')
     }
 }

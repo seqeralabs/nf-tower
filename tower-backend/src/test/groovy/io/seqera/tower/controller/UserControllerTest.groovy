@@ -63,6 +63,7 @@ class UserControllerTest extends AbstractContainerBaseTest {
         response.body().user.organization == user.organization
         response.body().user.description == user.description
         response.body().user.avatar == user.avatar
+        response.body().user.notification == user.notification
     }
 
     void "update the user data"() {
@@ -70,7 +71,7 @@ class UserControllerTest extends AbstractContainerBaseTest {
         User user = new DomainCreator().createUserWithRole([:], 'ROLE_USER')
 
         and: 'some new data encapsulated in a user object'
-        User userData = new DomainCreator(save: false).createUser(userName: 'user', firstName: 'User', lastName: 'Userson', avatar: 'https://i.pravatar.cc/200', organization: 'Org', description: 'Desc')
+        User userData = new DomainCreator(save: false).createUser(userName: 'user', firstName: 'User', lastName: 'Userson', avatar: 'https://i.pravatar.cc/200', organization: 'Org', description: 'Desc', notification: 'true')
 
         when: "perform the request to update the data"
         String accessToken = doJwtLogin(user, client)
