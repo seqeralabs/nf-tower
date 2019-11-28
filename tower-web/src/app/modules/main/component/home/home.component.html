@@ -8,7 +8,8 @@
   <div id="sidebar-wrapper" *ngIf="shouldShowSidebar" (scroll)="onSidebarScroll($event)">
     <div id="sidebar" class="px-2">
       <wt-sidebar [workflows]="workflows" (onDeleteWorkflow)="deleteWorkflow($event)"
-                  (onSearchingWorkflows)="searchWorkflows($event)">
+                  (onSearchingWorkflows)="searchWorkflows($event)"
+                  (onCollapseSidebar)="toggleContentWidth($event)">
       </wt-sidebar>
 
       <div class="row load-gap">
@@ -19,7 +20,7 @@
     </div>
   </div>
 
-  <div id="central">
+  <div id="central" [class.sidebarCollapsed]="sidebarCollapsed">
     <router-outlet></router-outlet>
 
     <wt-welcome *ngIf="shouldShowWelcomeMessage"></wt-welcome>

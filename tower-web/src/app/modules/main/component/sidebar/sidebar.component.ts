@@ -35,6 +35,8 @@ export class SidebarComponent implements OnInit, OnDestroy, OnChanges {
   onDeleteWorkflow: EventEmitter<Workflow> = new EventEmitter();
   @Output()
   onSearchingWorkflows: EventEmitter<string> = new EventEmitter();
+  @Output()
+  onCollapseSidebar: EventEmitter<boolean> = new EventEmitter();
 
   miniCollapseButton: boolean = false;
   sidebarCollapsed: boolean = false;
@@ -94,6 +96,7 @@ export class SidebarComponent implements OnInit, OnDestroy, OnChanges {
 
   private collapseSidebar(): void {
     this.sidebarCollapsed = !this.sidebarCollapsed;
+    this.onCollapseSidebar.emit(this.sidebarCollapsed);
 
     // initialise the tooltips for the collapsed sidebar icons
     if(this.sidebarCollapsed){

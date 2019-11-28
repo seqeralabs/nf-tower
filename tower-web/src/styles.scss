@@ -29,6 +29,11 @@ code {
   width: 100vw;
 }
 
+.navbar-brand {
+  max-width: calc(100% - 60px);
+  margin-right: 0;
+  overflow: hidden;
+}
 .navbar-brand img {
   height: 40px;
 }
@@ -47,13 +52,19 @@ code {
 }
 
 #central {
-  width: calc(100% - #{$sidebar-collapsed-width});
+  width: calc(100% - #{$sidebar-width});
+  min-width: 200px;
   padding-top: $navbar-height;
-  margin-left: #{$sidebar-collapsed-width};
+  margin-left: #{$sidebar-width};
+
+  &.sidebarCollapsed {
+    width: calc(100% - #{$sidebar-collapsed-width});
+    margin-left: #{$sidebar-collapsed-width};
+  }
 }
-@media (max-width: 960px) {
+// On small screens, allow the content to spread offscreen
+@media (max-width: 576px) {
   #layout {
-    width: 100vw;
     overflow-x: hidden;
   }
 }

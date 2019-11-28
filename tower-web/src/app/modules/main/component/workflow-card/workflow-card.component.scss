@@ -8,7 +8,7 @@
   border-right: 1px solid #ddd;
   border-bottom: 1px solid #ddd;
   padding: 0;
-  width: $sidebar-width;
+  width: $sidebar-width - 1rem; // Sidebar has px-2
 
   :hover, :focus {
     background-color: #faf9f2;

@@ -36,6 +36,7 @@ export class HomeComponent implements OnInit {
 
   searchingText: string;
   offset: number = 0;
+  sidebarCollapsed: boolean = false;
   isSearchTriggered: boolean;
   isNextPageLoadTriggered: boolean;
 
@@ -176,6 +177,10 @@ export class HomeComponent implements OnInit {
     this.isSearchTriggered = true;
 
     this.workflowService.emitWorkflowsFromServer(new FilteringParams(10, 0, searchText), true);
+  }
+
+  toggleContentWidth(event){
+    this.sidebarCollapsed = event;
   }
 
   onSidebarScroll(event) {
