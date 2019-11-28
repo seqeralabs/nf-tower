@@ -36,6 +36,7 @@ export class SidebarComponent implements OnInit, OnDestroy, OnChanges {
   @Output()
   onSearchingWorkflows: EventEmitter<string> = new EventEmitter();
 
+  miniCollapseButton: boolean = false;
   sidebarCollapsed: boolean = false;
   private tooltips_init: boolean = false;
 
@@ -102,6 +103,16 @@ export class SidebarComponent implements OnInit, OnDestroy, OnChanges {
         this.tooltips_init = true;
       }, 100);
     }
+  }
+
+  // Event when search input box gets focus
+  focusSearchInput() {
+    this.miniCollapseButton = true;
+  }
+
+  // Event when search input box loses focus
+  blurSearchInput() {
+    this.miniCollapseButton = false;
   }
 
   private subscribeToSearchTextInput(): void {
