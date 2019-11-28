@@ -54,11 +54,9 @@ pre.tab-config {
 
 .panel-body {
   max-width: 580px;
-  max-height: 650px;
-  overflow: auto;
   padding: 20px;
 
-  .btn-success {
+  .btn-primary {
     width: 100px;
     min-width: 100px;
   }
@@ -83,9 +81,7 @@ pre.tab-config {
 }
 
 .media-list {
-  max-height: 300px;
   padding: 0;
-  overflow-y: auto;
 
   li {
     list-style: none;

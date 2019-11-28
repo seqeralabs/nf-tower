@@ -24,6 +24,7 @@ export class WorkflowMainTabsComponent implements OnChanges {
   @Input()
   workflow: Workflow;
   allComments: Array<WorkflowComment> = [];
+  commentForDelete: WorkflowComment;
   commentTextFormControl: FormControl = new FormControl('', [
     Validators.required,
     Validators.minLength(5)
@@ -54,13 +55,15 @@ export class WorkflowMainTabsComponent implements OnChanges {
     }
   }
 
-  deleteWorkflowComment(event: WorkflowComment): void {
+  deleteWorkflowComment(): void {
     this.commentsService.deleteWorkFlowCommentById(this.workflow.id,
-      {commentId: event.id, timestamp: new Date()})
-      .subscribe(value => {
-        this.allComments = this.allComments.filter(comment => {
-          return comment.id !== event.id
+      {commentId: this.commentForDelete.id, timestamp: new Date()})
+      .subscribe(() => {
+        this.allComments.map(comment => {
+          if (comment.id === this.commentForDelete.id)
+            return comment.deleted = true;
         });
+        this.commentForDelete = null;
       });
   }
 

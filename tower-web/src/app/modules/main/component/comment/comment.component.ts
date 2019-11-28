@@ -63,7 +63,7 @@ export class CommentComponent implements OnInit {
     this.textareaRow = this.commentTextEditFormControl.value.length / this.autoSizeForTextarea;
   }
 
-  deleteComment(comment: WorkflowComment): void {
+  chooseCommentForDelete(comment: WorkflowComment) {
     this.deleteCommentOut.emit(comment);
   }
 

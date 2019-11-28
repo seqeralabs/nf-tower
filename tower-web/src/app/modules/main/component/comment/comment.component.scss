@@ -5,8 +5,8 @@
   padding: 25px 10px 25px 0;
 
   .comment-avatar {
-    width: 4rem;
-    height: 4rem;
+    width: 3rem;
+    height: 3rem;
     object-fit: cover;
     align-self: flex-start;
 
@@ -34,11 +34,16 @@
     }
 
     &-content {
-      margin: 1rem 0 0 .5rem;
+      margin: 1rem 0 0 1rem;
 
       &-text {
 
       }
+    }
+
+    &-deleted-comment {
+      margin: 1rem 0 0 1rem;
+      opacity: .6;
     }
 
     &-edit {

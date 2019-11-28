@@ -8,4 +8,5 @@ export class WorkflowComment {
   userId: number;
   workflowId: string
   lastUpdated?: Date;
+  deleted?: boolean;
 }
