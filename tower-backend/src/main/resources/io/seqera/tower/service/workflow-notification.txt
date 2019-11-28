@@ -1,0 +1,47 @@
+====================================
+ Workflow completion notification
+====================================
+ Run Name: ${workflow.runName}
+<% if( workflow.success && workflow.stats.ignoredCount ) { %>
+## Execution completed successfully. One or more tasks reported an error condition ##
+<% } else if(workflow.success) { %>
+## Execution completed successfully! ##
+<% } else { %>
+#########################################
+## Execution completed unsuccessfully! ##
+#########################################
+The exit status of the task that caused the workflow execution to fail was: ${workflow.exitStatus != null ? workflow.exitStatus : '-'}.
+The full error message was:
+
+${workflow.errorReport ?: 'n/a'}
+
+<% } %>
+The command used to launch the workflow was as follows:
+
+  ${workflow.commandLine}
+
+** Execution summary **
+
+  Launch time       : ${workflow.start.format('dd-MMM-yyyy HH:mm:ss')}
+  Ending time       : ${workflow.complete.format('dd-MMM-yyyy HH:mm:ss')} (duration: ${duration_str})
+  Total CPU-Hours   : ${workflow.stats.computeTimeFmt ?: '-'}
+  Tasks stats       : Succeeded ${workflow.stats.succeedCountFmt}; Cached ${workflow.stats.cachedCountFmt}; Ignored ${workflow.stats.ignoredCountFmt}; Failed ${workflow.stats.failedCountFmt}
+  Launch directory  : ${workflow.launchDir}
+  Work directory    : ${workflow.workDir}
+  Project directory : ${workflow.projectDir}
+  Script name       : ${workflow.scriptName ?: '-'}
+  Script ID         : ${workflow.scriptId ?: '-'}
+  Workflow session  : ${workflow.sessionId}
+  Workflow repo     : ${workflow.repository ?: '-' }
+  Workflow revision : ${workflow.repository ? "$workflow.revision ($workflow.commitId)" : '-'}
+  Workflow profile  : ${workflow.profile ?: '-'}
+  Workflow container: ${workflow.container ?: '-'}
+  Container engine  : ${workflow.containerEngine?:'-'}
+  Nextflow version  : ${workflow.nextflow.version_}, build ${workflow.nextflow.build}
+
+---
+${server_url}
+Seqera Labs
+Barcelona Biomedical Research Park
+C/ Dr. Aiguader, 88,
+08003 Barcelona

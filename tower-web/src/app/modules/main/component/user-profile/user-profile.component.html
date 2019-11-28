@@ -44,10 +44,7 @@
       <div class="custom-control custom-switch">
         <input type="checkbox" name="notification" class="custom-control-input" id="customSwitch1"
                [(ngModel)]="userCopy.data.notification">
-        <label class="custom-control-label" for="customSwitch1" *ngIf="!userCopy.data.notification">Enable email
-          notifications</label>
-        <label class="custom-control-label" for="customSwitch1" *ngIf="userCopy.data.notification">Disable email
-          notifications</label>
+        <label class="custom-control-label" for="customSwitch1" >Send notification email on workflow completion</label>
       </div>
     </div>
 
