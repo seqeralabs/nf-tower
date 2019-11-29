@@ -25,10 +25,11 @@ export class WorkflowMainTabsComponent implements OnChanges {
   workflow: Workflow;
   allComments: Array<WorkflowComment> = [];
   commentForDelete: WorkflowComment;
-  commentTextFormControl: FormControl = new FormControl('', [
-    Validators.required,
-    Validators.minLength(5)
-  ]);
+  text: string;
+  emptyField: string;
+  invalid: boolean;
+  successPush: boolean;
+  showError: boolean;
 
   constructor(private commentsService: CommentsService) {
   }
@@ -43,15 +44,26 @@ export class WorkflowMainTabsComponent implements OnChanges {
     });
   }
 
+  getTextFromEditor(value) {
+    this.text = value.html;
+  }
+  getValid(value) {
+    this.invalid = value;
+  }
+
   postWorkflowComment() {
-    if (this.commentTextFormControl.valid) {
+    if (this.invalid) {
       this.commentsService.saveWorkFlowComment(this.workflow.id, {
-        text: this.commentTextFormControl.value,
+        text: this.text,
         timestamp: new Date()
       }).subscribe(value => {
         this.allComments.push(value.comment);
       });
-      this.commentTextFormControl.reset();
+      this.emptyField = ' ';
+      this.successPush = true;
+      this.showError = false;
+    } else {
+      this.showError = true;
     }
   }
 

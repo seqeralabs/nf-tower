@@ -64,21 +64,21 @@
                       </wt-comment>
                     </li>
                   </ul>
-                  <span class="error"
-                        *ngIf="commentTextFormControl.invalid && commentTextFormControl.touched">
-                    *The message must contain more than 5 symbols
-                  </span>
-                  <textarea rows="3"
-                            class="form-control"
-                            placeholder="Write a comment..."
-                            [formControl]="commentTextFormControl">
-                  </textarea>
-                  <br>
-                  <button type="button"
-                          class="btn btn-primary pull-right"
-                          (click)="postWorkflowComment()">
-                    Post
-                  </button>
+                  <app-text-editor class=""
+                                   [default_value]="emptyField"
+                                   [successPush]="successPush"
+                                   [showError]="showError"
+                                   (textChanged)="getTextFromEditor($event)"
+                                   (textInvalid)="getValid($event)"
+                  >
+                  </app-text-editor>
+                  <div class="block-for-comment-btn">
+                    <button type="button"
+                            class="btn btn-primary pull-right"
+                            (click)="postWorkflowComment()">
+                      Post
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

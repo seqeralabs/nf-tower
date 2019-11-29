@@ -1,7 +1,6 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {AuthService} from "../../service/auth.service";
 import {WorkflowComment} from "../../entity/comment/workflow-comment";
-import {FormControl, Validators} from "@angular/forms";
 import {CommentsService} from "../../service/comments.services";
 import {Workflow} from "../../entity/workflow/workflow";
 
@@ -21,12 +20,11 @@ export class CommentComponent implements OnInit {
 
   @Output() deleteCommentOut = new EventEmitter();
   showTextarea: boolean;
-  textareaRow: number;
+  invalidField: boolean;
   currentUser = this.userService.currentUser;
-  commentTextEditFormControl: FormControl = new FormControl('', [
-    Validators.required,
-    Validators.minLength(5)
-  ]);
+  html;
+  successPush: boolean;
+  showError: boolean;
 
   constructor(private userService: AuthService,
               private commentsService: CommentsService) {
@@ -35,11 +33,19 @@ export class CommentComponent implements OnInit {
   ngOnInit() {
   }
 
+  getText(value) {
+    this.html = value.html;
+  }
+
+  getValid(value) {
+    this.invalidField = value;
+  }
+
   editComment(comment: WorkflowComment): void {
-    if (this.commentTextEditFormControl.valid) {
+    if (this.invalidField) {
       this.showTextarea = false;
       this.editCommentOut.emit(comment);
-      let newText = this.commentTextEditFormControl.value;
+      let newText = this.html;
       this.commentsService.updateWorkFlowCommentById(this.workflow.id, {
         commentId: this.comment.id,
         text: newText,
@@ -51,16 +57,18 @@ export class CommentComponent implements OnInit {
             comment.dateCreated = new Date();
           }
           return comment;
-        })
+        });
       });
-      this.commentTextEditFormControl.reset();
+      this.successPush = true;
+      this.showError = false;
+    } else {
+      this.showError = true;
     }
   }
 
   showTextAreaForEdit(): void {
     this.showTextarea = !this.showTextarea;
-    this.commentTextEditFormControl.setValue(this.comment.text);
-    this.textareaRow = this.commentTextEditFormControl.value.length / this.autoSizeForTextarea;
+    this.html = this.comment.text;
   }
 
   chooseCommentForDelete(comment: WorkflowComment) {

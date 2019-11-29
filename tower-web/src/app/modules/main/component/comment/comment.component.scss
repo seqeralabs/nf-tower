@@ -2,7 +2,7 @@
   position: relative;
   display: flex;
   align-items: center;
-  padding: 25px 10px 25px 0;
+  padding: 25px 0;
 
   .comment-avatar {
     width: 3rem;
@@ -18,23 +18,77 @@
   }
 
   .message {
-    width: 80%;
+    position: relative;
+    width: 100%;
     margin-left: 1rem;
+    border: 1px solid #d1d5da;
+    border-radius: 3px;
+
+    &::before {
+      position: absolute;
+      top: 11px;
+      right: 100%;
+      left: -16px;
+      display: block;
+      width: 0;
+      height: 0;
+      content: '';
+      border-style: solid;
+      border-color: transparent #d1d5da transparent transparent;
+      border-width: 8px;
+    }
+
+    &-header {
+      padding: 4px 9px;
+      background-color: #f6f8fa;
+      border-bottom: 1px solid #d1d5da;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .edit-delete-btns {
+        display: flex;
+        justify-content: space-between;
+        justify-self: end;
+        width: 35px;
+        margin-right: 1rem;
+        opacity: .6;
+
+        .edit-btn, .delete-btn {
+          display: block;
+          background: none;
+          border: none;
+          opacity: .4;
+
+          &:focus {
+            outline: none;
+          }
+        }
+      }
+    }
 
     &-author {
       &-name {
-        color: #28ae61;
-        margin-left: 1rem;
+        color: #586069;
       }
     }
 
     &-time {
-      margin-left: 2rem;
+      margin-left: 1.5rem;
       color: rgba(0, 0, 0, 0.3);
     }
 
     &-content {
-      margin: 1rem 0 0 1rem;
+      color: #24292e;
+      padding: 14px 9px;
+      margin-bottom: 0;
+      word-break: break-all;
+
+      ::ng-deep {
+        p {
+          margin-bottom: 0;
+        }
+      }
 
       &-text {
 
@@ -42,41 +96,28 @@
     }
 
     &-deleted-comment {
-      margin: 1rem 0 0 1rem;
+      margin: 1rem;
       opacity: .6;
     }
 
     &-edit {
-      margin: 1rem;
+      margin: 1rem 1rem .5rem;
 
       textarea {
-        width: 88%;
+        width: 100%;
         padding: 5px;
+        background-color: #fafbfc;
+        border-radius: 3px;
       }
 
-      .btn-outline-danger {
-        margin-left: .3rem;
-      }
-    }
-  }
+      .btn-group-update-delete {
+        display: flex;
+        justify-content: flex-end;
+        padding-top: 10px;
 
-  .edit-delete-btns {
-    display: flex;
-    justify-content: space-between;
-    width: 35px;
-    position: absolute;
-    right: 115px;
-    top: 24px;
-    opacity: .6;
-
-    .edit-btn, .delete-btn {
-      width: 12.5px;
-      background: none;
-      border: none;
-      opacity: .4;
-
-      &:focus {
-        outline: none;
+        .btn-outline-danger {
+          margin-right: .3rem;
+        }
       }
     }
   }

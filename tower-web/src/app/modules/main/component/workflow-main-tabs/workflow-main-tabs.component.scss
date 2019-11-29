@@ -92,7 +92,12 @@ textarea {
   padding: 5px;
 }
 
-.error {
-  color: red;
-  padding: 5px 0;
+.block-for-comment-btn {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+
+  .btn-primary {
+    width: 95px;
+  }
 }
