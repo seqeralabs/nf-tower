@@ -110,7 +110,6 @@ export class SidebarComponent implements OnInit, OnDestroy, OnChanges {
   focusSearchInput() {
     this.miniCollapseButton = true;
   }
-
   // Event when search input box loses focus
   blurSearchInput() {
     this.miniCollapseButton = false;

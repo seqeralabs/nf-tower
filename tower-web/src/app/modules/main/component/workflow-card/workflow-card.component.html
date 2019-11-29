@@ -1,4 +1,4 @@
-<div class="card my-2" [class.collapsed]="sidebarCollapsed" [ngClass]="{'workflow--succeed': workflow.isSuccessful, 'workflow--running': workflow.isRunning, 'workflow--failed': workflow.isFailed, 'workflow--partial': workflow.isPartialFailed, 'workflow--unknown': workflow.isUnknownStatus}">
+<div class="card my-2" [class.active]="currentWorkflowId == workflow.id" [class.collapsed]="sidebarCollapsed" [ngClass]="{'workflow--succeed': workflow.isSuccessful, 'workflow--running': workflow.isRunning, 'workflow--failed': workflow.isFailed, 'workflow--partial': workflow.isPartialFailed, 'workflow--unknown': workflow.isUnknownStatus}">
   <!-- Full card for expanded sidebar -->
   <div class="card-body" *ngIf="!sidebarCollapsed">
     <h5 class="card-title">

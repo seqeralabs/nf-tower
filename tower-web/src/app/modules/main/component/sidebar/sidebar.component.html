@@ -24,6 +24,7 @@
 <div class="wf-card-wrapper">
   <wt-workflow-card *ngFor="let workflow of workflows"
                     [workflow]="workflow"
+                    [currentWorkflowId]="currentId"
                     [sidebarCollapsed]="sidebarCollapsed"
                     (onDeleteWorkflow)="deleteWorkflow($event)"
                     (click)="showWorkflowDetail(workflow)" >
