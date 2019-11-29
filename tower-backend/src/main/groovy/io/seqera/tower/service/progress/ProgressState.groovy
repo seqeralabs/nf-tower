@@ -43,6 +43,8 @@ class ProgressState implements Serializable {
         this.workflow = new WorkflowLoad()
     }
 
+    String getWorkflowId() { workflowId }
+
     List<ProcessLoad> getProcessLoads() {
         def result = new ArrayList(processNames.size())
         for( String name : processNames ) {

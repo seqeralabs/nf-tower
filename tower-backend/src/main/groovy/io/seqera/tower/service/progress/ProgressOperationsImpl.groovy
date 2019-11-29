@@ -76,7 +76,7 @@ class ProgressOperationsImpl implements ProgressOperations {
             store.storeTaskStatuses(workflowId, tasksState)
             final delta = System.currentTimeMillis()-ts
             if( delta>1_000 )
-                log.debug "++ Process stats completed for worflow id=$workflowId; delta=${delta}"
+                log.debug "++ Process stats completed for worflow id=$workflowId; delta=${delta}; count=${tasks.size()}"
         }
         else {
             // store an empty map to force the timestamp update
