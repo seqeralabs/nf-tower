@@ -20,7 +20,7 @@
     </div>
   </div>
 
-  <div id="central" [class.sidebarCollapsed]="sidebarCollapsed">
+  <div id="central" [class.sidebarCollapsed]="sidebarCollapsed && shouldShowSidebar" [class.sidebarNotCollapsed]="!sidebarCollapsed && shouldShowSidebar">
     <router-outlet></router-outlet>
 
     <wt-welcome *ngIf="shouldShowWelcomeMessage"></wt-welcome>

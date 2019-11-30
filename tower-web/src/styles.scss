@@ -52,10 +52,14 @@ code {
 }
 
 #central {
-  width: calc(100% - #{$sidebar-width});
   min-width: 200px;
   padding-top: $navbar-height;
-  margin-left: #{$sidebar-width};
+  width: 100%;
+
+  &.sidebarNotCollapsed {
+    width: calc(100% - #{$sidebar-width});
+    margin-left: #{$sidebar-width};
+  }
 
   &.sidebarCollapsed {
     width: calc(100% - #{$sidebar-collapsed-width});
@@ -293,6 +297,9 @@ code {
 }
 
 footer {
+  z-index: 5;
+  position: relative;
+  background-color: $body-background;
   font-size: smaller;
   text-align: center;
 
