@@ -39,7 +39,7 @@ class User {
 
     boolean trusted
     Boolean disabled
-    Boolean notification;
+    Boolean notification
 
     OffsetDateTime dateCreated
     OffsetDateTime lastUpdated

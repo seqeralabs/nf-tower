@@ -18,9 +18,9 @@ import {UserData} from "../entity/user/user-data";
 import {AccessGateResponse} from "../entity/gate";
 import {Router} from "@angular/router";
 
-const authEndpointUrl: string = `${environment.apiUrl}/login`;
-const userEndpointUrl: string = `${environment.apiUrl}/user`;
-const gateEndpointUrl: string = `${environment.apiUrl}/gate`;
+const authEndpointUrl = `${environment.apiUrl}/login`;
+const userEndpointUrl = `${environment.apiUrl}/user`;
+const gateEndpointUrl = `${environment.apiUrl}/gate`;
 
 @Injectable({
   providedIn: 'root'
@@ -42,7 +42,7 @@ export class AuthService {
   }
 
   get currentUser(): User {
-    return this.userSubject.value
+    return this.userSubject.value;
   }
 
 
@@ -54,9 +54,9 @@ export class AuthService {
   }
 
   private requestUserProfileInfo(authData: any): Observable<User> {
-    const userData: UserData = <UserData> {email: authData.username, jwtAccessToken: authData['access_token'], roles: authData.roles};
+    const userData: UserData = {email: authData.username, jwtAccessToken: authData.access_token, roles: authData.roles} as UserData;
 
-    return this.http.get(`${userEndpointUrl}/`, {headers: {'Authorization': `Bearer ${userData.jwtAccessToken}`}}).pipe(
+    return this.http.get(`${userEndpointUrl}/`, {headers: {Authorization: `Bearer ${userData.jwtAccessToken}`}}).pipe(
       map((data: any) => {
         userData.id = data.user.id;
         userData.userName = data.user.userName;
@@ -110,15 +110,14 @@ export class AuthService {
       .join(''));
 
     return JSON.parse(decodedBase64);
-  };
+  }
 
   private persistUser(user: User): void {
     localStorage.setItem('user', JSON.stringify(user.data));
   }
 
   private getPersistedUser(): User {
-    const userData: UserData = <UserData> JSON.parse(localStorage.getItem('user'));
-
+    const userData: UserData = JSON.parse(localStorage.getItem('user')) as UserData;
     return (userData ? new User(userData) : null);
   }
 
