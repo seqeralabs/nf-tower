@@ -65,7 +65,7 @@ export class AuthService {
         userData.organization = data.user.organization;
         userData.description = data.user.description;
         userData.avatar = data.user.avatar;
-
+        userData.notification = data.user.notification;
         return new User(userData);
       })
     );
