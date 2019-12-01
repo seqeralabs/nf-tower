@@ -38,7 +38,6 @@ export class SidebarComponent implements OnInit, OnDestroy, OnChanges {
   @Output()
   onCollapseSidebar: EventEmitter<boolean> = new EventEmitter();
 
-  miniCollapseButton: boolean = false;
   sidebarCollapsed: boolean = false;
 
   searchBoxFormControl: FormControl = new FormControl();
@@ -104,15 +103,6 @@ export class SidebarComponent implements OnInit, OnDestroy, OnChanges {
         $('.sidebar-wf-icon span[data-toggle="tooltip"]').tooltip({ boundary: 'window', placement: 'right' });
       }, 100);
     }
-  }
-
-  // Event when search input box gets focus
-  focusSearchInput() {
-    this.miniCollapseButton = true;
-  }
-  // Event when search input box loses focus
-  blurSearchInput() {
-    this.miniCollapseButton = false;
   }
 
   private subscribeToSearchTextInput(): void {
