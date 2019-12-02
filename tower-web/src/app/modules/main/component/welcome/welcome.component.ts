@@ -39,7 +39,7 @@ export class WelcomeComponent implements OnInit {
 
   private makeAccessTokenExport(token: string): string {
     let result = `export TOWER_ACCESS_TOKEN=${token}\n`;
-    result += 'export NXF_VER=19.09.0-edge';
+    result += 'export NXF_VER=19.10.0';
     return result;
   }
 
