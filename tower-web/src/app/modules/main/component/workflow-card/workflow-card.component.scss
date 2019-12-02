@@ -1,16 +1,16 @@
-@import "~src/assets/variables";
+@import "./src/assets/variables";
 
 .card {
   cursor: pointer;
-  border-left: solid 6px;
+  border-left: solid 3px;
   border-radius: 2px;
   border-top: 1px solid #f0f0f0;
   border-right: 1px solid #ddd;
   border-bottom: 1px solid #ddd;
-  padding: 0;
+  padding: 0 0 0 3px;
   width: $sidebar-width - 1rem; // Sidebar has px-2
 
-  &.active, :hover, :focus {
+  :hover {
     background-color: #faf9f2;
   }
 
@@ -18,7 +18,7 @@
     width: auto;
 
     // Stronger colour for a smaller area
-    &.active, :hover, :focus {
+    :hover {
       background-color: #fcf8de;
     }
   }
@@ -36,11 +36,17 @@
   }
 }
 
+.card-body {
+  padding: 1rem;
+}
+
 .workflow--succeed {
   border-left-color: $succeed-green;
 
   &.active {
     border-color: $succeed-green;
+    border-left-width: 6px;
+    padding-left: 0;
   }
 
   .card-title, .sidebar-wf-icon {
@@ -53,6 +59,8 @@
 
   &.active {
     border-color: $running-blue;
+    border-left-width: 6px;
+    padding-left: 0;
   }
 
   .card-title, .sidebar-wf-icon {
@@ -65,6 +73,8 @@
 
   &.active {
     border-color: $failed-red;
+    border-left-width: 6px;
+    padding-left: 0;
   }
 
   .card-title, .sidebar-wf-icon {
@@ -77,6 +87,8 @@
 
   &.active {
     border-color: $partial-orange;
+    border-left-width: 6px;
+    padding-left: 0;
   }
 
   .card-title, .sidebar-wf-icon {
@@ -89,6 +101,8 @@
 
   &.active {
     border-color: $failed-red;
+    border-left-width: 6px;
+    padding-left: 0;
   }
 
   .card-title, .sidebar-wf-icon {
@@ -96,8 +110,7 @@
   }
 }
 
-
 div.btn-delete {
   position: relative;
-  button { position: absolute; right: 0px; bottom: 0px; }
+  button { position: absolute; right: 0; bottom: 0; }
 }
