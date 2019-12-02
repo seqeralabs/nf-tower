@@ -60,25 +60,27 @@
                       <wt-comment [comment]="comment"
                                   [workflow]="workflow"
                                   [allComments]="allComments"
+                                  (editCommentOut)="editWorkflowComment($event)"
                                   (deleteCommentOut)="commentForDelete = $event">
                       </wt-comment>
                     </li>
                   </ul>
                   <span class="error"
                         *ngIf="commentTextFormControl.invalid && commentTextFormControl.touched">
-                    *The message must contain more than 5 symbols
+                    *The message must contain more than 5 symbols and less 2048 symbols
                   </span>
                   <textarea rows="3"
                             class="form-control"
                             placeholder="Write a comment..."
                             [formControl]="commentTextFormControl">
                   </textarea>
-                  <br>
-                  <button type="button"
-                          class="btn btn-primary pull-right"
-                          (click)="postWorkflowComment()">
-                    Post
-                  </button>
+                  <div class="block-for-comment-btn">
+                    <button type="button"
+                            class="btn btn-primary pull-right"
+                            (click)="postWorkflowComment()">
+                      Post
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

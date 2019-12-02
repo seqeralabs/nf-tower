@@ -2,7 +2,6 @@ import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {AuthService} from "../../service/auth.service";
 import {WorkflowComment} from "../../entity/comment/workflow-comment";
 import {FormControl, Validators} from "@angular/forms";
-import {CommentsService} from "../../service/comments.services";
 import {Workflow} from "../../entity/workflow/workflow";
 
 @Component({
@@ -25,11 +24,11 @@ export class CommentComponent implements OnInit {
   currentUser = this.userService.currentUser;
   commentTextEditFormControl: FormControl = new FormControl('', [
     Validators.required,
-    Validators.minLength(5)
+    Validators.minLength(5),
+    Validators.maxLength(2048)
   ]);
 
-  constructor(private userService: AuthService,
-              private commentsService: CommentsService) {
+  constructor(private userService: AuthService) {
   }
 
   ngOnInit() {
@@ -38,22 +37,14 @@ export class CommentComponent implements OnInit {
   editComment(comment: WorkflowComment): void {
     if (this.commentTextEditFormControl.valid) {
       this.showTextarea = false;
-      this.editCommentOut.emit(comment);
-      let newText = this.commentTextEditFormControl.value;
-      this.commentsService.updateWorkFlowCommentById(this.workflow.id, {
-        commentId: this.comment.id,
-        text: newText,
-        timestamp: new Date()
-      }).subscribe(value => {
-        this.allComments = this.allComments.map(comment => {
-          if (comment.id === this.comment.id) {
-            comment.text = newText;
-            comment.dateCreated = new Date();
-          }
-          return comment;
-        })
+      const newText = this.commentTextEditFormControl.value;
+      this.editCommentOut.emit({
+        comment, updateData: {
+          commentId: this.comment.id,
+          text: newText,
+          timestamp: new Date()
+        }
       });
-      this.commentTextEditFormControl.reset();
     }
   }
 

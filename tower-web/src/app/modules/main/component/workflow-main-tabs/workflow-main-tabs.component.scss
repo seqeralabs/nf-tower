@@ -90,9 +90,21 @@ pre.tab-config {
 
 textarea {
   padding: 5px;
+  resize: none;
 }
 
 .error {
-  color: red;
+  font-size: .9rem;
+  color: #ff0000;
   padding: 5px 0;
+}
+
+.block-for-comment-btn {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+
+  .btn-primary {
+    width: 95px;
+  }
 }

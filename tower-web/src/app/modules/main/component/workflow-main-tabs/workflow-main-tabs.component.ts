@@ -27,7 +27,8 @@ export class WorkflowMainTabsComponent implements OnChanges {
   commentForDelete: WorkflowComment;
   commentTextFormControl: FormControl = new FormControl('', [
     Validators.required,
-    Validators.minLength(5)
+    Validators.minLength(5),
+    Validators.maxLength(2048)
   ]);
 
   constructor(private commentsService: CommentsService) {
@@ -55,13 +56,23 @@ export class WorkflowMainTabsComponent implements OnChanges {
     }
   }
 
+  editWorkflowComment(commentE): void {
+    this.commentsService.updateWorkFlowCommentById(this.workflow.id, commentE.updateData)
+      .subscribe(() => {
+        this.allComments = this.allComments.map(comment => comment.id === commentE.comment.id
+          ? {...comment, text: commentE.updateData.text, dateCreated: commentE.updateData.dateCreated} : comment
+        );
+      });
+  }
+
   deleteWorkflowComment(): void {
     this.commentsService.deleteWorkFlowCommentById(this.workflow.id,
       {commentId: this.commentForDelete.id, timestamp: new Date()})
       .subscribe(() => {
         this.allComments.map(comment => {
-          if (comment.id === this.commentForDelete.id)
+          if (comment.id === this.commentForDelete.id) {
             return comment.deleted = true;
+          }
         });
         this.commentForDelete = null;
       });
