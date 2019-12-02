@@ -73,23 +73,6 @@ code {
   }
 }
 
-
-// Reverse behaviour on larger screens
-@media (min-width: 960px) {
-  #sidebar-wrapper {
-    margin-left: 0;
-  }
-  #sidebar-wrapper.toggled {
-    margin-left: $sidebar-width * -1;
-  }
-  // Stretch content instead of going off-canvas
-  #central {
-    min-width: 0;
-    width: 100%;
-  }
-}
-
-
 #notification-container {
   position: absolute;
   top: calc(#{$navbar-height} + 2px);

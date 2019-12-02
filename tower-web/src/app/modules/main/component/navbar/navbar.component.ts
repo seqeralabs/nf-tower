@@ -9,7 +9,7 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 
-import {Component, EventEmitter, Input, Output, OnInit} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {AuthService} from "../../service/auth.service";
 import {User} from "../../entity/user/user";
 
@@ -20,17 +20,7 @@ import {User} from "../../entity/user/user";
 })
 export class NavbarComponent implements OnInit {
 
-  @Input()
-  shouldShowSidebar: string;
-
-  @Output()
-  sidebarToggleEvent: EventEmitter<boolean> = new EventEmitter<boolean>();
-
   user: User;
-
-  // Don't pay too much attention to the actual value -
-  // shown/hidden behaviour alternates depending on window size
-  private isSidebarShown: boolean = true;
 
   constructor(private authService: AuthService) {
 
