@@ -16,6 +16,8 @@ import static io.seqera.tower.enums.TaskStatus.*
 import com.fasterxml.jackson.annotation.JsonGetter
 import io.seqera.tower.domain.Task
 import io.seqera.tower.enums.TaskStatus
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 /**
  * Common logic for task and workflow progress metadata
@@ -23,6 +25,8 @@ import io.seqera.tower.enums.TaskStatus
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
 trait ProgressRecord {
+
+    private static final Logger log = LoggerFactory.getLogger(ProgressRecord)
 
     private Map<TaskStatus,Long> taskStatuses = new HashMap<>(6);
 
@@ -85,7 +89,11 @@ trait ProgressRecord {
     }
 
     void decStatus( TaskStatus status, long value=1 ) {
-        setStatus(status, getStatus(status) -value)
+        final newValue = getStatus(status) -value
+        if( newValue >= 0 )
+            setStatus(status, newValue)
+        else
+            log.warn "Unexpected progress status negative value: status=$status; value=$value; newValue=$newValue -- ignoring it"
     }
 
     long getPending() { getStatus(NEW) }
@@ -109,9 +117,24 @@ trait ProgressRecord {
     }
 
     void decLoad(Task task) {
-        loadTasks -= 1
-        loadCpus -= task.cpus ?: 0
-        loadMemory -= task.memory ?: 0
+        final newTasks = loadTasks - 1
+        final newCpus = loadCpus - (task.cpus ?: 0)
+        final newMemory = loadMemory - (task.memory ?: 0)
+        if( newTasks < 0 ) {
+            log.warn "Unexpected negative load tasks value: current=$loadTasks; newTasks=$newTasks -- ignoring it"
+            return
+        }
+        if( newCpus < 0 ) {
+            log.warn "Unexpected negative load cpus value: current=$loadCpus; newCpus=$newCpus -- ignoring it"
+            return
+        }
+        if( newCpus < 0 ) {
+            log.warn "Unexpected negative load memory value: current=$loadMemory; newMemory=$newMemory -- ignoring it"
+            return
+        }
+        loadTasks = newTasks
+        loadCpus = newCpus
+        loadMemory = newMemory
     }
 
     void updatePeaks() {

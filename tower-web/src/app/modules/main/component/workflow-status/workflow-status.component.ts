@@ -23,7 +23,7 @@ export class WorkflowStatusComponent implements OnInit {
   @Input()
   progressState: ProgressRecord;
 
-  private statusesTags: string[];
+  statusesTags: string[];
 
   constructor() {
     this.statusesTags = getAllTaskStatusesProgressStateTags();
