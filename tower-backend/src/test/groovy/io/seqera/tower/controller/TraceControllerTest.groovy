@@ -72,8 +72,8 @@ class TraceControllerTest extends AbstractContainerBaseTest {
 
         then:
         response.status == HttpStatus.OK
-        response.body().message == 'OK'
         response.body().workflowId == 'vN8KBbqR'
+        response.body().message == null
 
     }
 

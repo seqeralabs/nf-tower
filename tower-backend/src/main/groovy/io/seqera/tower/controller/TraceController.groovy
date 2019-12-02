@@ -125,7 +125,7 @@ class TraceController extends BaseController {
     HttpResponse<TraceInitResponse> init(TraceInitRequest req, Authentication authentication) {
         log.info "Receiving trace init [user=${authentication.getName()}]"
         final workflowId = traceService.createWorkflowKey()
-        final resp = new TraceInitResponse(workflowId: workflowId, message: 'OK')
+        final resp = new TraceInitResponse(workflowId: workflowId)
         log.info "Created new workflow ID=${workflowId} [user=${authentication.getName()}]"
         HttpResponse.ok(resp)
     }
