@@ -20,12 +20,14 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import grails.gorm.annotation.Entity
 import groovy.transform.CompileDynamic
 import io.seqera.tower.enums.TaskStatus
+import io.seqera.tower.service.cloudprice.CloudPriceModel
+
 /**
  * Workflow task info
  * see https://www.nextflow.io/docs/latest/tracing.html#execution-report
  */
 @Entity
-@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'workflow', 'data'])
+@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version', 'workflow', 'data'])
 @CompileDynamic
 class Task implements TaskDef {
 
@@ -52,6 +54,10 @@ class Task implements TaskDef {
      * Task metadata and metrics info
      */
     TaskData data
+
+    OffsetDateTime dateCreated
+    
+    OffsetDateTime lastUpdated
 
     private TaskData _data() {
         if( data==null )
@@ -85,7 +91,7 @@ class Task implements TaskDef {
     }
 
     @JsonSetter('exit')
-    void deserializeExistStatus(Long exit) {
+    void deserializeExistStatus(Integer exit) {
         exitStatus = exit
     }
 
@@ -97,10 +103,13 @@ class Task implements TaskDef {
     static mapping = {
         data lazy: false
         workflow lazy: true
+        status(length: 10)
     }
-    
+
     static constraints = {
         taskId(unique: 'workflow')
+        dateCreated(nullable: true)
+        lastUpdated(nullable: true)
     }
 
     static transients = [
@@ -123,6 +132,10 @@ class Task implements TaskDef {
             'disk',
             'time',
             'env',
+            'executor',
+            'machineType',
+            'cloudZone',
+            'priceModel',
             'errorAction',
             'exitStatus',
             'duration',
@@ -166,12 +179,15 @@ class Task implements TaskDef {
     Integer getCpus() { _data().cpus }
     Long getMemory() { _data().memory }
     Long getDisk() { _data().disk }
-    String getTime() { _data().time }
+    Long getTime() { _data().time }
     String getEnv() { _data().env }
-
+    String getExecutor() { _data().executor }
+    String getMachineType() { _data().machineType }
+    String getCloudZone() { _data().cloudZone }
+    CloudPriceModel getPriceModel() { _data().priceModel }
     String getErrorAction() { _data().errorAction }
 
-    Long getExitStatus() { _data().exitStatus }
+    Integer getExitStatus() { _data().exitStatus }
     Long getDuration() { _data().duration }
     Long getRealtime() { _data().realtime }
     String getNativeId() { _data().nativeId }
@@ -213,12 +229,15 @@ class Task implements TaskDef {
     void setCpus(Integer x) { _data().cpus = x }
     void setMemory(Long x) { _data().memory = x }
     void setDisk(Long x) { _data().disk= x }
-    void setTime(String x) { _data().time = x }
+    void setTime(Long x) { _data().time = x }
     void setEnv(String x) { _data().env = x }
-
+    void setExecutor(String x) { _data().executor = x }
+    void setMachineType(String x) { _data().machineType = x }
+    void setCloudZone(String x) { _data().cloudZone = x }
+    void setPriceModel(CloudPriceModel x) { _data().priceModel = x }
     void setErrorAction(String x) { _data().errorAction = x }
 
-    void setExitStatus(Long x) { _data().exitStatus = x }
+    void setExitStatus(Integer x) { _data().exitStatus = x }
     void setDuration(Long x) { _data().duration = x }
     void setRealtime(Long x) { _data().realtime = x }
     void setNativeId(String x) { _data().nativeId = x }

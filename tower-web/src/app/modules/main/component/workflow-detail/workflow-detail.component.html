@@ -1,14 +1,17 @@
 <div *ngIf="workflow" class="tw-workflow">
-  <div class="card" [ngClass]="{'running': workflow.isRunning, 'succeed': workflow.isSuccessful, 'failed': workflow.isFailed, 'partialFailed': workflow.isPartialFailed}">
+  <div class="card" [ngClass]="{'running': workflow.isRunning,
+                                'succeed': workflow.isSuccessful,
+                                'failed': workflow.isFailed || workflow.isUnknownStatus,
+                                'partial': workflow.isPartialFailed}">
     <div class="card-header">
       <div class="row">
         <div class="col">
           <h1>
             <ng-container *ngIf="workflow.data.repository!=null; else noLink">
-              <a class="project-name" [href]="workflow.data.repository" target="_blank">{{workflow.data.projectName}}</a>
+              <a class="project-name" [href]="workflow.data.repository" target="_blank">{{workflow.displayName}}</a>
             </ng-container>
             <ng-template #noLink>
-              <span >{{workflow.data.projectName}}</span>
+              <span >{{workflow.displayName}}</span>
             </ng-template>
           </h1>
           <h2>{{workflow.data.runName}}</h2>
@@ -17,53 +20,50 @@
       </div>
     </div>
     <div class="card-body">
-      <div class="row mb-4" *ngIf="workflow.isFailed">
-        <div class="col">
-          <wt-workflow-error [workflow]="workflow"></wt-workflow-error>
-        </div>
+      <div class="mb-4" *ngIf="workflow.isFailed">
+        <wt-workflow-error [workflow]="workflow"></wt-workflow-error>
       </div>
-      <div class="row mb-4">
-        <div class="col">
-          <wt-workflow-main-tabs [workflow]="workflow"></wt-workflow-main-tabs>
-        </div>
+      <div class="mb-4" *ngIf="workflow.isUnknownStatus">
+        <wt-workflow-unknown [workflow]="workflow"></wt-workflow-unknown>
+      </div>
+      <div class="mb-4">
+        <wt-workflow-main-tabs [workflow]="workflow"></wt-workflow-main-tabs>
       </div>
 
       <!-- general info + status boxes -->
       <div class="row mb-3">
-        <div class="col">
+        <div class="col-md-6">
           <wt-workflow-general [workflow]="workflow"></wt-workflow-general>
         </div>
-        <div class="col">
+        <div class="col-md-6">
           <wt-workflow-status [progressState]="workflow.progress.workflowProgress.data"></wt-workflow-status>
         </div>
       </div>
 
       <!-- processes + aggregate stats -->
       <div class="row mb-3">
-        <div class="col">
+        <div class="col-md-6">
           <wt-tasks-processes [processesProgress]="workflow.progress.processesProgress"></wt-tasks-processes>
         </div>
-        <div class="col">
+        <div class="col-md-6">
           <wt-workflow-stats [workflow]="workflow"></wt-workflow-stats>
         </div>
       </div>
       <div class="row mb-3">
-        <div class="col">
+        <div class="col-md-6">
           <wt-workflow-load [workflowProgress]="workflow.progress.workflowProgress"></wt-workflow-load>
         </div>
-        <div class="col">
+        <div class="col-md-6">
           <wt-workflow-utilization [workflowProgress]="workflow.progress.workflowProgress"></wt-workflow-utilization>
         </div>
       </div>
       <div class="row mb-3">
-        <div class="col">
+        <div class="col-md">
           <wt-tasks-table [workflowId]="workflow.id" [progress]="workflow.progress"></wt-tasks-table>
         </div>
       </div>
-      <div class="row" *ngIf="workflow.isCompleted">
-        <div class="col">
-          <wt-workflow-metrics></wt-workflow-metrics>
-        </div>
+      <div *ngIf="workflow.isCompleted">
+        <wt-workflow-metrics [workflowId]="workflow.id"></wt-workflow-metrics>
       </div>
     </div>
   </div>

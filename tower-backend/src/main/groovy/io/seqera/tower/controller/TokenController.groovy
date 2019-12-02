@@ -32,6 +32,7 @@ import io.seqera.tower.exchange.token.GetDefaultTokenResponse
 import io.seqera.tower.exchange.token.ListAccessTokensResponse
 import io.seqera.tower.service.AccessTokenService
 import io.seqera.tower.service.UserService
+import io.seqera.tower.service.audit.AuditEventPublisher
 /**
  * Implement the controller to handle access token operations
  *
@@ -48,10 +49,12 @@ class TokenController  extends BaseController {
 
     @Inject AccessTokenService accessTokenService
 
+    @Inject AuditEventPublisher eventPublisher
+
     @Get("/list")
     HttpResponse<ListAccessTokensResponse> list(Authentication authentication) {
         try {
-            final user = userService.getFromAuthData(authentication)
+            final user = userService.getByAuth(authentication)
             final result = accessTokenService.findByUser(user)
             HttpResponse.ok(new ListAccessTokensResponse(tokens: result))
         }
@@ -64,8 +67,9 @@ class TokenController  extends BaseController {
     @Post("/create")
     HttpResponse<CreateAccessTokenResponse> create(Authentication authentication, String name) {
         try {
-            final user = userService.getFromAuthData(authentication)
+            final user = userService.getByAuth(authentication)
             final token = accessTokenService.createToken(name, user)
+            eventPublisher.accessTokenCreated(token.id)
             HttpResponse.ok(new CreateAccessTokenResponse(token: token))
         }
         catch ( TowerException e ) {
@@ -79,9 +83,12 @@ class TokenController  extends BaseController {
     }
 
     @Delete("/delete/{tokenId}")
-    HttpResponse delete(Long tokenId) {
+    HttpResponse delete(Long tokenId, Authentication authentication) {
         try {
+            final user = userService.getByAuth(authentication)
             final count = accessTokenService.deleteById(tokenId)
+            eventPublisher.accessTokenDeleted(tokenId)
+
             return ( count>0 ?
                     HttpResponse.status(HttpStatus.NO_CONTENT):
                     HttpResponse.badRequest(new MessageResponse(("Oops... Failed to delete access token"))) )
@@ -96,8 +103,10 @@ class TokenController  extends BaseController {
     @Delete("/delete-all")
     HttpResponse deleteAll(Authentication authentication) {
         try {
-            final user = userService.getFromAuthData(authentication)
+            final user = userService.getByAuth(authentication)
             final count = accessTokenService.deleteByUser(user)
+            eventPublisher.accessTokenDeleted('all')
+
             return ( count>0 ?
                     HttpResponse.status(HttpStatus.NO_CONTENT):
                     HttpResponse.badRequest(new MessageResponse("Oops... Failed to revoke all access token")))
@@ -110,7 +119,7 @@ class TokenController  extends BaseController {
 
     @Get('/default')
     HttpResponse<GetDefaultTokenResponse> getDefaultToken(Authentication authentication) {
-        final user = userService.getFromAuthData(authentication)
+        final user = userService.getByAuth(authentication)
         if( !user )
             return HttpResponse.badRequest(new GetDefaultTokenResponse(message: "Cannot find user: ${authentication.name}"))
         AccessToken result = user.accessTokens.find { it.name == AccessToken.DEFAULT_TOKEN }

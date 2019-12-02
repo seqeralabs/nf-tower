@@ -27,9 +27,8 @@ export class User {
   }
 
   generateCopy(): User {
-    let userDataCopy: UserData = JSON.parse(JSON.stringify(this.data));
-
-    return new User(userDataCopy)
+    const userDataCopy: UserData = JSON.parse(JSON.stringify(this.data));
+    return new User(userDataCopy);
   }
 
 }

@@ -11,30 +11,30 @@
 
 package io.seqera.tower.service
 
+
 import javax.inject.Inject
 import javax.inject.Singleton
 
-import grails.gorm.DetachedCriteria
-import grails.gorm.PagedResultList
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
+import groovy.transform.CompileStatic
+import groovy.util.logging.Slf4j
 import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.TaskData
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.enums.TaskStatus
 import io.seqera.tower.exceptions.NonExistingWorkflowException
 import io.seqera.tower.exchange.trace.TraceTaskRequest
+import io.seqera.tower.service.audit.AuditEventPublisher
 
+@Slf4j
 @Transactional
 @Singleton
+@CompileStatic
 class TaskServiceImpl implements TaskService {
 
-    WorkflowService workflowService
-
-    @Inject
-    TaskServiceImpl(WorkflowService workflowService) {
-        this.workflowService = workflowService
-    }
+    @Inject WorkflowService workflowService
+    @Inject AuditEventPublisher auditEventPublisher
 
     @CompileDynamic
     TaskData getTaskDataBySessionIdAndHash(String sessionId, String hash) {
@@ -65,12 +65,14 @@ class TaskServiceImpl implements TaskService {
 
 
     List<Task> processTaskTraceRequest(TraceTaskRequest request) {
-        final Workflow existingWorkflow = Workflow.get(request.workflowId)
-        if (!existingWorkflow) {
-            throw new NonExistingWorkflowException("Can't find task for workflow ID: ${request.workflowId}")
+        final Workflow workflow = Workflow.get(request.workflowId)
+        if (!workflow) {
+            throw new NonExistingWorkflowException("Can't find task for workflow Id: ${request.workflowId}")
         }
-
-        request.tasks.collect { Task task -> saveTask(task, existingWorkflow) }
+        // mark it for running
+        workflowService.markForRunning(request.workflowId)
+        // save all the acquired tasks
+        request.tasks.collect { Task task -> saveTask(task, workflow) }
     }
 
     @CompileDynamic
@@ -121,7 +123,10 @@ class TaskServiceImpl implements TaskService {
         taskToUpdate.disk = originalTask.disk
         taskToUpdate.time = originalTask.time
         taskToUpdate.env = originalTask.env
-
+        taskToUpdate.executor = originalTask.executor
+        taskToUpdate.machineType = originalTask.machineType
+        taskToUpdate.cloudZone = originalTask.cloudZone
+        taskToUpdate.priceModel = originalTask.priceModel
         taskToUpdate.errorAction = originalTask.errorAction
         taskToUpdate.exitStatus = originalTask.exitStatus
         taskToUpdate.duration = originalTask.duration
@@ -143,38 +148,72 @@ class TaskServiceImpl implements TaskService {
         taskToUpdate.invCtxt = originalTask.invCtxt
     }
 
+    private static List<String> TASK_DATA_SORTABLE_FIELDS = ['submit','duration','realtime','peakRss','peakVmem','rchar','wchar','volCtxt','invCtxt']
+
+    private static List<String> ORDER_DIRECTION = ['asc','desc','ASC','DESC']
+
     @CompileDynamic
-    PagedResultList<Task> findTasks(String workflowId, Long max, Long offset, String orderProperty, String orderDirection, String sqlRegex) {
-        def statusesToSearch = TaskStatus.findStatusesByRegex(sqlRegex)
+    List<Task> findTasks(String workflowId, String filter, String orderProperty, String orderDirection, Long max, Long offset) {
+        log.trace "findTasks workflowId=$workflowId; max=$max; offset=$offset; filter=$filter; orderProperty=$orderProperty; orderDirection=$orderDirection"
+        if( !(orderDirection in ORDER_DIRECTION))
+            throw new IllegalArgumentException("Invalid order direction: $orderDirection")
 
-        if( orderProperty != 'taskId' && orderProperty != 'status' )
-            orderProperty = 'data.' + orderProperty
-
-        final criteria  = new DetachedCriteria<Task>(Task).build {
-            workflow {
-                eq('id', workflowId)
-            }
-
-            if (sqlRegex) {
-                or {
-                    data {
-                        or {
-                            ilike('process', sqlRegex)
-                            ilike('tag', sqlRegex)
-                            ilike('hash', sqlRegex)
-                        }
-                    }
-
-                    if (statusesToSearch) {
-                        'in'('status', statusesToSearch)
-                    }
-                }
-            }
-
-           order(orderProperty, orderDirection)
+        def params = [workflowId: workflowId]
+        def query = createTaskQuery0(params, filter)
+        if( orderProperty ) {
+            if( orderProperty == 'taskId')
+                orderProperty  = "t.${orderProperty}"
+            else if( orderProperty in TASK_DATA_SORTABLE_FIELDS )
+                orderProperty  = "d.${orderProperty}"
+            else
+                throw new IllegalStateException("Invalid Task sort field: $orderProperty")
+            query += " order by $orderProperty ${orderDirection.toLowerCase()}".toString()
         }
 
-        return criteria.list(max: max, offset: offset, fetch: [data: 'join'])
+        final args = [max: max, offset: offset, fetchSize: max]
+        Task.executeQuery(query, params, args)
+    }
+
+    long countTasks(String workflowId, String filter) {
+        def params = [workflowId: workflowId]
+        def query = createTaskQuery0(params, filter, true)
+        def result = Task.executeQuery(query, params)
+        return result[0] as long
+    }
+
+    private String createTaskQuery0(Map params, String search, boolean count=false) {
+        final statusesToSearch = TaskStatus.findStatusesByRegex(search)
+        final String filter = search ? search.contains('*') ? search.replaceAll(/\*/, '%') : "${search}%".toString() : null
+
+        def query = (count ?
+                """\
+                select count(t.id)
+                from Task t
+                join t.data d
+                where t.workflow.id = :workflowId 
+                """
+            :
+                """\
+                select t
+                from Task t
+                join fetch t.data d
+                where t.workflow.id = :workflowId 
+                """ ).stripIndent()
+
+        if( filter )
+            params.filter = filter.toLowerCase()
+        if( statusesToSearch  )
+            params.statuses = statusesToSearch
+
+        if( params.filter ) {
+            query += " and ("
+            query += "lower(d.process) like :filter or lower(d.tag) like :filter or lower(d.hash) like :filter"
+            if( params.statuses )
+                query += " or t.status in :statuses"
+            query += ")"
+        }
+
+        return query
     }
 
 }

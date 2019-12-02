@@ -21,9 +21,9 @@ import io.micronaut.security.authentication.AuthenticationResponse
 import io.micronaut.security.authentication.UserDetails
 import io.reactivex.Flowable
 import io.seqera.tower.domain.User
+import io.seqera.tower.service.AccessTokenService
 import io.seqera.tower.service.UserService
 import org.reactivestreams.Publisher
-
 /**
  * Access token auth provider. This policy is used to authenticate API call
  * for which a {@link io.seqera.tower.domain.AccessToken} should be provided
@@ -34,12 +34,8 @@ class AuthenticationByApiToken implements AuthenticationProvider {
 
     public static final ID = '@token'
 
-    private UserService userService
-
-    @Inject
-    AuthenticationByApiToken(UserService userService) {
-        this.userService = userService
-    }
+    @Inject UserService userService
+    @Inject AccessTokenService tokenService
 
     @Override
     Publisher<AuthenticationResponse> authenticate(AuthenticationRequest req) {
@@ -63,6 +59,9 @@ class AuthenticationByApiToken implements AuthenticationProvider {
             // a more explanatory message should be returned
             return new AuthFailure("Unknow user with token: $token")
         }
+
+        // update lasts access token
+        tokenService.updateLastUsedAsync(token)
 
         List<String> authorities = userService.findAuthoritiesOfUser(user)
         return new UserDetails(user.email, authorities)

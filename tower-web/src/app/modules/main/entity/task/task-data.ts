@@ -33,6 +33,10 @@ export interface TaskData {
   disk?: any;
   time?: any;
   env?: any;
+  executor: string;
+  machineType: string;
+  cloudZone: string;
+  priceModel: string;
   errorAction: string;
   complete: Date;
   duration: number;

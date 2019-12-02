@@ -11,6 +11,8 @@
 
 package io.seqera.tower.service
 
+import static io.seqera.tower.domain.AccessToken.*
+
 import javax.annotation.Nullable
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -19,23 +21,27 @@ import java.security.Principal
 import java.time.Instant
 import java.time.OffsetDateTime
 
-import grails.gorm.DetachedCriteria
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import io.micronaut.context.annotation.Value
+import io.micronaut.http.HttpRequest
+import io.micronaut.http.HttpStatus
+import io.micronaut.http.client.RxHttpClient
+import io.micronaut.http.client.annotation.Client
+import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.seqera.tower.domain.AccessToken
 import io.seqera.tower.domain.Role
 import io.seqera.tower.domain.User
 import io.seqera.tower.domain.UserRole
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.exceptions.NonExistingUserException
+import io.seqera.tower.service.audit.AuditEventPublisher
 import io.seqera.util.StringUtils
 import io.seqera.util.TokenHelper
+import io.seqera.util.TupleUtils
 import org.springframework.validation.FieldError
-
-import static io.seqera.tower.domain.AccessToken.DEFAULT_TOKEN
 
 @Slf4j
 @Singleton
@@ -45,9 +51,15 @@ class UserServiceImpl implements UserService {
 
     WorkflowService workflowService
 
+    @Inject
+    @Client("/")
+    RxHttpClient httpClient
+
     @Nullable
     @Value('${tower.trusted-emails}')
     List<String> trustedEmails
+
+    @Inject AuditEventPublisher eventPublisher
 
     UserServiceImpl() { }
 
@@ -61,24 +73,15 @@ class UserServiceImpl implements UserService {
         User.list(offset:offset, max:max)
     }
 
-    @CompileDynamic
     User findByEmailAndAuthToken(String email, String token) {
-        User.findByEmailAndAuthToken(email, token, [fetch: [accessTokens: 'join']])
-    }
-
-    @CompileDynamic
-    User findByUserNameAndAccessToken(String userName, String token) {
-        new DetachedCriteria<User>(User).build {
-            accessTokens {
-                eq('token', token)
-            }
-        }.get()
+        final params = [email:email?.toLowerCase(), token: token]
+        final query = "from User u where lower(u.email) = :email and u.authToken=:token"
+        User.find(query, params)
     }
 
     @CompileDynamic
     List<String> findAuthoritiesByEmail(String email) {
-        User user = User.findByEmail(email)
-
+        User user = getByEmail(email)
         findAuthoritiesOfUser(user)
     }
 
@@ -121,9 +124,15 @@ class UserServiceImpl implements UserService {
         return result
     }
 
+    User create(String email, String authority) {
+        assert email, "Missing user email field"
+        final result = create0(email.toLowerCase(), authority)
+        eventPublisher.userCreated(result.id)
+        return result
+    }
 
     @CompileDynamic
-    User create(String email, String authority) {
+    User create0(String email, String authority) {
         // create the user name starting from the email user name
         String userName = makeUserNameFromEmail(email)
         userName = checkUniqueName(userName)
@@ -143,11 +152,37 @@ class UserServiceImpl implements UserService {
         UserRole userRole = new UserRole(user: user, role: role)
         userRole.save()
 
+        // Try to get a gravatar avatar URL
+        user.avatar = getAvatarUrl(email)
+
         checkUserSaveErrors(user)
 
         return user
     }
 
+
+    protected String getAvatarUrl(String email) {
+        assert email
+        try {
+            final emailHash = email.trim().toLowerCase().md5()
+            final url = "https://www.gravatar.com/avatar/${emailHash}?d=404"
+
+            // make an http request to probe if the avatar exists
+            final resp = httpClient
+                    .toBlocking()
+                    .exchange(HttpRequest.HEAD(url))
+
+            return resp.status() == HttpStatus.OK ? url : null
+        }
+        catch (Exception e) {
+            final message = "Couldn't fetch Gravatar for email=$email | ${e.message}"
+            if( e instanceof HttpClientResponseException && e.response?.code()==404 )
+                log.debug(message)
+            else
+                log.error(message)
+            return null
+        }
+    }
 
     protected boolean isTrustedEmail(String email) {
         if( trustedEmails==null ) {
@@ -211,9 +246,18 @@ class UserServiceImpl implements UserService {
         throw new ValidationException("Can't save user. Validation errors: ${uncustomizedErrors}")
     }
 
-    @CompileDynamic
-    User getFromAuthData(Principal userSecurityData) {
-        User.findByEmail(userSecurityData.name)
+    @Override
+    User getByAuth(Principal principal) {
+        assert principal
+        final email = principal.getName()
+        if( !email )
+            throw new IllegalArgumentException("Missing principal name field")
+        getByEmail(email)
+    }
+
+    @Override
+    User getByEmail(String email) {
+        User.find("from User where lower(email) = :email", [email: email?.toLowerCase()])
     }
 
     @CompileDynamic
@@ -229,6 +273,7 @@ class UserServiceImpl implements UserService {
         existingUser.organization = updatedUserData.organization
         existingUser.description = updatedUserData.description
         existingUser.avatar = updatedUserData.avatar
+        existingUser.notification = updatedUserData.notification
 
         existingUser.save()
         checkUserSaveErrors(existingUser)
@@ -252,16 +297,16 @@ class UserServiceImpl implements UserService {
 
     @CompileDynamic
     User getByAccessToken(String token) {
-        new DetachedCriteria<User>(User).build {
-            accessTokens {
-                eq('token', token)
-            }
-        }.get()
+        final args = TupleUtils.map('cache', true)
+        final params = TupleUtils.map('token', token)
+        final userId = (Long) AccessToken.executeQuery('select t.user.id from AccessToken t where t.token=:token', params, args) [0]
+        userId ? User.get(userId) : null
     }
 
-    User updateLastAccessTime(User user) {
-        user.lastAccess = OffsetDateTime.now()
-        user.save()
+    @Override
+    boolean updateLastAccessTime(Long userId) {
+        def args = [ts: OffsetDateTime.now(), userId: userId]
+        User.executeUpdate('update User set lastAccess=:ts where id=:userId', args)>0
     }
 
 }

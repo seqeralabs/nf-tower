@@ -10,7 +10,6 @@ html {
 body {
   height: 100%;
   width: 100%;
-  overflow-x: auto;
   background-color: $body-background;
 }
 
@@ -32,40 +31,52 @@ pre code {
 }
 
 #navbar {
-  width: 100%;
-  height: $navbar-height;
-  background-color: white;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.16);
-  padding-top: 20px;
-  padding-bottom: 20px;
+  width: 100vw;
 }
 
+.navbar-brand {
+  max-width: calc(100% - 60px);
+  margin-right: 0;
+  overflow: hidden;
+}
 .navbar-brand img {
-  width: 260px;
+  height: 40px;
 }
 
 #layout {
-  display: flex;
   min-height: calc(100% - #{$navbar-height});
-  padding-top: $navbar-height;
-  width: 100%;
 }
 
 #sidebar {
-  position: sticky;
-  top: 0;
-  flex: 0 0 25%;
+  position: fixed;
+  top: $navbar-height;
+  bottom: 0;
+  z-index: 2;
   background-color: $sidebar-background;
   border-right: $sidebar-border;
-  overflow-x: hidden;
-  overflow-y: auto;
-  height: 100vh;
 }
 
 #central {
+  min-width: 200px;
+  padding-top: $navbar-height;
   width: 100%;
-  min-height: inherit;
-  flex: 1 0 75%;
+
+  &.sidebarNotCollapsed {
+    width: calc(100% - #{$sidebar-width});
+    margin-left: #{$sidebar-width};
+  }
+
+  &.sidebarCollapsed {
+    width: calc(100% - #{$sidebar-collapsed-width});
+    margin-left: #{$sidebar-collapsed-width};
+  }
+}
+// On small screens, allow the content to spread offscreen
+@media (max-width: 576px) {
+  #layout {
+    overflow-x: hidden;
+  }
 }
 
 #notification-container {
@@ -171,7 +182,9 @@ pre code {
   }
 
   .dataTables_filter input {
-    width: 30rem;
+    @media (min-width: 576px){
+      width: 30rem;
+    }
     font-size: 1rem;
     font-weight: 400;
     line-height: 1.5;
@@ -290,18 +303,14 @@ pre code {
 }
 
 footer {
+  z-index: 5;
+  position: relative;
+  background-color: $body-background;
   font-size: smaller;
+  text-align: center;
 
   a {
     color: inherit;
-  }
-
-  .list-style-none {
-    list-style: none!important;
-  }
-
-  .flex-justify-between {
-    justify-content: space-between!important;
   }
 
   img {
@@ -309,5 +318,14 @@ footer {
     position: relative;
     top: -7px;
     opacity: 0.6;
+  }
+
+  @media (min-width: 540px) {
+    .col-sm {
+      text-align: left;
+    }
+    .footer-rhs-col {
+        text-align: right;
+    }
   }
 }

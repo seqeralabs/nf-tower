@@ -15,13 +15,13 @@ import java.nio.file.Paths
 
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.tower.Application
-import spock.lang.Specification
+import io.seqera.tower.util.AbstractContainerBaseTest
 /**
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
 @MicronautTest(application = Application.class)
-class MailTest extends Specification {
+class MailTest extends AbstractContainerBaseTest {
 
     void 'should capture mail params' () {
         given:

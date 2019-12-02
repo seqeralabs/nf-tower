@@ -11,45 +11,68 @@
 
 package io.seqera.tower.service
 
-import grails.gorm.transactions.Transactional
-import io.seqera.tower.domain.Task
-import io.seqera.tower.domain.User
-import io.seqera.tower.domain.Workflow
-import io.seqera.tower.exchange.trace.TraceTaskRequest
-import io.seqera.tower.exchange.trace.TraceWorkflowRequest
-import org.springframework.validation.FieldError
-
 import javax.inject.Inject
 import javax.inject.Singleton
 import javax.validation.ValidationException
 
+import grails.gorm.transactions.NotTransactional
+import grails.gorm.transactions.TransactionService
+import grails.gorm.transactions.Transactional
+import groovy.util.logging.Slf4j
+import io.seqera.tower.domain.HashSequenceGenerator
+import io.seqera.tower.domain.Task
+import io.seqera.tower.domain.User
+import io.seqera.tower.domain.Workflow
+import io.seqera.tower.domain.WorkflowKey
+import io.seqera.tower.exchange.trace.TraceTaskRequest
+import io.seqera.tower.exchange.trace.TraceWorkflowRequest
+import io.seqera.tower.service.audit.AuditEventPublisher
+import io.seqera.tower.service.progress.ProgressService
+import org.springframework.validation.FieldError
+
+@Slf4j
 @Singleton
 @Transactional
 class TraceServiceImpl implements TraceService {
 
-    WorkflowService workflowService
+    @Inject WorkflowService workflowService
+    @Inject TaskService taskService
+    @Inject TransactionService transactionService
+    @Inject ProgressService progressService
+    @Inject AuditEventPublisher eventPublisher
 
-    TaskService taskService
-
-    @Inject
-    TraceServiceImpl(WorkflowService workflowService, TaskService taskService) {
-        this.workflowService = workflowService
-        this.taskService = taskService
+    @NotTransactional
+    String createWorkflowKey() {
+        final record = transactionService.withTransaction { new WorkflowKey() .save() }
+        final workflowId = HashSequenceGenerator.getHash(record.id)
+        transactionService.withTransaction { record.workflowId=workflowId; record.save() }
+        return workflowId
     }
 
 
     Workflow processWorkflowTrace(TraceWorkflowRequest request, User owner) {
-        Workflow workflow = workflowService.processTraceWorkflowRequest(request, owner)
+        final workflow = workflowService.processTraceWorkflowRequest(request, owner)
+        if( workflow.checkIsRunning() ) {
+            progressService.create(workflow.id, request.processNames)
+            eventPublisher.workflowCreation(workflow.id)
+        }
+        else {
+            progressService.complete(workflow.id)
+            eventPublisher.workflowCompletion(workflow.id)
+        }
         checkWorkflowSaveErrors(workflow)
 
-        workflow
+        return workflow
     }
 
     List<Task> processTaskTrace(TraceTaskRequest request) {
         List<Task> tasks = taskService.processTaskTraceRequest(request)
-        tasks.each { Task task ->
+
+        for( Task task : tasks ) {
             checkTaskSaveErrors(task)
         }
+
+        progressService.updateStats(request.workflowId, tasks)
 
         return tasks
     }
@@ -96,4 +119,9 @@ class TraceServiceImpl implements TraceService {
         throw new ValidationException("Can't save task. Validation errors: ${uncustomizedErrors}")
     }
 
+    @Override
+    void keepAlive(String workflowId) {
+        workflowService.markForRunning(workflowId)
+        progressService.updateStats(workflowId, Collections.<Task>emptyList())
+    }
 }

@@ -48,17 +48,17 @@ export class UserProfileComponent implements OnInit {
     this.authService.update(this.userCopy).subscribe(
       (message: string) => this.handleOperationSuccess(message),
       (error: HttpErrorResponse) => this.handleOperationError(error)
-    )
+    );
   }
 
   delete() {
     this.authService.delete().subscribe(
       (message: string) => {
         this.handleOperationSuccess(message);
-        this.router.navigate(['/logout'])
+        this.router.navigate(['/logout']);
       },
       (error: HttpErrorResponse) => this.handleOperationError(error)
-    )
+    );
   }
 
   isSubmitEnabled(): boolean {
@@ -68,7 +68,7 @@ export class UserProfileComponent implements OnInit {
   isUserDeletionEnabled(): boolean {
     const userEmail: string = this.authService.currentUser.data.email;
 
-    return (this.confirmationDeleteEmail == userEmail);
+    return (this.confirmationDeleteEmail === userEmail);
   }
 
   private handleOperationSuccess(message: string): void {
@@ -77,7 +77,7 @@ export class UserProfileComponent implements OnInit {
   }
 
   private handleOperationError(error: HttpErrorResponse): void {
-    if (error.status == 400) {
+    if (error.status === 400) {
       this.notificationService.showErrorNotification(error.error);
     }
     this.isSubmitted = false;

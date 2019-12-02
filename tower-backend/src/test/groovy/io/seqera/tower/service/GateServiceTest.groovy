@@ -25,13 +25,15 @@ import io.seqera.tower.domain.Mail
 import io.seqera.tower.domain.User
 import io.seqera.tower.domain.UserRole
 import io.seqera.tower.exchange.gate.AccessGateResponse
+import io.seqera.tower.service.mail.MailService
+import io.seqera.tower.service.mail.MailServiceImpl
 import io.seqera.tower.util.AbstractContainerBaseTest
 import io.seqera.tower.util.DomainCreator
 /**
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
-@MicronautTest(application = Application.class, environments = ['test','trusted'])
+@MicronautTest(application = Application.class, environments = ['trusted-test'])
 @Transactional
 class GateServiceTest extends AbstractContainerBaseTest {
 
@@ -48,6 +50,14 @@ class GateServiceTest extends AbstractContainerBaseTest {
 
     @Value('${tower.server-url}')
     String serverUrl
+
+    protected List<Mail> pendingEmails() {
+        new ArrayList<Mail>((mailService as MailServiceImpl).pendingMails)
+    }
+
+    def setup() {
+        (mailService as MailServiceImpl).pendingMails.clear()
+    }
 
     void "a new user is created on first time access"() {
         given: "an email"
@@ -80,8 +90,8 @@ class GateServiceTest extends AbstractContainerBaseTest {
         UserRole.list().first().role.authority == 'ROLE_USER'
 
         and: "the new user registration has been notified to webmaster"
-        Mail.withNewTransaction { Mail.count() } == 1
-        Mail.withNewTransaction { Mail.list()[0].to } == contactEmail
+        pendingEmails().size()==1
+        pendingEmails()[0].to == contactEmail
     }
 
     void "a new user is created as trusted" () {
@@ -107,8 +117,8 @@ class GateServiceTest extends AbstractContainerBaseTest {
         resp.state == AccessGateResponse.State.LOGIN_ALLOWED
 
         and: "the new user registration has been notified to webmaster"
-        Mail.withNewTransaction { Mail.count() } == 1
-        Mail.withNewTransaction { Mail.list()[0].to } == EMAIL
+        pendingEmails().size()==1
+        pendingEmails()[0].to == EMAIL
     }
 
     void "a trusted user try to access"() {
@@ -135,8 +145,8 @@ class GateServiceTest extends AbstractContainerBaseTest {
         resp.user.authTime > authTime
 
         and: 'the resp email has been sent'
-        Mail.withNewTransaction { Mail.count() } == 1
-        def mail = Mail.withNewTransaction { Mail.list()[0] }
+        pendingEmails().size()==1
+        def mail = pendingEmails()[0]
         mail.to == user.email
         mail.subject == 'Nextflow Tower Sign in'
         mail.body.contains("${serverUrl}/auth?email=${resp.user.email.replaceAll('@','%40')}&authToken=${resp.user.authToken}")
@@ -159,9 +169,8 @@ class GateServiceTest extends AbstractContainerBaseTest {
         tx.withNewTransaction { User.count() } == 1
 
         and: 'no email was sent'
-        tx.withNewTransaction { Mail.count() } == 1
-        def mail = Mail.withNewTransaction { Mail.list()[0] }
-        mail.to == contactEmail
+        pendingEmails().size()==1
+        pendingEmails()[0].to == contactEmail
 
     }
 
@@ -317,10 +326,9 @@ class GateServiceTest extends AbstractContainerBaseTest {
         then:
         User.get(user.id).trusted
         and:
-        def mails = Mail.list()
-        mails.size()==1
-        mails[0].to == user.email
-        mails[0].subject.startsWith('You now have beta access to Nextflow Tower!')
+        pendingEmails().size()==1
+        pendingEmails()[0].to == user.email
+        pendingEmails()[0].subject.startsWith('You now have beta access to Nextflow Tower!')
     }
 
 
