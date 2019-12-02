@@ -38,7 +38,7 @@ export class WorkflowService {
   get workflows$(): Observable<Workflow[]> {
     if (this.isWorkflowsCacheEmpty()) {
       console.log('Initializing workflows');
-      this.emitWorkflowsFromServer(new FilteringParams(10, 0, null));
+      this.emitWorkflowsFromServer(new FilteringParams(30, 0, null));
     } else {
       console.log('Workflows already initialized');
       this.emitWorkflowsFromCache();
