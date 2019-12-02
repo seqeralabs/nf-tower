@@ -60,7 +60,7 @@ export class WorkflowMainTabsComponent implements OnChanges {
     this.commentsService.updateWorkFlowCommentById(this.workflow.id, commentE.updateData)
       .subscribe(() => {
         this.allComments = this.allComments.map(comment => comment.id === commentE.comment.id
-          ? {...comment, text: commentE.updateData.text, dateCreated: commentE.updateData.dateCreated} : comment
+          ? {...comment, text: commentE.updateData.text, dateCreated: commentE.updateData.timestamp} : comment
         );
       });
   }
