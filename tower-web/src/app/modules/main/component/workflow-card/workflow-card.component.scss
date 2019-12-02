@@ -10,8 +10,13 @@
   padding: 0 0 0 3px;
   width: $sidebar-width - 1rem; // Sidebar has px-2
 
-  :hover {
+  :hover, :active, :focus {
     background-color: #faf9f2;
+  }
+
+  &.active {
+    border-left-width: 6px;
+    padding-left: 0;
   }
 
   &.collapsed {
@@ -45,8 +50,6 @@
 
   &.active {
     border-color: $succeed-green;
-    border-left-width: 6px;
-    padding-left: 0;
   }
 
   .card-title, .sidebar-wf-icon {
@@ -59,8 +62,6 @@
 
   &.active {
     border-color: $running-blue;
-    border-left-width: 6px;
-    padding-left: 0;
   }
 
   .card-title, .sidebar-wf-icon {
@@ -73,8 +74,6 @@
 
   &.active {
     border-color: $failed-red;
-    border-left-width: 6px;
-    padding-left: 0;
   }
 
   .card-title, .sidebar-wf-icon {
@@ -87,8 +86,6 @@
 
   &.active {
     border-color: $partial-orange;
-    border-left-width: 6px;
-    padding-left: 0;
   }
 
   .card-title, .sidebar-wf-icon {
@@ -101,8 +98,6 @@
 
   &.active {
     border-color: $failed-red;
-    border-left-width: 6px;
-    padding-left: 0;
   }
 
   .card-title, .sidebar-wf-icon {

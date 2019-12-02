@@ -18,7 +18,7 @@
 </div>
 
 <!-- List of workflow cards -->
-<div class="wf-card-wrapper">
+<div class="wf-card-wrapper" (scroll)="onSidebarScroll($event)">
   <wt-workflow-card *ngFor="let workflow of workflows"
                     [workflow]="workflow"
                     [currentWorkflowId]="currentId"

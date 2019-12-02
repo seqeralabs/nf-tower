@@ -5,11 +5,12 @@
 <wt-navbar *ngIf="!shouldShowLandingPage"></wt-navbar>
 <div *ngIf="!shouldShowLandingPage && !shouldShowLoadingScreen" id="layout" class="d-flex">
 
-  <div id="sidebar-wrapper" *ngIf="shouldShowSidebar" (scroll)="onSidebarScroll($event)">
+  <div id="sidebar-wrapper" *ngIf="shouldShowSidebar">
     <div id="sidebar" class="px-2">
       <wt-sidebar [workflows]="workflows" (onDeleteWorkflow)="deleteWorkflow($event)"
                   (onSearchingWorkflows)="searchWorkflows($event)"
-                  (onCollapseSidebar)="toggleContentWidth($event)">
+                  (onCollapseSidebar)="toggleContentWidth($event)"
+                  (onScrollBottom)="loadNewPage()">
       </wt-sidebar>
 
       <div class="row load-gap">
