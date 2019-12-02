@@ -90,10 +90,10 @@ export class SidebarComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnDestroy(): void {
-    this.router.navigate(['/'])
+    this.router.navigate(['/']);
   }
 
-  private collapseSidebar(): void {
+  collapseSidebar(): void {
     this.sidebarCollapsed = !this.sidebarCollapsed;
     this.onCollapseSidebar.emit(this.sidebarCollapsed);
 
