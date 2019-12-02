@@ -27,13 +27,16 @@
               "src/assets"
             ],
             "styles": [
+              "../node_modules/quill/dist/quill.snow.css",
+              "../node_modules/quill/dist/quill.core.css",
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "node_modules/@mdi/font/css/materialdesignicons.min.css",
               "node_modules/chartist/dist/chartist.min.css",
               "node_modules/datatables.net-dt/css/jquery.dataTables.min.css",
-              "src/styles.scss"
+              "src/styles.scss",
             ],
             "scripts": [
+              "node_modules/quill/dist/quill.min.js",
               "node_modules/jquery/dist/jquery.min.js",
               "node_modules/popper.js/dist/umd/popper.min.js",
               "node_modules/bootstrap/dist/js/bootstrap.min.js",

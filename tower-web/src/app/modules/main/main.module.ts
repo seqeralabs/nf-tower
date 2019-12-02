@@ -48,6 +48,8 @@ import { LoadingComponent } from './component/loading/loading.component';
 import { TreeListComponent } from "./component/tree-list/TreeListComponent";
 import { WorkflowStatusIconComponent } from "../../workflow-status-icon/workflow-status-icon.component";
 import {CommentComponent} from "./component/comment/comment.component";
+import {TextEditorComponent} from "./component/quill-textarea/text-editor.component";
+import { QuillModule } from 'ngx-quill'
 
 /*
  * Main application routing strategy
@@ -102,7 +104,8 @@ export class MainRoutingModule { }
     NotificationComponent,
     LandingComponent,
     TreeListComponent,
-    CommentComponent
+    CommentComponent,
+    TextEditorComponent
   ],
   imports: [
     BrowserModule,
@@ -110,7 +113,8 @@ export class MainRoutingModule { }
     HttpClientModule,
     FormsModule,
     ChartistModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    QuillModule.forRoot()
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
