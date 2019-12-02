@@ -37,6 +37,8 @@ export class SidebarComponent implements OnInit, OnDestroy, OnChanges {
   onSearchingWorkflows: EventEmitter<string> = new EventEmitter();
   @Output()
   onCollapseSidebar: EventEmitter<boolean> = new EventEmitter();
+  @Output()
+  onScrollBottom: EventEmitter<boolean> = new EventEmitter();
 
   sidebarCollapsed: boolean = false;
 
@@ -116,6 +118,17 @@ export class SidebarComponent implements OnInit, OnDestroy, OnChanges {
     this.isSearchTriggered = true;
     this.onSearchingWorkflows.next(searchText);
   }
+
+  onSidebarScroll(event) {
+     //Check if the end of the container has been reached: https://stackoverflow.com/a/50038429
+     const isScrollEndReached = (event.target.offsetHeight + event.target.scrollTop >= event.target.scrollHeight);
+     if (!isScrollEndReached) {
+       return;
+     }
+
+     console.log('Sidebar end reached');
+     this.onScrollBottom.emit(true);
+   }
 
   private goToFirstWorkflow(): void {
     if (this.workflows.length > 0) {

@@ -1,5 +1,9 @@
 @import "~src/assets/variables";
 
+#sidebar_collapse_btn {
+  line-height: 1.2;
+}
+
 .loading {
   background-color: #ffffff;
   background-image: url("~src/assets/loading.gif");

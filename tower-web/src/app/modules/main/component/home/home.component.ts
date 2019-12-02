@@ -183,17 +183,6 @@ export class HomeComponent implements OnInit {
     this.sidebarCollapsed = event;
   }
 
-  onSidebarScroll(event) {
-    //Check if the end of the container has been reached: https://stackoverflow.com/a/50038429
-    const isScrollEndReached = (event.target.offsetHeight + event.target.scrollTop >= event.target.scrollHeight);
-    if (!isScrollEndReached) {
-      return;
-    }
-
-    console.log('Sidebar end reached');
-    this.loadNewPage();
-  }
-
   private loadNewPage(): void {
     if (this.isNextPageLoadTriggered) {
       return;
