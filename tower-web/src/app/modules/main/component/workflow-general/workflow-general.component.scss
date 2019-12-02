@@ -1,8 +1,5 @@
-.mdi {
-  font-size: 1.5rem;
-}
-
-span.mdi {
-  position: relative;
-  top: 0.15rem;
+ul li {
+    max-width: 100%;
+    white-space: nowrap;
+    overflow-x: auto;
 }

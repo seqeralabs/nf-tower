@@ -77,5 +77,3 @@ live:
     time: 5s
     count: 100
     heartbeat: 50s
-
-

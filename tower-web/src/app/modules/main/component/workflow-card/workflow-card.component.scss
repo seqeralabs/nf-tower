@@ -2,23 +2,48 @@
 
 .card {
   cursor: pointer;
-  margin: 5px 6px;
   border-left: solid 6px;
   border-radius: 2px;
-  border-top: 0;
+  border-top: 1px solid #f0f0f0;
   border-right: 1px solid #ddd;
   border-bottom: 1px solid #ddd;
   padding: 0;
+  width: $sidebar-width - 1rem; // Sidebar has px-2
+
+  &.active, :hover, :focus {
+    background-color: #faf9f2;
+  }
+
+  &.collapsed {
+    width: auto;
+
+    // Stronger colour for a smaller area
+    &.active, :hover, :focus {
+      background-color: #fcf8de;
+    }
+  }
 
   p {
     font-size: 0.9em;
+  }
+
+  .card-content {
+    margin-right: 2rem;
+  }
+
+  .sidebar-wf-icon {
+    line-height: 1;
   }
 }
 
 .workflow--succeed {
   border-left-color: $succeed-green;
 
-  .card-title {
+  &.active {
+    border-color: $succeed-green;
+  }
+
+  .card-title, .sidebar-wf-icon {
     color: $succeed-green;
   }
 }
@@ -26,7 +51,11 @@
 .workflow--running {
   border-left-color: $running-blue;
 
-  .card-title {
+  &.active {
+    border-color: $running-blue;
+  }
+
+  .card-title, .sidebar-wf-icon {
     color: $running-blue;
   }
 }
@@ -34,7 +63,11 @@
 .workflow--failed {
   border-left-color: $failed-red;
 
-  .card-title {
+  &.active {
+    border-color: $failed-red;
+  }
+
+  .card-title, .sidebar-wf-icon {
     color: $failed-red;
   }
 }
@@ -42,7 +75,11 @@
 .workflow--partial {
   border-left-color: $partial-orange;
 
-  .card-title {
+  &.active {
+    border-color: $partial-orange;
+  }
+
+  .card-title, .sidebar-wf-icon {
     color: $partial-orange;
   }
 }
@@ -50,7 +87,11 @@
 .workflow--unknown {
   border-left-color: $failed-red;
 
-  .card-title {
+  &.active {
+    border-color: $failed-red;
+  }
+
+  .card-title, .sidebar-wf-icon {
     color: $failed-red;
   }
 }
@@ -60,4 +101,3 @@ div.btn-delete {
   position: relative;
   button { position: absolute; right: 0px; bottom: 0px; }
 }
-

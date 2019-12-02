@@ -23,6 +23,18 @@
     border-top-color: $partial-orange;
   }
 
+  // Full width page content on tiny screens
+  @media screen and (max-width: 576px) {
+    .card-body {
+      padding-left: 0;
+      padding-right: 0;
+
+      .card, .alert {
+        border-radius: 0;
+      }
+    }
+  }
+
 }
 
 .project-name {
