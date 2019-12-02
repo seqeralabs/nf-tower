@@ -2,14 +2,14 @@
 <div class="row no-gutters">
   <!-- Button to expand / collapse sidebar -->
   <div [class.col-2]="!sidebarCollapsed" [class.col-12]="sidebarCollapsed">
-    <button class="btn btn-secondary mt-2 mr-1" (click)="collapseSidebar()" title="Collapse sidebar">
-      <span class="mdi mdi-chevron-double-left" *ngIf="!sidebarCollapsed"></span>
-      <span class="mdi mdi-chevron-double-right" *ngIf="sidebarCollapsed"></span>
+    <button id="sidebar_collapse_btn" class="btn btn-block btn-secondary mt-2 mr-1" (click)="collapseSidebar()" title="Collapse sidebar">
+      <span class="mdi mdi-chevron-double-left mdi-18px" *ngIf="!sidebarCollapsed"></span>
+      <span class="mdi mdi-chevron-double-right mdi-18px" *ngIf="sidebarCollapsed"></span>
     </button>
   </div>
   <!-- Workflow search input -->
   <div *ngIf="!sidebarCollapsed" class="col-10">
-    <div class="form-group mt-2 ml-0">
+    <div class="form-group mt-2 ml-2">
       <input id="search" name="search" type="search" class="form-control" placeholder="Search..."
              [ngClass]="{'loading': isSearchTriggered}"
              [formControl]="searchBoxFormControl">
