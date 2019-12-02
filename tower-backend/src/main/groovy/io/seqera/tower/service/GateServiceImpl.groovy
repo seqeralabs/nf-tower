@@ -11,19 +11,21 @@
 
 package io.seqera.tower.service
 
+import static io.seqera.mail.MailHelper.*
+
 import javax.inject.Inject
 import javax.inject.Singleton
 
 import grails.gorm.transactions.Transactional
-import groovy.text.GStringTemplateEngine
-import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import io.micronaut.context.annotation.Value
-import io.seqera.tower.domain.MailAttachment
 import io.seqera.tower.domain.Mail
+import io.seqera.tower.domain.MailAttachment
 import io.seqera.tower.domain.User
 import io.seqera.tower.exchange.gate.AccessGateResponse
+import io.seqera.tower.service.mail.MailService
+
 /**
  * Implements the Gate services
  *
@@ -53,11 +55,10 @@ class GateServiceImpl implements GateService {
     @Inject
     MailService mailService
 
-    @CompileDynamic
     @Override
     AccessGateResponse access(String email) {
         final result = new AccessGateResponse()
-        result.user = User.findByEmail(email)
+        result.user = userService.getByEmail(email)
         boolean isNew
         if( !result.user ) {
             isNew = true
@@ -128,21 +129,6 @@ class GateServiceImpl implements GateService {
      */
     protected MailAttachment getLogoAttachment() {
         MailAttachment.resource('/io/seqera/tower/service/tower-logo.png', contentId: '<tower-logo>', disposition: 'inline')
-    }
-
-    protected String getTemplateFile(String classpathResource, Map binding) {
-        def source = this.class.getResourceAsStream(classpathResource)
-        if (!source)
-            throw new IllegalArgumentException("Cannot load notification default template -- check classpath resource: $classpathResource")
-        loadMailTemplate0(source, binding)
-    }
-
-    private String loadMailTemplate0(InputStream source, Map binding) {
-        def map = new HashMap()
-        map.putAll(binding)
-
-        def template = new GStringTemplateEngine().createTemplate(new InputStreamReader(source))
-        template.make(map).toString()
     }
 
     protected String buildAccessUrl(User user) {

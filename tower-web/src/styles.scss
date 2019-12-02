@@ -10,7 +10,6 @@ html {
 body {
   height: 100%;
   width: 100%;
-  overflow-x: hidden;
   background-color: $body-background;
 }
 
@@ -30,51 +29,48 @@ code {
   width: 100vw;
 }
 
+.navbar-brand {
+  max-width: calc(100% - 60px);
+  margin-right: 0;
+  overflow: hidden;
+}
 .navbar-brand img {
   height: 40px;
 }
 
 #layout {
-  padding-top: $navbar-height;
-}
-
-.sidebar-toggler-btn {
-  color: rgba(0,0,0,.5);
-  cursor: pointer;
-  padding: .25rem .75rem;
-  font-size: 1.25rem;
-  line-height: 1;
-  background-color: transparent;
-  border: 1px solid rgba(0,0,0,.1);
-  border-radius: .25rem;
-}
-
-#sidebar-wrapper {
-  min-height: 100vh;
-  margin-left: $sidebar-width * -1;
-  -webkit-transition: margin .25s ease-in-out;
-  -moz-transition: margin .25s ease-in-out;
-  -o-transition: margin .25s ease-in-out;
-  transition: margin .25s ease-in-out;
-  width: $sidebar-width;
-}
-
-#sidebar-wrapper.toggled {
-  margin-left: 0;
+  min-height: calc(100% - #{$navbar-height});
 }
 
 #sidebar {
-  top: 62px;
-  width: $sidebar-width;
-  max-width: 100%;
+  position: fixed;
+  top: $navbar-height;
+  bottom: 0;
+  z-index: 2;
   background-color: $sidebar-background;
   border-right: $sidebar-border;
-  overflow-x: hidden;
-  overflow-y: auto;
 }
 
 #central {
-  min-width: 100%;
+  min-width: 200px;
+  padding-top: $navbar-height;
+  width: 100%;
+
+  &.sidebarNotCollapsed {
+    width: calc(100% - #{$sidebar-width});
+    margin-left: #{$sidebar-width};
+  }
+
+  &.sidebarCollapsed {
+    width: calc(100% - #{$sidebar-collapsed-width});
+    margin-left: #{$sidebar-collapsed-width};
+  }
+}
+// On small screens, allow the content to spread offscreen
+@media (max-width: 576px) {
+  #layout {
+    overflow-x: hidden;
+  }
 }
 
 
@@ -186,6 +182,14 @@ code {
     @media (min-width: 576px){
       width: 30rem;
     }
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
   }
 
   .dataTables_length, .dataTables_paginate {
@@ -300,6 +304,9 @@ code {
 }
 
 footer {
+  z-index: 5;
+  position: relative;
+  background-color: $body-background;
   font-size: smaller;
   text-align: center;
 

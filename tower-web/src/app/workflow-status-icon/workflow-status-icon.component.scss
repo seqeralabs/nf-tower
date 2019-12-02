@@ -19,8 +19,12 @@
     color: $failed-red;
   }
 
-  &.partialFailed {
-    color: $partialFailed-orange;
+  &.failed {
+    color: $failed-red;
+  }
+
+  &.partial {
+    color: $partial-orange;
   }
 }
 

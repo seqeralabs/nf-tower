@@ -19,5 +19,6 @@ export interface UserData {
   lastName: string;
   organization: string;
   description: string;
+  notification: boolean;
   avatar: string;
 }

@@ -1,14 +1,17 @@
 <div *ngIf="workflow" class="tw-workflow">
-  <div class="card" [ngClass]="{'running': workflow.isRunning, 'succeed': workflow.isSuccessful, 'failed': workflow.isFailed, 'partialFailed': workflow.isPartialFailed}">
+  <div class="card" [ngClass]="{'running': workflow.isRunning,
+                                'succeed': workflow.isSuccessful,
+                                'failed': workflow.isFailed || workflow.isUnknownStatus,
+                                'partial': workflow.isPartialFailed}">
     <div class="card-header">
       <div class="row">
         <div class="col">
           <h1>
             <ng-container *ngIf="workflow.data.repository!=null; else noLink">
-              <a class="project-name" [href]="workflow.data.repository" target="_blank">{{workflow.data.projectName}}</a>
+              <a class="project-name" [href]="workflow.data.repository" target="_blank">{{workflow.displayName}}</a>
             </ng-container>
             <ng-template #noLink>
-              <span >{{workflow.data.projectName}}</span>
+              <span >{{workflow.displayName}}</span>
             </ng-template>
           </h1>
           <h2>{{workflow.data.runName}}</h2>
@@ -19,6 +22,9 @@
     <div class="card-body">
       <div class="mb-4" *ngIf="workflow.isFailed">
         <wt-workflow-error [workflow]="workflow"></wt-workflow-error>
+      </div>
+      <div class="mb-4" *ngIf="workflow.isUnknownStatus">
+        <wt-workflow-unknown [workflow]="workflow"></wt-workflow-unknown>
       </div>
       <div class="mb-4">
         <wt-workflow-main-tabs [workflow]="workflow"></wt-workflow-main-tabs>
@@ -57,7 +63,7 @@
         </div>
       </div>
       <div *ngIf="workflow.isCompleted">
-        <wt-workflow-metrics></wt-workflow-metrics>
+        <wt-workflow-metrics [workflowId]="workflow.id"></wt-workflow-metrics>
       </div>
     </div>
   </div>

@@ -13,7 +13,6 @@ package io.seqera.tower.controller
 
 import javax.inject.Inject
 
-import grails.gorm.transactions.TransactionService
 import grails.gorm.transactions.Transactional
 import groovy.util.logging.Slf4j
 import io.micronaut.context.annotation.Value
@@ -26,14 +25,8 @@ import io.micronaut.http.annotation.Post
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.micronaut.security.rules.SecurityRule
-import io.seqera.tower.domain.HashSequenceGenerator
 import io.seqera.tower.domain.Task
-import io.seqera.tower.domain.User
-import io.seqera.tower.domain.Workflow
-import io.seqera.tower.domain.WorkflowKey
-import io.seqera.tower.enums.LiveAction
 import io.seqera.tower.enums.TraceProcessingStatus
-import io.seqera.tower.exchange.live.LiveUpdate
 import io.seqera.tower.exchange.trace.TraceAliveRequest
 import io.seqera.tower.exchange.trace.TraceAliveResponse
 import io.seqera.tower.exchange.trace.TraceInitRequest
@@ -42,10 +35,9 @@ import io.seqera.tower.exchange.trace.TraceTaskRequest
 import io.seqera.tower.exchange.trace.TraceTaskResponse
 import io.seqera.tower.exchange.trace.TraceWorkflowRequest
 import io.seqera.tower.exchange.trace.TraceWorkflowResponse
-import io.seqera.tower.service.LiveEventsService
-import io.seqera.tower.service.ProgressService
 import io.seqera.tower.service.TraceService
 import io.seqera.tower.service.UserService
+import io.seqera.tower.service.live.LiveEventsService
 /**
  * Implements the `trace` API
  *
@@ -58,42 +50,16 @@ class TraceController extends BaseController {
     @Value('${tower.server-url}')
     String serverUrl
 
-    TraceService traceService
-    ProgressService progressService
-    UserService userService
-    LiveEventsService serverSentEventsService
-    @Inject TransactionService transactionService
-
-    @Inject
-    TraceController(TraceService traceService, ProgressService progressService, UserService userService, LiveEventsService serverSentEventsService) {
-        this.traceService = traceService
-        this.progressService = progressService
-        this.userService = userService
-        this.serverSentEventsService = serverSentEventsService
-    }
-
-
-    protected void publishWorkflowEvent(Workflow workflow, User user) {
-        serverSentEventsService.publishEvent(LiveUpdate.of(user.id, workflow.id, LiveAction.WORKFLOW_UPDATE))
-    }
-
-    protected void publishProgressEvent(Workflow workflow) {
-        serverSentEventsService.publishEvent(LiveUpdate.of(workflow.owner.id, workflow.id, LiveAction.PROGRESS_UPDATE))
-    }
+    @Inject TraceService traceService
+    @Inject UserService userService
+    @Inject LiveEventsService liveEventsService
 
     @Post("/alive")
     @Transactional
     @Secured(['ROLE_USER'])
-    HttpResponse<TraceAliveResponse> alive(@Body TraceAliveRequest req, Authentication authentication) {
-        log.info "Receiving trace alive [workflowId=${req.workflowId}; user=${authentication.name}]"
-
-        Workflow workflow = Workflow.get(req.workflowId)
-        if (!workflow) {
-            final msg = "Cannot find workflowId=$req.workflowId"
-            log.warn(msg)
-            return HttpResponse.badRequest(new TraceAliveResponse(message:msg))
-        }
-
+    HttpResponse<TraceAliveResponse> heartbeat(@Body TraceAliveRequest req) {
+        log.debug "Receiving trace alive [workflowId=${req.workflowId}]"
+        traceService.keepAlive(req.workflowId)
         HttpResponse.ok(new TraceAliveResponse(message: 'OK'))
     }
 
@@ -103,21 +69,21 @@ class TraceController extends BaseController {
     @Secured(['ROLE_USER'])
     HttpResponse<TraceWorkflowResponse> workflow(@Body TraceWorkflowRequest req, Authentication authentication) {
         try {
-            final msg = (req.workflow.checkIsStarted()
+            final msg = (req.workflow.checkIsRunning()
                     ? "Receiving trace for new workflow [workflowId=${req.workflow.id}; user=${authentication.name}]"
                     : "Receiving trace for workflow completion [workflowId=${req.workflow.id}; user=${authentication.name}]")
             log.info(msg)
 
-            User user = userService.getFromAuthData(authentication)
-            Workflow workflow = traceService.processWorkflowTrace(req, user)
+            final user = userService.getByAuth(authentication)
+            final workflow = traceService.processWorkflowTrace(req, user)
 
             final resp = new TraceWorkflowResponse(
                     status: TraceProcessingStatus.OK,
                     workflowId: workflow.id,
                     watchUrl: "${serverUrl}/watch/${workflow.id}"
             )
-            publishWorkflowEvent(workflow, user)
-            return HttpResponse.created(resp)
+            liveEventsService.publishWorkflowEvent(workflow)
+            return HttpResponse.ok(resp)
         }
         catch (Exception e) {
             log.error("Failed to handle workflow trace=${req.workflow.id}", e)
@@ -129,37 +95,38 @@ class TraceController extends BaseController {
     @Transactional
     @Secured(['ROLE_USER'])
     HttpResponse<TraceTaskResponse> task(@Body TraceTaskRequest req, Authentication authentication) {
-        log.info "Receiving task trace request [workflowId=${req.workflowId}; user=${authentication.name}]"
+        log.info "Receiving task trace request [workflowId=${req.workflowId}; tasks=${req.tasks?.size()}; user=${authentication.name}]"
 
         HttpResponse<TraceTaskResponse> response
         if( !req.workflowId )
-            HttpResponse.badRequest(TraceTaskResponse.ofError("Missing workflow ID"))
+            return HttpResponse.badRequest(TraceTaskResponse.ofError("Missing workflow ID"))
+
+        if( req.tasks?.size()>100 ) {
+            log.warn "Too many tasks for workflow Id=$req.workflowId; size=${req.tasks.size()}"
+            return HttpResponse.badRequest(TraceTaskResponse.ofError("Workflow trace request too big"))
+        }
 
         try {
             List<Task> tasks = traceService.processTaskTrace(req)
-
-            Workflow workflow = tasks.first().workflow
-            progressService.updateLoadPeaks(workflow) // this query should be cached into 2nd level cache
-            response = HttpResponse.created(TraceTaskResponse.ofSuccess(workflow.id))
-            publishProgressEvent(workflow)
+            final workflow = tasks.first().workflow
+            liveEventsService.publishProgressEvent(workflow)
+            response = HttpResponse.ok(TraceTaskResponse.ofSuccess(workflow.id))
         }
         catch (Exception e) {
             log.error("Failed to handle tasks trace for request: $req", e)
             response = HttpResponse.badRequest(TraceTaskResponse.ofError(e.message))
         }
 
-        response
+        return response
     }
 
     @Post("/init")
     @Secured(['ROLE_USER'])
     HttpResponse<TraceInitResponse> init(TraceInitRequest req, Authentication authentication) {
         log.info "Receiving trace init [user=${authentication.getName()}]"
-        final record = transactionService.withTransaction { new WorkflowKey(sessionId: req.sessionId) .save() }
-        final workflowId = HashSequenceGenerator.getHash(record.id)
+        final workflowId = traceService.createWorkflowKey()
+        final resp = new TraceInitResponse(workflowId: workflowId)
         log.info "Created new workflow ID=${workflowId} [user=${authentication.getName()}]"
-        transactionService.withTransaction { record.workflowId=workflowId; record.save() }
-        final resp = new TraceInitResponse(workflowId: workflowId, message: 'OK')
         HttpResponse.ok(resp)
     }
 

@@ -15,7 +15,7 @@ import {environment} from '../../../../environments/environment';
 import {Observable, Subject, of, ReplaySubject} from 'rxjs';
 import {map, tap} from 'rxjs/operators';
 import {orderBy} from 'lodash';
-import {Progress} from '../entity/progress/progress';
+import {ProgressData} from '../entity/progress/progress-data';
 import {FilteringParams} from "../util/filtering-params";
 
 
@@ -38,7 +38,7 @@ export class WorkflowService {
   get workflows$(): Observable<Workflow[]> {
     if (this.isWorkflowsCacheEmpty()) {
       console.log('Initializing workflows');
-      this.emitWorkflowsFromServer(new FilteringParams(10, 0, null));
+      this.emitWorkflowsFromServer(new FilteringParams(30, 0, null));
     } else {
       console.log('Workflows already initialized');
       this.emitWorkflowsFromCache();
@@ -99,15 +99,15 @@ export class WorkflowService {
     );
   }
 
-  getProgress(workflowId: string | number): Observable<Progress> {
+  getProgress(workflowId: string): Observable<ProgressData> {
     console.log(`Requesting progress for workflow ${workflowId}`);
     const url: string = `${endpointUrl}/${workflowId}/progress`;
     return this.http.get(url).pipe(
-      map((data: any) => new Progress(data.progress))
+      map((data: any) => new ProgressData(data.progress))
     );
   }
 
-  buildTasksGetUrl(workflowId: number | string): string {
+  buildTasksGetUrl(workflowId: string): string {
     return `${endpointUrl}/${workflowId}/tasks`;
   }
 
@@ -131,7 +131,7 @@ export class WorkflowService {
     });
   }
 
-  updateProgress(progress: Progress, workflow: Workflow): void {
+  updateProgress(progress: ProgressData, workflow: Workflow): void {
     workflow.progress = progress;
   }
 

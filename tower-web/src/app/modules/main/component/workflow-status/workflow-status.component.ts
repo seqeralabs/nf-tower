@@ -11,7 +11,7 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {chunk} from "lodash";
 import {getAllTaskStatusesProgressStateTags} from "../../entity/task/task-status.enum";
-import {ProgressState} from "../../entity/progress/progress-state";
+import {ProgressRecord} from "../../entity/progress/progress-record";
 
 @Component({
   selector: 'wt-workflow-status',
@@ -21,11 +21,9 @@ import {ProgressState} from "../../entity/progress/progress-state";
 export class WorkflowStatusComponent implements OnInit {
 
   @Input()
-  progressState: ProgressState;
+  progressState: ProgressRecord;
 
-  private statusesTags: string[];
-
-  statusesRows: string[][];
+  statusesTags: string[];
 
   constructor() {
     this.statusesTags = getAllTaskStatusesProgressStateTags();

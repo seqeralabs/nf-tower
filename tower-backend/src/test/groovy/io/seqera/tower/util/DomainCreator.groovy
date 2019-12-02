@@ -14,8 +14,9 @@ package io.seqera.tower.util
 import java.time.Instant
 import java.time.OffsetDateTime
 
+import groovy.util.logging.Slf4j
 import io.seqera.tower.domain.AccessToken
-import io.seqera.tower.domain.Mail
+import io.seqera.tower.domain.ProcessLoad
 import io.seqera.tower.domain.ResourceData
 import io.seqera.tower.domain.Role
 import io.seqera.tower.domain.Task
@@ -24,12 +25,14 @@ import io.seqera.tower.domain.User
 import io.seqera.tower.domain.UserRole
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.domain.WorkflowComment
+import io.seqera.tower.domain.WorkflowLoad
 import io.seqera.tower.domain.WorkflowMetrics
 import io.seqera.tower.domain.WorkflowProcess
 import io.seqera.tower.enums.TaskStatus
 import org.grails.datastore.mapping.validation.ValidationException
 import org.hibernate.Session
 
+@Slf4j
 class DomainCreator {
 
     Boolean save = true
@@ -39,24 +42,25 @@ class DomainCreator {
 
     static void cleanupDatabase() {
         Workflow.withNewTransaction {
-            Mail.deleteAll(Mail.list())
-            WorkflowProcess.deleteAll(WorkflowProcess.list())
-            WorkflowComment.deleteAll(WorkflowComment.list())
-            WorkflowMetrics.deleteAll(WorkflowMetrics.list())
-            Task.deleteAll(Task.list())
-            TaskData.deleteAll(TaskData.list())
-            Workflow.deleteAll(Workflow.list())
-            AccessToken.deleteAll(AccessToken.list())
-            UserRole.deleteAll(UserRole.list())
-            Role.deleteAll(Role.list())
-            User.deleteAll(User.list())
+            ProcessLoad.where { true }.deleteAll()
+            WorkflowLoad.where { true }.deleteAll()
+            WorkflowProcess.where { true }.deleteAll()
+            WorkflowComment.where { true }.deleteAll()
+            WorkflowMetrics.where { true }.deleteAll()
+            Task.where { true }.deleteAll()
+            TaskData.where { true }.deleteAll()
+            Workflow.where { true }.deleteAll()
+            AccessToken.where { true }.deleteAll()
+            UserRole.where { true }.deleteAll()
+            Role.where { true }.deleteAll()
+            User.where { true }.deleteAll()
         }
     }
 
     static void cleanupMysqlDb() {
         User.withNewSession { Session session ->
             User.withNewTransaction {
-                def tables = session.createSQLQuery("select t.table_name from information_schema.tables t where t.table_schema = 'tower' and t.table_name not like 'flyway%'").list()
+                def tables = session.createSQLQuery("select t.table_name from information_schema.tables t where t.table_schema = 'tower' and t.table_name not like 'flyway%' and t.table_type like '%TABLE'").list()
                 session.createSQLQuery("SET FOREIGN_KEY_CHECKS=0;").executeUpdate()
                 try {
                     tables.each {
@@ -103,8 +107,37 @@ class DomainCreator {
         WorkflowProcess process = new WorkflowProcess()
         fields.workflow = fields.containsKey('workflow') ? fields.workflow : createWorkflow()
         fields.name = fields.containsKey('name') ? fields.name : "process_${generateUniqueNamePart()}"
-        fields.index = fields.containsKey('index') ? fields.index : generateUniqueNumber()
+        fields.position = fields.containsKey('position') ? fields.position : generateUniqueNumber()
         createInstance(process, fields)
+    }
+
+    ProcessLoad createProcessLoad(Map fields = [:]) {
+        def load = new ProcessLoad()
+        fields.workflow = fields.containsKey('workflow') ? fields.workflow : createWorkflow()
+        fields.process = fields.containsKey('process') ? fields.process : "process_${generateUniqueNamePart()}"
+
+        fields.running = fields.containsKey('running') ? fields.running : generateUniqueNumber()
+        fields.pending = fields.containsKey('pending') ? fields.pending : generateUniqueNumber()
+        fields.submitted = fields.containsKey('submitted') ? fields.submitted : generateUniqueNumber()
+        fields.succeeded = fields.containsKey('succeeded') ? fields.succeeded : generateUniqueNumber()
+        fields.failed = fields.containsKey('failed') ? fields.failed : generateUniqueNumber()
+        fields.cached = fields.containsKey('cached') ? fields.cached : generateUniqueNumber()
+
+        createInstance(load, fields)
+    }
+
+    WorkflowLoad createWorkflowLoad(Map fields = [:]) {
+        def result = new WorkflowLoad()
+
+        fields.workflow = fields.containsKey('workflow') ? fields.workflow : createWorkflow()
+        fields.running = fields.containsKey('running') ? fields.running : generateUniqueNumber()
+        fields.pending = fields.containsKey('pending') ? fields.pending : generateUniqueNumber()
+        fields.submitted = fields.containsKey('submitted') ? fields.submitted : generateUniqueNumber()
+        fields.succeeded = fields.containsKey('succeeded') ? fields.succeeded : generateUniqueNumber()
+        fields.failed = fields.containsKey('failed') ? fields.failed : generateUniqueNumber()
+        fields.cached = fields.containsKey('cached') ? fields.cached : generateUniqueNumber()
+
+        createInstance(result, fields)
     }
 
     Task createTask(Map fields = [:]) {
@@ -190,9 +223,22 @@ class DomainCreator {
     }
 
     User createUserWithRole(Map fields = [:], String authority) {
-        User user = createUser(fields)
-        createUserRole(user: user, role: createRole(authority: authority))
-        return user
+        def create = {
+            boolean bak = this.withNewTransaction
+            this.withNewTransaction = false
+            try {
+                // creat the user and role if not exists
+                User user = createUser(fields)
+                Role role = Role.findByAuthority(authority) ?: createRole(authority: authority)
+                createUserRole(user: user, role: role)
+                return user
+            }
+            finally {
+                this.withNewTransaction = bak
+            }
+        }
+
+        this.withNewTransaction ? User.withNewTransaction(create) : create.call()
     }
 
     UserRole createUserRole(Map fields = [:]) {

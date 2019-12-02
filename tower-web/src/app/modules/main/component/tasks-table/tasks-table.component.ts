@@ -10,9 +10,9 @@
  */
 import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {Task} from "../../entity/task/task";
-import {Progress} from "../../entity/progress/progress";
+import {ProgressData} from "../../entity/progress/progress-data";
 import {WorkflowService} from "../../service/workflow.service";
-import {convertTaskStatusToProgressLabel, convertTaskStatusToProgressTag} from "../../entity/task/task-status.enum";
+import {convertTaskStatusToProgressLabel} from "../../entity/task/task-status.enum";
 
 declare var $: any;
 
@@ -24,9 +24,9 @@ declare var $: any;
 export class TasksTableComponent implements OnInit, OnChanges {
 
   @Input()
-  workflowId: number | string;
+  workflowId: string;
   @Input()
-  progress: Progress;
+  progress: ProgressData;
 
   dataTable: any;
 
@@ -61,7 +61,10 @@ export class TasksTableComponent implements OnInit, OnChanges {
       dom: 'frtpl',
       scrollX: true,
       serverSide: true,
-      pageLength: 25,
+      pageLength: 30,
+      info: false,
+      pagingType: "full",
+      lengthChange: false,
       orderMulti: false,
       rowId: (rowData) => `tr-${rowData[0]}`,
       columns: [
@@ -73,17 +76,17 @@ export class TasksTableComponent implements OnInit, OnChanges {
         {name: "exit", orderable: false},
         {name: "container", orderable: false },
         {name: "nativeId", orderable: false},
-        {name: "submit", orderable: true},
-        {name: "duration", orderable: true},
-        {name: "realtime", orderable: true},
+        {name: "submit", orderable: false},
+        {name: "duration", orderable: false},
+        {name: "realtime", orderable: false},
         {name: "pcpu", orderable: false},
         {name: "pmem", orderable: false},
-        {name: "peakRss", orderable: true},
-        {name: "peakVmem", orderable: true},
-        {name: "rchar", orderable: true},
-        {name: "wchar", orderable: true},
-        {name: "volCtxt", orderable: true},
-        {name: "invCtxt", orderable: true},
+        {name: "peakRss", orderable: false},
+        {name: "peakVmem", orderable: false},
+        {name: "rchar", orderable: false},
+        {name: "wchar", orderable: false},
+        {name: "volCtxt", orderable: false},
+        {name: "invCtxt", orderable: false},
         // hidden columns
         {name: "workdir", visible: false},
         {name: "script", visible: false},
@@ -102,6 +105,10 @@ export class TasksTableComponent implements OnInit, OnChanges {
         {name: "vmem", visible: false},
         {name: "attempt", visible: false},
         {name: "errorAction", visible: false},
+        {name: "executor", visible: false},
+        {name: "machineType", visible: false},
+        {name: "cloudZone", visible: false},
+        {name: "priceModel", visible: false}
       ],
       ajax: {
         url: this.workflowService.buildTasksGetUrl(this.workflowId),
@@ -158,7 +165,11 @@ export class TasksTableComponent implements OnInit, OnChanges {
               task.humanizedRss,
               task.humanizedVmem,
               task.data.attempt,
-              task.data.errorAction
+              task.data.errorAction,
+              task.data.executor,
+              task.data.machineType,
+              task.data.cloudZone,
+              task.data.priceModel
             ]) : [];
 
           return JSON.stringify(json);
@@ -199,12 +210,12 @@ export class TasksTableComponent implements OnInit, OnChanges {
   }
 
   private str(x): string {
-    return x == null || x == '' ? '-' : x.toString().trim()
+    return x == null || x == '' ? '-' : x.toString().trim();
   }
 
   private col(row, col:string) {
-    let result = this.dataTable.cell(row, col+':name').data();
-    return this.str(result)
+    const result = this.dataTable.cell(row, col+':name').data();
+    return this.str(result);
   }
 
   private generateRowDataChildFormat(data): string {
@@ -217,17 +228,20 @@ export class TasksTableComponent implements OnInit, OnChanges {
     const action = this.col(data, 'errorAction');
     const env = this.col(data, 'env');
 
-    let res_requested = [
+    const res_requested = [
       {name: 'container', description: 'Container image name used to execute the task'},
       {name: 'queue', description: 'The queue that the executor attempted to run the process on'},
       {name: 'cpus', description: 'The cpus number request for the task execution'},
       {name: 'memory', description: 'The memory request for the task execution'},
       {name: 'disk', description: 'The disk space request for the task execution'},
       {name: 'time', description: 'The time request for the task execution'},
+      {name: 'executor', description: 'The Nextflow executor used to carry out this task'},
+      {name: 'machineType', description: 'The virtual machine type used to carry out by this task'},
+      {name: 'cloudZone', description: 'The cloud zone where the job get executed'},
+      {name: 'priceModel', description: 'The price model used to charge the job computation'},
     ];
 
-
-    let res_time = [
+    const res_time = [
       {name: 'submit', description: 'Timestamp when the task has been submitted'},
       {name: 'start', description: 'Timestamp when the task execution has started'},
       {name: 'complete', description: 'Timestamp when task execution has completed'},

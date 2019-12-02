@@ -10,7 +10,7 @@
  */
 import {AfterViewInit, Component, Input, OnChanges, OnInit} from '@angular/core';
 import {Workflow} from "../../entity/workflow/workflow";
-import {WorkflowProgress} from "../../entity/progress/workflow-progress";
+import {WorkflowLoad} from "../../entity/progress/workflow-load";
 
 @Component({
   selector: 'wt-workflow-utilization',
@@ -20,7 +20,7 @@ import {WorkflowProgress} from "../../entity/progress/workflow-progress";
 export class WorkflowUtilizationComponent implements OnInit, OnChanges {
 
   @Input()
-  workflowProgress: WorkflowProgress;
+  workflowProgress: WorkflowLoad;
 
 
   memoryDonutSeries: any;

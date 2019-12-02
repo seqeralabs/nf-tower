@@ -19,15 +19,14 @@ import java.nio.file.Path
 
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.tower.Application
+import io.seqera.tower.util.AbstractContainerBaseTest
 import org.subethamail.wiser.Wiser
-import spock.lang.Specification
-
 /**
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
 @MicronautTest(application = Application.class)
-class MailerWithAttachmentTest extends Specification {
+class MailerWithAttachmentTest extends AbstractContainerBaseTest {
 
 
     void "should send email with attachment"() {

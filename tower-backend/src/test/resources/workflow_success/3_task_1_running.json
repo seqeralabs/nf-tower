@@ -24,7 +24,11 @@
       "disk": null,
       "time": null,
       "env": null,
-      "nativeId": 28417
+      "nativeId": 28417,
+      "executor": "aws-batch",
+      "machineType": "x1.large",
+      "cloudZone": "eu-north-1",
+      "priceModel": "standard"
     }
   ],
   "workflowId": "12345"

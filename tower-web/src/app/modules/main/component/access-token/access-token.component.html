@@ -26,14 +26,14 @@
     </div>
   </div>
   <br>
-  
+
   <ul class="list-group">
     <li class="list-group-item" *ngFor="let token of tokens" >
       <div class="d-flex w-100 justify-content-between">
         <h5 class="mb-1">{{token.name}}</h5>
         <small>Last used {{token.lastUsed ? (token.lastUsed | date: 'medium') : 'never'}}</small>
       </div>
-      <p class="mb-1">{{token.token}} </p>
+      <samp class="mb-1">{{token.token}} </samp>
       <button type="button" class="btn btn-outline-danger btn-sm btn-delete" (click)="deleteToken(token)">Delete</button>
     </li>
   </ul>
@@ -44,4 +44,3 @@
     </div>
   </div>
 </div>
-  

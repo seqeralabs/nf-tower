@@ -1,0 +1,47 @@
+name: Tower continuous build
+on: [push]
+
+jobs:
+  build:
+    name: Tower build
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+
+    steps:
+    - name: Environment
+      run: env | sort 
+
+    - name: Checkout
+      uses: actions/checkout@v1
+      with:
+        fetch-depth: 1
+
+    - name: Setup Java
+      uses: actions/setup-java@v1
+      with:
+        java-version: '8.0.222' 
+        architecture: x64
+
+    - name: Tests
+      run: ./gradlew clean test
+
+    - name: Tests MySql
+      run: ./gradlew clean build
+      env:
+        MICRONAUT_ENVIRONMENTS: mysql
+
+    - name: Build backend
+      run: docker build -t tower-backend:latest tower-backend
+
+    - name: Build frontend
+      run: docker build -t tower-web:latest tower-web
+
+    - name: Publish tests
+      if: failure()
+      run: bash pub-tests.sh
+      env:
+        TEST_JDK: ${{ matrix.java_version }}
+        NXF_AWS_ACCESS: ${{ secrets.NXF_AWS_ACCESS }}
+        NXF_AWS_SECRET: ${{ secrets.NXF_AWS_SECRET }}

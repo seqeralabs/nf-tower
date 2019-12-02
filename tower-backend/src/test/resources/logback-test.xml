@@ -27,6 +27,5 @@
     </root>
     <logger name="io.seqera" level="${TOWER_LOG_LEVEL:-DEBUG}"/>
     <logger name="com.amazonaws" level="WARN" />
-    <logger name="io.seqera.tower.service.LiveEventsServiceImpl" level="TRACE" />
 
 </configuration>

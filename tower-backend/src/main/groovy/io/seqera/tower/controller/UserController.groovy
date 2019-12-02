@@ -34,6 +34,7 @@ import io.seqera.tower.exchange.user.GetUserResponse
 import io.seqera.tower.exchange.user.ListUserResponse
 import io.seqera.tower.service.GateService
 import io.seqera.tower.service.UserService
+import io.seqera.tower.service.audit.AuditEventPublisher
 
 @Slf4j
 @Controller("/user")
@@ -42,6 +43,8 @@ class UserController extends BaseController {
 
     UserService userService
     GateService gateService
+
+    @Inject AuditEventPublisher eventPublisher
 
     @Inject
     UserController(UserService userService, GateService gateService) {
@@ -52,7 +55,7 @@ class UserController extends BaseController {
     @Get('/')
     @Transactional
     HttpResponse<GetUserResponse> profile(Authentication authentication) {
-        final User user = userService.getFromAuthData(authentication)
+        final User user = userService.getByAuth(authentication)
         if (!user) {
             return HttpResponse.badRequest(new GetUserResponse(message: "Cannot find user with name ${authentication.getName()}"))
         }
@@ -63,12 +66,14 @@ class UserController extends BaseController {
 
     @Post("/update")
     @Produces(MediaType.TEXT_PLAIN)
-    HttpResponse<String> update(@Body User userData, Authentication authentication) {
+    HttpResponse<String> update(@Body User data, Authentication authentication) {
         try {
-            userService.update(userService.getFromAuthData(authentication), userData)
-
+            final user = userService.getByAuth(authentication)
+            userService.update(user, data)
+            eventPublisher.userUpdated(user.id)
             HttpResponse.ok('User successfully updated!')
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             log.error("Failure on user update: ${e.message}", e)
             HttpResponse.badRequest(e.message)
         }
@@ -78,10 +83,12 @@ class UserController extends BaseController {
     @Produces(MediaType.TEXT_PLAIN)
     HttpResponse<String> delete(Authentication authentication) {
         try {
-            userService.delete(userService.getFromAuthData(authentication))
-
+            final user = userService.getByAuth(authentication)
+            userService.delete(user)
+            eventPublisher.userDeleted(user.id)
             HttpResponse.ok('User successfully deleted!')
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             log.error("Failure on user delete: ${e.message}", e)
             HttpResponse.badRequest(e.message)
         }
@@ -94,7 +101,7 @@ class UserController extends BaseController {
         User user = User.get(userId)
         if( !user )
             return HttpResponse.badRequest(new DeleteUserResponse(message: "Cannot find user with ID=$userId"))
-
+        eventPublisher.userDeleted(user.id)
         userService.delete(user)
         HttpResponse.ok(new DeleteUserResponse(message: 'OK'))
     }

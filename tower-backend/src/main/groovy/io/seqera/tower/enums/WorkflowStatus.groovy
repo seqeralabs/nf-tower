@@ -13,7 +13,10 @@ package io.seqera.tower.enums
 
 enum WorkflowStatus {
 
-    STARTED, PAUSED, RESUMED, SUCCEEDED, FAILED
+    RUNNING,
+    SUCCEEDED,
+    FAILED,
+    UNKNOWN
 
     String toString() { super.toString() }
 

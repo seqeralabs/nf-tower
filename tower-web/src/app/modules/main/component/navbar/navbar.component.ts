@@ -42,9 +42,4 @@ export class NavbarComponent implements OnInit {
     )
   }
 
-  private toggleSidebar(): void {
-    this.isSidebarShown = !this.isSidebarShown;
-    this.sidebarToggleEvent.emit(this.isSidebarShown);
-  }
-
 }

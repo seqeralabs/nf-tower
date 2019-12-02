@@ -36,7 +36,7 @@ export class HomeComponent implements OnInit {
 
   searchingText: string;
   offset: number = 0;
-  isSidebarShown: boolean = true;
+  sidebarCollapsed: boolean = false;
   isSearchTriggered: boolean;
   isNextPageLoadTriggered: boolean;
 
@@ -74,19 +74,19 @@ export class HomeComponent implements OnInit {
     this.workflows = this.isWorkflowsInitiatied ? this.workflows : [];
     const newWorkflows: Workflow[] = differenceBy(emittedWorkflows, this.workflows, (w: Workflow) => w.id);
 
-    //Paginating event: concat the newly received workflows to the current ones
+    // Paginating event: concat the newly received workflows to the current ones
     if (this.isNextPageLoadTriggered) {
       this.workflows = concat(this.workflows, newWorkflows);
     }
-    //Searching event: replace the workflows with the newly received ones from server
+    // Searching event: replace the workflows with the newly received ones from server
     else if (this.isSearchTriggered) {
       this.workflows = emittedWorkflows;
     }
-    //Search is currently active: keep the filtered workflows, drop the ones no longer present (delete event) and ignore the new ones (live update event)
+    // Search is currently active: keep the filtered workflows, drop the ones no longer present (delete event) and ignore the new ones (live update event)
     else if (this.isSearchActive) {
       this.workflows = intersectionBy(this.workflows, emittedWorkflows, (workflow: Workflow) => workflow.id);
     }
-    //No search currently active (initialization event, live update event, delete event)
+    // No search currently active (initialization event, live update event, delete event)
     else {
       this.workflows = emittedWorkflows;
     }
@@ -121,7 +121,12 @@ export class HomeComponent implements OnInit {
   }
 
   private get isAtRoot(): boolean {
-    return (this.router.url == '/');
+    if (this.router.url.startsWith('/?')) {
+      this.router.navigate(['/']);
+      return false;
+    } else {
+      return (this.router.url === '/' );
+    }
   }
 
   get shouldShowLandingPage(): boolean {
@@ -174,19 +179,8 @@ export class HomeComponent implements OnInit {
     this.workflowService.emitWorkflowsFromServer(new FilteringParams(10, 0, searchText), true);
   }
 
-  recieveSidebarToggleEvent($event){
-    this.isSidebarShown = $event;
-  }
-
-  onSidebarScroll(event) {
-    //Check if the end of the container has been reached: https://stackoverflow.com/a/50038429
-    const isScrollEndReached = (event.target.offsetHeight + event.target.scrollTop >= event.target.scrollHeight);
-    if (!isScrollEndReached) {
-      return;
-    }
-
-    console.log('Sidebar end reached');
-    this.loadNewPage();
+  toggleContentWidth(event){
+    this.sidebarCollapsed = event;
   }
 
   private loadNewPage(): void {

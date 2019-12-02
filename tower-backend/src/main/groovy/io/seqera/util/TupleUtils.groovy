@@ -40,4 +40,25 @@ class TupleUtils {
         ret.add(z)
         return ret
     }
-}
+
+    static Map map(k1, v1) {
+        final result = new HashMap(1)
+        result.put(k1,v1)
+        return result
+    }
+
+    static Map map(k1, v1, k2, v2) {
+        final result = new HashMap(2)
+        result.put(k1,v1)
+        result.put(k2,v2)
+        return result
+    }
+
+    static Map map(k1, v1, k2, v2, k3, v3) {
+        final result = new HashMap(3)
+        result.put(k1,v1)
+        result.put(k2,v2)
+        result.put(k3,v3)
+        return result
+    }
+ }

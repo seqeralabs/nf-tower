@@ -2,13 +2,15 @@
 
 <wt-loading [loadingText]="'Loading'" *ngIf="shouldShowLoadingScreen"></wt-loading>
 
-<wt-navbar *ngIf="!shouldShowLandingPage" [shouldShowSidebar]="shouldShowSidebar" (sidebarToggleEvent)="recieveSidebarToggleEvent($event)" ></wt-navbar>
-<div *ngIf="!shouldShowLandingPage && !shouldShowLoadingScreen" id="layout" class="d-flex pb-4">
+<wt-navbar *ngIf="!shouldShowLandingPage"></wt-navbar>
+<div *ngIf="!shouldShowLandingPage && !shouldShowLoadingScreen" id="layout" class="d-flex">
 
-  <div id="sidebar-wrapper" *ngIf="shouldShowSidebar" (scroll)="onSidebarScroll($event)" [class.toggled]="!isSidebarShown">
-    <div id="sidebar" class="sticky-top">
+  <div id="sidebar-wrapper" *ngIf="shouldShowSidebar">
+    <div id="sidebar" class="px-2">
       <wt-sidebar [workflows]="workflows" (onDeleteWorkflow)="deleteWorkflow($event)"
-                  (onSearchingWorkflows)="searchWorkflows($event)">
+                  (onSearchingWorkflows)="searchWorkflows($event)"
+                  (onCollapseSidebar)="toggleContentWidth($event)"
+                  (onScrollBottom)="loadNewPage()">
       </wt-sidebar>
 
       <div class="row load-gap">
@@ -19,34 +21,36 @@
     </div>
   </div>
 
-  <div id="central">
+  <div id="central" [class.sidebarCollapsed]="sidebarCollapsed && shouldShowSidebar" [class.sidebarNotCollapsed]="!sidebarCollapsed && shouldShowSidebar">
     <router-outlet></router-outlet>
 
     <wt-welcome *ngIf="shouldShowWelcomeMessage"></wt-welcome>
   </div>
 </div>
 
-<footer class="footer" *ngIf="!shouldShowLandingPage" class="container-fluid pt-4 border-top border-gray-light text-muted">
-  <div class="row">
-    <div class="col-sm">
-      <ul class="list-inline">
-        <li class="list-inline-item mr-3">© 2019 <a href="https://www.seqera.io" target="_blank">Seqera Labs</a></li>
-        <li class="list-inline-item mr-3">Version {{version}}_{{commitId}}</li>
-      </ul>
-    </div>
+<footer *ngIf="!shouldShowLandingPage" class="pt-4">
+  <div class="container pt-4 pb-2 border-top border-gray-light text-muted">
+    <div class="row">
+      <div class="col-sm">
+        <ul class="list-inline">
+          <li class="list-inline-item mr-3">© 2019 <a href="https://www.seqera.io" target="_blank">Seqera Labs</a></li>
+          <li class="list-inline-item mr-3">Version {{version}}_{{commitId}}</li>
+        </ul>
+      </div>
 
-    <div class="d-none d-lg-block col-md-auto">
-      <img src="assets/nf-tower-icon-black.svg" alt="Nextflow Tower Logo" >
-    </div>
+      <div class="d-none d-lg-block col-md-auto">
+        <img src="assets/nf-tower-icon-black.svg" alt="Nextflow Tower Logo" >
+      </div>
 
-    <div class="col-sm footer-rhs-col">
-      <ul class="list-inline">
-        <li class="list-inline-item mr-3"><a href="/assets/landing/terms-of-use.html" target="_blank">Terms</a></li>
-        <li class="list-inline-item mr-3"><a href="https://github.com/seqeralabs/nf-tower/blob/master/LICENSE.txt" target="_blank">License</a></li>
-        <li class="list-inline-item mr-3"><a href="https://www.seqera.io/blog/" target="_blank">Blog</a></li>
-        <li class="list-inline-item mr-3"><a href="https://www.seqera.io/jobs/" target="_blank">Careers</a></li>
-        <li class="list-inline-item mr-3"><a href="mailto:hello@tower.nf">Contact</a></li>
-      </ul>
+      <div class="col-sm footer-rhs-col">
+        <ul class="list-inline">
+          <li class="list-inline-item mr-3"><a href="/assets/landing/terms-of-use.html" target="_blank">Terms</a></li>
+          <li class="list-inline-item mr-3"><a href="https://github.com/seqeralabs/nf-tower/blob/master/LICENSE.txt" target="_blank">License</a></li>
+          <li class="list-inline-item mr-3"><a href="https://www.seqera.io/blog/" target="_blank">Blog</a></li>
+          <li class="list-inline-item mr-3"><a href="https://www.seqera.io/jobs/" target="_blank">Careers</a></li>
+          <li class="list-inline-item mr-3"><a href="mailto:hello@tower.nf">Contact</a></li>
+        </ul>
+      </div>
     </div>
   </div>
 </footer>

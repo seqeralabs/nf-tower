@@ -13,7 +13,6 @@ package io.seqera.tower.controller
 
 import javax.inject.Inject
 
-import grails.gorm.PagedResultList
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
 import groovy.util.logging.Slf4j
@@ -42,15 +41,16 @@ import io.seqera.tower.exchange.workflow.AddWorkflowCommentResponse
 import io.seqera.tower.exchange.workflow.DeleteWorkflowCommentRequest
 import io.seqera.tower.exchange.workflow.DeleteWorkflowCommentResponse
 import io.seqera.tower.exchange.workflow.GetWorkflowMetricsResponse
+import io.seqera.tower.exchange.workflow.GetWorkflowResponse
 import io.seqera.tower.exchange.workflow.ListWorkflowCommentsResponse
 import io.seqera.tower.exchange.workflow.ListWorklowResponse
 import io.seqera.tower.exchange.workflow.UpdateWorkflowCommentRequest
 import io.seqera.tower.exchange.workflow.UpdateWorkflowCommentResponse
-import io.seqera.tower.exchange.workflow.GetWorkflowResponse
-import io.seqera.tower.service.ProgressService
 import io.seqera.tower.service.TaskService
 import io.seqera.tower.service.UserService
 import io.seqera.tower.service.WorkflowService
+import io.seqera.tower.service.audit.AuditEventPublisher
+import io.seqera.tower.service.progress.ProgressService
 import io.seqera.tower.validation.ValidationHelper
 import org.grails.datastore.mapping.validation.ValidationException
 /**
@@ -60,19 +60,24 @@ import org.grails.datastore.mapping.validation.ValidationException
 @Slf4j
 class WorkflowController extends BaseController {
 
-    WorkflowService workflowService
-    TaskService taskService
-    ProgressService progressService
-    UserService userService
+    @Inject WorkflowService workflowService
+    @Inject TaskService taskService
+    @Inject UserService userService
+    @Inject ProgressService progressService
+    @Inject AuditEventPublisher eventPublisher
 
-    @Inject
-    WorkflowController(WorkflowService workflowService, TaskService taskService, ProgressService progressService, UserService userService) {
-        this.workflowService = workflowService
-        this.taskService = taskService
-        this.progressService = progressService
-        this.userService = userService
+    protected ProgressData getProgressData(Workflow workflow) {
+        def result = progressService.getProgressData(workflow.id)
+        if( result == null ) {
+            log.warn "Cannot find workflow stats for Id=$workflow.id -- Fallback on legacy progress query"
+            result = progressService.getProgressQuery(workflow)
+        }
+        if( result == null ) {
+            log.error "Cannot retrive progress stats for workflow with Id=$workflow.id"
+            result = ProgressData.EMPTY
+        }
+        return result
     }
-
 
     @Get("/list")
     @Transactional
@@ -84,7 +89,7 @@ class WorkflowController extends BaseController {
         String search = filterParams.getFirst('search', String.class, '')
         String searchRegex = search ? search.contains('*') ? search.replaceAll(/\*/, '%') : "${search}%" : null
 
-        List<Workflow> workflows = workflowService.listByOwner(userService.getFromAuthData(authentication), max, offset, searchRegex)
+        List<Workflow> workflows = workflowService.listByOwner(userService.getByAuth(authentication), max, offset, searchRegex)
 
         List<GetWorkflowResponse> result = workflows.collect { Workflow workflow ->
             GetWorkflowResponse.of(workflow)
@@ -105,7 +110,7 @@ class WorkflowController extends BaseController {
         final workflow = workflowService.get(workflowId)
         if (!workflow)
             return HttpResponse.notFound(GetWorkflowResponse.error("Unknown workflow ID: $workflowId"))
-        final user = userService.getFromAuthData(authentication)
+        final user = userService.getByAuth(authentication)
         if( !user ) {
             log.error "Unknown user=${authentication.name}"
             return HttpResponse.badRequest(GetWorkflowResponse.error("Invalid user authenticaton: $authentication.name"))
@@ -115,8 +120,10 @@ class WorkflowController extends BaseController {
             return HttpResponse.badRequest(GetWorkflowResponse.error("Invalid workflow request: $workflowId"))
         }
 
-        final resp = progressService.buildWorkflowGet(workflow)
-        workflow.discard()
+        final resp = new GetWorkflowResponse(workflow: workflow)
+        // fetch progress
+        resp.progress = getProgressData(workflow)
+
         HttpResponse.ok(resp)
     }
 
@@ -136,9 +143,8 @@ class WorkflowController extends BaseController {
             if (!workflow) {
                 return HttpResponse.notFound(new GetProgressResponse(message: "Oops... Can't find workflow ID $workflowId"))
             }
-            // TODO check the user is allowed to fetch this data
-            final ProgressData progress = progressService.fetchWorkflowProgress(workflow)
-            workflow.discard()
+
+            final ProgressData progress = getProgressData(workflow)
             HttpResponse.ok(new GetProgressResponse(progress: progress))
         }
         catch( Exception e ) {
@@ -151,34 +157,31 @@ class WorkflowController extends BaseController {
     @Transactional
     @Secured(SecurityRule.IS_ANONYMOUS)
     HttpResponse<TaskList> tasks(String workflowId, HttpParameters filterParams) {
-        Long max = filterParams.getFirst('length', Long.class, 10l)
+        int max = filterParams.getFirst('length', Integer.class, 10)
         Long offset = filterParams.getFirst('start', Long.class, 0l)
         String orderProperty = filterParams.getFirst('order[0][column]', String.class, 'taskId')
         String orderDir = filterParams.getFirst('order[0][dir]', String.class, 'asc')
+        String search = filterParams.getFirst('search', String.class, null)
 
-        String search = filterParams.getFirst('search', String.class, '')
-        String searchRegex = search ? search.contains('*') ? search.replaceAll(/\*/, '%') : "${search}%" : null
-
-        PagedResultList<Task> taskPagedResultList = taskService.findTasks(workflowId, max, offset, orderProperty, orderDir, searchRegex)
-
-        List<TaskGet> result = taskPagedResultList.collect {
+        List<Task> tasks = taskService.findTasks(workflowId, search, orderProperty, orderDir, max, offset)
+        List<TaskGet> result = tasks.collect {
             TaskGet.of(it)
         }
-        HttpResponse.ok(TaskList.of(result, taskPagedResultList.totalCount))
+
+        long total = result.size()==max ? offset+max+1 : offset+result.size()
+        HttpResponse.ok(TaskList.of(result, total))
     }
 
     @Transactional
     @Secured(['ROLE_USER'])
     @Delete('/{workflowId}')
-    HttpResponse delete(String workflowId) {
-        try {
-            workflowService.deleteById(workflowId)
+    HttpResponse delete(String workflowId, Authentication authentication) {
+        final user = userService.getByAuth(authentication)
+        eventPublisher.workflowDeletion(workflowId)
+        if( workflowService.markForDeletion(workflowId) )
             HttpResponse.status(HttpStatus.NO_CONTENT)
-        }
-        catch( Exception e ) {
-            log.error "Unable to delete workflow with id=$workflowId", e
+        else
             HttpResponse.badRequest(new MessageResponse("Oops... Failed to delete workflow with ID $workflowId"))
-        }
     }
 
     @Transactional
@@ -225,20 +228,20 @@ class WorkflowController extends BaseController {
     @CompileDynamic
     HttpResponse<AddWorkflowCommentResponse> addComment(Authentication authentication, String workflowId, AddWorkflowCommentRequest request) {
         try {
-            final user = userService.getFromAuthData(authentication)
+            final user = userService.getByAuth(authentication)
             final workflow = workflowService.get(workflowId)
             if (!workflow)
                 return HttpResponse.notFound(new AddWorkflowCommentResponse(message:"Oops... Can't find workflow ID $workflowId"))
 
             final comment = new WorkflowComment()
-            comment.author = user
+            comment.user = user
             comment.workflow = workflow
             comment.text = request.text
             comment.dateCreated = request.timestamp
             comment.lastUpdated = request.timestamp
-            final commentId = comment.save(failOnError: true).id
+            final record = comment.save(failOnError: true)
 
-            return HttpResponse.ok( AddWorkflowCommentResponse.withId(commentId) )
+            return HttpResponse.ok( AddWorkflowCommentResponse.withComment(record) )
         }
         catch(ValidationException e) {
             final msg = "Oops... Unable to add comment -- " + ValidationHelper.formatErrors(e)
@@ -259,7 +262,7 @@ class WorkflowController extends BaseController {
     @CompileDynamic
     HttpResponse<UpdateWorkflowCommentResponse> updateComment(Authentication authentication, String workflowId, UpdateWorkflowCommentRequest request) {
         try {
-            final user = userService.getFromAuthData(authentication)
+            final user = userService.getByAuth(authentication)
 
             // check `commentId` and `workflowId` are provided
             if( !request.commentId )
@@ -272,8 +275,8 @@ class WorkflowController extends BaseController {
             if (!comment)
                 return HttpResponse.notFound(new UpdateWorkflowCommentResponse(message:"Oops... Can't find workflow comment with ID $request.commentId"))
 
-            // user can only modify it's own comment
-            if( comment.author.id != user.id )
+            // user can only modify its own comment
+            if( comment.user.id != user.id )
                 return HttpResponse.badRequest(new UpdateWorkflowCommentResponse(message:"Oops.. You are not allowed to modify this comment"))
 
             // make sure it match the workflow id
@@ -305,7 +308,7 @@ class WorkflowController extends BaseController {
     @CompileDynamic
     HttpResponse<DeleteWorkflowCommentResponse> deleteComment(Authentication authentication, String workflowId, DeleteWorkflowCommentRequest request) {
         try {
-            final user = userService.getFromAuthData(authentication)
+            final user = userService.getByAuth(authentication)
 
             // check `commentId` and `workflowId` are provided
             if( !request.commentId )
@@ -319,7 +322,7 @@ class WorkflowController extends BaseController {
                 return HttpResponse.notFound(new DeleteWorkflowCommentResponse(message:"Oops... Can't find workflow comment with ID $request.commentId"))
 
             // user can only modify it's own comment
-            if( comment.author.id != user.id )
+            if( comment.user.id != user.id )
                 return HttpResponse.badRequest(new DeleteWorkflowCommentResponse(message:"Oops.. You are not allowed to delete this comment"))
 
             // make sure it match the workflow id

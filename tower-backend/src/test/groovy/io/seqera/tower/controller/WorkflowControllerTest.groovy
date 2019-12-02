@@ -76,11 +76,11 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
                 owner: user,
                 manifest: new WfManifest(defaultBranch: 'master'),
                 stats: new WfStats(computeTimeFmt: '(a few seconds)'),
-                nextflow: new WfNextflow(version: "19.05.0-TOWER", timestamp: Instant.now(), build: '19.01.1'),
+                nextflow: new WfNextflow(version_: "19.05.0-TOWER", timestamp: Instant.now(), build: '19.01.1'),
         )
 
         creator.createWorkflowMetrics(workflow)
-        creator.createWorkflowMetrics(workflow)
+        creator.createWorkflowLoad(workflow: workflow)
 
 
         when: "perform the request to obtain the workflow"
@@ -305,10 +305,9 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
 
         where: 'the search params are'
         search      | expectedTaskIds  | orderProperty | orderDirection
-        'hash%'     | [1l, 2l, 3l, 4l] | 'hash'        | 'asc'
-        'tag%'      | [1l, 2l, 3l, 4l] | 'process'     | 'asc'
-        'process%'  | [1l, 2l, 3l, 4l] | 'tag'         | 'asc'
-//        '%a%'       | [4l, 3l, 2l, 1l] | 'hash'        | 'desc'
+        'hash*'     | [1l, 2l, 3l, 4l] | 'hash'        | 'asc'
+        'tag*'      | [1l, 2l, 3l, 4l] | 'process'     | 'asc'
+        'process*'  | [1l, 2l, 3l, 4l] | 'tag'         | 'asc'
 
         'hash1'     | [1l]             | 'hash'        | 'asc'
         'HASH1'     | [1l]             | 'hash'        | 'asc'
@@ -317,12 +316,12 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         'tag3'      | [3l]             | 'hash'        | 'asc'
         'TAG3'      | [3l]             | 'hash'        | 'asc'
 
-        'submit%'   | [1l]             | 'hash'        | 'asc'
+        'submit*'   | [1l]             | 'hash'        | 'asc'
         'SUBMITTED' | [1l]             | 'hash'        | 'asc'
         'submitted' | [1l]             | 'hash'        | 'asc'
-        'run%'      | [2l]             | 'hash'        | 'asc'
-        'fail%'     | [3l]             | 'hash'        | 'asc'
-        'comp%'     | [4l]             | 'hash'        | 'asc'
+        'run*'      | [2l]             | 'hash'        | 'asc'
+        'fail*'     | [3l]             | 'hash'        | 'asc'
+        'comp*'     | [4l]             | 'hash'        | 'asc'
     }
 
     void "try to get the list of tasks from a nonexistent workflow"() {
@@ -350,7 +349,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
             user = creator.generateAllowedUser()
             workflow = creator.createWorkflow(owner: user)
             creator.createWorkflowMetrics(workflow)
-            new WorkflowComment(author: user, text: 'Hello', workflow: workflow, dateCreated: now, lastUpdated: now).save(failOnError:true)
+            new WorkflowComment(user: user, text: 'Hello', workflow: workflow, dateCreated: now, lastUpdated: now).save(failOnError:true)
         }
         
         when:
@@ -363,7 +362,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         then:
         resp.status == HttpStatus.NO_CONTENT
         and:
-        tx.withNewTransaction { workflowService.get(workflow.id) } == null
+        tx.withNewTransaction { workflowService.get(workflow.id) }.deleted
 
     }
 
@@ -383,7 +382,6 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         def e = thrown(HttpClientResponseException)
         e.status == HttpStatus.BAD_REQUEST
         e.message == "Oops... Failed to delete workflow with ID 1234"
-
     }
 
     void 'should get workflow metrics' () {
@@ -393,7 +391,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         Workflow workflow = creator.createWorkflow(
                 manifest: new WfManifest(defaultBranch: 'master'),
                 stats: new WfStats(computeTimeFmt: '(a few seconds)'),
-                nextflow: new WfNextflow(version: "19.05.0-TOWER"),
+                nextflow: new WfNextflow(version_: "19.05.0-TOWER"),
         )
 
         def metrics = [
@@ -445,7 +443,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         def t0 = OffsetDateTime.now()
         WorkflowComment.withNewTransaction {
             new WorkflowComment(
-                    author: user,
+                    user: user,
                     text: 'First hello',
                     workflow: workflow,
                     dateCreated: t0,
@@ -454,7 +452,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
                     .save(failOnError:true)
 
             new WorkflowComment(
-                    author: user,
+                    user: user,
                     text: 'Second hello',
                     workflow: workflow,
                     dateCreated: t0.plusMinutes(5),
@@ -474,8 +472,14 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         then:
         response.status == HttpStatus.OK
         response.body().comments.size() == 2
+        and:
         response.body().comments[0].text == 'Second hello'
+        response.body().comments[0].author.id == user.id
+        response.body().comments[0].author.displayName == user.userName
+        and:
         response.body().comments[1].text == 'First hello'
+        response.body().comments[1].author.id == user.id
+        response.body().comments[1].author.displayName == user.userName
     }
 
     def 'should add a workflow comment' () {
@@ -495,11 +499,14 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
 
         then:
         resp.status == HttpStatus.OK
-        resp.body().commentId != null
-
+        resp.body().comment.text == 'Great job'
+        resp.body().comment.id != null
+        resp.body().comment.author.id == user.id
+        resp.body().comment.author.displayName == user.userName
+        
         and:
         workflowService.getComments(workflow).size() ==1
-        workflowService.getComments(workflow)[0].id == resp.body().commentId
+        workflowService.getComments(workflow)[0].id == resp.body().comment.id
     }
 
     def 'should update a workflow comment' () {
@@ -511,7 +518,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         def t0 = OffsetDateTime.now().truncatedTo(ChronoUnit.MINUTES).minusMinutes(10)
         def comment = tx.withNewTransaction {
             new WorkflowComment(
-                    author: user,
+                    user: user,
                     text: 'First comment',
                     workflow: workflow,
                     dateCreated: t0,
@@ -548,7 +555,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         def t0 = OffsetDateTime.now().truncatedTo(ChronoUnit.MINUTES).minusMinutes(10)
         def comment1 = tx.withNewTransaction {
             new WorkflowComment(
-                    author: user,
+                    user: user,
                     text: 'First comment',
                     workflow: workflow,
                     dateCreated: t0,
@@ -558,7 +565,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
 
         def comment2 = tx.withNewTransaction {
             new WorkflowComment(
-                    author: user,
+                    user: user,
                     text: 'Second comment',
                     workflow: workflow,
                     dateCreated: t0,
