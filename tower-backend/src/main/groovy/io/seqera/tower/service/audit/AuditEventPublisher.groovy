@@ -16,6 +16,7 @@ import static io.seqera.mail.MailHelper.getTemplateFile
 
 import javax.inject.Inject
 import javax.inject.Singleton
+import java.time.format.DateTimeFormatter
 
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
@@ -197,6 +198,15 @@ class AuditEventPublisher {
      * @param workflowId The workflow ID
      */
     void sendCompletionEmail(String workflowId) {
+        try {
+            sendCompletionEmail0(workflowId)
+        }
+        catch (Exception e) {
+            log.error("Unexpected error while sending completion email for workflow Id=$workflowId", e)
+        }
+    }
+
+    void sendCompletionEmail0(String workflowId) {
         final workflow = Workflow.get(workflowId)
         if( !workflow ) {
             log.warn "Unknown workflow Id=$workflowId -- ignore notification event"
@@ -225,6 +235,8 @@ class AuditEventPublisher {
         def binding = new HashMap(5)
         binding.put('workflow', workflow)
         binding.put('duration_str', parseDuration(workflow.duration ?: 0))
+        binding.put('launch_time_str', workflow.start ? DateTimeFormatter.ofPattern('dd-MMM-yyyy HH:mm:ss').format(workflow.start) : '-')
+        binding.put('ending_time_str', workflow.complete ? DateTimeFormatter.ofPattern('dd-MMM-yyyy HH:mm:ss').format(workflow.complete) : '-')
         binding.put('server_url', serverUrl)
 
         Mail mail = new Mail()

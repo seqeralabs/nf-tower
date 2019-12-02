@@ -22,8 +22,8 @@ The command used to launch the workflow was as follows:
 
 ** Execution summary **
 
-  Launch time       : ${workflow.start.format('dd-MMM-yyyy HH:mm:ss')}
-  Ending time       : ${workflow.complete.format('dd-MMM-yyyy HH:mm:ss')} (duration: ${duration_str})
+  Launch time       : ${launch_time_str}
+  Ending time       : ${ending_time_str} (duration: ${duration_str})
   Total CPU-Hours   : ${workflow.stats.computeTimeFmt ?: '-'}
   Tasks stats       : Succeeded ${workflow.stats.succeedCountFmt}; Cached ${workflow.stats.cachedCountFmt}; Ignored ${workflow.stats.ignoredCountFmt}; Failed ${workflow.stats.failedCountFmt}
   Launch directory  : ${workflow.launchDir}
