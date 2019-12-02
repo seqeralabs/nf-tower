@@ -14,6 +14,7 @@ package io.seqera.tower.service.cron
 import javax.inject.Inject
 import javax.inject.Singleton
 import java.time.Duration
+import java.time.OffsetDateTime
 
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileStatic
@@ -22,6 +23,8 @@ import io.micronaut.context.annotation.Value
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.service.progress.ProgressOperationsImpl
 import io.seqera.tower.service.progress.ProgressServiceImpl
+import io.seqera.util.TupleUtils
+import org.apache.commons.collections.MapUtils
 import org.springframework.transaction.annotation.Propagation
 
 /**
@@ -97,8 +100,10 @@ class ReconcileProgressJob implements CronJob {
     }
 
     protected Workflow findWorkflowWithMissingProgress() {
-        def query = "from Workflow w where w.status != 'RUNNING' and complete != null and w.id not in (select distinct l.workflow.id from WorkflowLoad l)"
-        Workflow.find(query, [max:1])
+        final args = TupleUtils.map('max', 1)
+        final params = TupleUtils.map('ts', OffsetDateTime.now().minusHours(1))
+        def query = "from Workflow w where w.status != 'RUNNING' and complete < :ts and w.id not in (select distinct l.workflow.id from WorkflowLoad l)"
+        Workflow.find(query,params,args)
     }
 
 }

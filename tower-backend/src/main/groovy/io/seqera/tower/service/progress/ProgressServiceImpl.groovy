@@ -162,6 +162,8 @@ class ProgressServiceImpl implements ProgressService {
         }
         else if( workflow.status!=UNKNOWN ) {
             log.warn "Invalid status for workflow Id=$workflowId | Expected status=RUNNIG; found=$workflow.status"
+            if( workflow.status==SUCCEEDED )
+                store.deleteProgress(workflowId)
         }
     }
 

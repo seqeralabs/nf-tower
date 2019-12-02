@@ -40,8 +40,8 @@ class ReconcileProgressJobTest extends Specification {
         given:
         def creator = new DomainCreator()
         def user = creator.createUser()
-        def w1 = creator.createWorkflow(owner: user, id: 'abc', status: WorkflowStatus.SUCCEEDED, complete: OffsetDateTime.now())
-        def w2 = creator.createWorkflow(owner: user, id: 'ABC', status: WorkflowStatus.SUCCEEDED, complete: OffsetDateTime.now())
+        def w1 = creator.createWorkflow(owner: user, id: 'abc', status: WorkflowStatus.SUCCEEDED, complete: OffsetDateTime.now().minusHours(2))
+        def w2 = creator.createWorkflow(owner: user, id: 'ABC', status: WorkflowStatus.SUCCEEDED, complete: OffsetDateTime.now().minusHours(2))
         creator.createWorkflowLoad(workflow: w2)
 
         when:
@@ -64,12 +64,12 @@ class ReconcileProgressJobTest extends Specification {
         def user = creator.createUser()
         creator.createWorkflow(owner: user, id: 'x1', status: WorkflowStatus.SUCCEEDED, complete: OffsetDateTime.now())
         creator.createWorkflow(owner: user, id: 'x2', status: WorkflowStatus.SUCCEEDED, complete: OffsetDateTime.now())
-        creator.createWorkflow(owner: user, id: 'x3', status: WorkflowStatus.SUCCEEDED, complete: OffsetDateTime.now())
+        creator.createWorkflow(owner: user, id: 'x3', status: WorkflowStatus.SUCCEEDED, complete: OffsetDateTime.now().minusHours(2))
 
         when:
         def wf = tx.withNewTransaction { svc.findWorkflowWithMissingProgress() }
         then:
-        wf.id
+        wf.id == 'x3'
     }
 
 }
