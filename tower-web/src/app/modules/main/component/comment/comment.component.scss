@@ -18,25 +18,10 @@
   }
 
   .message {
-    position: relative;
     width: 100%;
     margin-left: 1rem;
     border: 1px solid #d1d5da;
     border-radius: 3px;
-
-    &::before {
-      position: absolute;
-      top: 11px;
-      right: 100%;
-      left: -16px;
-      display: block;
-      width: 0;
-      height: 0;
-      content: '';
-      border-style: solid;
-      border-color: transparent #d1d5da transparent transparent;
-      border-width: 8px;
-    }
 
     &-header {
       padding: 4px 9px;
@@ -101,7 +86,7 @@
     }
 
     &-edit {
-      margin: 1rem 1rem .5rem;
+      margin: 1rem 1rem .3rem;
 
       .error {
         font-size: .9rem;
@@ -120,7 +105,6 @@
       .btn-group-update-delete {
         display: flex;
         justify-content: flex-end;
-        padding-top: 10px;
 
         .btn-outline-danger {
           margin-right: .3rem;

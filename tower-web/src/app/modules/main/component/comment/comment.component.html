@@ -12,14 +12,12 @@
           <small class="message-time">{{comment?.dateCreated | date: 'MMM d, h:mm a'}}</small>
         </span>
       </div>
-      <div class="edit-delete-btns" *ngIf="!comment.deleted">
+      <div class="edit-delete-btns" *ngIf="!comment.deleted && isOwnerOfComment()">
         <button class="edit-btn"
-                (click)="showTextAreaForEdit()"
-                *ngIf="isOwnerOfComment()">
+                (click)="showTextAreaForEdit()">
           <span class="mdi mdi-pencil"></span>
         </button>
         <button class="delete-btn"
-                *ngIf="isOwnerOfComment()"
                 (click)="chooseCommentForDelete(comment)"
                 [disabled]="showTextarea"
                 data-toggle="modal"

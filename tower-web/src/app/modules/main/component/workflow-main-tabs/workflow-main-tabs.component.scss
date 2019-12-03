@@ -89,11 +89,14 @@ pre.tab-config {
 }
 
 textarea {
+  max-width: 486px;
+  margin-left: 3.7rem ;
   padding: 5px;
   resize: none;
 }
 
 .error {
+  margin-left: 3.8rem;
   font-size: .9rem;
   color: #ff0000;
   padding: 5px 0;
