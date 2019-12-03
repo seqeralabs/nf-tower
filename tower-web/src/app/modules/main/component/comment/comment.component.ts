@@ -3,6 +3,7 @@ import {AuthService} from "../../service/auth.service";
 import {WorkflowComment} from "../../entity/comment/workflow-comment";
 import {FormControl, Validators} from "@angular/forms";
 import {Workflow} from "../../entity/workflow/workflow";
+import {NoSpaceValidator} from "../../entity/no-space.validator";
 
 @Component({
   selector: 'wt-comment',
@@ -19,13 +20,16 @@ export class CommentComponent implements OnInit {
   @Output() editCommentOut = new EventEmitter();
 
   @Output() deleteCommentOut = new EventEmitter();
-  showTextarea: boolean;
+
   textareaRow: number;
+  showTextarea: boolean;
   currentUser = this.userService.currentUser;
   commentTextEditFormControl: FormControl = new FormControl('', [
     Validators.required,
     Validators.minLength(5),
-    Validators.maxLength(2048)
+    Validators.maxLength(2048),
+    NoSpaceValidator.noSpace,
+    NoSpaceValidator.noNewLine
   ]);
 
   constructor(private userService: AuthService) {
@@ -41,7 +45,7 @@ export class CommentComponent implements OnInit {
       this.editCommentOut.emit({
         comment, updateData: {
           commentId: this.comment.id,
-          text: newText,
+          text: newText.trim(),
           timestamp: new Date()
         }
       });

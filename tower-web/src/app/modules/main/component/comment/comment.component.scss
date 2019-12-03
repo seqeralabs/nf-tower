@@ -65,15 +65,11 @@
 
     &-content {
       color: #24292e;
+      font-family: inherit;
       padding: 14px 9px;
       margin-bottom: 0;
       word-break: break-all;
-
-      ::ng-deep {
-        p {
-          margin-bottom: 0;
-        }
-      }
+      white-space: pre-line;
 
       &-text {
 

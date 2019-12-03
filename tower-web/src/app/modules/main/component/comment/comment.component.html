@@ -26,10 +26,10 @@
         </button>
       </div>
     </div>
-    <p class="message-content"
+    <pre class="message-content"
        *ngIf="!showTextarea && !comment.deleted">
       {{comment?.text}}
-    </p>
+    </pre>
     <p class="message-deleted-comment" *ngIf="comment.deleted">Deleted</p>
     <div class="message-edit"
          *ngIf="showTextarea">

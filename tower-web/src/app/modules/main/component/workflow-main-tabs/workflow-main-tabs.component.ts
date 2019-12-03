@@ -13,6 +13,8 @@ import {Workflow} from "../../entity/workflow/workflow";
 import {CommentsService} from "../../service/comments.services";
 import {FormControl, Validators} from "@angular/forms";
 import {WorkflowComment} from "../../entity/comment/workflow-comment";
+import {AuthService} from "../../service/auth.service";
+import {NoSpaceValidator} from "../../entity/no-space.validator";
 
 @Component({
   selector: 'wt-workflow-main-tabs',
@@ -28,10 +30,13 @@ export class WorkflowMainTabsComponent implements OnChanges {
   commentTextFormControl: FormControl = new FormControl('', [
     Validators.required,
     Validators.minLength(5),
-    Validators.maxLength(2048)
+    Validators.maxLength(2048),
+    NoSpaceValidator.noSpace,
+    NoSpaceValidator.noNewLine
   ]);
 
-  constructor(private commentsService: CommentsService) {
+  constructor(private commentsService: CommentsService,
+              private authService: AuthService) {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -44,10 +49,14 @@ export class WorkflowMainTabsComponent implements OnChanges {
     });
   }
 
+  getUserAvatar() {
+    return this.authService.currentUser.avatar || '/assets/avatar_placeholder.png';
+  }
+
   postWorkflowComment() {
     if (this.commentTextFormControl.valid) {
       this.commentsService.saveWorkFlowComment(this.workflow.id, {
-        text: this.commentTextFormControl.value,
+        text: this.commentTextFormControl.value.trim(),
         timestamp: new Date()
       }).subscribe(value => {
         this.allComments.push(value.comment);

@@ -65,15 +65,24 @@
                       </wt-comment>
                     </li>
                   </ul>
-                  <span class="error"
-                        *ngIf="commentTextFormControl.invalid && commentTextFormControl.touched">
-                    *The message must contain more than 5 symbols and less 2048 symbols
-                  </span>
-                  <textarea rows="3"
-                            class="form-control"
-                            placeholder="Write a comment..."
-                            [formControl]="commentTextFormControl">
-                  </textarea>
+                  <div class="textarea-wrapper">
+                    <a href="#" class="comment-avatar">
+                      <img alt="avatar"
+                           class="thumbnail rounded-circle"
+                           [src]="getUserAvatar()">
+                    </a>
+                    <div class="textarea-wrapper-field">
+                      <span class="error"
+                            *ngIf="commentTextFormControl.invalid && commentTextFormControl.touched">
+                      *The message must contain more than 5 symbols and less 2048 symbols
+                    </span>
+                      <textarea rows="3"
+                                class="form-control"
+                                placeholder="Write a comment..."
+                                [formControl]="commentTextFormControl">
+                    </textarea>
+                    </div>
+                  </div>
                   <div class="block-for-comment-btn">
                     <button type="button"
                             class="btn btn-primary pull-right"
