@@ -21,6 +21,7 @@
     "@angular/platform-browser-dynamic": "~8.1.1",
     "@angular/router": "~8.1.1",
     "@mdi/font": "^3.6.95",
+    "angular-oauth2-oidc": "^8.0.4",
     "bootstrap": "^4.3.1",
     "chartist": "^0.11.3",
     "core-js": "^2.5.4",

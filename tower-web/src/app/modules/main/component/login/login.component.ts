@@ -10,13 +10,13 @@
  */
 
 import {Component, NgZone, OnInit, ViewChild} from '@angular/core';
-import {ActivatedRoute, Router} from "@angular/router";
-import {HttpErrorResponse} from "@angular/common/http";
 import {NgForm} from "@angular/forms";
 import {AuthService} from "src/app/modules/main/service/auth.service";
 import {NotificationService} from "src/app/modules/main/service/notification.service";
 import {AccessGateState} from "src/app/modules/main/entity/gate";
 import {environment} from "../../../../../environments/environment";
+import {AuthConfig, JwksValidationHandler, OAuthService} from "angular-oauth2-oidc";
+import {HttpErrorResponse} from "@angular/common/http";
 
 @Component({
   selector: 'wt-login',
@@ -38,6 +38,7 @@ export class LoginComponent implements OnInit {
 
   constructor(private ngZone: NgZone,
               private authService: AuthService,
+              private oauthService: OAuthService,
               private notificationService: NotificationService) {
     this.isSubmitted = false;
     this.state = null;
@@ -63,6 +64,23 @@ export class LoginComponent implements OnInit {
             this.notificationService.showErrorNotification(resp.error.message);
           }
     );
+  }
+
+  loginWithGitHub() {
+    const authConfig: AuthConfig = {
+      oidc: false,
+      responseType: 'token',
+      scope: 'openid profile email',
+      clientId: environment.gitHubClientId,
+      strictDiscoveryDocumentValidation: false,
+      redirectUri: environment.gitHubRedirectUri,
+      loginUrl: 'https://github.com/login/oauth/authorize'
+    };
+    this.oauthService.configure(authConfig);
+    this.oauthService.tokenValidationHandler = new JwksValidationHandler();
+    this.oauthService.tryLogin().then(value => {
+      this.oauthService.initLoginFlow();
+    });
   }
 
   isSubmitEnabled(): boolean {

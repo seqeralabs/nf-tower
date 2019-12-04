@@ -47,6 +47,7 @@ import { WorkflowUnknownComponent } from "./component/workflow-unknown/workflow-
 import { LoadingComponent } from './component/loading/loading.component';
 import { TreeListComponent } from "./component/tree-list/TreeListComponent";
 import { WorkflowStatusIconComponent } from "../../workflow-status-icon/workflow-status-icon.component";
+import {OAuthModule} from "angular-oauth2-oidc";
 
 /*
  * Main application routing strategy
@@ -108,7 +109,8 @@ export class MainRoutingModule { }
     HttpClientModule,
     FormsModule,
     ChartistModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    OAuthModule.forRoot()
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },

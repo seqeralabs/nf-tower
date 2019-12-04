@@ -7,3 +7,11 @@
 .sent-email {
   font-weight: bold;
 }
+
+.row.btn-github, .row.btn-google {
+  margin-top: .6rem;
+
+  .btn-light {
+    background-color: #e9ecef;
+  }
+}
