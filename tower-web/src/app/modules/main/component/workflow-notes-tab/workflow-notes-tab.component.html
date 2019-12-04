@@ -1,0 +1,56 @@
+<!--
+  ~ Copyright (c) 2019, Seqera Labs.
+  ~
+  ~ This Source Code Form is subject to the terms of the Mozilla Public
+  ~ License, v. 2.0. If a copy of the MPL was not distributed with this
+  ~ file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  ~
+  ~ This Source Code Form is "Incompatible With Secondary Licenses", as
+  ~ defined by the Mozilla Public License, v. 2.0.
+  -->
+
+<div class="row bootstrap snippets">
+  <div class="col-md-8 col-md-offset-2 col-sm-9">
+    <div class="comment-wrapper">
+      <div class="panel panel-info">
+        <div class="panel-body">
+          <ul class="media-list">
+            <li *ngFor="let comment of allComments">
+              <wt-workflow-note [comment]="comment"
+                                [workflow]="workflow"
+                                [allComments]="allComments"
+                                (editCommentOut)="editWorkflowComment($event)"
+                                (deleteCommentOut)="deleteWorkflowComment(comment.id)">
+              </wt-workflow-note>
+            </li>
+          </ul>
+          <div class="textarea-wrapper">
+            <a href="#" class="comment-avatar">
+              <img alt="avatar"
+                   class="thumbnail rounded-circle"
+                   [src]="getUserAvatar()">
+            </a>
+            <div class="textarea-wrapper-field">
+                      <span class="error"
+                            *ngIf="commentTextFormControl.invalid && commentTextFormControl.touched">
+                      *The message must contain more than 5 symbols and less 2048 symbols
+                    </span>
+              <textarea rows="3"
+                        class="form-control"
+                        placeholder="Add a new note here"
+                        [formControl]="commentTextFormControl">
+                    </textarea>
+            </div>
+          </div>
+          <div class="block-for-comment-btn">
+            <button type="button"
+                    class="btn btn-primary pull-right"
+                    (click)="postWorkflowComment()">
+              Post
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -38,7 +38,6 @@ import io.seqera.tower.exchange.task.TaskGet
 import io.seqera.tower.exchange.task.TaskList
 import io.seqera.tower.exchange.workflow.AddWorkflowCommentRequest
 import io.seqera.tower.exchange.workflow.AddWorkflowCommentResponse
-import io.seqera.tower.exchange.workflow.DeleteWorkflowCommentRequest
 import io.seqera.tower.exchange.workflow.DeleteWorkflowCommentResponse
 import io.seqera.tower.exchange.workflow.GetWorkflowMetricsResponse
 import io.seqera.tower.exchange.workflow.GetWorkflowResponse
@@ -304,22 +303,22 @@ class WorkflowController extends BaseController {
 
     @Transactional
     @Secured(['ROLE_USER'])
-    @Delete('/{workflowId}/comment')
+    @Delete('/{workflowId}/comment/{commentId}')
     @CompileDynamic
-    HttpResponse<DeleteWorkflowCommentResponse> deleteComment(Authentication authentication, String workflowId, DeleteWorkflowCommentRequest request) {
+    HttpResponse<DeleteWorkflowCommentResponse> deleteComment(Authentication authentication, String workflowId, String commentId) {
         try {
             final user = userService.getByAuth(authentication)
 
             // check `commentId` and `workflowId` are provided
-            if( !request.commentId )
+            if( !commentId )
                 return HttpResponse.badRequest(new DeleteWorkflowCommentResponse(message:"Oops.. Missing comment ID"))
             if( !workflowId )
                 return HttpResponse.badRequest(new DeleteWorkflowCommentResponse(message:"Oops.. Missing workflow ID"))
 
             // make sure the comment exists
-            final comment = WorkflowComment.get(request.commentId)
+            final comment = WorkflowComment.get(commentId)
             if (!comment)
-                return HttpResponse.notFound(new DeleteWorkflowCommentResponse(message:"Oops... Can't find workflow comment with ID $request.commentId"))
+                return HttpResponse.notFound(new DeleteWorkflowCommentResponse(message:"Oops... Can't find workflow comment with ID $commentId"))
 
             // user can only modify it's own comment
             if( comment.user.id != user.id )
@@ -329,7 +328,8 @@ class WorkflowController extends BaseController {
             if( comment.workflow.id != workflowId )
                 return HttpResponse.badRequest(new DeleteWorkflowCommentResponse(message:"Oops.. Mismatch comment workflow id"))
 
-            comment.delete(failOnError: true)
+            comment.deleted = true
+            comment.save(failOnError: true)
             return HttpResponse.ok( new DeleteWorkflowCommentResponse() )
         }
         catch(ValidationException e) {

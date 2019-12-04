@@ -5,10 +5,14 @@
         <a class="nav-link active" id="commandLine-tab" data-toggle="tab" href="#commandLine" role="tab" aria-controls="commandLine">Command <span class="d-none d-sm-inline">line</span></a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" id="parameters-tab" data-toggle="tab" href="#parameters" role="tab" aria-controls="parameters">Parameters</a>
+        <a class="nav-link" id="parameters-tab" data-toggle="tab" href="#parameters" role="tab"
+           aria-controls="parameters">Parameters</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" id="configuration-tab" data-toggle="tab" href="#configuration" role="tab" aria-controls="configuration">Config<span class="d-none d-sm-inline">uration</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="comments-tab" data-toggle="tab" href="#comments" role="tab" aria-controls="configuration">Notes</a>
       </li>
     </ul>
   </div>
@@ -40,6 +44,11 @@
           <div class="tab-config tab-max-height">
             <pre class="tab-config">{{workflow.data.configText ? workflow.data.configText : 'n/a'}}</pre>
           </div>
+        </div>
+      </div>
+      <div class="tab-pane fade" id="comments" role="tabpanel" aria-labelledby="comments-tab">
+        <div class="container" >
+          <wt-workflow-notes [workflow]="workflow"></wt-workflow-notes>
         </div>
       </div>
     </div>

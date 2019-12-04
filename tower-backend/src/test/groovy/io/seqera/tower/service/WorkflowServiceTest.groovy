@@ -424,10 +424,12 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         def comments = workflowService.getComments(workflow)
         then:
         comments.size() == 2
-        comments[0].dateCreated == t2
-        comments[0].text == 'Second hello'
-        comments[1].dateCreated == t1
-        comments[1].text == 'First hello'
+        and:
+        comments[0].dateCreated == t1
+        comments[0].text == 'First hello'
+        and:
+        comments[1].dateCreated == t2
+        comments[1].text == 'Second hello'
     }
 
 

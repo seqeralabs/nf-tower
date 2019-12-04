@@ -1,0 +1,93 @@
+/*
+ * Copyright (c) 2019, Seqera Labs.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ * This Source Code Form is "Incompatible With Secondary Licenses", as
+ * defined by the Mozilla Public License, v. 2.0.
+ */
+
+.panel-body {
+  max-width: 580px;
+  padding: 20px;
+
+  .btn-primary {
+    width: 100px;
+    min-width: 100px;
+  }
+
+  .cancel-edit {
+    color: blue;
+    margin-left: 1rem;
+    cursor: pointer;
+  }
+}
+
+.media {
+  width: 100%;
+  border-bottom: 1px dashed #efefef;
+  padding: 20px 0;
+
+  img {
+    width: 64px;
+    height: 64px;
+    border: 2px solid #e5e7e8;
+  }
+}
+
+.media-list {
+  padding: 0;
+
+  li {
+    list-style: none;
+  }
+}
+
+.textarea-wrapper {
+  display: flex;
+
+  a {
+    display: block;
+    width: 3rem;
+    height: 3rem;
+    -o-object-fit: cover;
+    object-fit: cover;
+    align-self: flex-start;
+
+    img {
+      object-fit: cover;
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  .textarea-wrapper-field {
+    width: 100%;
+
+    .error {
+      margin-left: 1rem;
+      font-size: .9rem;
+      color: #ff0000;
+      padding: 5px 0;
+    }
+
+    textarea {
+      width: 97%;
+      margin-left: 1rem;
+      padding: 5px;
+      resize: none;
+    }
+  }
+}
+
+.block-for-comment-btn {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+
+  .btn-primary {
+    width: 95px;
+  }
+}

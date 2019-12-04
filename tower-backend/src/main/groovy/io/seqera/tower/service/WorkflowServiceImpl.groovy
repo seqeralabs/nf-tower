@@ -16,7 +16,6 @@ import static io.seqera.tower.enums.WorkflowStatus.*
 import javax.inject.Inject
 import javax.inject.Singleton
 import javax.validation.ValidationException
-import java.time.OffsetDateTime
 
 import grails.gorm.DetachedCriteria
 import grails.gorm.transactions.Transactional
@@ -202,32 +201,9 @@ class WorkflowServiceImpl implements WorkflowService {
 
     @CompileDynamic
     List<WorkflowComment> getComments(Workflow owner) {
-        WorkflowComment.where { workflow == owner }.list(sort: 'lastUpdated', order:'desc')
+        WorkflowComment.where { workflow == owner }.list(sort: 'dateCreated', order:'asc')
     }
 
-    WorkflowComment createComment(Workflow workflow, String text, OffsetDateTime timestamp) {
-        if( timestamp == null )
-            timestamp = OffsetDateTime.now()
-
-        final comment = new WorkflowComment()
-        comment.workflow = workflow
-        comment.text = text
-        comment.lastUpdated = timestamp
-        comment.dateCreated = timestamp
-        return comment.save()
-    }
-
-    WorkflowComment updateComment(Workflow workflow, Serializable commentId, String text, OffsetDateTime timestamp) {
-        if( timestamp == null )
-            timestamp = OffsetDateTime.now()
-
-        final comment = new WorkflowComment()
-        comment.workflow = workflow
-        comment.text = text
-        comment.lastUpdated = timestamp
-        comment.dateCreated = timestamp
-        return comment.save()
-    }
 
     @CompileDynamic
     List<String> getProcessNames(Workflow workflow) {

@@ -30,6 +30,7 @@ class WorkflowComment {
     Long id
     User user
     String text
+    Boolean deleted
     OffsetDateTime dateCreated
     OffsetDateTime lastUpdated
 
@@ -45,6 +46,7 @@ class WorkflowComment {
 
     static constraints = {
         text(maxSize: 2048)
+        deleted(nullable: true)
     }
 
     static mapping = {

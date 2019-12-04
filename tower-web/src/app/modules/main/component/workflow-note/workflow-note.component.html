@@ -1,0 +1,52 @@
+<div class="comment-wrapper">
+  <a href="#" class="comment-avatar">
+    <img alt="avatar"
+         class="thumbnail rounded-circle"
+         [src]="getUserAvatar()">
+  </a>
+  <div class="message">
+    <div class="message-header">
+      <div class="message-author-name-time">
+        <strong class="message-author-name">{{comment?.author?.displayName}}</strong>
+        <span>
+          <small class="message-time">{{comment?.dateCreated | date: 'yyyy-MM-dd, HH:mm:ss'}}</small>
+        </span>
+      </div>
+      <div class="edit-delete-btns" *ngIf="!comment.deleted && isOwnerOfComment()">
+        <button class="edit-btn"
+                (click)="showTextAreaForEdit()">
+          <span class="mdi mdi-pencil"></span>
+        </button>
+        <button class="delete-btn"
+                (click)="chooseCommentForDelete(comment)"
+                [disabled]="showTextarea" >
+          <span class="mdi mdi-delete"></span>
+        </button>
+      </div>
+    </div>
+    <pre class="message-content"
+       *ngIf="!showTextarea && !comment.deleted">
+      {{comment?.text}}
+    </pre>
+    <p class="message-deleted-comment" *ngIf="comment.deleted">Deleted</p>
+    <div class="message-edit"
+         *ngIf="showTextarea">
+      <span class="error"
+            *ngIf="commentTextEditFormControl.invalid && commentTextEditFormControl.touched">
+                    *The message must contain more than 5 symbols and less 2048 symbols
+      </span>
+      <textarea placeholder="Edit a comment..."
+                [rows]="textareaRow"
+                [formControl]="commentTextEditFormControl">
+      </textarea>
+      <div class="btn-group-update-delete" *ngIf="!comment.deleted">
+        <button class="btn btn-outline-danger"
+                (click)="showTextarea = false;">Cancel
+        </button>
+        <button class="btn btn-primary"
+                (click)="editComment(comment)">Save
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
