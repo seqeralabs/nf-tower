@@ -5,9 +5,9 @@
       <div *ngFor="let status of statusesTags" class="col-6 col-lg-4 text-center">
         <div class="card m-2">
           <div class="card-body">
-            <h2 class="card-title">{{progressState[status]}}</h2>
+            <h2 class="card-title" data-toggle="tooltip" data-placement="auto"  title="{{progressState[status]}}">{{numOfTasksFor(status)}}</h2>
           </div>
-          <div class="card-footer text-white" [ngClass]="status">{{status}}</div>
+          <div class="card-footer text-white text-truncate" [ngClass]="status">{{status}}</div>
         </div>
       </div>
     </div>

@@ -16,7 +16,7 @@ export class WorkflowLoad {
   data: ProgressRecord;
 
   constructor(json: any) {
-    this.data = <ProgressRecord> json;
+    this.data = json as ProgressRecord;
   }
 
   get totalCpuHours(): string {

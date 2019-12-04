@@ -10,7 +10,7 @@
  */
 import {HumanizeDuration, HumanizeDurationLanguage, ILanguage} from "humanize-duration-ts";
 import * as dateFormat from "date-fns/format";
-import * as filesize from "file-size"
+import * as filesize from "file-size";
 
 export abstract class FormatterUtil {
 
@@ -19,18 +19,18 @@ export abstract class FormatterUtil {
 
   static initialize() {
     const language: HumanizeDurationLanguage  = new HumanizeDurationLanguage();
-    language.addLanguage('short', <ILanguage> {y: () => 'y', mo: () => 'mo', w: () => 'w', d: () => 'd', h: () => 'h', m: () => 'm', s: () => 's'});
+    language.addLanguage('short', {y: () => 'y', mo: () => 'mo', w: () => 'w', d: () => 'd', h: () => 'h', m: () => 'm', s: () => 's'} as ILanguage);
     this.durationHumanizer = new HumanizeDuration(language);
   }
 
   static humanizeDuration(durationMillis: number): string {
-    if (durationMillis==null || durationMillis==0)
+    if (durationMillis==null || durationMillis===0)
       return '';
     return this.durationHumanizer.humanize(durationMillis, {language: 'short', delimiter: ' ', round: true});
   }
 
   static humanizeStorageCapacity(storageBytes: number, decimals: number = 2, unit?: string): string {
-    if( storageBytes == null || storageBytes == 0 )
+    if( storageBytes == null || storageBytes === 0 )
       return '';
     const filesizeHandler = filesize(storageBytes, {fixed: decimals});
     const humanizedStorage: string = unit ? `${filesizeHandler.to(unit, 'jedec')} ${unit}` : filesizeHandler.human('jedec');
@@ -38,7 +38,7 @@ export abstract class FormatterUtil {
   }
 
   static formatDate(date: string | number | Date, format?: string): string {
-    if (date==null || date==0)
+    if (date==null || date===0)
       return '';
 
     const dateInstance: Date = new Date(date);
@@ -50,6 +50,16 @@ export abstract class FormatterUtil {
 
   static convertDurationToHours(durationMillis: number): string {
     return (durationMillis / (1000 * 60 * 60)).toFixed(1);
+  }
+
+  static humanizeCounter(value: number): string {
+    if( value < 1000 )
+        return value.toString();
+    return filesize(value, {fixed: 1, spacer: ''})
+      .human('si')
+      .replace('B','')
+      .replace('.0','')
+      .toUpperCase();
   }
 
 }

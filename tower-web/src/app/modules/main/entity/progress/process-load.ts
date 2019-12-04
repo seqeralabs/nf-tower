@@ -17,11 +17,22 @@ export class ProcessLoad {
 
   constructor(json: any) {
     this.process = json.process;
-    this.data = <ProgressRecord> json;
+    this.data = json as ProgressRecord;
   }
 
-  get total(): number {
+  get completeTasks(): number {
+    return this.data.succeeded + this.data.cached;
+  }
+
+  get completeTasksFmt(): string {
+    return this.completeTasks.toLocaleString('EN-us');
+  }
+
+  get totalTasks(): number {
     return this.data.pending + this.data.running + this.data.cached + this.data.submitted + this.data.succeeded + this.data.failed;
   }
 
+  get totalTasksFmt(): string {
+    return this.totalTasks.toLocaleString('EN-us');
+  }
 }
