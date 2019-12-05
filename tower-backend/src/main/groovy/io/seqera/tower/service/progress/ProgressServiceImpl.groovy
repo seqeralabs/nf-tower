@@ -65,7 +65,7 @@ class ProgressServiceImpl implements ProgressService {
         publisher = PublishSubject.create()
 
         publisher
-                .observeOn(Schedulers.io())
+                .observeOn(Schedulers.computation())
                 .subscribe { doEvent(it) }
     }
 

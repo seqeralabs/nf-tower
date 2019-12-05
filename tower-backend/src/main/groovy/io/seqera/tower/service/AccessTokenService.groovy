@@ -98,7 +98,7 @@ abstract class AccessTokenService {
         lastAccessUpdater = PublishSubject.create()
         lastAccessUpdater
                 .toFlowable(BackpressureStrategy.LATEST)
-                .observeOn(Schedulers.io())
+                .observeOn(Schedulers.computation())
                 .buffer(flushInterval.toMillis(), TimeUnit.MILLISECONDS)
                 .subscribe(this.&flushLastAccessUpdates)
         return lastAccessUpdater
