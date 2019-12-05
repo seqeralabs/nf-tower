@@ -91,23 +91,27 @@ pre.tab-config {
 .textarea-wrapper {
   display: flex;
 
-  a {
-    display: block;
-    width: 3rem;
-    height: 3rem;
-    -o-object-fit: cover;
-    object-fit: cover;
-    align-self: flex-start;
+  .comment-avatar {
+    width: 8%;
 
-    img {
+    a {
+      display: block;
+      width: 3rem;
+      height: 3rem;
+      -o-object-fit: cover;
       object-fit: cover;
-      width: 100%;
-      height: 100%;
+      align-self: flex-start;
+
+      img {
+        object-fit: cover;
+        width: 100%;
+        height: 100%;
+      }
     }
   }
 
   .textarea-wrapper-field {
-    width: 100%;
+    width: 92%;
 
     .error {
       margin-left: 1rem;

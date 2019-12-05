@@ -66,11 +66,13 @@
                     </li>
                   </ul>
                   <div class="textarea-wrapper">
-                    <a href="#" class="comment-avatar">
-                      <img alt="avatar"
-                           class="thumbnail rounded-circle"
-                           [src]="getUserAvatar()">
-                    </a>
+                    <div class="comment-avatar">
+                      <a href="#">
+                        <img alt="avatar"
+                             class="thumbnail rounded-circle"
+                             [src]="getUserAvatar()">
+                      </a>
+                    </div>
                     <div class="textarea-wrapper-field">
                       <span class="error"
                             *ngIf="commentTextFormControl.invalid && commentTextFormControl.touched">

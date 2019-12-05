@@ -1,9 +1,11 @@
 <div class="comment-wrapper">
-  <a href="#" class="comment-avatar">
-    <img alt="avatar"
-         class="thumbnail rounded-circle"
-         [src]="getUserAvatar()">
-  </a>
+  <div class="comment-avatar">
+    <a href="#">
+      <img alt="avatar"
+           class="thumbnail rounded-circle"
+           [src]="getUserAvatar()">
+    </a>
+  </div>
   <div class="message">
     <div class="message-header">
       <div class="message-author-name-time">
@@ -27,6 +29,7 @@
       </div>
     </div>
     <pre class="message-content"
+         #preText
        *ngIf="!showTextarea && !comment.deleted">
       {{comment?.text}}
     </pre>
@@ -38,7 +41,7 @@
                     *The message must contain more than 5 symbols and less 2048 symbols
       </span>
       <textarea placeholder="Edit a comment..."
-                [rows]="textareaRow"
+                #textarea
                 [formControl]="commentTextEditFormControl">
       </textarea>
       <div class="btn-group-update-delete" *ngIf="!comment.deleted">
