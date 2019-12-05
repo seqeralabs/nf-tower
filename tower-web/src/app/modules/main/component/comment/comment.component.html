@@ -16,7 +16,7 @@
       </div>
       <div class="edit-delete-btns" *ngIf="!comment.deleted && isOwnerOfComment()">
         <button class="edit-btn"
-                (click)="showTextAreaForEdit()">
+                (click)="showHideTextAreaForEdit()">
           <span class="mdi mdi-pencil"></span>
         </button>
         <button class="delete-btn"

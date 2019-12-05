@@ -1,4 +1,14 @@
-import {Component, ElementRef, EventEmitter, Input, OnInit, Output, Renderer2, ViewChild} from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  Renderer2,
+  ViewChild
+} from '@angular/core';
 import {AuthService} from "../../service/auth.service";
 import {WorkflowComment} from "../../entity/comment/workflow-comment";
 import {FormControl, Validators} from "@angular/forms";
@@ -41,7 +51,8 @@ export class CommentComponent implements OnInit {
   ]);
 
   constructor(private userService: AuthService,
-              private renderer: Renderer2) {
+              private renderer: Renderer2,
+              private changeDetector: ChangeDetectorRef) {
   }
 
   ngOnInit() {
@@ -61,18 +72,17 @@ export class CommentComponent implements OnInit {
     }
   }
 
-  showTextAreaForEdit(): void {
+  showHideTextAreaForEdit(): void {
     let heightPre: string;
     if (this.preTextElRef && this.preTextElRef.nativeElement) {
       heightPre = `${this.preTextElRef.nativeElement.offsetHeight}px`;
     }
-    setTimeout(() => {
-      if (this.textareaElRef && this.textareaElRef.nativeElement) {
-        this.renderer.setStyle(this.textareaElRef.nativeElement, "height", heightPre);
-      }
-    });
     this.showTextarea = !this.showTextarea;
     this.commentTextEditFormControl.setValue(this.comment.text);
+    this.changeDetector.detectChanges();
+    if (this.textareaElRef && this.textareaElRef.nativeElement) {
+      this.renderer.setStyle(this.textareaElRef.nativeElement, "height", heightPre);
+    }
   }
 
   chooseCommentForDelete(comment: WorkflowComment) {

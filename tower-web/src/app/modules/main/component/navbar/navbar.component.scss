@@ -10,8 +10,9 @@
 }
 
 .thumbnail {
-  max-height: 100%;
-  max-width: 100%;
+  width: 3rem;
+  height: 3rem;
+  object-fit: cover;
 
   position: absolute;
   margin: auto;
