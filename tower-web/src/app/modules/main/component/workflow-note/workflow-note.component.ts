@@ -1,4 +1,14 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  Renderer2,
+  ViewChild
+} from '@angular/core';
 import {AuthService} from "../../service/auth.service";
 import {WorkflowComment} from "../../entity/comment/workflow-comment";
 import {FormControl, Validators} from "@angular/forms";
@@ -12,8 +22,6 @@ import {NoSpaceValidator} from "../../entity/no-space.validator";
 })
 export class WorkflowNoteComponent implements OnInit {
 
-  readonly autoSizeForTextarea = 42;
-
   @Input() comment: WorkflowComment;
   @Input() workflow: Workflow;
   @Input() allComments: any[];
@@ -21,7 +29,18 @@ export class WorkflowNoteComponent implements OnInit {
 
   @Output() deleteCommentOut = new EventEmitter();
 
-  textareaRow: number;
+  private textareaElRef: ElementRef;
+
+  @ViewChild('textarea', {static: false}) set textarea(textarea: ElementRef) {
+    this.textareaElRef = textarea;
+  }
+
+  private preTextElRef: ElementRef;
+
+  @ViewChild('preText', {static: false}) set preText(preText: ElementRef) {
+    this.preTextElRef = preText;
+  }
+
   showTextarea: boolean;
   currentUser = this.userService.currentUser;
   commentTextEditFormControl: FormControl = new FormControl('', [
@@ -32,7 +51,9 @@ export class WorkflowNoteComponent implements OnInit {
     NoSpaceValidator.noNewLine
   ]);
 
-  constructor(private userService: AuthService) {
+  constructor(private userService: AuthService,
+              private renderer: Renderer2,
+              private changeDetector: ChangeDetectorRef) {
   }
 
   ngOnInit() {
@@ -52,10 +73,17 @@ export class WorkflowNoteComponent implements OnInit {
     }
   }
 
-  showTextAreaForEdit(): void {
+  showHideTextAreaForEdit(): void {
+    let heightPre: string;
+    if (this.preTextElRef && this.preTextElRef.nativeElement) {
+      heightPre = `${this.preTextElRef.nativeElement.offsetHeight}px`;
+    }
     this.showTextarea = !this.showTextarea;
     this.commentTextEditFormControl.setValue(this.comment.text);
-    this.textareaRow = this.commentTextEditFormControl.value.length / this.autoSizeForTextarea;
+    this.changeDetector.detectChanges();
+    if (this.textareaElRef && this.textareaElRef.nativeElement) {
+      this.renderer.setStyle(this.textareaElRef.nativeElement, "height", heightPre);
+    }
   }
 
   chooseCommentForDelete(comment: WorkflowComment) {

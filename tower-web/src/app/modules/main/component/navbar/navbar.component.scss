@@ -1,36 +1,23 @@
 @import "../../../../../assets/variables";
 
+.profile-item {
+  padding-left: 60px;
+}
+
 .profile-card {
   left: initial;
   right: 0;
 }
 
-.profile-item {
-  #user-dropdown {
-    padding-top: 2px;
-    padding-bottom: 2px;
-    margin-left: 1rem;
-  }
-  .thumbnail {
-    max-height: 32px;
-    max-width: 32px;
-  }
-}
+.thumbnail {
+  width: 3rem;
+  height: 3rem;
+  object-fit: cover;
 
-@media (max-width: 960px){
-  .profile-item {
-    #user-dropdown {
-      display: none;
-      margin-left: 0;
-    }
-    .profile-card {
-      display: block;
-      margin-top: 0.5rem;
-      margin-bottom: 0.5rem;
-    }
-    .thumbnail {
-      max-height: 36px;
-      max-width: 36px;
-    }
-  }
+  position: absolute;
+  margin: auto;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
