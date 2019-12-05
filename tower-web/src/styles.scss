@@ -132,7 +132,7 @@ code {
 }
 
 .ct-filled .ct-slice-donut {
-  stroke: $running-blue;
+  stroke: $clr-running;
 }
 
 .ct-empty .ct-slice-donut {
@@ -230,25 +230,25 @@ code {
     padding-bottom: 0.4em;
 
     &.new {
-      background-color: $pending-purple;
+      background-color: $clr-pending;
     }
     &.submitted {
-      background-color: $submitted-orange;
+      background-color: $clr-submitted;
     }
     &.running {
-      background-color: $running-blue;
+      background-color: $clr-running;
     }
     &.cached {
-      background-color: $cached-grey;
+      background-color: $clr-cached;
     }
     &.completed {
-      background-color: $succeed-green;
+      background-color: $clr-succeed;
     }
     &.failed {
-      background-color: $failed-red;
+      background-color: $clr-failed;
     }
     &.aborted {
-      background-color: $aborted-red;
+      background-color: $clr-aborted;
     }
   }
 }

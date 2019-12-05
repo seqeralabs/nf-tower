@@ -8,19 +8,19 @@
   border-right: 0;
 
   &.running {
-    border-top-color: $running-blue;
+    border-top-color: $clr-running;
   }
 
   &.succeed {
-    border-top-color: $succeed-green;
+    border-top-color: $clr-succeed;
   }
 
   &.failed {
-    border-top-color: $failed-red;
+    border-top-color: $clr-failed;
   }
 
   &.partial {
-    border-top-color: $partial-orange;
+    border-top-color: $clr-partial;
   }
 
   // Full width page content on tiny screens

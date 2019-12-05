@@ -46,62 +46,62 @@
 }
 
 .workflow--succeed {
-  border-left-color: $succeed-green;
+  border-left-color: $clr-succeed;
 
   &.active {
-    border-color: $succeed-green;
+    border-color: $clr-succeed;
   }
 
   .card-title, .sidebar-wf-icon {
-    color: $succeed-green;
+    color: $clr-succeed;
   }
 }
 
 .workflow--running {
-  border-left-color: $running-blue;
+  border-left-color: $clr-running;
 
   &.active {
-    border-color: $running-blue;
+    border-color: $clr-running;
   }
 
   .card-title, .sidebar-wf-icon {
-    color: $running-blue;
+    color: $clr-running;
   }
 }
 
 .workflow--failed {
-  border-left-color: $failed-red;
+  border-left-color: $clr-failed;
 
   &.active {
-    border-color: $failed-red;
+    border-color: $clr-failed;
   }
 
   .card-title, .sidebar-wf-icon {
-    color: $failed-red;
+    color: $clr-failed;
   }
 }
 
 .workflow--partial {
-  border-left-color: $partial-orange;
+  border-left-color: $clr-partial;
 
   &.active {
-    border-color: $partial-orange;
+    border-color: $clr-partial;
   }
 
   .card-title, .sidebar-wf-icon {
-    color: $partial-orange;
+    color: $clr-partial;
   }
 }
 
 .workflow--unknown {
-  border-left-color: $failed-red;
+  border-left-color: $clr-failed;
 
   &.active {
-    border-color: $failed-red;
+    border-color: $clr-failed;
   }
 
   .card-title, .sidebar-wf-icon {
-    color: $failed-red;
+    color: $clr-failed;
   }
 }
 

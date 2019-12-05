@@ -1,20 +1,20 @@
 /* You can add global styles to this file, and also import other style files */
 
-$running-blue: #199fdb;
-$succeed-green: #28ae61;
-$failed-red: #e7363e;
-$aborted-red: #e7363e;
-$partial-orange: darkOrange;
-$cached-grey: #939598;
-$pending-purple: #8f4199;
-$submitted-orange: #f57f27;
-$thin-grey: #dee2e6;
+$clr-running: #199fdb;
+$clr-succeed: #28ae61;
+$clr-failed: #e7363e;
+$clr-aborted: #e7363e;
+$clr-partial: darkOrange;
+$clr-cached: #939598;
+$clr-pending: #8f4199;
+$clr-submitted: #f57f27;
+$clr-border: #dee2e6;
 
 $body-background: #f8f9fa;
 $sidebar-width: 22rem;
 $sidebar-collapsed-width: 4rem;
 $sidebar-background: #f8f9fa;
-$sidebar-border: 1px solid $thin-grey;
+$sidebar-border: 1px solid $clr-border;
 
 $footer-padding: 28px;
 $navbar-height: 63px;
