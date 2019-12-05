@@ -2,7 +2,7 @@
   <div class="card-body">
     <h5 class="card-title">
       <span class="mdi" [ngClass]="{'mdi-check-circle-outline': workflow.isSuccessful, 'mdi-progress-check': workflow.isRunning, 'mdi-alert-circle-outline': workflow.isFailed || workflow.isPartialFailed, 'mdi-help-circle-outline': workflow.isUnknownStatus}"></span>
-      {{workflow.data.projectName}}
+      {{workflow.displayName}}
     </h5>
     <p class="mb-0"><span class="mdi mdi-run"></span> {{workflow.data.runName}}</p>
     <p class="mb-0"><span class="mdi mdi-clock-outline"></span> Duration: {{workflow.humanizedDuration}}</p>

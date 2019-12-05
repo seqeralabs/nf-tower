@@ -12,6 +12,14 @@ git merge public/master
 
 Read more [here](https://help.github.com/articles/syncing-a-fork/).
 
+## Fork a remote branch and push changes 
+
+```
+git co --track upstream/master -b upstream
+git cherry-pick <something> [--no-commit]
+git push upstream HEAD:master
+```
+
 ## Subtree  
 
 The `tests` directory is a Git subtree created with the 
