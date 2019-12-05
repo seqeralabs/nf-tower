@@ -1,5 +1,5 @@
 /* You can add global styles to this file, and also import other style files */
-@import "~src/assets/variables";
+@import "./src/assets/variables";
 
 html {
   font-size: $font-size-root;
@@ -39,7 +39,7 @@ code {
 }
 
 #layout {
-  min-height: calc(100% - #{$navbar-height});
+  min-height: calc(100% - #{$navbar-height} - #{$footer-padding});
 }
 
 #sidebar {
@@ -250,9 +250,7 @@ code {
     &.aborted {
       background-color: $aborted-red;
     }
-
   }
-
 }
 
 
@@ -281,6 +279,7 @@ footer {
   background-color: $body-background;
   font-size: smaller;
   text-align: center;
+  padding-top: $footer-padding;
 
   a {
     color: inherit;
