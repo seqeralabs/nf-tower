@@ -1,0 +1,141 @@
+@import "~src/assets/variables";
+
+
+.badge.label {
+  font-size: 1rem;
+  background-color: $tag-lightGrey;
+
+  .text {
+    cursor: text;
+    display: inline-block;
+    min-width: 1.3rem;
+  }
+
+  .close {
+    font-size: inherit;
+    padding-left: 10px;
+    cursor: pointer;
+  }
+}
+
+button.new {
+  font-size: 1rem;
+}
+
+.badge.invalid {
+  border: 2px solid red;
+}
+
+.topics {
+  width: 100%;
+
+  &-view{
+    display: flex;
+    flex-wrap: wrap;
+
+    a{
+      color: #0366d6;
+      background-color: #f1f8ff;
+      margin: 5px;
+      padding: .3em .9em;
+      text-decoration: none;
+      font-size: 14px;
+      border-radius: 3px;
+
+      &:hover{
+        background-color: #def;
+      }
+
+      &.manage-topics{
+        background: none;
+        color: #0366d6;
+        cursor: pointer;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+
+  &-edit {
+    width: 100%;
+
+    &-title{
+      margin: 0;
+      margin-left: 10px;
+    }
+
+    &-form {
+      display: flex;
+      align-items: flex-start;
+      padding: 5px;
+
+      .topics-fake-input {
+        width: 95%;
+        display: flex;
+        align-items: center;
+        background-color: #fff;
+        padding: 4px 5px;
+        margin-right: 10px;
+        cursor: text;
+        border: 1px solid #d1d5da;
+        border-radius: 3px;
+
+        .topics-list {
+          display: flex;
+          flex-wrap: wrap;
+          list-style-type: none;
+          margin: 0;
+          padding: 0;
+
+          li {
+            margin: 5px 5px;
+            background-color: #f1f8ff;
+            border-radius: 3px;
+            padding-left: .3rem;
+            font-size: 14px;
+
+            &.input {
+              background: none;
+            }
+
+            .topics-btn-delete {
+              width: 30px;
+              background: none;
+              border: none;
+              border-left: 1px solid #b4d9ff;
+
+              &:focus {
+                outline: none;
+              }
+            }
+          }
+        }
+
+        input {
+          border: none;
+
+          &:focus {
+            outline: none;
+          }
+        }
+      }
+
+      .btn-done {
+        color: #24292e;
+        padding: 10px 20px;
+        font-size: 14px;
+        font-weight: 600;
+        background-color: #eff3f6;
+        background-image: linear-gradient(-180deg,#fafbfc,#eff3f6 90%);
+        border: 1px solid rgba(27,31,35,.2);
+        border-radius: .25em;
+
+        &:focus {
+          outline: none;
+        }
+      }
+    }
+  }
+}

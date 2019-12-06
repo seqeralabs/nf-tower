@@ -8,16 +8,10 @@
  * This Source Code Form is "Incompatible With Secondary Licenses", as
  * defined by the Mozilla Public License, v. 2.0.
  */
-import {WorkflowTagData} from "./workflow-tag-data";
+export interface WorkflowTopicData {
 
-export class WorkflowTag {
-
-  data: WorkflowTagData;
-
-  isValid: boolean = true;
-
-  constructor(json?: any) {
-    this.data = json ? this.data = <WorkflowTagData> json : <WorkflowTagData> {};
-  }
+  id: string | number;
+  text: string;
+  dateCreate: Date;
 
 }
