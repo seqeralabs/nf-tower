@@ -21,7 +21,7 @@ import { WorkflowDetailComponent } from './component/workflow-detail/workflow-de
 import { WorkflowMetricsComponent } from './component/workflow-metrics/metrics.component';
 import { WelcomeComponent } from './component/welcome/welcome.component';
 import { LoginComponent } from './component/login/login.component';
-import {FormsModule, ReactiveFormsModule} from "@angular/forms";
+import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { JwtInterceptor } from "./interceptor/jwt.interceptor";
 import { ErrorInterceptor } from "./interceptor/error.interceptor";
 import { LogoutComponent } from './component/logout/logout.component';
@@ -42,9 +42,11 @@ import { WorkflowStatsComponent } from './component/workflow-stats/workflow-stat
 import { WorkflowUtilizationComponent } from './component/workflow-utilization/workflow-utilization.component';
 import { ChartistModule } from "ng-chartist";
 import { WorkflowLoadComponent } from './component/workflow-load/workflow-load.component';
-import {WorkflowErrorComponent} from "./component/workflow-error/workflow-error.component";
+import { WorkflowErrorComponent } from "./component/workflow-error/workflow-error.component";
+import { WorkflowUnknownComponent } from "./component/workflow-unknown/workflow-unknown.component";
 import { LoadingComponent } from './component/loading/loading.component';
-import {TreeListComponent} from "./component/tree-list/TreeListComponent";
+import { TreeListComponent } from "./component/tree-list/TreeListComponent";
+import { WorkflowStatusIconComponent } from "../../workflow-status-icon/workflow-status-icon.component";
 import { WorkflowTagsComponent } from './component/workflow-tags/workflow-tags.component';
 
 /*
@@ -53,7 +55,7 @@ import { WorkflowTagsComponent } from './component/workflow-tags/workflow-tags.c
 const routes: Routes = [
   {path: '',                component: HomeComponent,
    children: [
-     {path: 'workflow/:id', component: WorkflowDetailComponent, canActivate: [AuthGuard]},
+     {path: 'watch/:id', component: WorkflowDetailComponent, canActivate: [AuthGuard]},
      {path: 'profile',      component: UserProfileComponent, canActivate: [AuthGuard]},
      {path: 'tokens',       component: AccessTokenComponent, canActivate: [AuthGuard]},
      {path: 'welcome',      component: WelcomeComponent, canActivate: [AuthGuard]},
@@ -83,9 +85,9 @@ export class MainRoutingModule { }
     SidebarComponent,
     NavbarComponent,
     WorkflowCardComponent,
-    WorkflowDetailComponent,
+    WorkflowDetailComponent, WorkflowStatusIconComponent,
     WorkflowMainTabsComponent, WorkflowGeneralComponent, WorkflowStatusComponent,
-    WorkflowStatsComponent, WorkflowUtilizationComponent, WorkflowLoadComponent, WorkflowErrorComponent,
+    WorkflowStatsComponent, WorkflowUtilizationComponent, WorkflowLoadComponent, WorkflowErrorComponent, WorkflowUnknownComponent,
     WorkflowTagsComponent,
     WelcomeComponent,
     LoadingComponent,

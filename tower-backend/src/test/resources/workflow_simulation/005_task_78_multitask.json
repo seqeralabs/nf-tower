@@ -28,8 +28,7 @@
             "complete": "2019-06-24T07:18:59.569+02:00",
             "duration": 4697,
             "realtime": 4692,
-            "nativeId": 9445,
-            "workflowId": "12345"
+            "nativeId": 9445
         },
         {
             "taskId": 8,
@@ -55,8 +54,7 @@
             "disk": null,
             "time": null,
             "env": null,
-            "nativeId": 11740,
-            "workflowId": "12345"
+            "nativeId": 11740
         }
     ],
     "workflowId": "12345"

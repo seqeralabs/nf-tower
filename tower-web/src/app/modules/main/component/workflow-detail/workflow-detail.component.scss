@@ -19,39 +19,22 @@
     border-top-color: $failed-red;
   }
 
-  &.partialFailed {
-    border-top-color: $partialFailed-orange;
+  &.partial {
+    border-top-color: $partial-orange;
   }
 
-}
+  // Full width page content on tiny screens
+  @media screen and (max-width: 576px) {
+    .card-body {
+      padding-left: 0;
+      padding-right: 0;
 
-.status-icon {
-  font-size: 3.5rem;
-}
-
-
-.spinner-border {
-  color: $running-blue;
-  font-size: 5px;
-  width: 2.9rem;
-  height: 2.9rem;
-}
-
-
-.workflow-status {
-  vertical-align: text-top;
-
-  &.succeed {
-    color: $succeed-green;
+      .card, .alert {
+        border-radius: 0;
+      }
+    }
   }
 
-  &.failed {
-    color: $failed-red;
-  }
-
-  &.partialFailed {
-    color: $partialFailed-orange;
-  }
 }
 
 .project-name {

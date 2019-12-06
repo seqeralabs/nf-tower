@@ -1,0 +1,13 @@
+<div class="col m-auto align-middle text-right pr-5 status-icon">
+  <span *ngIf="isLiveEventsOnline && workflow.isRunning" class="spinner-border" role="status"></span>
+  <span *ngIf="isLiveEventsOnline && !workflow.isRunning" class="workflow-status mdi"
+        [ngClass]="{'mdi-check-circle-outline': workflow.isSuccessful,
+                    'mdi-alert-circle-outline': workflow.isFailed || workflow.isPartialFailed,
+                    'mdi-help-circle-outline': workflow.isUnknownStatus,
+                    'succeed': workflow.isSuccessful,
+                    'failed': workflow.isFailed || workflow.isUnknownStatus,
+                    'partial': workflow.isPartialFailed}">
+  </span>
+  <span [hidden]="isLiveEventsOnline" class="workflow-status live-off mdi mdi-sync-off" data-toggle="tooltip" data-placement="bottom" title="Live events sync offline!">
+  </span>
+</div>

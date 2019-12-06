@@ -19,9 +19,13 @@ import io.seqera.tower.exchange.trace.TraceWorkflowRequest
 
 interface TraceService {
 
-    Workflow processWorkflowTrace(TraceWorkflowRequest request, User owner)
+    String createWorkflowKey()
+
+    Workflow processWorkflowTrace(TraceWorkflowRequest request, User user)
 
     List<Task> processTaskTrace(TraceTaskRequest request)
+
+    void keepAlive(String workflowId)
 
 }
 

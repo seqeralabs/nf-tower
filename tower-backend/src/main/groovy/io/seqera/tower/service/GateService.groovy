@@ -11,7 +11,7 @@
 
 package io.seqera.tower.service
 
-
+import io.seqera.tower.domain.User
 import io.seqera.tower.exchange.gate.AccessGateResponse
 /**
  * Defines the Gate services
@@ -21,5 +21,7 @@ import io.seqera.tower.exchange.gate.AccessGateResponse
 interface GateService {
 
     AccessGateResponse access(String email)
+
+    void allowLogin(User user)
 
 }

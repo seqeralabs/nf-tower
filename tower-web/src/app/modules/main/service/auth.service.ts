@@ -10,16 +10,17 @@
  */
 import { Injectable } from '@angular/core';
 import {BehaviorSubject, Observable, of, Subject} from "rxjs";
-import {map, tap} from "rxjs/operators";
+import {map, mergeMap, tap} from "rxjs/operators";
 import {User} from "../entity/user/user";
 import {HttpClient} from "@angular/common/http";
 import {environment} from "src/environments/environment";
 import {UserData} from "../entity/user/user-data";
 import {AccessGateResponse} from "../entity/gate";
+import {Router} from "@angular/router";
 
-const authEndpointUrl: string = `${environment.apiUrl}/login`;
-const userEndpointUrl: string = `${environment.apiUrl}/user`;
-const gateEndpointUrl: string = `${environment.apiUrl}/gate`;
+const authEndpointUrl = `${environment.apiUrl}/login`;
+const userEndpointUrl = `${environment.apiUrl}/user`;
+const gateEndpointUrl = `${environment.apiUrl}/gate`;
 
 @Injectable({
   providedIn: 'root'
@@ -30,7 +31,8 @@ export class AuthService {
 
   private userSubject: BehaviorSubject<User>;
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient,
+              private router: Router) {
     this.userSubject = new BehaviorSubject(this.getPersistedUser());
     this.user$ = this.userSubject.asObservable();
   }
@@ -40,31 +42,33 @@ export class AuthService {
   }
 
   get currentUser(): User {
-    return this.userSubject.value
+    return this.userSubject.value;
   }
 
 
   auth(email: string, authToken: string): Observable<User> {
     return this.http.post(authEndpointUrl, {username: email, password: authToken}).pipe(
-      map((authData: any) => this.retrieveUserFromAuthResponse(authData)),
+      mergeMap((authData: any) => this.requestUserProfileInfo(authData)),
       tap((user: User) => this.setAuthUser(user))
     );
   }
 
-  private retrieveUserFromAuthResponse(authData: any) {
-    let userData: UserData = <UserData> {email: authData.username, jwtAccessToken: authData['access_token'], roles: authData.roles};
+  private requestUserProfileInfo(authData: any): Observable<User> {
+    const userData: UserData = {email: authData.username, jwtAccessToken: authData.access_token, roles: authData.roles} as UserData;
 
-    let attributes: any = this.parseJwt(userData.jwtAccessToken);
-    userData.id = attributes.id;
-    userData.userName = attributes.userName;
-    userData.firstName = attributes.firstName;
-    userData.lastName = attributes.lastName;
-    userData.organization = attributes.organization;
-    userData.description = attributes.description;
-    userData.avatar = attributes.avatar;
-    userData.nfAccessToken = attributes.accessToken;
-
-    return new User(userData);
+    return this.http.get(`${userEndpointUrl}/`, {headers: {Authorization: `Bearer ${userData.jwtAccessToken}`}}).pipe(
+      map((data: any) => {
+        userData.id = data.user.id;
+        userData.userName = data.user.userName;
+        userData.firstName = data.user.firstName;
+        userData.lastName = data.user.lastName;
+        userData.organization = data.user.organization;
+        userData.description = data.user.description;
+        userData.avatar = data.user.avatar;
+        userData.notification = data.user.notification;
+        return new User(userData);
+      })
+    );
   }
 
   private setAuthUser(user: User): void {
@@ -72,8 +76,8 @@ export class AuthService {
     this.userSubject.next(user);
   }
 
-  access(email: string): Observable<AccessGateResponse> {
-    return this.http.post<AccessGateResponse>(`${gateEndpointUrl}/access`, {email: email})
+  access(email: string, captcha: string): Observable<AccessGateResponse> {
+    return this.http.post<AccessGateResponse>(`${gateEndpointUrl}/access`, {email: email, captcha: captcha});
   }
 
   update(user: User): Observable<string> {
@@ -89,27 +93,31 @@ export class AuthService {
     );
   }
 
-  logout(): void {
+  logoutAndGoHome() {
+    this.logout();
+    this.router.navigate(['/']);
+  }
+
+  private logout(): void {
     this.removeUser();
     this.userSubject.next(null);
   }
 
   private parseJwt(token: string): any {
-    let base64Url = token.split('.')[1];
-    let decodedBase64 = decodeURIComponent(atob(base64Url).split('')
+    const base64Url = token.split('.')[1];
+    const decodedBase64 = decodeURIComponent(atob(base64Url).split('')
       .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
       .join(''));
 
     return JSON.parse(decodedBase64);
-  };
+  }
 
   private persistUser(user: User): void {
     localStorage.setItem('user', JSON.stringify(user.data));
   }
 
   private getPersistedUser(): User {
-    const userData: UserData = <UserData> JSON.parse(localStorage.getItem('user'));
-
+    const userData: UserData = JSON.parse(localStorage.getItem('user')) as UserData;
     return (userData ? new User(userData) : null);
   }
 

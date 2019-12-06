@@ -1,7 +1,7 @@
 ---
 dataSource:
-  pooled: true
-  dbCreate: create-drop
+  pooled: false
+  dbCreate: create
   url: jdbc:mysql://localhost:3307/tower
   driverClassName: com.mysql.cj.jdbc.Driver
   username: tower
@@ -12,7 +12,7 @@ hibernate:
     queries: false
     use_second_level_cache: false
     use_query_cache: false
-  dialect: org.hibernate.dialect.MySQL55Dialect
+  dialect: io.seqera.util.MySQL55DialectCollateBin
   naming_strategy: io.seqera.util.H8NamingStrategy
 grails:
   gorm:
@@ -37,14 +37,3 @@ mail:
 auth:
   mail:
     duration: 30m
----
-sse:
-  time:
-    idle:
-      workflow-detail: 1m
-      workflow-list: 1m
-    throttle:
-      workflow-detail: 0s
-      workflow-list: 0s
-    heartbeat:
-      workflow-list: 1m

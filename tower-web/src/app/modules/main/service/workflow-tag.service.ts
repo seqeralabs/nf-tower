@@ -15,7 +15,7 @@ export class WorkflowTagService {
   constructor(private http: HttpClient) {
   }
 
-  getTagList(workflowId: number | string): Observable<WorkflowTag[]> {
+  getTagList(workflowId: string): Observable<WorkflowTag[]> {
     const url = `${endpointUrl}/list/${workflowId}`;
 
     return this.http.get(url).pipe(

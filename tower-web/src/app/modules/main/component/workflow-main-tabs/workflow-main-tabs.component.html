@@ -1,27 +1,23 @@
 <div class="card">
   <div class="card-header pb-0 border-bottom-0">
-    <ul class="nav nav-tabs nav-fill">
+    <ul class="nav nav-tabs">
       <li class="nav-item">
-        <a class="nav-link active" id="commandLine-tab" data-toggle="tab" href="#commandLine" role="tab" aria-controls="commandLine">Command line</a>
+        <a class="nav-link active" id="commandLine-tab" data-toggle="tab" href="#commandLine" role="tab" aria-controls="commandLine">Command <span class="d-none d-sm-inline">line</span></a>
       </li>
       <li class="nav-item">
         <a class="nav-link" id="parameters-tab" data-toggle="tab" href="#parameters" role="tab" aria-controls="parameters">Parameters</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" id="configuration-tab" data-toggle="tab" href="#configuration" role="tab" aria-controls="configuration">Configuration</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" id="notes-tab" data-toggle="tab" href="#notes" role="tab" aria-controls="notes">Notes</a>
+        <a class="nav-link" id="configuration-tab" data-toggle="tab" href="#configuration" role="tab" aria-controls="configuration">Config<span class="d-none d-sm-inline">uration</span></a>
       </li>
     </ul>
   </div>
+
   <div class="card-body">
     <div class="tab-content">
       <div class="tab-pane fade show active" id="commandLine" role="tabpanel" aria-labelledby="processes-tab">
-        <div class="container d-flex h-100 command-line-box">
-          <div class="justify-content-center align-self-center tab-max-height" style="padding: 0">
-          {{workflow.data.commandLine}}
-          </div>
+        <div class="container h-100 command-line-box">
+          <div class="tab-max-height" >{{workflow.data.commandLine}}</div>
         </div>
       </div>
       <div class="tab-pane fade" id="parameters" role="tabpanel" aria-labelledby="params-tab">
@@ -33,13 +29,18 @@
       </div>
       <div class="tab-pane fade" id="configuration" role="tabpanel" aria-labelledby="configuration-tab">
         <div class="container">
+          <h5>Configuration files</h5>
+          <div class="pt-2 pb-2">
+            <ul>
+              <li *ngFor="let cfg of workflow.data.configFiles">{{cfg}}</li>
+            </ul>
+          </div>
+
+          <h5>Resolved configuration</h5>
           <div class="tab-config tab-max-height">
             <pre class="tab-config">{{workflow.data.configText ? workflow.data.configText : 'n/a'}}</pre>
           </div>
         </div>
-      </div>
-      <div class="tab-pane fade" id="notes" role="tabpanel" aria-labelledby="notes-tab">
-        ...
       </div>
     </div>
   </div>

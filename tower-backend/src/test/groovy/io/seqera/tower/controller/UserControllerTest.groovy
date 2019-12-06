@@ -23,6 +23,8 @@ import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.tower.Application
 import io.seqera.tower.domain.User
+import io.seqera.tower.exchange.user.EnableUserResponse
+import io.seqera.tower.exchange.user.GetUserResponse
 import io.seqera.tower.exchange.user.ListUserResponse
 import io.seqera.tower.util.AbstractContainerBaseTest
 import io.seqera.tower.util.DomainCreator
@@ -36,12 +38,40 @@ class UserControllerTest extends AbstractContainerBaseTest {
     RxHttpClient client
 
 
+    void "get data of the logged in user"() {
+        given: "an existing user"
+        User user = new DomainCreator().createUserWithRole(
+                [email: 'email@email.com', userName: 'username',
+                 firstName: 'Firstname', lastName: 'Lastname', organization: 'Organization', description: 'Description', avatar: 'http://avatar.com'],
+                'ROLE_USER')
+
+        when: "perform the request to obtain the info the user"
+        String accessToken = doJwtLogin(user, client)
+        HttpResponse<GetUserResponse> response = client.toBlocking().exchange(
+                HttpRequest.GET("/user/")
+                        .bearerAuth(accessToken),
+                GetUserResponse.class
+        )
+
+        then: 'the user info has been obtained properly'
+        response.status == HttpStatus.OK
+        response.body().user.id == user.id
+        response.body().user.email == user.email
+        response.body().user.userName == user.userName
+        response.body().user.firstName == user.firstName
+        response.body().user.lastName == user.lastName
+        response.body().user.organization == user.organization
+        response.body().user.description == user.description
+        response.body().user.avatar == user.avatar
+        response.body().user.notification == user.notification
+    }
+
     void "update the user data"() {
         given: "an existing user"
         User user = new DomainCreator().createUserWithRole([:], 'ROLE_USER')
 
         and: 'some new data encapsulated in a user object'
-        User userData = new DomainCreator(save: false).createUser(userName: 'user', firstName: 'User', lastName: 'Userson', avatar: 'https://i.pravatar.cc/200', organization: 'Org', description: 'Desc')
+        User userData = new DomainCreator(save: false).createUser(userName: 'user', firstName: 'User', lastName: 'Userson', avatar: 'https://i.pravatar.cc/200', organization: 'Org', description: 'Desc', notification: 'true')
 
         when: "perform the request to update the data"
         String accessToken = doJwtLogin(user, client)
@@ -118,6 +148,39 @@ class UserControllerTest extends AbstractContainerBaseTest {
         then:
         resp.status() == HttpStatus.OK
         resp.body().users.size()==1
+    }
+
+    def 'should allow user login' () {
+        given: "an existing user"
+        User admin = new DomainCreator().createUserWithRole([:], 'ADMIN')
+        User user = new DomainCreator().createUser(email: 'foo@gmail.com',trusted: false)
+
+        when:
+        String accessToken = doJwtLogin(admin, client)
+        def req = HttpRequest.GET("/user/allow/login/${user.id}")
+        def resp = client.toBlocking().exchange(req.bearerAuth(accessToken), EnableUserResponse)
+        then:
+        resp.status() == HttpStatus.OK
+
+        and:
+        user.refresh().trusted
+    }
+
+    def 'should get a user' () {
+        given: "an existing user"
+        User admin = new DomainCreator().createUserWithRole([:], 'ADMIN')
+        User user = new DomainCreator().createUser(email: 'foo@gmail.com',trusted: false)
+
+        when:
+        String accessToken = doJwtLogin(admin, client)
+        def req = HttpRequest.GET("/user/get/${user.id}")
+        def resp = client.toBlocking().exchange(req.bearerAuth(accessToken), GetUserResponse)
+        then:
+        resp.status() == HttpStatus.OK
+        and:
+        resp.body().user.id == user.id
+        resp.body().user.email == user.email
+
     }
 
 }

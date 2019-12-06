@@ -11,6 +11,8 @@
 
 package io.seqera.tower.domain
 
+import java.time.OffsetDateTime
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import grails.gorm.annotation.Entity
 import groovy.transform.CompileDynamic
@@ -22,11 +24,19 @@ import groovy.transform.CompileDynamic
  */
 @Entity
 @CompileDynamic
-@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'workflow'])
+@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version', 'workflow'])
 class WorkflowProcess {
     Long id
     String name
     Integer position
+    OffsetDateTime dateCreated
+    OffsetDateTime lastUpdated
 
     static belongsTo = [workflow: Workflow]
+
+    static constraints = {
+        name(unique: 'workflow')
+        dateCreated(nullable: true)
+        lastUpdated(nullable: true)
+    }
 }

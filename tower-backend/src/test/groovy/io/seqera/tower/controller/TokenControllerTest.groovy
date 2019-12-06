@@ -29,6 +29,7 @@ import io.seqera.tower.domain.AccessToken
 import io.seqera.tower.domain.User
 import io.seqera.tower.exchange.token.CreateAccessTokenRequest
 import io.seqera.tower.exchange.token.CreateAccessTokenResponse
+import io.seqera.tower.exchange.token.GetDefaultTokenResponse
 import io.seqera.tower.exchange.token.ListAccessTokensResponse
 import io.seqera.tower.service.AccessTokenService
 import io.seqera.tower.util.AbstractContainerBaseTest
@@ -219,6 +220,47 @@ class TokenControllerTest extends AbstractContainerBaseTest {
         def resp = DomainHelper.mapper.readValue(json, ListAccessTokensResponse)
         then:
         resp.tokens == []
+    }
+
+    def 'should return default token' () {
+        given:
+        User user
+        AccessToken token
+        tx.withNewTransaction {
+            user = new DomainCreator().generateAllowedUser()
+            token = tokenService.createToken('foo',user)
+        }
+
+        when:
+        String auth = doJwtLogin(user, client)
+        def req = HttpRequest.GET('/token/default')
+        def resp = client
+                .toBlocking()
+                .exchange( req.bearerAuth(auth), GetDefaultTokenResponse  )
+
+        then:
+        resp.status() == HttpStatus.OK
+        resp.body().token.name == 'default'
+    }
+
+    def 'should crate default token if not exists' () {
+        given:
+        User user = tx.withNewTransaction {
+            def u = new DomainCreator().generateAllowedUser();
+            u.accessTokens.clear()
+            return u
+        }
+
+        when:
+        String auth = doJwtLogin(user, client)
+        def req = HttpRequest.GET('/token/default')
+        def resp = client
+                .toBlocking()
+                .exchange( req.bearerAuth(auth), GetDefaultTokenResponse  )
+
+        then:
+        resp.status() == HttpStatus.OK
+        resp.body().token.name == 'default'
     }
 
 }

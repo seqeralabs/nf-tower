@@ -14,7 +14,8 @@ import {Workflow} from '../entity/workflow/workflow';
 import {environment} from '../../../../environments/environment';
 import {Observable, Subject, of, ReplaySubject} from 'rxjs';
 import {map, tap} from 'rxjs/operators';
-import {Progress} from '../entity/progress/progress';
+import {orderBy} from 'lodash';
+import {ProgressData} from '../entity/progress/progress-data';
 import {FilteringParams} from "../util/filtering-params";
 
 
@@ -37,7 +38,7 @@ export class WorkflowService {
   get workflows$(): Observable<Workflow[]> {
     if (this.isWorkflowsCacheEmpty()) {
       console.log('Initializing workflows');
-      this.emitWorkflowsFromServer(new FilteringParams(10, 0, null));
+      this.emitWorkflowsFromServer(new FilteringParams(30, 0, null));
     } else {
       console.log('Workflows already initialized');
       this.emitWorkflowsFromCache();
@@ -66,7 +67,7 @@ export class WorkflowService {
         if (clearCache) {
           this.workflowsByIdCache.clear();
         }
-        workflows.forEach((workflow: Workflow) => this.workflowsByIdCache.set(workflow.data.workflowId, workflow));
+        workflows.forEach((workflow: Workflow) => this.workflowsByIdCache.set(workflow.id, workflow));
       })
     );
   }
@@ -90,30 +91,38 @@ export class WorkflowService {
     return this.http.get(url).pipe(
       map((data: any[]) => new Workflow(data)),
       tap((workflow: Workflow) => {
-        const isAlreadyInCache: boolean = this.workflowsByIdCache.has(workflow.data.workflowId);
+        const isAlreadyInCache: boolean = this.workflowsByIdCache.has(workflow.id);
         if (isAlreadyInCache) {
-          this.workflowsByIdCache.set(workflow.data.workflowId, workflow)
+          this.workflowsByIdCache.set(workflow.id, workflow)
         }
       })
     );
   }
 
-  buildTasksGetUrl(workflowId: number | string): string {
+  getProgress(workflowId: string): Observable<ProgressData> {
+    console.log(`Requesting progress for workflow ${workflowId}`);
+    const url: string = `${endpointUrl}/${workflowId}/progress`;
+    return this.http.get(url).pipe(
+      map((data: any) => new ProgressData(data.progress))
+    );
+  }
+
+  buildTasksGetUrl(workflowId: string): string {
     return `${endpointUrl}/${workflowId}/tasks`;
   }
 
   updateWorkflow(newWorkflow: Workflow): void {
-    this.workflowsByIdCache.set(newWorkflow.data.workflowId, newWorkflow);
+    this.workflowsByIdCache.set(newWorkflow.id, newWorkflow);
     this.emitWorkflowsFromCache();
   }
 
   deleteWorkflow(workflow: Workflow): Observable<string> {
-    const url = `${environment.apiUrl}/workflow/${workflow.data.workflowId}`;
+    const url = `${environment.apiUrl}/workflow/${workflow.id}`;
     return new Observable<string>( observer => {
       this.http.delete(url)
         .subscribe(
           resp => {
-            this.workflowsByIdCache.delete(workflow.data.workflowId);
+            this.workflowsByIdCache.delete(workflow.id);
             this.emitWorkflowsFromCache();
             observer.complete();
             },
@@ -122,7 +131,7 @@ export class WorkflowService {
     });
   }
 
-  updateProgress(progress: Progress, workflow: Workflow): void {
+  updateProgress(progress: ProgressData, workflow: Workflow): void {
     workflow.progress = progress;
   }
 

@@ -11,46 +11,52 @@
 
 package io.seqera.tower.service
 
-import grails.gorm.DetachedCriteria
-import io.seqera.tower.domain.WorkflowTag
+import static io.seqera.tower.enums.WorkflowStatus.*
 
 import javax.inject.Inject
 import javax.inject.Singleton
+import javax.validation.ValidationException
 import java.time.OffsetDateTime
 
 import grails.gorm.DetachedCriteria
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
+import groovy.util.logging.Slf4j
+import io.seqera.tower.domain.ProcessLoad
 import io.seqera.tower.domain.Task
+import io.seqera.tower.domain.TaskData
 import io.seqera.tower.domain.User
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.domain.WorkflowComment
+import io.seqera.tower.domain.WorkflowLoad
 import io.seqera.tower.domain.WorkflowMetrics
 import io.seqera.tower.domain.WorkflowProcess
+import io.seqera.tower.domain.WorkflowTag
+import io.seqera.tower.enums.WorkflowStatus
 import io.seqera.tower.exceptions.NonExistingWorkflowException
 import io.seqera.tower.exchange.trace.TraceWorkflowRequest
+import io.seqera.tower.service.audit.AuditEventPublisher
+import io.seqera.tower.service.progress.ProgressService
 
+@Slf4j
 @Transactional
 @Singleton
 class WorkflowServiceImpl implements WorkflowService {
 
-    ProgressService progressService
-
-    @Inject
-    WorkflowServiceImpl(ProgressService progressService) {
-        this.progressService = progressService
-    }
+    @Inject ProgressService progressService
+    @Inject AuditEventPublisher auditEventPublisher
 
     @CompileDynamic
-    Workflow get(Serializable id) {
-        Workflow.findById(id, [fetch: [tasksProgress: 'join', processesProgress: 'join']])
+    @Transactional(readOnly = true)
+    Workflow get(String id) {
+        Workflow.findById(id)
     }
 
     @CompileDynamic
     List<Workflow> listByOwner(User owner, Long max, Long offset, String sqlRegex) {
         new DetachedCriteria<Workflow>(Workflow).build {
             eq('owner', owner)
-
+            ne('deleted', true)
             if (sqlRegex) {
                 or {
                     ilike('projectName', sqlRegex)
@@ -63,51 +69,53 @@ class WorkflowServiceImpl implements WorkflowService {
     }
 
     Workflow processTraceWorkflowRequest(TraceWorkflowRequest request, User owner) {
-        if( request.workflow.checkIsStarted() ) {
-            def ret = saveWorkflow(request.workflow, owner)
+        if( request.workflow.checkIsRunning() ) {
+            final workflow = saveNewWorkflow(request.workflow, owner)
 
             // save the process names
             for( int i=0; i<request.processNames?.size(); i++ ) {
                 final name = request.processNames[i]
-                final p = new WorkflowProcess(name: name, position: i, workflow: ret)
+                final p = new WorkflowProcess(name: name, position: i, workflow: workflow)
                 p.save()
             }
 
-            return ret
+            return workflow
         }
         else {
             updateWorkflow(request.workflow, request.metrics)
         }
     }
 
-    private Workflow saveWorkflow(Workflow workflow, User owner) {
+    private Workflow saveNewWorkflow(Workflow workflow, User owner) {
         workflow.submit = workflow.start
-
         workflow.owner = owner
-
+        workflow.status = WorkflowStatus.RUNNING
         // invoke validation explicitly due to gorm bug
         // https://github.com/grails/gorm-hibernate5/issues/110
-        if (workflow.validate())
-            workflow.save()
+        if (workflow.validate()) {
+            workflow.save(flush:true)
+        }
+        else
+            throw new ValidationException("Invalid workflow object: ${workflow.errors}")
 
         return workflow
     }
 
     @CompileDynamic
     private Workflow updateWorkflow(Workflow workflow, List<WorkflowMetrics> metrics) {
-        Workflow existingWorkflow = Workflow.get(workflow.workflowId)
+        Workflow existingWorkflow = Workflow.get(workflow.id)
         if (!existingWorkflow) {
-            throw new NonExistingWorkflowException("Can't update a non-existing workflow")
+            throw new NonExistingWorkflowException("Can't find workflow record with ID=${workflow.id}")
         }
 
-        updateChangeableFields(existingWorkflow, workflow)
+        updateMutableFields(existingWorkflow, workflow)
         associateMetrics(existingWorkflow, metrics)
 
         existingWorkflow.save()
         existingWorkflow
     }
 
-    private void updateChangeableFields(Workflow workflowToUpdate, Workflow originalWorkflow) {
+    private void updateMutableFields(Workflow workflowToUpdate, Workflow originalWorkflow) {
         workflowToUpdate.resume = originalWorkflow.resume
         workflowToUpdate.success = originalWorkflow.success
         workflowToUpdate.complete = originalWorkflow.complete
@@ -116,6 +124,7 @@ class WorkflowServiceImpl implements WorkflowService {
         workflowToUpdate.exitStatus = originalWorkflow.exitStatus
         workflowToUpdate.errorMessage = originalWorkflow.errorMessage
         workflowToUpdate.errorReport = originalWorkflow.errorReport
+        workflowToUpdate.status = originalWorkflow.status
 
         workflowToUpdate.stats = originalWorkflow.stats
     }
@@ -123,26 +132,70 @@ class WorkflowServiceImpl implements WorkflowService {
     private void associateMetrics(Workflow workflow, List<WorkflowMetrics> allMetrics) {
         for( WorkflowMetrics metrics : allMetrics ) {
             metrics.workflow = workflow
+            final warns = metrics.sanitize()
+            if( warns ) {
+                log.warn "Workflow Id=$workflow.id report reports metrics warnings:\n${warns.join('\n')}"
+            }
             metrics.save()
         }
     }
 
     void delete(Workflow workflowToDelete) {
+        ProcessLoad.where { workflow == workflowToDelete }.deleteAll()
+        WorkflowLoad.where { workflow == workflowToDelete }.deleteAll()
         WorkflowProcess.where { workflow == workflowToDelete }.deleteAll()
         WorkflowMetrics.where { workflow == workflowToDelete }.deleteAll()
         WorkflowComment.where { workflow == workflowToDelete }.deleteAll()
-        workflowToDelete.tags?.each { WorkflowTag workflowTag ->
-            workflowTag.delete()
-        }
-        workflowToDelete.tasks?.each { Task task ->
-            task.delete()
-        }
-
+        WorkflowTag.where { workflow == workflowToDelete }.deleteAll()
+        
+        Task.where { workflow == workflowToDelete }.deleteAll()
+        // delete orphan task-data records
+        final delete = """
+                delete TaskData d
+                where
+                  d.sessionId = :sessionId
+                  and d not in (
+                    select t.data
+                    from
+                      Task t, Workflow w
+                    where
+                      t.workflow.id = w.id
+                      and w.sessionId = :sessionId
+                  )
+                """.stripIndent()
+        TaskData.executeUpdate(delete,[sessionId: workflowToDelete.sessionId])
+        // finally delete workflow record
         workflowToDelete.delete()
+
     }
 
-    void deleteById(Serializable workflowId) {
-        delete( get(workflowId) )
+    @Override
+    void markForRunning(String workflowId) {
+        final workflow = Workflow.get(workflowId)
+        // if complete report an error
+        if( workflow.checkIsComplete() ) {
+            throw new IllegalStateException("Unexpected execution status workflow with Id: ${workflowId}")
+        }
+        // if status is UNKNOWN 
+        if( workflow.status==UNKNOWN ) {
+            // change status to running
+            workflow.status = RUNNING
+            workflow.save()
+            // notify event
+            auditEventPublisher.workflowStatusChangeFromRequest(workflow.id, "new=$RUNNING; was=$UNKNOWN")
+        }
+    }
+
+    boolean markForDeletion(String workflowId) {
+        final result = Workflow.executeUpdate("update Workflow set deleted=true where id=:workflowId", [workflowId:workflowId])
+        return result > 0
+    }
+
+    List<Workflow> findMarkedForDeletion(int max) {
+        def args = new HashMap(1)
+        if( max>0 )
+            args.max = max
+        Workflow.executeQuery("from Workflow where deleted=true", Collections.emptyList(), args)
     }
 
     @CompileDynamic
@@ -179,5 +232,9 @@ class WorkflowServiceImpl implements WorkflowService {
         return comment.save()
     }
 
-
+    @CompileDynamic
+    List<String> getProcessNames(Workflow workflow) {
+        List<WorkflowProcess> all = WorkflowProcess.executeQuery("from WorkflowProcess p where workflow=:workflow order by p.position", [workflow: workflow])
+        all.collect { WorkflowProcess it -> it.name }
+    }
 }

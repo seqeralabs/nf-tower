@@ -11,6 +11,10 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {User} from "../../entity/user/user";
 import {AuthService} from "../../service/auth.service";
+import {HttpClient, HttpErrorResponse} from "@angular/common/http";
+import {environment} from "../../../../../environments/environment";
+import {GetDefaultTokenResponse, ListAccessTokensResponse} from "../../entity/access-token";
+import {NotificationService} from "../../service/notification.service";
 
 @Component({
   selector: 'wt-welcome',
@@ -19,20 +23,58 @@ import {AuthService} from "../../service/auth.service";
 })
 export class WelcomeComponent implements OnInit {
 
-  user: User;
+  nextflowRunCommand: string;
 
-  nextflowRunCommand = 'nextflow run hello -with-tower ';
+  nextflowConfig: string;
 
-  constructor(private auth: AuthService) { }
+  accessToken: string;
+
+  constructor(private httpClient: HttpClient, private notificationService: NotificationService) { }
 
   ngOnInit() {
-    this.user = this.auth.currentUser
-    const parsedUrl = new URL(window.location.href);
-    const baseUrl = parsedUrl.origin;
-    console.log(baseUrl);
-    if( !baseUrl.endsWith('/tower.seqera.io') ) {
-      this.nextflowRunCommand += baseUrl + '/api'
-    }
+    this.fetchDefaultToken();
   }
 
+  private makeNextflowCommand(): string {
+    const cmd = 'nextflow run hello -with-tower ';
+    let endpoint = this.getEndpointUrl();
+    return endpoint ? cmd + endpoint : cmd;
+  }
+
+  private makeNextflowConfig(token: string): string {
+    let endpoint = this.getEndpointUrl();
+    let result = 'tower {\n';
+    result += `  accessToken = '${token}'\n`;
+    if( endpoint != null )
+      result += `  endpoint = '${endpoint}'\n`;
+    result += '  enabled = true\n';
+    result += '}';
+    return result;
+  }
+
+  private fetchDefaultToken() {
+    let url = `${environment.apiUrl}/token/default`;
+    this.httpClient.get<GetDefaultTokenResponse>(url)
+      .subscribe(
+        resp => {
+          this.accessToken = resp.token.token;
+          this.nextflowConfig = this.makeNextflowConfig(this.accessToken);
+          this.nextflowRunCommand = this.makeNextflowCommand();
+        },
+        (resp: HttpErrorResponse) => {
+          this.notificationService.showErrorNotification(resp.error.message);
+        }
+      );
+  }
+
+  private getEndpointUrl(): string {
+    const url = new URL(window.location.href);
+    const base = url.origin;
+    if( !base.endsWith('://tower.nf') ) {
+      return base + '/api'
+    }
+    else {
+      return null;
+    }
+  }
 }

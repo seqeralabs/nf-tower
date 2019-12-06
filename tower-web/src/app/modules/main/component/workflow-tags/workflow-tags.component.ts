@@ -25,7 +25,7 @@ import {debounceTime} from "rxjs/operators";
 export class WorkflowTagsComponent implements OnInit, OnChanges {
 
   @Input()
-  workflowId: number | string;
+  workflowId: string;
 
   tags: WorkflowTag[];
 

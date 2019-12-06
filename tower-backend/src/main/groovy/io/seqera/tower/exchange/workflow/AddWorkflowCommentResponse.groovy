@@ -13,6 +13,7 @@ package io.seqera.tower.exchange.workflow
 
 import groovy.transform.CompileStatic
 import groovy.transform.ToString
+import io.seqera.tower.domain.WorkflowComment
 import io.seqera.tower.exchange.BaseResponse
 
 /**
@@ -26,10 +27,10 @@ import io.seqera.tower.exchange.BaseResponse
 @CompileStatic
 class AddWorkflowCommentResponse implements BaseResponse {
     String message
-    Object commentId
+    WorkflowComment comment
 
-    static AddWorkflowCommentResponse withId(Serializable id) {
-        new AddWorkflowCommentResponse(commentId: id)
+    static AddWorkflowCommentResponse withComment(WorkflowComment comment) {
+        new AddWorkflowCommentResponse(comment: comment)
     }
 
     static AddWorkflowCommentResponse withMessage(String message) {

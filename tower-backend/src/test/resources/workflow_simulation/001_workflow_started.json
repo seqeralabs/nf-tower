@@ -48,7 +48,7 @@
         "params": {
             
         },
-        "workflowId": null
+        "id": null
     },
     "processNames": ["stress_1cpu"]
 }

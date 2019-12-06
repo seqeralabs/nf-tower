@@ -1,7 +1,3 @@
-tower:
-  trustedEmails:
-    - '*@hack.com'
----
 micronaut:
   io:
     watch:
@@ -10,7 +6,7 @@ micronaut:
 ---
 dataSource:
   pooled: false
-  dbCreate: create-drop
+  dbCreate: create
   url: jdbc:h2:mem:default;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
   driverClassName: org.h2.Driver
   username: sa
@@ -47,13 +43,8 @@ auth:
   mail:
     duration: 30m
 ---
-sse:
-  time:
-    idle:
-      workflow-detail: 1m
-      workflow-list: 1m
-    throttle:
-      workflow-detail: 0s
-      workflow-list: 0s
-    heartbeat:
-      workflow-list: 1m
+live:
+  buffer:
+    time: 1500ms
+    count: 10
+    heartbeat: 5s

@@ -11,15 +11,13 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Workflow} from "../../entity/workflow/workflow";
 import {WorkflowService} from "../../service/workflow.service";
-import {ActivatedRoute, Router, ParamMap} from "@angular/router";
+import {ActivatedRoute, ParamMap, Router} from "@angular/router";
 import {HttpErrorResponse} from "@angular/common/http";
 import {NotificationService} from "../../service/notification.service";
-import {ServerSentEventsWorkflowService} from "../../service/server-sent-events-workflow.service";
-import {Task} from "../../entity/task/task";
+import {LiveEventsService} from "../../service/live-events.service";
 import {Subscription} from "rxjs";
-import {SseError} from "../../entity/sse/sse-error";
-import {SseErrorType} from "../../entity/sse/sse-error-type";
-import {Progress} from "../../entity/progress/progress";
+import {ProgressData} from "../../entity/progress/progress-data";
+import {LiveUpdate} from "../../entity/live/live-update";
 
 @Component({
   selector: 'wt-workflow-detail',
@@ -29,10 +27,10 @@ import {Progress} from "../../entity/progress/progress";
 export class WorkflowDetailComponent implements OnInit, OnDestroy {
 
   workflow: Workflow;
-  private liveEventsSubscription: Subscription;
+  private workflowEventsSubscription: Subscription;
 
   constructor(private workflowService: WorkflowService,
-              private serverSentEventsWorkflowService: ServerSentEventsWorkflowService,
+              private serverSentEventsWorkflowService: LiveEventsService,
               private notificationService: NotificationService,
               private route: ActivatedRoute,
               private router: Router) { }
@@ -49,16 +47,13 @@ export class WorkflowDetailComponent implements OnInit, OnDestroy {
     this.unsubscribeFromWorkflowLiveEvents();
   }
 
-  private fetchWorkflow(workflowId: string | number): void {
+  private fetchWorkflow(workflowId: string): void {
     console.log(`Fetching workflow ${workflowId}`);
 
     this.workflowService.getWorkflow(workflowId, true).subscribe(
       (workflow: Workflow) => this.reactToWorkflowReceived(workflow),
-      (error: HttpErrorResponse) => {
-        if (error.status === 404) {
-          this.notificationService.showErrorNotification("Workflow doesn't exist");
-          this.router.navigate(['/']);
-        }
+      (resp: HttpErrorResponse) => {
+          this.notificationService.showErrorNotification(resp.error.message);
       }
     )
   }
@@ -66,50 +61,52 @@ export class WorkflowDetailComponent implements OnInit, OnDestroy {
   private reactToWorkflowReceived(workflow: Workflow): void {
     this.workflow = workflow;
     if (this.workflow.isRunning) {
-      this.subscribeToWorkflowDetailLiveEvents(workflow);
+      this.subscribeToWorkflowLiveEvents(workflow);
     }
   }
 
-  private subscribeToWorkflowDetailLiveEvents(workflow: Workflow): void {
-    this.liveEventsSubscription = this.serverSentEventsWorkflowService.connectToWorkflowDetailLive(workflow).subscribe(
-      (data: Workflow | Progress) => {
-        console.log('Live workflow details event received', data);
-        this.reactToEvent(data);
-      },
-      (error: SseError) => {
-        console.log('Live workflow details event received', error);
-        this.reactToErrorEvent(error);
-      }
+  private subscribeToWorkflowLiveEvents(workflow: Workflow): void {
+    this.workflowEventsSubscription = this.serverSentEventsWorkflowService.connectToWorkflowEventsStream(workflow).subscribe(
+      (event: LiveUpdate) => this.reactToEvent(event),
+      (event: LiveUpdate) => this.reactToErrorEvent(event)
     );
   }
 
   private unsubscribeFromWorkflowLiveEvents(): void {
-    if (this.liveEventsSubscription) {
-      this.liveEventsSubscription.unsubscribe();
-      this.liveEventsSubscription = null;
+    if (this.workflowEventsSubscription) {
+      this.workflowEventsSubscription.unsubscribe();
+      this.workflowEventsSubscription = null;
     }
   }
 
-  private reactToEvent(data: Workflow | Progress): void {
-    if (data instanceof Workflow) {
-      this.reactToWorkflowEvent(data);
+  private reactToEvent(event: LiveUpdate): void {
+    console.log('Live workflow event received', event);
+    if (event.isWorkflowUpdate) {
+      this.reactToWorkflowUpdateEvent(event);
       this.unsubscribeFromWorkflowLiveEvents();
-    } else if (data instanceof Progress) {
-      this.reactToProgressEvent(data);
+
+    } else if (event.isProgressUpdate) {
+      this.reactToProgressUpdateEvent(event);
     }
   }
 
-  private reactToWorkflowEvent(workflow: Workflow): void {
-    this.workflowService.updateWorkflow(workflow);
-    this.workflow = workflow;
+  private reactToWorkflowUpdateEvent(event: LiveUpdate): void {
+    this.workflowService.getWorkflow(event.workflowId, true).subscribe((workflow: Workflow) => {
+      this.workflowService.updateWorkflow(workflow);
+      this.workflow = workflow;
+    });
+
   }
 
-  private reactToProgressEvent(progress: Progress): void {
-    this.workflowService.updateProgress(progress, this.workflow);
+  private reactToProgressUpdateEvent(event: LiveUpdate): void {
+    this.workflowService.getProgress(event.workflowId).subscribe((progress: ProgressData) => {
+      this.workflowService.updateProgress(progress, this.workflow);
+    })
   }
 
-  private reactToErrorEvent(error: SseError): void {
-    this.notificationService.showErrorNotification(error.message);
+  private reactToErrorEvent(event: LiveUpdate): void {
+    console.log('Live workflow error event received', event);
+    this.notificationService.showErrorNotification(event.message);
   }
 
 }

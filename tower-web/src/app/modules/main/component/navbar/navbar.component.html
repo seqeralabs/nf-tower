@@ -1,34 +1,45 @@
-<nav id="navbar" class="navbar navbar-light navbar-expand-lg fixed-top">
-  <a class="navbar-brand" href="/">
-    <img src="assets/nf-tower-black.svg" alt="Nextflow Tower Logo" >
+<nav id="navbar" class="navbar navbar-light bg-white navbar-expand-lg fixed-top">
+  <a class="navbar-brand flex-grow-1" href="/">
+    <img src="assets/nf-tower-black.svg" alt="Nextflow Tower Logo">
   </a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#tower_nav_menu" aria-controls="tower_nav_menu" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
 
-  <ul class="navbar-nav ml-auto">
-    <!--
-    <li class="nav-item">
-      <a class="nav-link" href="/">Docs</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" href="/">Support</a>
-    </li>
-    -->
-    <li *ngIf="!user" class="nav-item ml-auto">
-      <a class="nav-link" href="/login">Sign in</a>
-    </li>
-    <li *ngIf="user" class="nav-item dropdown profile-item">
-      <a class="nav-link dropdown-toggle" id="user-dropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        <img class="thumbnail rounded-circle" alt="avatar" [src]="user.avatar">
-      </a>
-      <div class="dropdown-menu profile-card" aria-labelledby="user-dropdown">
-        <div class="dropdown-header text-dark" href="/profile">Signed in as<br><span class="font-weight-bold">{{user.nameToDisplay}}</span></div>
-        <div class="dropdown-divider"></div>
-        <a class="dropdown-item" href="/welcome">Getting started</a>
-        <div class="dropdown-divider"></div>
-        <a class="dropdown-item" href="/profile">Your profile</a>
-        <a class="dropdown-item" href="/tokens">Your tokens</a>
-        <div class="dropdown-divider"></div>
-        <a class="dropdown-item" href="/logout">Logout</a>
-      </div>
-    </li>
-  </ul>
+  <div class="collapse navbar-collapse" id="tower_nav_menu">
+    <ul class="navbar-nav ml-auto">
+
+      <li class="nav-item">
+        <a class="nav-link" href="https://gitter.im/nf-tower/community" target="_blank">Community</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="https://github.com/seqeralabs/nf-tower/issues" target="_blank">Feedback</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="https://seqera.io" target="_blank">Support</a>
+      </li>
+      <li *ngIf="!user">
+        <a class="nav-link" href="/login">Sign in</a>
+      </li>
+      <li *ngIf="user" class="nav-item dropdown profile-item">
+        <a class="nav-link dropdown-toggle" id="user-dropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <img class="thumbnail rounded-circle" alt="avatar" [src]="user.avatar">
+        </a>
+        <div class="dropdown-menu profile-card" aria-labelledby="user-dropdown">
+          <div class="dropdown-header text-dark" href="/profile">
+            <img class="thumbnail rounded-circle float-right d-sm-none" alt="avatar" [src]="user.avatar">
+            Signed in as<br>
+            <span class="font-weight-bold">{{user.nameToDisplay}}</span>
+          </div>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" href="/welcome">Getting started</a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" href="/profile">Your profile</a>
+          <a class="dropdown-item" href="/tokens">Your tokens</a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" href="/logout">Logout</a>
+        </div>
+      </li>
+    </ul>
+  </div>
 </nav>

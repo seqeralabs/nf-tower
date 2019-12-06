@@ -27,10 +27,3 @@ task runFrontend(type: NpmTask) {
   args = ['run', 'start']
 }
 
-/*
- * update version number
- */
-afterEvaluate {
-  def app = file('package.json')
-  app.text = app.text.replaceAll(/"version": "\d+\.\d+(\.\d+)?",/, "\"version\": \"${version}\",")
-}

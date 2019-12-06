@@ -11,10 +11,14 @@
 
 package io.seqera.util
 
+
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.filter.Filter
 import ch.qos.logback.core.spi.FilterReply
 import groovy.transform.CompileStatic
+
+import ch.qos.logback.classic.Level
+import static ch.qos.logback.classic.Level.ERROR
 
 /**
  *

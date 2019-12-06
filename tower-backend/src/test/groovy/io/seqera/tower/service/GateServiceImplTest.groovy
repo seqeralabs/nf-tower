@@ -15,7 +15,6 @@ import javax.inject.Inject
 
 import io.micronaut.context.ApplicationContext
 import io.micronaut.test.annotation.MicronautTest
-import io.seqera.mail.Attachment
 import io.seqera.tower.domain.User
 import spock.lang.Specification
 /**
@@ -42,15 +41,13 @@ class GateServiceImplTest extends Specification {
                 user: 'Mr Bean',
                 app_name: 'Nextflow Tower',
                 auth_url: 'https://tower.com/login?d78a8ds',
+                contact_email: 'support@foo.com',
                 server_url:'http://host.com']
         def service = Spy(GateServiceImpl)
         when:
         def text = service.getTextTemplate(binding)
         then:
-        text.contains('Hi Mr Bean,')
         text.contains('https://tower.com/login?d78a8ds')
-        text.contains('http://host.com')
-        text.contains('This email was sent by Nextflow Tower')
     }
 
     def 'should load html template' () {
@@ -59,15 +56,14 @@ class GateServiceImplTest extends Specification {
                 user: 'Mr Bean',
                 app_name: 'Nextflow Tower',
                 auth_url: 'https://tower.com/login?1234',
+                contact_email: 'support@foo.com',
                 server_url:'https://tower.nf']
         def service = Spy(GateServiceImpl)
         when:
         def text = service.getHtmlTemplate(binding)
         then:
-        text.contains('Hi Mr Bean,')
-        text.contains('href="https://tower.com/login?1234"')
-        text.contains('https://tower.nf')
-        text.contains('This email was sent by Nextflow Tower')
+        text.contains('https://tower.com/login?1234')
+        text.contains('support@foo.com')
     }
 
     def 'should load logo attachment' () {
@@ -77,70 +73,12 @@ class GateServiceImplTest extends Specification {
         def attach = service.getLogoAttachment()
         then:
         attach.resource == '/io/seqera/tower/service/tower-logo.png'
-        attach.params.contentId == '<tower-logo>'
-        attach.params.disposition == 'inline'
+        attach.contentId == '<tower-logo>'
+        attach.disposition == 'inline'
         then:
         this.class.getResource(attach.resource) != null
     }
 
-
-    def 'should build auth email' () {
-        given:
-        def ATTACH = new Attachment(new File('LOGO'))
-        def RECIPIENT = 'alice@domain.com'
-        def user = new User(email: RECIPIENT, userName:'Mr Foo', authToken: 'xyz')
-        def mailer = Mock(MailService)
-        def service = new GateServiceImpl()
-        service.mailService = mailer
-        service.appName = 'Nextflow Tower'
-        service.serverUrl = 'http://localhost:1234'
-
-        when:
-        def mail = service.buildAccessEmail(user)
-
-        then:
-        mail.subject == 'Nextflow Tower Sign in'
-        mail.to == RECIPIENT
-        mail.attachments == [ATTACH]
-        // text email
-        mail.text.startsWith('Hi Mr Foo,')
-        mail.text.contains('http://localhost:1234/auth?email=alice%40domain.com&authToken=xyz')
-        mail.text.contains('This email was sent by Nextflow Tower\nhttp://localhost')
-        // html email
-        mail.body.contains('Hi Mr Foo,')
-        mail.body.contains('http://localhost:1234/auth?email=alice%40domain.com&authToken=xyz')
-    }
-
-    def 'should build a new user email' () {
-        given:
-        def ATTACH = new Attachment(new File('LOGO'))
-        def email = 'alice@domain.com'
-        def user = new User(email: email, userName:'xyz', id: 123)
-        def mailer = Mock(MailService)
-        def service = new GateServiceImpl()
-        service.mailService = mailer
-        service.appName = 'Nextflow Tower'
-        service.serverUrl = 'http://localhost:1234'
-        service.contactEmail = 'admin@host.com'
-
-        when:
-        def mail = service.buildNewUserEmail(user)
-
-        then:
-        mail.subject == 'New user registration'
-        mail.to == 'admin@host.com'
-        mail.attachments == [ATTACH]
-        // text email
-        mail.text.startsWith('Hi,')
-        mail.text.contains("- user id: 123")
-        mail.text.contains("- user name: xyz")
-        mail.text.contains("- user email: alice@domain.com")
-        // html email
-        mail.body.contains('Hi,')
-        mail.body.contains("<li>user id: 123")
-        mail.body.contains("<li>user name: xyz")
-        mail.body.contains("<li>user email: alice@domain.com")
-    }
 
 
     def 'should encode url' () {
@@ -157,4 +95,19 @@ class GateServiceImplTest extends Specification {
         'yo+xyz@gmail.com'  | 'http://host.com/auth?email=yo%2Bxyz%40gmail.com&authToken=abc'
     }
 
+    def 'should get user enable url' () {
+        given:
+        def service = new GateServiceImpl ()
+
+        when:
+        def url = service.getEnableUrl(SERVER, USER_ID)
+        then:
+        url == EXPECTED
+
+        where:
+        SERVER                      | USER_ID       | EXPECTED
+        'http://localhost'          | 1             | 'http://localhost:8001/user?id=1'
+        'http://localhost:8000'     | 2             | 'http://localhost:8001/user?id=2'
+        'http://foo.com'            | 3             | 'http://admin.foo.com/user?id=3'
+    }
 }

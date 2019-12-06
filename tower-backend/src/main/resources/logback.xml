@@ -20,26 +20,8 @@
         <filter class="io.seqera.util.H8WarnFilter" />
     </appender>
 
-    <appender name="ROLLING_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${TOWER_LOG_DIR:-.}/tower.log</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <!-- daily rollover -->
-            <fileNamePattern>tower.%d{yyyy-MM-dd}.log</fileNamePattern>
-            <!-- keep 10 days' worth of history capped at 100MB total size -->
-            <maxHistory>${TOWER_LOG_MAX_HISTORY:-10}</maxHistory>
-            <totalSizeCap>${TOWER_LOG_MAX_SIZE:-100MB}</totalSizeCap>
-        </rollingPolicy>
-
-        <encoder>
-            <pattern>%d{MMM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n</pattern>
-        </encoder>
-
-        <filter class="io.seqera.util.H8WarnFilter" />
-    </appender>
-
     <root level="info">
         <appender-ref ref="STDOUT" />
-        <appender-ref ref="ROLLING_FILE" />
     </root>
     <logger name="io.seqera" level="${TOWER_LOG_LEVEL:-DEBUG}"/>
     <logger name="com.amazonaws" level="WARN" />

@@ -13,6 +13,7 @@ package io.seqera.tower.controller
 
 import io.micronaut.http.uri.UriBuilder
 import io.seqera.tower.enums.TaskStatus
+import io.seqera.tower.exchange.progress.GetProgressResponse
 import spock.lang.Unroll
 
 import javax.inject.Inject
@@ -46,7 +47,7 @@ import io.seqera.tower.exchange.workflow.ListWorkflowCommentsResponse
 import io.seqera.tower.exchange.workflow.GetWorkflowMetricsResponse
 import io.seqera.tower.exchange.workflow.UpdateWorkflowCommentRequest
 import io.seqera.tower.exchange.workflow.UpdateWorkflowCommentResponse
-import io.seqera.tower.exchange.workflow.WorkflowGet
+import io.seqera.tower.exchange.workflow.GetWorkflowResponse
 import io.seqera.tower.exchange.workflow.ListWorklowResponse
 import io.seqera.tower.service.WorkflowService
 import io.seqera.tower.util.AbstractContainerBaseTest
@@ -69,32 +70,33 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
     void "get a workflow"() {
         given: "a workflow with some metrics"
         DomainCreator creator = new DomainCreator()
+        final user = creator.generateAllowedUser()
         Workflow workflow = creator.createWorkflow(
                 complete: OffsetDateTime.now(),
+                owner: user,
                 manifest: new WfManifest(defaultBranch: 'master'),
                 stats: new WfStats(computeTimeFmt: '(a few seconds)'),
-                nextflow: new WfNextflow(version: "19.05.0-TOWER", timestamp: Instant.now(), build: '19.01.1'),
+                nextflow: new WfNextflow(version_: "19.05.0-TOWER", timestamp: Instant.now(), build: '19.01.1'),
         )
 
         creator.createWorkflowMetrics(workflow)
-        creator.createWorkflowMetrics(workflow)
+        creator.createWorkflowLoad(workflow: workflow)
 
 
         when: "perform the request to obtain the workflow"
-        String accessToken = doJwtLogin(creator.generateAllowedUser(), client)
-        HttpResponse<WorkflowGet> response = client.toBlocking().exchange(
+        String accessToken = doJwtLogin(user, client)
+        HttpResponse<GetWorkflowResponse> response = client.toBlocking().exchange(
                 HttpRequest.GET("/workflow/${workflow.id}")
                            .bearerAuth(accessToken),
-                WorkflowGet.class
+                GetWorkflowResponse.class
         )
 
         then: "the workflow data is properly obtained"
         response.status == HttpStatus.OK
-        response.body().workflow.workflowId == workflow.id.toString()
+        response.body().workflow.id.size()>0
         response.body().workflow.stats
         response.body().workflow.nextflow
         response.body().workflow.manifest
-        response.body().metrics.size() == 2
         response.body().progress.workflowProgress
     }
 
@@ -104,14 +106,32 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         Workflow workflow = domainCreator.createWorkflow()
 
         when: "perform the request to obtain the workflow as an anonymous user"
-        HttpResponse<WorkflowGet> response = client.toBlocking().exchange(
+        HttpResponse<GetWorkflowResponse> response = client.toBlocking().exchange(
                 HttpRequest.GET("/workflow/${workflow.id}"),
-                WorkflowGet.class
+                GetWorkflowResponse.class
         )
 
         then: "the server responds UNAUTHORIZED"
         HttpClientResponseException e = thrown(HttpClientResponseException)
         e.status == HttpStatus.UNAUTHORIZED
+    }
+
+    void "get the progress of a workflow"() {
+        given: "a workflow with"
+        DomainCreator creator = new DomainCreator()
+        Workflow workflow = creator.createWorkflow()
+
+        when: "perform the request to obtain the progress"
+        String accessToken = doJwtLogin(creator.generateAllowedUser(), client)
+        HttpResponse<GetProgressResponse> response = client.toBlocking().exchange(
+                HttpRequest.GET("/workflow/${workflow.id}/progress")
+                        .bearerAuth(accessToken),
+                GetProgressResponse.class
+        )
+
+        then: "the workflow progress has been obtained"
+        response.status == HttpStatus.OK
+        response.body().progress
     }
 
     void "get a list of workflows"() {
@@ -148,11 +168,11 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         response.body().workflows.size() == workflows.size()
 
         and: 'the workflows are ordered by start date in descending order'
-        response.body().workflows.workflow.workflowId == workflows.reverse().id*.toString()
+        response.body().workflows.workflow.id == workflows.reverse().id*.toString()
     }
 
     @Unroll
-    void "get a list of filtered workflows"() {
+    void "get a list of filtered workflows with search=#search"() {
         given: 'a user owner of the workflow'
         User owner
         User.withNewTransaction {
@@ -160,12 +180,13 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         }
 
         and: "some workflows owned by the user and ordered by start date in descending order (recent first)"
+        final now = OffsetDateTime.now()
         DomainCreator domainCreator = new DomainCreator()
         (1..4).collect { Integer i ->
             domainCreator.createWorkflow(
                     owner: owner,
                     projectName: "project${i}", runName: "runName${i}", commitId: "commitId${i}",
-                    start: OffsetDateTime.now().minusSeconds(i)
+                    start: now.minusSeconds(i)
             )
         }
 
@@ -191,18 +212,18 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
 
         expect: "the workflows data is properly obtained"
         response.status == HttpStatus.OK
-        response.body().workflows.size() == expectedWorkflowCommitIds.size()
-        response.body().workflows.workflow.commitId == expectedWorkflowCommitIds
+        response.body().workflows.size() == expectedWorkflowRunNames.size()
+        response.body().workflows.workflow.runName == expectedWorkflowRunNames
 
         where: 'the search params are'
-        search      | expectedWorkflowCommitIds
-        'project%'  | ["commitId1", "commitId2", "commitId3", "commitId4"]
-        'runName%'  | ["commitId1", "commitId2", "commitId3", "commitId4"]
-        'PrOjEct%'  | ["commitId1", "commitId2", "commitId3", "commitId4"]
-        'rUnNAme%'  | ["commitId1", "commitId2", "commitId3", "commitId4"]
-        'project1'  | ["commitId1"]
-        'runName1'  | ["commitId1"]
-        '%a%'       | ["commitId1", "commitId2", "commitId3", "commitId4"]
+        search      | expectedWorkflowRunNames
+        'project%'  | ["runName1", "runName2", "runName3", "runName4"]
+        'runName%'  | ["runName1", "runName2", "runName3", "runName4"]
+        'PrOjEct%'  | ["runName1", "runName2", "runName3", "runName4"]
+        'rUnNAme%'  | ["runName1", "runName2", "runName3", "runName4"]
+        'project1'  | ["runName1"]
+        'runName1'  | ["runName1"]
+        '%a%'       | ["runName1", "runName2", "runName3", "runName4"]
     }
 
     void "try to get a non-existing workflow"() {
@@ -211,7 +232,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         client.toBlocking().exchange(
                 HttpRequest.GET("/workflow/100")
                         .bearerAuth(accessToken),
-                WorkflowGet.class
+                GetWorkflowResponse.class
         )
 
         then: "a 404 response is obtained"
@@ -284,10 +305,9 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
 
         where: 'the search params are'
         search      | expectedTaskIds  | orderProperty | orderDirection
-        'hash%'     | [1l, 2l, 3l, 4l] | 'hash'        | 'asc'
-        'tag%'      | [1l, 2l, 3l, 4l] | 'process'     | 'asc'
-        'process%'  | [1l, 2l, 3l, 4l] | 'tag'         | 'asc'
-//        '%a%'       | [4l, 3l, 2l, 1l] | 'hash'        | 'desc'
+        'hash*'     | [1l, 2l, 3l, 4l] | 'hash'        | 'asc'
+        'tag*'      | [1l, 2l, 3l, 4l] | 'process'     | 'asc'
+        'process*'  | [1l, 2l, 3l, 4l] | 'tag'         | 'asc'
 
         'hash1'     | [1l]             | 'hash'        | 'asc'
         'HASH1'     | [1l]             | 'hash'        | 'asc'
@@ -296,12 +316,12 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         'tag3'      | [3l]             | 'hash'        | 'asc'
         'TAG3'      | [3l]             | 'hash'        | 'asc'
 
-        'submit%'   | [1l]             | 'hash'        | 'asc'
+        'submit*'   | [1l]             | 'hash'        | 'asc'
         'SUBMITTED' | [1l]             | 'hash'        | 'asc'
         'submitted' | [1l]             | 'hash'        | 'asc'
-        'run%'      | [2l]             | 'hash'        | 'asc'
-        'fail%'     | [3l]             | 'hash'        | 'asc'
-        'comp%'     | [4l]             | 'hash'        | 'asc'
+        'run*'      | [2l]             | 'hash'        | 'asc'
+        'fail*'     | [3l]             | 'hash'        | 'asc'
+        'comp*'     | [4l]             | 'hash'        | 'asc'
     }
 
     void "try to get the list of tasks from a nonexistent workflow"() {
@@ -329,7 +349,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
             user = creator.generateAllowedUser()
             workflow = creator.createWorkflow(owner: user)
             creator.createWorkflowMetrics(workflow)
-            new WorkflowComment(author: user, text: 'Hello', workflow: workflow, dateCreated: now, lastUpdated: now).save(failOnError:true)
+            new WorkflowComment(user: user, text: 'Hello', workflow: workflow, dateCreated: now, lastUpdated: now).save(failOnError:true)
         }
         
         when:
@@ -342,7 +362,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         then:
         resp.status == HttpStatus.NO_CONTENT
         and:
-        tx.withNewTransaction { workflowService.get(workflow.id) } == null
+        tx.withNewTransaction { workflowService.get(workflow.id) }.deleted
 
     }
 
@@ -362,7 +382,6 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         def e = thrown(HttpClientResponseException)
         e.status == HttpStatus.BAD_REQUEST
         e.message == "Oops... Failed to delete workflow with ID 1234"
-
     }
 
     void 'should get workflow metrics' () {
@@ -372,7 +391,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         Workflow workflow = creator.createWorkflow(
                 manifest: new WfManifest(defaultBranch: 'master'),
                 stats: new WfStats(computeTimeFmt: '(a few seconds)'),
-                nextflow: new WfNextflow(version: "19.05.0-TOWER"),
+                nextflow: new WfNextflow(version_: "19.05.0-TOWER"),
         )
 
         def metrics = [
@@ -424,7 +443,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         def t0 = OffsetDateTime.now()
         WorkflowComment.withNewTransaction {
             new WorkflowComment(
-                    author: user,
+                    user: user,
                     text: 'First hello',
                     workflow: workflow,
                     dateCreated: t0,
@@ -433,7 +452,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
                     .save(failOnError:true)
 
             new WorkflowComment(
-                    author: user,
+                    user: user,
                     text: 'Second hello',
                     workflow: workflow,
                     dateCreated: t0.plusMinutes(5),
@@ -453,8 +472,14 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         then:
         response.status == HttpStatus.OK
         response.body().comments.size() == 2
+        and:
         response.body().comments[0].text == 'Second hello'
+        response.body().comments[0].author.id == user.id
+        response.body().comments[0].author.displayName == user.userName
+        and:
         response.body().comments[1].text == 'First hello'
+        response.body().comments[1].author.id == user.id
+        response.body().comments[1].author.displayName == user.userName
     }
 
     def 'should add a workflow comment' () {
@@ -474,11 +499,14 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
 
         then:
         resp.status == HttpStatus.OK
-        resp.body().commentId != null
-
+        resp.body().comment.text == 'Great job'
+        resp.body().comment.id != null
+        resp.body().comment.author.id == user.id
+        resp.body().comment.author.displayName == user.userName
+        
         and:
         workflowService.getComments(workflow).size() ==1
-        workflowService.getComments(workflow)[0].id == resp.body().commentId
+        workflowService.getComments(workflow)[0].id == resp.body().comment.id
     }
 
     def 'should update a workflow comment' () {
@@ -490,7 +518,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         def t0 = OffsetDateTime.now().truncatedTo(ChronoUnit.MINUTES).minusMinutes(10)
         def comment = tx.withNewTransaction {
             new WorkflowComment(
-                    author: user,
+                    user: user,
                     text: 'First comment',
                     workflow: workflow,
                     dateCreated: t0,
@@ -527,7 +555,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         def t0 = OffsetDateTime.now().truncatedTo(ChronoUnit.MINUTES).minusMinutes(10)
         def comment1 = tx.withNewTransaction {
             new WorkflowComment(
-                    author: user,
+                    user: user,
                     text: 'First comment',
                     workflow: workflow,
                     dateCreated: t0,
@@ -537,7 +565,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
 
         def comment2 = tx.withNewTransaction {
             new WorkflowComment(
-                    author: user,
+                    user: user,
                     text: 'Second comment',
                     workflow: workflow,
                     dateCreated: t0,

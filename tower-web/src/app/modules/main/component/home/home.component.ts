@@ -12,16 +12,16 @@
 import {Component, OnInit} from '@angular/core';
 import {User} from "../../entity/user/user";
 import {AuthService} from "../../service/auth.service";
-import {Router} from "@angular/router";
+import {NavigationEnd, Router} from "@angular/router";
 import {Workflow} from "../../entity/workflow/workflow";
 import {WorkflowService} from "../../service/workflow.service";
-import {ServerSentEventsWorkflowService} from "../../service/server-sent-events-workflow.service";
-import {SseError} from "../../entity/sse/sse-error";
+import {LiveEventsService} from "../../service/live-events.service";
 import {Subscription} from "rxjs";
 import {NotificationService} from "../../service/notification.service";
-import {SseHeartbeat} from "../../entity/sse/sse-heartbeat";
 import {FilteringParams} from "../../util/filtering-params";
-import {intersectionBy, differenceBy, concat, orderBy} from "lodash";
+import {concat, differenceBy, intersectionBy, orderBy} from "lodash";
+import {environment} from "../../../../../environments/environment";
+import {LiveUpdate} from "../../entity/live/live-update";
 
 @Component({
   selector: 'wt-home',
@@ -32,58 +32,61 @@ export class HomeComponent implements OnInit {
 
   user: User;
   workflows: Workflow[];
-  private liveEventsSubscription: Subscription;
-
-  shouldShowLandingPage: boolean;
+  private userEventsSubscription: Subscription;
 
   searchingText: string;
   offset: number = 0;
+  sidebarCollapsed: boolean = false;
   isSearchTriggered: boolean;
   isNextPageLoadTriggered: boolean;
 
+  version: string;
+  commitId: string;
+
   constructor(private authService: AuthService,
               private workflowService: WorkflowService,
-              private serverSentEventsWorkflowService: ServerSentEventsWorkflowService,
+              private serverSentEventsWorkflowService: LiveEventsService,
               private notificationService: NotificationService,
               private router: Router) {
   }
 
 
   ngOnInit() {
+    this.version = environment.version;
+    this.commitId = environment.commitId;
+
     this.authService.user$.subscribe(
       (user: User) => {
         this.user = user;
         if (!this.user) {
-          this.shouldShowLandingPage = this.isAtRoot;
           return;
         }
 
         this.workflowService.workflows$.subscribe((workflows: Workflow[]) => {
           this.receiveWorkflows(workflows);
-          this.subscribeToWorkflowListLiveEvents();
+          this.subscribeToUserLiveEvents();
         });
-
       }
-    )
+    );
   }
 
   private receiveWorkflows(emittedWorkflows: Workflow[]): void {
     this.workflows = this.isWorkflowsInitiatied ? this.workflows : [];
-    const newWorkflows: Workflow[] = differenceBy(emittedWorkflows, this.workflows, (w: Workflow) => w.data.workflowId);
+    const newWorkflows: Workflow[] = differenceBy(emittedWorkflows, this.workflows, (w: Workflow) => w.id);
 
-    //Paginating event: concat the newly received workflows to the current ones
+    // Paginating event: concat the newly received workflows to the current ones
     if (this.isNextPageLoadTriggered) {
       this.workflows = concat(this.workflows, newWorkflows);
     }
-    //Searching event: replace the workflows with the newly received ones from server
+    // Searching event: replace the workflows with the newly received ones from server
     else if (this.isSearchTriggered) {
       this.workflows = emittedWorkflows;
     }
-    //Search is currently active: keep the filtered workflows, drop the ones no longer present (delete event) and ignore the new ones (live update event)
+    // Search is currently active: keep the filtered workflows, drop the ones no longer present (delete event) and ignore the new ones (live update event)
     else if (this.isSearchActive) {
-      this.workflows = intersectionBy(this.workflows, emittedWorkflows, (workflow: Workflow) => workflow.data.workflowId);
+      this.workflows = intersectionBy(this.workflows, emittedWorkflows, (workflow: Workflow) => workflow.id);
     }
-    //No search currently active (initialization event, live update event, delete event)
+    // No search currently active (initialization event, live update event, delete event)
     else {
       this.workflows = emittedWorkflows;
     }
@@ -94,31 +97,44 @@ export class HomeComponent implements OnInit {
     this.isNextPageLoadTriggered = false;
   }
 
-  private subscribeToWorkflowListLiveEvents(): void {
-    if (this.liveEventsSubscription) {
+  private subscribeToUserLiveEvents(): void {
+    if (this.userEventsSubscription) {
       return;
     }
 
-    this.liveEventsSubscription = this.serverSentEventsWorkflowService.connectToWorkflowListLive(this.user).subscribe(
-      (data: Workflow | SseHeartbeat) => this.reactToEvent(data),
-      (error: SseError) => {
-        console.log('Live workflow list error event received', error);
-        this.notificationService.showErrorNotification(error.message, false);
-      }
+    this.userEventsSubscription = this.serverSentEventsWorkflowService.connectToUserEventsStream(this.user).subscribe(
+      (event: LiveUpdate) => this.reactToDataEvent(event),
+      (event: LiveUpdate) => this.reactToErrorEvent(event)
     );
   }
 
-  private reactToEvent(data: Workflow | SseHeartbeat) {
-    if (data instanceof Workflow) {
-      console.log('Live workflow list event received', data);
-      this.workflowService.updateWorkflow(data);
-    } else if (data instanceof SseHeartbeat) {
-      console.log('Heartbeat event received', data);
-    }
+  private reactToDataEvent(event: LiveUpdate) {
+    console.log('Live user event received', event);
+    this.workflowService.getWorkflow(event.workflowId, true).subscribe((workflow: Workflow) => {
+      this.workflowService.updateWorkflow(workflow)
+    });
+  }
+
+  private reactToErrorEvent(event: LiveUpdate) {
+    console.log('Live user error event received', event);
+    this.notificationService.showErrorNotification(event.message);
   }
 
   private get isAtRoot(): boolean {
-    return (this.router.url == '/');
+    if (this.router.url.startsWith('/?')) {
+      this.router.navigate(['/']);
+      return false;
+    } else {
+      return (this.router.url === '/' );
+    }
+  }
+
+  get shouldShowLandingPage(): boolean {
+    return (!this.user && this.isAtRoot);
+  }
+
+  get shouldShowNavbar(): boolean {
+    return (this.user != null);
   }
 
   get shouldShowSidebar(): boolean {
@@ -134,7 +150,7 @@ export class HomeComponent implements OnInit {
   }
 
   get isAtWorkflowRelatedScreen() {
-    return (this.isAtRoot || this.router.url.startsWith('/workflow'));
+    return (this.isAtRoot || this.router.url.startsWith('/watch'));
   }
 
   get isWorkflowsInitiatied(): boolean {
@@ -163,15 +179,8 @@ export class HomeComponent implements OnInit {
     this.workflowService.emitWorkflowsFromServer(new FilteringParams(10, 0, searchText), true);
   }
 
-  onSidebarScroll(event) {
-    //Check if the end of the container has been reached: https://stackoverflow.com/a/50038429
-    const isScrollEndReached = (event.target.offsetHeight + event.target.scrollTop >= event.target.scrollHeight);
-    if (!isScrollEndReached) {
-      return;
-    }
-
-    console.log('Sidebar end reached');
-    this.loadNewPage();
+  toggleContentWidth(event){
+    this.sidebarCollapsed = event;
   }
 
   private loadNewPage(): void {

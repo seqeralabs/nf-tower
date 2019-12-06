@@ -50,14 +50,14 @@ class WorkflowTagController {
 
     @Get("/list/{workflowId}")
     @Transactional
-    HttpResponse<ListWorkflowTagResponse> list(Serializable workflowId, Authentication authentication) {
+    HttpResponse<ListWorkflowTagResponse> list(String workflowId, Authentication authentication) {
         try {
-            Workflow workflow = workflowService.get(workflowId as Serializable)
+            Workflow workflow = workflowService.get(workflowId)
             if (!workflow) {
                 return HttpResponse.badRequest(ListWorkflowTagResponse.ofError('Trying to get tags of a nonexistent workflow'))
             }
 
-            User currentUser = userService.getFromAuthData(authentication)
+            User currentUser = userService.getByAuth(authentication)
             if (workflow.ownerId != currentUser.id) {
                 return HttpResponse.badRequest(ListWorkflowTagResponse.ofError('Trying to get tags of a not owned workflow'))
             }
@@ -74,12 +74,12 @@ class WorkflowTagController {
     @Transactional
     HttpResponse<CreateWorkflowTagResponse> create(@Body CreateWorkflowTagRequest request, Authentication authentication) {
         try {
-            Workflow workflow = workflowService.get(request.workflowId as Serializable)
+            Workflow workflow = workflowService.get(request.workflowId)
             if (!workflow) {
                 return HttpResponse.badRequest(CreateWorkflowTagResponse.ofError('Trying to associate to nonexistent workflow'))
             }
 
-            User currentUser = userService.getFromAuthData(authentication)
+            User currentUser = userService.getByAuth(authentication)
             if (workflow.ownerId != currentUser.id) {
                 return HttpResponse.badRequest(CreateWorkflowTagResponse.ofError('Trying to associate to a not owned workflow'))
             }
@@ -104,7 +104,7 @@ class WorkflowTagController {
                 return HttpResponse.badRequest(UpdateWorkflowTagResponse.ofError('Trying to update nonexistent workflow tag'))
             }
 
-            User currentUser = userService.getFromAuthData(authentication)
+            User currentUser = userService.getByAuth(authentication)
             if (existingWorkflowTag.workflow.ownerId != currentUser.id) {
                 return HttpResponse.badRequest(UpdateWorkflowTagResponse.ofError('Trying to update a not owned tag'))
             }
@@ -129,7 +129,7 @@ class WorkflowTagController {
                 return HttpResponse.badRequest(new MessageResponse('Trying to delete nonexistent tag'))
             }
 
-            User currentUser = userService.getFromAuthData(authentication)
+            User currentUser = userService.getByAuth(authentication)
             if (existingWorkflowTag.workflow.ownerId != currentUser.id) {
                 return HttpResponse.badRequest(new MessageResponse('Trying to delete a not owned tag'))
             }

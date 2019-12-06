@@ -11,16 +11,18 @@
 
 package io.seqera.tower.domain
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import grails.gorm.annotation.Entity
 import groovy.transform.CompileDynamic
 
 @Entity
 @CompileDynamic
+@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version'])
 class Role {
     String authority
 
     static constraints = {
-        authority(nullable: false, unique: true)
+        authority(nullable: false, unique: true, maxSize: 20)
     }
 
 }

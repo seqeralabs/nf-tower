@@ -11,19 +11,21 @@
 
 package io.seqera.tower.service
 
+import static io.seqera.mail.MailHelper.*
+
 import javax.inject.Inject
 import javax.inject.Singleton
 
 import grails.gorm.transactions.Transactional
-import groovy.text.GStringTemplateEngine
-import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import io.micronaut.context.annotation.Value
-import io.seqera.mail.Attachment
-import io.seqera.mail.Mail
+import io.seqera.tower.domain.Mail
+import io.seqera.tower.domain.MailAttachment
 import io.seqera.tower.domain.User
 import io.seqera.tower.exchange.gate.AccessGateResponse
+import io.seqera.tower.service.mail.MailService
+
 /**
  * Implements the Gate services
  *
@@ -53,20 +55,22 @@ class GateServiceImpl implements GateService {
     @Inject
     MailService mailService
 
-    @CompileDynamic
     @Override
     AccessGateResponse access(String email) {
         final result = new AccessGateResponse()
-        result.user = User.findByEmail(email)
-
-        final isNew = result.user==null
-        if( isNew ) {
+        result.user = userService.getByEmail(email)
+        boolean isNew
+        if( !result.user ) {
+            isNew = true
             result.user = userService.create(email, 'ROLE_USER')
+        }
+        else if( result.user.trusted ) {
+            isNew = false
+            result.user = userService.updateUserAuthToken(result.user)
         }
 
         if( result.user.trusted ) {
             // if the user is trusted send the login email
-            result.user = userService.generateAuthToken(result.user)
             result.state = AccessGateResponse.State.LOGIN_ALLOWED
             sendLoginEmail(result.user)
         }
@@ -77,6 +81,7 @@ class GateServiceImpl implements GateService {
         }
         else {
             result.state = AccessGateResponse.State.KEEP_CALM_PLEASE
+            sendAccessRequestEmail(result.user)
         }
 
         return result
@@ -86,13 +91,18 @@ class GateServiceImpl implements GateService {
     protected void sendLoginEmail(User user) {
         assert user.email, "Missing email address for user=$user"
 
-        final mail = buildAccessEmail(user)
+        final mail = buildSignInEmail(user)
         mailService.sendMail(mail)
     }
 
     protected void sendNewUserEmail(User user) {
         assert user.email, "Missing email address for user=$user"
         mailService.sendMail( buildNewUserEmail(user) )
+    }
+
+    protected void sendAccessRequestEmail(User user) {
+        assert user.email, "Missing email address for user=$user"
+        mailService.sendMail( buildAccessRequestEmail(user) )
     }
 
     /**
@@ -115,25 +125,10 @@ class GateServiceImpl implements GateService {
 
     /**
      * Load the HTML email logo attachment
-     * @return A {@link io.seqera.mail.Attachment} object representing the image logo to be included in the HTML email
+     * @return A {@link MailAttachment} object representing the image logo to be included in the HTML email
      */
-    protected Attachment getLogoAttachment() {
-        Attachment.resource('/io/seqera/tower/service/tower-logo.png', contentId: '<tower-logo>', disposition: 'inline')
-    }
-
-    protected String getTemplateFile(String classpathResource, Map binding) {
-        def source = this.class.getResourceAsStream(classpathResource)
-        if (!source)
-            throw new IllegalArgumentException("Cannot load notification default template -- check classpath resource: $classpathResource")
-        loadMailTemplate0(source, binding)
-    }
-
-    private String loadMailTemplate0(InputStream source, Map binding) {
-        def map = new HashMap()
-        map.putAll(binding)
-
-        def template = new GStringTemplateEngine().createTemplate(new InputStreamReader(source))
-        template.make(map).toString()
+    protected MailAttachment getLogoAttachment() {
+        MailAttachment.resource('/io/seqera/tower/service/tower-logo.png', contentId: '<tower-logo>', disposition: 'inline')
     }
 
     protected String buildAccessUrl(User user) {
@@ -141,21 +136,28 @@ class GateServiceImpl implements GateService {
         return new URI(accessUrl).toString()
     }
 
+    protected String getEnableUrl(String server, userId) {
+        if( server.contains('localhost'))
+            return 'http://localhost:8001/user?id=' + userId
+        final url = new URL(server)
+        return "${url.protocol}://admin.${url.host}/user?id=${userId}"
+    }
 
-    protected Mail buildAccessEmail(User user) {
+    protected Mail buildSignInEmail(User user) {
         // create template binding
         def binding = new HashMap(5)
         binding.app_name = appName
         binding.auth_url = buildAccessUrl(user)
         binding.server_url = serverUrl
+        binding.login_url = "${serverUrl}/login"
         binding.user = user.firstName ?: user.userName
+        binding.contact_email = contactEmail
 
         Mail mail = new Mail()
         mail.to(user.email)
         mail.subject("$appName Sign in")
         mail.text(getTextTemplate(binding))
         mail.body(getHtmlTemplate(binding))
-        mail.attach(getLogoAttachment())
         return mail
     }
 
@@ -166,14 +168,56 @@ class GateServiceImpl implements GateService {
         binding.user_name = user.userName
         binding.user_email = user.email
         binding.user_id = user.id
+        binding.enable_url = getEnableUrl(serverUrl, user.id)
 
         Mail mail = new Mail()
         mail.to(contactEmail)
         mail.subject("New user registration")
-        mail.text(getTemplateFile('/io/seqera/tower/service/new-user-mail.txt', binding))
         mail.body(getTemplateFile('/io/seqera/tower/service/new-user-mail.html', binding))
-        mail.attach(getLogoAttachment())
         return mail
     }
 
+
+    protected Mail buildAccessRequestEmail(User user) {
+        def binding = new HashMap(5)
+        binding.app_name = appName
+        binding.server_url = serverUrl
+        binding.user_name = user.userName
+        binding.user_email = user.email
+        binding.user_id = user.id
+        binding.enable_url = getEnableUrl(serverUrl, user.id)
+
+        Mail mail = new Mail()
+        mail.to(contactEmail)
+        mail.subject("User access request")
+        mail.body(getTemplateFile('/io/seqera/tower/service/access-request.html', binding))
+        return mail
+    }
+
+
+    protected Mail buildWelcomeEmail(User user) {
+        // create template binding
+        def binding = new HashMap(5)
+        binding.server_url = serverUrl
+        binding.login_url = "${serverUrl}/login"
+        binding.user_email = user.email
+        binding.contact_email = contactEmail
+
+        Mail mail = new Mail()
+        mail.to(user.email)
+        mail.subject("You now have beta access to Nextflow Tower!")
+        mail.text(getTemplateFile('/io/seqera/tower/service/welcome-mail.txt', binding))
+        mail.body(getTemplateFile('/io/seqera/tower/service/welcome-mail.html', binding))
+        mail.attach(MailAttachment.resource('/io/seqera/tower/service/tower-splash.png', contentId: '<tower-splash>', disposition: 'inline'))
+        return mail
+    }
+
+    void allowLogin(User user) {
+        user.trusted = true
+        user.save(failOnError:true)
+
+        // send welcome email
+        final welcome = buildWelcomeEmail(user)
+        mailService.sendMail(welcome)
+    }
 }

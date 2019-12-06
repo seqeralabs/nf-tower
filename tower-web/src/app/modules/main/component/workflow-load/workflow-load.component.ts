@@ -10,7 +10,7 @@
  */
 import {Component, Input, OnChanges, OnInit} from '@angular/core';
 import {Workflow} from "../../entity/workflow/workflow";
-import {WorkflowProgress} from "../../entity/progress/workflow-progress";
+import {WorkflowLoad} from "../../entity/progress/workflow-load";
 
 @Component({
   selector: 'wt-workflow-load',
@@ -21,7 +21,7 @@ export class WorkflowLoadComponent implements OnInit, OnChanges {
 
 
   @Input()
-  workflowProgress: WorkflowProgress;
+  workflowProgress: WorkflowLoad;
 
   coresGaugeSeries: any;
   tasksGaugeSeries: any;
@@ -39,11 +39,11 @@ export class WorkflowLoadComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(): void {
-    console.log(`Gauge update loadCores=${this.workflowProgress.loadCpus}; maxCores=${this.workflowProgress.peakLoadCpus}; loadTasks=${this.workflowProgress.loadTasks} maxTasks=${this.workflowProgress.peakLoadTasks}`);
-    this.coreGaugeOptions = this.computeGaugeOptions(this.workflowProgress.loadCpus, this.workflowProgress.peakLoadCpus);
-    this.taskGaugeOptions = this.computeGaugeOptions(this.workflowProgress.loadTasks, this.workflowProgress.peakLoadTasks);
-    this.coresGaugeSeries = this.computeGaugeBinarySeries(this.workflowProgress.loadCpus, this.workflowProgress.peakLoadCpus);
-    this.tasksGaugeSeries = this.computeGaugeBinarySeries(this.workflowProgress.loadTasks, this.workflowProgress.peakLoadTasks);
+    console.log(`Gauge update loadCores=${this.workflowProgress.loadCpus}; maxCores=${this.workflowProgress.peakCpus}; loadTasks=${this.workflowProgress.loadTasks} maxTasks=${this.workflowProgress.peakTasks}`);
+    this.coreGaugeOptions = this.computeGaugeOptions(this.workflowProgress.loadCpus, this.workflowProgress.peakCpus);
+    this.taskGaugeOptions = this.computeGaugeOptions(this.workflowProgress.loadTasks, this.workflowProgress.peakTasks);
+    this.coresGaugeSeries = this.computeGaugeBinarySeries(this.workflowProgress.loadCpus, this.workflowProgress.peakCpus);
+    this.tasksGaugeSeries = this.computeGaugeBinarySeries(this.workflowProgress.loadTasks, this.workflowProgress.peakTasks);
   }
 
   private centerTextInGauge(ctx): void {
@@ -62,7 +62,9 @@ export class WorkflowLoadComponent implements OnInit, OnChanges {
     //Avoid 50% fill bug when all values are 0
     totalValue = (totalValue == 0 && filledValue == 0) ? 1 : totalValue;
 
-    return { donut: true, donutWidth: 10, startAngle: 270, total: totalValue*2 };
+    return { donut: true, donutWidth: 10, startAngle: 270, total: totalValue * 2,
+             labelInterpolationFnc: () => `${filledValue} / ${totalValue}`
+    };
   }
 
   private computeGaugeBinarySeries(filledValue: number, totalValue: number): any[] {

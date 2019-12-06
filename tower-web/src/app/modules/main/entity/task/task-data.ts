@@ -33,6 +33,10 @@ export interface TaskData {
   disk?: any;
   time?: any;
   env?: any;
+  executor: string;
+  machineType: string;
+  cloudZone: string;
+  priceModel: string;
   errorAction: string;
   complete: Date;
   duration: number;
@@ -51,5 +55,5 @@ export interface TaskData {
   peakRss: number;
   volCtxt: number;
   invCtxt: number;
-  nativeId: number;
+  nativeId: string;
 }

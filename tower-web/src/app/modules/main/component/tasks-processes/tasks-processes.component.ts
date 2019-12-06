@@ -9,7 +9,7 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
-import {ProcessProgress} from "../../entity/progress/process-progress";
+import {ProcessLoad} from "../../entity/progress/process-load";
 import {getAllTaskStatusesProgressStateTags} from "../../entity/task/task-status.enum";
 import {capitalize} from 'lodash';
 
@@ -23,7 +23,7 @@ declare let $: any;
 export class TasksProcessesComponent implements OnInit, OnChanges {
 
   @Input()
-  processesProgress: ProcessProgress[];
+  processesProgress: ProcessLoad[];
 
   statusesTags: string[];
 
@@ -41,18 +41,22 @@ export class TasksProcessesComponent implements OnInit, OnChanges {
       this.tooltips.forEach(tooltipElement => $(tooltipElement).tooltip('dispose'));
 
       this.tooltips = $('[data-toggle="tooltip"]').get();
-      this.tooltips.forEach(tooltipElement => $(tooltipElement).tooltip({trigger: 'manual'}));
+      this.tooltips.forEach(tooltipElement => $(tooltipElement).tooltip({
+          placement: 'top',
+          html: true,
+          trigger: 'manual'
+      }));
     });
 
   }
 
-  computePercentageProcessTasks(progress: ProcessProgress, status: string): string {
-    const percentage: number = (progress.data[status] / progress.total) * 100;
+  computePercentageProcessTasks(progress: ProcessLoad, status: string): string {
+    const percentage: number = (progress.data[status] / progress.totalTasks) * 100;
 
     return `${percentage}%`;
   }
 
-  getTooltipText(progress: ProcessProgress): string {
+  getTooltipText(progress: ProcessLoad): string {
     let result = '';
     for( const i in this.statusesTags ) {
       const status = this.statusesTags[i];

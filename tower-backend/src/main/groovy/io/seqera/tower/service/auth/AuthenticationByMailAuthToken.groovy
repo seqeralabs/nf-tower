@@ -25,7 +25,6 @@ import io.reactivex.Flowable
 import io.seqera.tower.domain.User
 import io.seqera.tower.service.UserService
 import org.reactivestreams.Publisher
-
 /**
  * Main application authentication provider
  */
@@ -54,7 +53,10 @@ class AuthenticationByMailAuthToken implements AuthenticationProvider {
             return new AuthFailure('Missing user identity')
         }
 
-        User user = userService.findByEmailAndAuthToken(identity, token)
+        if( identity==AuthenticationByApiToken.ID )
+            return new AuthFailure('Skipping mail auth for API token')
+
+        final user = userService.findByEmailAndAuthToken(identity, token)
         if (!user) {
             // a more explanatory message should be returned
             return new AuthFailure("Unknow user with identity: $identity")
@@ -65,12 +67,11 @@ class AuthenticationByMailAuthToken implements AuthenticationProvider {
             return new AuthFailure("Authentication token expired for user: $identity")
         }
 
+        // user is OK -- update last access timestamp
+        userService.updateLastAccessTime(user.id)
+
         List<String> authorities = userService.findAuthoritiesOfUser(user)
-        Map attributes = [
-                id: user.id, email: user.email, userName: user.userName, accessToken: user.accessTokens?.getAt(0)?.token,
-                firstName: user.firstName, lastName: user.lastName, organization: user.organization, description: user.description, avatar: user.avatar,
-        ]
-        return new UserDetails(user.email, authorities, (Map) attributes)
+        return new UserDetails(user.email, authorities)
     }
 
     protected boolean isAuthTokenExpired(User user) {

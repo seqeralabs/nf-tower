@@ -1,15 +1,15 @@
 tower:
-    appName: "${TOWER_APP_NAME:Nextflow Tower}"
-    serverUrl: "${TOWER_SERVER_URL:`http://localhost:8000`}"
-    contactEmail: "${TOWER_CONTACT_EMAIL:info@seqera.io}"
-    trustedEmails:
-      - '*@seqera.io'
+  appName: "${TOWER_APP_NAME:Nextflow Tower}"
+  serverUrl: "${TOWER_SERVER_URL:`http://localhost:8000`}"
+  contactEmail: "${TOWER_CONTACT_EMAIL:hello@foo.com}"
 ---
 micronaut:
   application:
     name: tower-backend
+    instance:
+      id: ${random.shortuuid}
   server:
-    port: 8080
+    port: ${MICRONAUT_PORT:8080}
     netty:
   caches:
     rate-limiter:
@@ -29,7 +29,7 @@ micronaut:
             generator:
               secret: pleaseChangeThisSecretForANewOne
         generator:
-          access-token-expiration: 3600
+          access-token-expiration: 86400
 ---
 jackson:
   serialization:
@@ -61,7 +61,7 @@ grails:
     failOnError: false
 ---
 mail:
-  from: "${TOWER_CONTACT_EMAIL:info@seqera.io}"
+  from: "${TOWER_CONTACT_EMAIL:hello@foo.com}"
   smtp:
     host: "${TOWER_SMTP_HOST:email-smtp.eu-west-1.amazonaws.com}"
     port: "${TOWER_SMTP_PORT:587}"
@@ -72,33 +72,8 @@ mail:
       enable: true
       required: true
 ---
-sse:
-  time:
-    idle:
-      workflow-detail: 5m
-      workflow-list: 3600s
-    throttle:
-      workflow-detail: 1s
-      workflow-list: 0s
-    heartbeat:
-      workflow-list: 1m
----
-endpoints:
-  bean:
-    enabled: true
-  info:
-    enabled: true
-  metrics:
-    enabled: true
-  caches:
-    enabled: true
-  refresh:
-    enabled: true
-  health:
-    disk-space:
-      enabled: true
-      path: '/'
-      threshold: '500MB'
-    jdbc:
-      enabled: true
-
+live:
+  buffer:
+    time: 5s
+    count: 100
+    heartbeat: 50s

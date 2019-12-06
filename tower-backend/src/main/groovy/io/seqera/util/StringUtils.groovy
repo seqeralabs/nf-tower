@@ -24,7 +24,7 @@ class StringUtils {
     static private Pattern STAR_REGEX = Pattern.compile("[^*]+|(\\*)")
 
     static boolean like(String self, String pattern) {
-        Pattern.compile( escape(pattern) ).matcher(self).matches()
+        Pattern.compile( escape(pattern), Pattern.CASE_INSENSITIVE ).matcher(self).matches()
     }
 
     static protected String escape( String str ){

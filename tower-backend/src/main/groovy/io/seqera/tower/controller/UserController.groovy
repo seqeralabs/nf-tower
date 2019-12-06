@@ -14,6 +14,7 @@ package io.seqera.tower.controller
 import javax.annotation.Nullable
 import javax.inject.Inject
 
+import grails.gorm.transactions.Transactional
 import groovy.util.logging.Slf4j
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.MediaType
@@ -27,8 +28,13 @@ import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.micronaut.security.rules.SecurityRule
 import io.seqera.tower.domain.User
+import io.seqera.tower.exchange.user.DeleteUserResponse
+import io.seqera.tower.exchange.user.EnableUserResponse
+import io.seqera.tower.exchange.user.GetUserResponse
 import io.seqera.tower.exchange.user.ListUserResponse
+import io.seqera.tower.service.GateService
 import io.seqera.tower.service.UserService
+import io.seqera.tower.service.audit.AuditEventPublisher
 
 @Slf4j
 @Controller("/user")
@@ -36,20 +42,38 @@ import io.seqera.tower.service.UserService
 class UserController extends BaseController {
 
     UserService userService
+    GateService gateService
+
+    @Inject AuditEventPublisher eventPublisher
 
     @Inject
-    UserController(UserService userService) {
+    UserController(UserService userService, GateService gateService) {
         this.userService = userService
+        this.gateService = gateService
+    }
+
+    @Get('/')
+    @Transactional
+    HttpResponse<GetUserResponse> profile(Authentication authentication) {
+        final User user = userService.getByAuth(authentication)
+        if (!user) {
+            return HttpResponse.badRequest(new GetUserResponse(message: "Cannot find user with name ${authentication.getName()}"))
+        }
+
+        log.debug "Getting profile for user id=${user.id} userName=${user.userName} email=${user.email}n"
+        HttpResponse.ok(new GetUserResponse(user: user))
     }
 
     @Post("/update")
     @Produces(MediaType.TEXT_PLAIN)
-    HttpResponse<String> update(@Body User userData, Authentication authentication) {
+    HttpResponse<String> update(@Body User data, Authentication authentication) {
         try {
-            userService.update(userService.getFromAuthData(authentication), userData)
-
+            final user = userService.getByAuth(authentication)
+            userService.update(user, data)
+            eventPublisher.userUpdated(user.id)
             HttpResponse.ok('User successfully updated!')
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             log.error("Failure on user update: ${e.message}", e)
             HttpResponse.badRequest(e.message)
         }
@@ -59,13 +83,27 @@ class UserController extends BaseController {
     @Produces(MediaType.TEXT_PLAIN)
     HttpResponse<String> delete(Authentication authentication) {
         try {
-            userService.delete(userService.getFromAuthData(authentication))
-
+            final user = userService.getByAuth(authentication)
+            userService.delete(user)
+            eventPublisher.userDeleted(user.id)
             HttpResponse.ok('User successfully deleted!')
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             log.error("Failure on user delete: ${e.message}", e)
             HttpResponse.badRequest(e.message)
         }
+    }
+
+    @Delete("/delete/{userId}")
+    @Secured(['ADMIN'])
+    @Transactional
+    HttpResponse<DeleteUserResponse> delete(Long userId) {
+        User user = User.get(userId)
+        if( !user )
+            return HttpResponse.badRequest(new DeleteUserResponse(message: "Cannot find user with ID=$userId"))
+        eventPublisher.userDeleted(user.id)
+        userService.delete(user)
+        HttpResponse.ok(new DeleteUserResponse(message: 'OK'))
     }
 
     @Get('/list{?max,offset}')
@@ -85,4 +123,27 @@ class UserController extends BaseController {
         }
     }
 
+    @Get('/get/{userId}')
+    @Secured(['ADMIN'])
+    @Transactional
+    HttpResponse<GetUserResponse> get(Long userId) {
+        final user = User.get(userId)
+        if( !user )
+            return HttpResponse.badRequest(new GetUserResponse(message: "Cannot find user with ID=$userId"))
+
+        HttpResponse.ok(new GetUserResponse(user:user))
+    }
+
+
+    @Get('/allow/login/{userId}')
+    @Secured(['ADMIN'])
+    @Transactional
+    HttpResponse<EnableUserResponse> allowLogin(Long userId) {
+        final user = User.get(userId)
+        if( !user )
+            return HttpResponse.badRequest(new EnableUserResponse(message: "Cannot find user with ID=$userId"))
+
+        gateService.allowLogin(user)
+        HttpResponse.ok(new EnableUserResponse(message: 'OK'))
+    }
 }

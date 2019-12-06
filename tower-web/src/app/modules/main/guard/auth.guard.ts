@@ -23,8 +23,6 @@ export class AuthGuard implements CanActivate {
               private router: Router) {}
 
   canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
-    let url: string = state.url;
-
     return this.checkLogin();
   }
 
@@ -35,8 +33,8 @@ export class AuthGuard implements CanActivate {
 
     console.log('User not authenticated');
     this.notificationService.showErrorNotification('Please log in');
-    this.router.navigate(['/']);
+    this.authService.logoutAndGoHome();
     return false;
   }
-  
+
 }

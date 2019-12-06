@@ -10,7 +10,6 @@ html {
 body {
   height: 100%;
   width: 100%;
-  overflow-x: auto;
   background-color: $body-background;
 }
 
@@ -26,40 +25,52 @@ code {
 }
 
 #navbar {
-  width: 100%;
-  height: $navbar-height;
-  background-color: white;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.16);
-  padding-top: 20px;
-  padding-bottom: 20px;
+  width: 100vw;
 }
 
+.navbar-brand {
+  max-width: calc(100% - 60px);
+  margin-right: 0;
+  overflow: hidden;
+}
 .navbar-brand img {
-  width: 240px;
+  height: 40px;
 }
 
 #layout {
-  display: flex;
   min-height: calc(100% - #{$navbar-height});
-  padding-top: $navbar-height;
-  width: 100%;
 }
 
 #sidebar {
-  position: sticky;
-  top: 0;
-  flex: 0 0 25%;
+  position: fixed;
+  top: $navbar-height;
+  bottom: 0;
+  z-index: 2;
   background-color: $sidebar-background;
   border-right: $sidebar-border;
-  overflow-x: hidden;
-  overflow-y: auto;
-  height: 100vh;
 }
 
 #central {
+  min-width: 200px;
+  padding-top: $navbar-height;
   width: 100%;
-  min-height: inherit;
-  flex: 1 0 75%;
+
+  &.sidebarNotCollapsed {
+    width: calc(100% - #{$sidebar-width});
+    margin-left: #{$sidebar-width};
+  }
+
+  &.sidebarCollapsed {
+    width: calc(100% - #{$sidebar-collapsed-width});
+    margin-left: #{$sidebar-collapsed-width};
+  }
+}
+// On small screens, allow the content to spread offscreen
+@media (max-width: 576px) {
+  #layout {
+    overflow-x: hidden;
+  }
 }
 
 #notification-container {
@@ -136,17 +147,7 @@ code {
 }
 
 /* Task DataTable styles */
-#tasks-table_wrapper {
-  .scrollable {
-    max-width: 200px;
-    margin: 0;
-    padding: 0;
-    overflow-x: auto;
-  }
-
-  .code {
-    font-family: SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
-  }
+#tasks-table-wrapper {
 
   .inline {
     padding: .2rem .4rem;
@@ -156,11 +157,14 @@ code {
   }
 
   .dataTables_filter {
-    float: left !important;
+    float: left;
   }
 
   .dataTables_filter input {
-    width: 30rem;
+    width: 100%;
+    @media (min-width: 576px){
+      width: 30rem;
+    }
     font-size: 1rem;
     font-weight: 400;
     line-height: 1.5;
@@ -171,33 +175,34 @@ code {
     border-radius: .25rem;
   }
 
-  tr {
+  .dataTables_scrollBody {
+    overflow-y: hidden !important;
+  }
+
+  td.details-control {
     cursor: pointer;
   }
 
-  td.details-control:before {
-    display: inline-block;
-    height: 15px;
-    width: 15px;
-    margin-right: 7px;
-    color: white;
-    border: 2px solid white;
-    border-radius: 15px;
-    box-shadow: 0 0 3px #444;
-    box-sizing: content-box;
-    text-align: center;
-    text-indent: 0 !important;
-    font-family: 'Courier New',Courier,monospace;
-    line-height: 15px;
-    cursor: pointer;
+  .details-table {
+    margin-left: 1em;
+    table-layout: fixed;
 
-    content: '+';
-    background-color: #31b131;
-  }
+    th:nth-child(1) {
+      width: 20%;
+    }
+    th:nth-child(2) {
+      width: 20%;
+    }
+    th:nth-child(3) {
+      width: 60%;
+    }
 
-  tr.shown td.details-control:before {
-    content: '-';
-    background-color: #d33333;
+    div.scrollable {
+      max-width: 100%;
+      margin: 0;
+      padding: 0;
+      overflow-x: auto;
+    }
   }
 
   .details-row {
@@ -247,6 +252,7 @@ code {
     }
 
   }
+
 }
 
 
@@ -257,6 +263,7 @@ code {
 
   li {
     list-style: none;
+    white-space: nowrap;
   }
 
   .list-label {
@@ -265,5 +272,33 @@ code {
 
   .list-value {
     font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  }
+}
+
+footer {
+  z-index: 5;
+  position: relative;
+  background-color: $body-background;
+  font-size: smaller;
+  text-align: center;
+
+  a {
+    color: inherit;
+  }
+
+  img {
+    height: 28px;
+    position: relative;
+    top: -7px;
+    opacity: 0.6;
+  }
+
+  @media (min-width: 540px) {
+    .col-sm {
+      text-align: left;
+    }
+    .footer-rhs-col {
+        text-align: right;
+    }
   }
 }

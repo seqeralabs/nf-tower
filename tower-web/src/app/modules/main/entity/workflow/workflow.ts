@@ -10,57 +10,71 @@
  */
 import {WorkflowData} from "./workflow-data";
 import {WorkflowStatus} from "./workflow-status.enum";
-import * as dateFormat from "date-fns/format";
-import {Progress} from "../progress/progress";
+import {ProgressData} from "../progress/progress-data";
 import {FormatterUtil} from "../../util/formatter-util";
 
 export class Workflow {
 
   data: WorkflowData;
-  progress: Progress;
+  progress: ProgressData;
 
   constructor(json: any) {
-    this.data = <WorkflowData> json.workflow;
+    this.data = json.workflow as WorkflowData;
 
     if (json.progress) {
-      this.progress = new Progress(json.progress);
+      this.progress = new ProgressData(json.progress);
     }
   }
 
+  get id(): string {
+    return this.data.id;
+  }
+
   get isRunning(): boolean {
-    return (this.computeStatus() === WorkflowStatus.RUNNING);
+    return (this.data.status === WorkflowStatus.RUNNING);
   }
 
   get isSuccessful(): boolean {
-    return (this.computeStatus() === WorkflowStatus.SUCCEEDED);
+    return (this.data.status === WorkflowStatus.SUCCEEDED && this.data.stats.ignoredCount===0);
   }
 
   get isFailed(): boolean {
-    return (this.computeStatus() === WorkflowStatus.FAILED);
+    return (this.data.status === WorkflowStatus.FAILED);
   }
 
   get isPartialFailed(): boolean {
-    return (this.computeStatus() === WorkflowStatus.PARTIAL_FAILED);
+    return (this.data.status === WorkflowStatus.SUCCEEDED && this.data.stats.ignoredCount>0);
   }
 
   get isCompleted(): boolean {
-    return !this.isRunning;
+    return !this.isRunning && !this.isUnknownStatus;
   }
 
-  private computeStatus(): WorkflowStatus {
-    return (!this.data.complete)                               ? WorkflowStatus.RUNNING   :
-           (this.data.success && this.data.stats.ignoredCount) ? WorkflowStatus.PARTIAL_FAILED :
-           (this.data.success)                                 ? WorkflowStatus.SUCCEEDED :
-                                                                 WorkflowStatus.FAILED
-
+  get isUnknownStatus(): boolean {
+    return this.data.status == null || this.data.status === WorkflowStatus.UNKNOWN;
   }
 
   get humanizedDuration(): string {
-    return FormatterUtil.humanizeDuration(this.data.duration)
+    return FormatterUtil.humanizeDuration(this.data.duration);
   }
 
   get briefCommitId(): string {
-    return this.data.commitId.substring(0, 6)
+    return this.data.commitId ? this.data.commitId.substring(0, 6) : null;
+  }
+
+  get humanizedRevision(): string {
+    let result = this.data.revision;
+    if( result == null )
+      return 'n/a';
+    if( this.briefCommitId )
+      result += ` (${this.briefCommitId})`;
+    return result;
+  }
+
+  get humanizedContainer(): string {
+    if( !this.data.container || !this.data.containerEngine )
+      return 'n/a';
+    return `${this.data.container} (${this.data.containerEngine})`;
   }
 
   get params(): string {
@@ -71,4 +85,11 @@ export class Workflow {
     return FormatterUtil.formatDate(this.data.start);
   }
 
+  get exitStatus(): string {
+    return this.data.exitStatus != null ? this.data.exitStatus.toString() : '-';
+  }
+
+  get displayName(): string {
+    return this.data.manifest.name != null ? this.data.manifest.name : this.data.projectName;
+  }
 }

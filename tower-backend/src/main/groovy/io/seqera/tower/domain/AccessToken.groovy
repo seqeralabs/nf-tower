@@ -26,6 +26,8 @@ import groovy.transform.CompileDynamic
 @JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version', 'user', 'userId'])
 class AccessToken {
 
+    static final String DEFAULT_TOKEN = 'default'
+
     Long id
     String token
     String name
@@ -36,12 +38,13 @@ class AccessToken {
     static belongsTo = [user: User]
 
     static constraints = {
-        name unique: 'user'
-        token unique: true
+        name unique: 'user', maxSize: 50
+        token unique: true, maxSize: 40
         lastUsed nullable: true
     }
 
     static mapping = {
+        cache true
         user index: 'nxd_token_user_name'
         name index: 'nxd_token_user_name'
     }

@@ -19,9 +19,11 @@ interface UserService {
 
     User create(String email, String authority)
 
-    User generateAuthToken(User user)
+    User updateUserAuthToken(User user)
 
-    User getFromAuthData(Principal userSecurityData)
+    User getByAuth(Principal principal)
+
+    User getByEmail(String email)
 
     User update(User existingUser, User updatedUserData)
 
@@ -35,13 +37,12 @@ interface UserService {
 
     List<User> list(int offset, int max)
 
-    @Deprecated
-    User findByUserNameAndAccessToken(String userName, String token)
-
     List<String> findAuthoritiesByEmail(String email)
 
     List<String> findAuthoritiesOfUser(User user)
 
     User getByAccessToken(String token)
+
+    boolean updateLastAccessTime(Long userId)
 
 }

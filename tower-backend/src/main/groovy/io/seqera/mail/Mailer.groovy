@@ -16,6 +16,7 @@ import javax.activation.URLDataSource
 import javax.mail.Message
 import javax.mail.MessagingException
 import javax.mail.Session
+import javax.mail.Transport
 import javax.mail.internet.HeaderTokenizer
 import javax.mail.internet.InternetAddress
 import javax.mail.internet.MimeBodyPart
@@ -27,6 +28,8 @@ import java.util.regex.Pattern
 
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
+import io.seqera.tower.domain.Mail
+import io.seqera.tower.domain.MailAttachment
 import io.seqera.util.LogOutputStream
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -42,6 +45,7 @@ import org.jsoup.safety.Whitelist
 @Slf4j
 @CompileStatic
 class Mailer {
+
 
     // Adapted from post by Phil Haack and modified to match better
     // See https://stackoverflow.com/a/22581832/395921
@@ -69,7 +73,7 @@ class Mailer {
 
     private Map env = System.getenv()
 
-    Mailer setConfig(MailerConfig config ) {
+    Mailer setConfig(MailerConfig config) {
         this.config = config
         return this
     }
@@ -240,8 +244,8 @@ class Mailer {
         content.addBodyPart(wrap);
 
         // -- attachment
-        def allFiles = mail.attachments ?: Collections.<Attachment>emptyList()
-        for( Attachment item : allFiles ) {
+        def allFiles = mail.attachments ?: Collections.<MailAttachment>emptyList()
+        for( MailAttachment item : allFiles ) {
             content.addBodyPart(createAttachment(item))
         }
 
@@ -249,7 +253,7 @@ class Mailer {
         return message
     }
 
-    protected MimeBodyPart createAttachment(Attachment item) {
+    protected MimeBodyPart createAttachment(MailAttachment item) {
         final result = new MimeBodyPart()
         if( item.file ) {
             if( !item.file.exists() )
@@ -333,6 +337,57 @@ class Mailer {
         log.trace "Mailer config: $config -- mail: $mail"
         def msg = createMimeMessage(mail)
         sendViaJavaMail(msg)
+    }
+
+    private String hide(String str, boolean canShow) {
+        if( str == null ) return str
+        if( str.size() < 4 )
+            return canShow ? str : '--'
+        else
+            return str.substring(0,4) + '[omitted]'
+    }
+
+    void sendAll(List<Mail> mails, Map<String,Closure> actions) {
+        log.trace "Mailer config: $config -- mails count: ${mails.size()}"
+        if( !mails ) {
+            //nothing to do
+            return
+        }
+
+        final transport = getTransport0()
+        log.debug("Connecting to host=$host port=$port user=${hide(user,true)} password=${hide(password,false)}")
+        transport.connect(host, port as int, user, password)
+        try {
+            for( Mail m : mails ) {
+                createMessageAndSend0(transport, m, actions)
+            }
+        }
+        finally {
+            transport.close()
+        }
+    }
+
+    protected Transport getTransport0() {
+        getSession().getTransport()
+    }
+
+    protected void createMessageAndSend0(Transport transport, Mail mail, Map<String,Closure> actions ) {
+        try {
+            final msg = createMimeMessage(mail)
+            transport.sendMessage(msg, msg.getAllRecipients())
+
+            if( actions.containsKey('onSuccess')) {
+                actions.onSuccess.call(mail)
+            }
+
+        }
+        catch (Exception e){
+            if( actions.containsKey('onError') ) {
+                actions.onError.call(mail,e)
+            }
+            else
+                throw e
+        }
     }
 
     /**

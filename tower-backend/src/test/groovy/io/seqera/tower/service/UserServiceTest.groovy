@@ -13,6 +13,8 @@ package io.seqera.tower.service
 
 import javax.inject.Inject
 import javax.validation.ValidationException
+import java.security.Principal
+import java.time.OffsetDateTime
 
 import grails.gorm.transactions.TransactionService
 import grails.gorm.transactions.Transactional
@@ -25,8 +27,9 @@ import io.seqera.tower.util.AbstractContainerBaseTest
 import io.seqera.tower.util.DomainCreator
 import io.seqera.util.StringUtils
 import org.grails.datastore.mapping.validation.ValidationException as GrailsValidationException
+import spock.lang.IgnoreIf
 
-@MicronautTest(application = Application.class)
+@MicronautTest(application = Application.class, environments = ['trusted-test'])
 @Transactional
 class UserServiceTest extends AbstractContainerBaseTest {
 
@@ -58,6 +61,14 @@ class UserServiceTest extends AbstractContainerBaseTest {
         and:
         User.get(user.id) == user
         UserRole.findByUser(user).role.authority == 'ROLE_USER'
+    }
+
+    def 'should normalise email to lowercase' () {
+        when:
+        User user = userService.create('BIG_ADDRESS@email.com','ROLE_USER')
+        then:
+        user.email == 'big_address@email.com'
+        user.userName == 'big-address'
     }
 
     def 'should create a trusted user' () {
@@ -240,4 +251,121 @@ class UserServiceTest extends AbstractContainerBaseTest {
         thrown(GrailsValidationException)
     }
 
+
+    @IgnoreIf({ System.getenv('CODEBUILD_BUILD_ID') })
+    def 'should fetch avatar image url from the email' () {
+
+        given:
+        def svc = userService as UserServiceImpl
+
+        expect:
+        svc.getAvatarUrl(EMAIL) == AVATAR
+
+        where:
+        EMAIL                       | AVATAR
+        'paolo.ditommaso@gmail.com' | 'https://www.gravatar.com/avatar/21c5e4164ca1573516b6a378fc279df2?d=404'
+        'unknown@foo.com'           | null
+
+    }
+
+    def 'should update last access ts' () {
+        given:
+        def ts = OffsetDateTime.now()
+        def creator = new DomainCreator()
+
+        when:
+        def user = creator.createUser()
+        then:
+        user.lastAccess == null
+
+        when:
+        def done = userService.updateLastAccessTime(user.id)
+        then:
+        done 
+        User.get(user.id).lastAccess >= ts.minusSeconds(2)
+        User.get(user.id).lastAccess <= ts.plusSeconds(2)
+    }
+
+    def 'should find a user by email and token' () {
+        given:
+        def creator = new DomainCreator()
+        def user = creator.createUser(email: 'foo@bar.com', authToken: 'secret')
+
+        when:
+        def record = userService.findByEmailAndAuthToken('foo@bar.com', 'secret')
+        then:
+        record.id == user.id
+
+        // cases on email should be ignored
+        when:
+        record = userService.findByEmailAndAuthToken('FOO@Bar.com', 'secret')
+        then:
+        record.id == user.id
+
+        // cases on the auth token token matters!
+        when:
+        record = userService.findByEmailAndAuthToken('FOO@Bar.com', 'SECRET')
+        then:
+        record == null
+
+        // should not find not existing user
+        when:
+        record = userService.findByEmailAndAuthToken('unknown@bar.com', 'secret')
+        then:
+        record == null
+    }
+
+    def 'should find user by principal' () {
+        given:
+        def creator = new DomainCreator()
+        creator.createUser(email: 'foo@bar.com', authToken: 'secret')
+
+        when:
+        def principal = Mock(Principal) { getName() >> 'foo@bar.com' }
+        def record = userService.getByAuth(principal)
+        then:
+        record.email == 'foo@bar.com'
+
+        // cases do not matter
+        when:
+        principal = Mock(Principal) { getName() >> 'FOO@Bar.com' }
+        record = userService.getByAuth(principal)
+        then:
+        record.email == 'foo@bar.com'
+
+        // cases do not matter
+        when:
+        principal = Mock(Principal) { getName() >> 'FOO@Bar%' }
+        record = userService.getByAuth(principal)
+        then:
+        record == null
+    }
+
+    def 'should find user by email' () {
+        given:
+        def creator = new DomainCreator()
+        creator.createUser(email: 'foo@bar.com', authToken: 'secret')
+
+        when:
+        def record = userService.getByEmail('foo@bar.com')
+        then:
+        record.email == 'foo@bar.com'
+
+        // cases do not matter
+        when:
+        record = userService.getByEmail('FOO@Bar.com')
+        then:
+        record.email == 'foo@bar.com'
+
+        // cases do not matter
+        when:
+        record = userService.getByEmail('FOO@Bar%')
+        then:
+        record == null
+
+        when:
+        record = userService.getByEmail(null)
+        then:
+        record == null
+    }
 }

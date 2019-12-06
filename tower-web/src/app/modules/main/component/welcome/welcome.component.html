@@ -1,4 +1,4 @@
-<div class="container mt-5 w-75">
+<div class="container mt-3"><div class="row justify-content-center"><div class="col-lg-10 col-xl-8">
 
   <div class="card">
     <div class="card-header">
@@ -29,8 +29,8 @@
         Define the following environment variable in your environment:
         </p>
         <pre class="p-3 bg-light text-dark">
-export TOWER_ACCESS_TOKEN={{user.data.nfAccessToken}}
-export NXF_VER=19.09.0-snapshot </pre>
+export TOWER_ACCESS_TOKEN={{accessToken}}
+export NXF_VER=19.10.0 </pre>
       </div>
 
       <div class='bd-callout bd-callout-success'>
@@ -48,8 +48,15 @@ export NXF_VER=19.09.0-snapshot </pre>
         </p>
       </div>
 
-
+      <div class='bd-callout bd-callout-secondary'>
+        <h5>Tip</h5>
+        <p>
+          You can also add Tower access credentials in your Nextflow configuration
+          file using the following snippet:
+        </p>
+        <pre class="p-3 bg-light text-dark">{{nextflowConfig}}</pre>
+      </div>
     </div>
   </div>
 
-</div>
+</div></div></div>

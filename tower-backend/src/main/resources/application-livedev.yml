@@ -10,11 +10,14 @@ micronaut:
       restart: true
 ---
 tower:
+  contactEmail: paolo.ditommaso+tower@gmail.com
   admin:
     password: secret
   trustedEmails:
     - '*@seqera.io'
-    - 'paolo*'
+    - 'paolo.ditommaso@gmail.com'
+  trace:
+    timeout: 90s
 ---
 dataSource:
   pooled: false
@@ -24,7 +27,7 @@ dataSource:
   username: sa
   password: ""
 hibernate:
-  show_sql: true
+  show_sql: false
   cache:
     queries: false
     use_second_level_cache: false
@@ -36,7 +39,7 @@ grails:
     failOnError: false
 ---
 mail:
-  from: info@seqera.io
+  from: "paolo.ditommaso+tower@gmail.com"
   smtp:
     host: email-smtp.eu-west-1.amazonaws.com
     port: 587
@@ -46,3 +49,26 @@ mail:
     starttls:
       enable: true
       required: true
+---
+endpoints:
+  bean:
+    enabled: true
+  info:
+    enabled: true
+  metrics:
+    enabled: true
+  caches:
+    enabled: true
+  refresh:
+    enabled: true
+  loggers:
+    enabled: true
+  mailer:
+    enabled: true
+  health:
+    disk-space:
+      enabled: true
+      path: '/'
+      threshold: '500MB'
+    jdbc:
+      enabled: true

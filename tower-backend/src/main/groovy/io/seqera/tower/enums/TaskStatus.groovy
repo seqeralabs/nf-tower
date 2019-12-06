@@ -11,6 +11,8 @@
 
 package io.seqera.tower.enums
 
+import io.seqera.util.StringUtils
+
 enum TaskStatus {
 
     NEW,        // just created
@@ -21,11 +23,21 @@ enum TaskStatus {
     FAILED,     // completed with error
     ABORTED     // execution aborted
 
-    static Collection<TaskStatus> findStatusesByRegex(String sqlRegex) {
-        if( !sqlRegex )
+    static Collection<TaskStatus> findStatusesByRegex(String criteria) {
+        if( !criteria )
             return Collections.<TaskStatus>emptyList()
-        String regex = sqlRegex.toUpperCase().replaceAll('%', /.*/)
-        values().findAll { it.name() ==~ regex }
+        if( !criteria.contains('*') )
+            criteria += '*'
+
+        values().findAll { StringUtils.like(it.name(), criteria) }
     }
+
+    static private List<TaskStatus> TERMINAL = [COMPLETED, FAILED, ABORTED, CACHED]
+
+    String toString() { super.toString() }
+
+    boolean isTerminated() { this in TERMINAL }
+
+    boolean isRunning() { this == RUNNING }
 
 }

@@ -1,5 +1,6 @@
 {
   "workflow": {
+    "id": "12345",
     "start": "2019-05-06T12:04:20+02:00",
     "projectDir": "/home/user/.nextflow/assets/nextflow-io/hello",
     "manifest": {
@@ -47,8 +48,7 @@
     "duration": null,
     "params": {
 
-    },
-    "workflowId": null
+    }
   },
   "processNames": [ "foo", "bar", "baz" ]
 }

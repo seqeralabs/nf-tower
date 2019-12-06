@@ -10,8 +10,12 @@
   }
 }
 
+.card-body {
+  padding-bottom: 1px;
+}
+
 .tab-pane {
-  min-height: 100px;
+  min-height: 150px;
 }
 
 .command-line-box {
@@ -19,11 +23,8 @@
   width: 100%;
   min-height: 100px;
   white-space: pre-wrap;
-  padding: 10px 15px;
-  border-radius: 5px;
-  border: 1px solid rgba(0, 0, 0, 0.125);;
+  padding: 1em 0 0 0;
   font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  background-color: rgba(0,0,0,.03);
 }
 
 pre.tab-config {
@@ -33,7 +34,7 @@ pre.tab-config {
 
 .tab-max-height {
   padding: 1em;
-  max-height: 15rem;
+  max-height: 25rem;
   overflow-x: auto;
   overflow-y: auto;
 }

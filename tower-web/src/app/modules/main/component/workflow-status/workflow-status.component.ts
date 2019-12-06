@@ -8,10 +8,10 @@
  * This Source Code Form is "Incompatible With Secondary Licenses", as
  * defined by the Mozilla Public License, v. 2.0.
  */
-import {Component, Input, OnInit} from '@angular/core';
-import {chunk} from "lodash";
+import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {getAllTaskStatusesProgressStateTags} from "../../entity/task/task-status.enum";
-import {ProgressState} from "../../entity/progress/progress-state";
+import {ProgressRecord} from "../../entity/progress/progress-record";
+import {FormatterUtil} from "../../util/formatter-util";
 
 @Component({
   selector: 'wt-workflow-status',
@@ -21,18 +21,19 @@ import {ProgressState} from "../../entity/progress/progress-state";
 export class WorkflowStatusComponent implements OnInit {
 
   @Input()
-  progressState: ProgressState;
+  progressState: ProgressRecord;
 
-  private statusesTags: string[];
-
-  statusesRows: string[][];
+  statusesTags: string[];
 
   constructor() {
     this.statusesTags = getAllTaskStatusesProgressStateTags();
-    this.statusesRows = chunk(this.statusesTags, 3)
   }
 
   ngOnInit() {
   }
 
+  numOfTasksFor(status: string): string {
+    const result = this.progressState[status];
+    return FormatterUtil.humanizeCounter(result);
+  }
 }

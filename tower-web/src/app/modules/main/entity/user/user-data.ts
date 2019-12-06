@@ -14,11 +14,11 @@ export interface UserData {
   email: string;
   roles: string[];
   jwtAccessToken: string;
-  nfAccessToken: string;
 
   firstName: string;
   lastName: string;
   organization: string;
   description: string;
+  notification: boolean;
   avatar: string;
 }

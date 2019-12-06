@@ -19,12 +19,13 @@ import grails.gorm.annotation.Entity
 import groovy.transform.CompileDynamic
 
 @Entity
-@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'workflows', 'accessTokens'])
+@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version', 'workflows', 'accessTokens'])
 @CompileDynamic
 class User {
 
     static final USERNAME_REGEX = /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/
 
+    Long id
     String userName
     String email
     String authToken
@@ -37,6 +38,8 @@ class User {
     String avatar
 
     boolean trusted
+    Boolean disabled
+    Boolean notification
 
     OffsetDateTime dateCreated
     OffsetDateTime lastUpdated
@@ -45,18 +48,21 @@ class User {
     static hasMany = [workflows: Workflow, accessTokens: AccessToken]
 
     static constraints = {
-        email(email: true, unique: true)
-        userName(unique: true, blank:false, matches: USERNAME_REGEX)
-        authToken(unique: true, nullable: true)
+        email(email: true, unique: true, maxSize: 255)
+        userName(unique: true, blank:false, matches: USERNAME_REGEX, maxSize: 40)
+        authToken(unique: true, nullable: true, maxSize: 40)
         authTime(nullable: true)
-
-        firstName(nullable: true)
-        lastName(nullable: true)
-        organization(nullable: true)
-        description(nullable: true)
+        disabled(nullable: true)
+        notification(nullable: true)
+        firstName(nullable: true, maxSize: 100)
+        lastName(nullable: true, maxSize: 100)
+        organization(nullable: true, maxSize: 100)
+        description(nullable: true, maxSize: 1000)
         avatar(nullable: true, url: true)
-        trusted(nullable: true)
         lastAccess(nullable: true)
     }
 
+    static mapping = {
+        cache  true
+    }
 }

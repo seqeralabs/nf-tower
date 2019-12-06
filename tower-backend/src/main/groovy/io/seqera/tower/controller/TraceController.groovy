@@ -12,38 +12,32 @@
 package io.seqera.tower.controller
 
 import javax.inject.Inject
-import java.time.Duration
 
 import grails.gorm.transactions.Transactional
 import groovy.util.logging.Slf4j
 import io.micronaut.context.annotation.Value
+import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Post
-import io.micronaut.http.sse.Event
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.micronaut.security.rules.SecurityRule
-import io.reactivex.Flowable
 import io.seqera.tower.domain.Task
-import io.seqera.tower.domain.User
-import io.seqera.tower.domain.Workflow
-import io.seqera.tower.enums.SseErrorType
-import io.seqera.tower.exceptions.NonExistingFlowableException
-import io.seqera.tower.exchange.progress.ProgressData
+import io.seqera.tower.enums.TraceProcessingStatus
+import io.seqera.tower.exchange.trace.TraceAliveRequest
+import io.seqera.tower.exchange.trace.TraceAliveResponse
+import io.seqera.tower.exchange.trace.TraceInitRequest
+import io.seqera.tower.exchange.trace.TraceInitResponse
 import io.seqera.tower.exchange.trace.TraceTaskRequest
 import io.seqera.tower.exchange.trace.TraceTaskResponse
 import io.seqera.tower.exchange.trace.TraceWorkflowRequest
 import io.seqera.tower.exchange.trace.TraceWorkflowResponse
-import io.seqera.tower.exchange.trace.sse.TraceSseResponse
-import io.seqera.tower.exchange.workflow.WorkflowGet
-import io.seqera.tower.service.ProgressService
-import io.seqera.tower.service.ServerSentEventsService
 import io.seqera.tower.service.TraceService
 import io.seqera.tower.service.UserService
-import org.reactivestreams.Publisher
+import io.seqera.tower.service.live.LiveEventsService
 /**
  * Implements the `trace` API
  *
@@ -53,189 +47,93 @@ import org.reactivestreams.Publisher
 @Slf4j
 class TraceController extends BaseController {
 
+    @Value('${tower.server-url}')
+    String serverUrl
 
-    @Value('${sse.time.idle.workflow-detail:5m}')
-    Duration idleWorkflowDetailFlowableTimeout
-    @Value('${sse.time.throttle.workflow-detail:1s}')
-    Duration throttleWorkflowDetailFlowableTime
+    @Inject TraceService traceService
+    @Inject UserService userService
+    @Inject LiveEventsService liveEventsService
 
-    @Value('${sse.time.idle.workflow-list:5m}')
-    Duration idleWorkflowListFlowableTimeout
-    @Value('${sse.time.throttle.workflow-list:1h}')
-    Duration throttleWorkflowListFlowableTime
-    @Value('${sse.time.heartbeat.workflow-list:1m}')
-    Duration heartbeatWorkflowListFlowableInterval
-
-
-    TraceService traceService
-    ProgressService progressService
-    UserService userService
-    ServerSentEventsService serverSentEventsService
-
-    @Inject
-    TraceController(TraceService traceService, ProgressService progressService, UserService userService, ServerSentEventsService serverSentEventsService) {
-        this.traceService = traceService
-        this.progressService = progressService
-        this.userService = userService
-        this.serverSentEventsService = serverSentEventsService
+    @Post("/alive")
+    @Transactional
+    @Secured(['ROLE_USER'])
+    HttpResponse<TraceAliveResponse> heartbeat(@Body TraceAliveRequest req) {
+        log.debug "Receiving trace alive [workflowId=${req.workflowId}]"
+        traceService.keepAlive(req.workflowId)
+        HttpResponse.ok(new TraceAliveResponse(message: 'OK'))
     }
 
 
     @Post("/workflow")
     @Transactional
     @Secured(['ROLE_USER'])
-    HttpResponse<TraceWorkflowResponse> workflow(@Body TraceWorkflowRequest request, Authentication authentication) {
-        HttpResponse<TraceWorkflowResponse> response
+    HttpResponse<TraceWorkflowResponse> workflow(@Body TraceWorkflowRequest req, Authentication authentication) {
         try {
-            User user = userService.getFromAuthData(authentication)
-            log.info("Receiving workflow trace: ${request.inspect()}")
-            Workflow workflow = traceService.processWorkflowTrace(request, user)
-            log.info("Processed workflow trace ${workflow.id}")
+            final msg = (req.workflow.checkIsRunning()
+                    ? "Receiving trace for new workflow [workflowId=${req.workflow.id}; user=${authentication.name}]"
+                    : "Receiving trace for workflow completion [workflowId=${req.workflow.id}; user=${authentication.name}]")
+            log.info(msg)
 
-            response = HttpResponse.created(TraceWorkflowResponse.ofSuccess(workflow.id.toString()))
+            final user = userService.getByAuth(authentication)
+            final workflow = traceService.processWorkflowTrace(req, user)
 
-            publishWorkflowEvent(workflow, user)
-        } catch (Exception e) {
-            log.error("Failed to handle workflow trace=$request", e)
-            response = HttpResponse.badRequest(TraceWorkflowResponse.ofError(e.message))
+            final resp = new TraceWorkflowResponse(
+                    status: TraceProcessingStatus.OK,
+                    workflowId: workflow.id,
+                    watchUrl: "${serverUrl}/watch/${workflow.id}"
+            )
+            liveEventsService.publishWorkflowEvent(workflow)
+            return HttpResponse.ok(resp)
         }
-
-        response
-    }
-
-    private void publishWorkflowEvent(Workflow workflow, User user) {
-        String workflowDetailFlowableKey = getWorkflowDetailFlowableKey(workflow.id)
-        String workflowListFlowableKey = getWorkflowListFlowableKey(user.id)
-
-        if (workflow.checkIsStarted()) {
-            serverSentEventsService.createFlowable(workflowDetailFlowableKey, idleWorkflowDetailFlowableTimeout)
-        } else {
-
-            WorkflowGet workflowGet = progressService.buildWorkflowGet(workflow)
-            try {
-                serverSentEventsService.publishEvent(workflowDetailFlowableKey, Event.of(TraceSseResponse.ofWorkflow(workflowGet)))
-            } catch (NonExistingFlowableException e) {
-                log.error("No flowable found while trying to publish workflow data: ${workflowDetailFlowableKey}")
-            }
-
-        }
-
-        try {
-            serverSentEventsService.publishEvent(workflowListFlowableKey, Event.of(TraceSseResponse.ofWorkflow(WorkflowGet.of(workflow))))
-        } catch (NonExistingFlowableException e) {
-            log.error("No flowable found while trying to publish workflow data: ${workflowListFlowableKey}")
-        }
-
-        if (!workflow.checkIsStarted()) {
-            serverSentEventsService.completeFlowable(workflowDetailFlowableKey)
+        catch (Exception e) {
+            log.error("Failed to handle workflow trace=${req.workflow.id}", e)
+            return HttpResponse.badRequest(TraceWorkflowResponse.ofError(e.message))
         }
     }
 
     @Post("/task")
     @Transactional
     @Secured(['ROLE_USER'])
-    HttpResponse<TraceTaskResponse> task(@Body TraceTaskRequest request) {
+    HttpResponse<TraceTaskResponse> task(@Body TraceTaskRequest req, Authentication authentication) {
+        log.info "Receiving task trace request [workflowId=${req.workflowId}; tasks=${req.tasks?.size()}; user=${authentication.name}]"
+
         HttpResponse<TraceTaskResponse> response
-        if( !request.workflowId )
-            HttpResponse.badRequest(TraceTaskResponse.ofError("Missing workflow ID"))
+        if( !req.workflowId )
+            return HttpResponse.badRequest(TraceTaskResponse.ofError("Missing workflow ID"))
+
+        if( req.tasks?.size()>100 ) {
+            log.warn "Too many tasks for workflow Id=$req.workflowId; size=${req.tasks.size()}"
+            return HttpResponse.badRequest(TraceTaskResponse.ofError("Workflow trace request too big"))
+        }
 
         try {
-            log.info("Receiving task trace: ${request.inspect()}")
-            List<Task> tasks = traceService.processTaskTrace(request)
-            log.info("Processed task trace (${tasks.taskId} ${tasks.status*.name()})")
-
+            List<Task> tasks = traceService.processTaskTrace(req)
             final workflow = tasks.first().workflow
-            response = HttpResponse.created(TraceTaskResponse.ofSuccess(workflow.id.toString()))
-            publishUpdatedProgressEvent(workflow)
-        } catch (Exception e) {
-            log.error("Failed to handle trace trace=$request", e)
+            liveEventsService.publishProgressEvent(workflow)
+            response = HttpResponse.ok(TraceTaskResponse.ofSuccess(workflow.id))
+        }
+        catch (Exception e) {
+            log.error("Failed to handle tasks trace for request: $req", e)
             response = HttpResponse.badRequest(TraceTaskResponse.ofError(e.message))
         }
 
-        response
+        return response
     }
 
-    private void publishUpdatedProgressEvent(Workflow workflow) {
-        String workflowDetailFlowableKey = getWorkflowDetailFlowableKey(workflow.id)
-
-        try {
-            ProgressData progress = progressService.fetchWorkflowProgress(workflow)
-            serverSentEventsService.publishEvent(workflowDetailFlowableKey, Event.of(TraceSseResponse.ofProgress(progress)))
-        } catch (NonExistingFlowableException e) {
-            log.error("No flowable found while trying to publish task data: ${workflowDetailFlowableKey}")
-        }
+    @Post("/init")
+    @Secured(['ROLE_USER'])
+    HttpResponse<TraceInitResponse> init(TraceInitRequest req, Authentication authentication) {
+        log.info "Receiving trace init [user=${authentication.getName()}]"
+        final workflowId = traceService.createWorkflowKey()
+        final resp = new TraceInitResponse(workflowId: workflowId)
+        log.info "Created new workflow ID=${workflowId} [user=${authentication.getName()}]"
+        HttpResponse.ok(resp)
     }
 
-    @Get("/live/workflowDetail/{workflowId}")
-    Publisher<Event<TraceSseResponse>> liveWorkflowDetail(Long workflowId) {
-        String workflowDetailFlowableKey = getWorkflowDetailFlowableKey(workflowId)
-
-        log.info("Subscribing to live events of workflow: ${workflowDetailFlowableKey}")
-        Flowable<Event<TraceSseResponse>> workflowDetailFlowable
-        try {
-            workflowDetailFlowable = serverSentEventsService.getThrottledFlowable(workflowDetailFlowableKey, throttleWorkflowDetailFlowableTime)
-        } catch (NonExistingFlowableException e) {
-            String message = "No live events emitter: ${workflowDetailFlowableKey}"
-            log.info(message)
-            workflowDetailFlowable = Flowable.just(Event.of(TraceSseResponse.ofError(SseErrorType.NONEXISTENT, message)))
-        } catch (Exception e) {
-            String message = "Unexpected error while obtaining event emitter: ${workflowDetailFlowableKey}"
-            log.error("${message} | ${e.message}", e)
-            workflowDetailFlowable = Flowable.just(Event.of(TraceSseResponse.ofError(SseErrorType.UNEXPECTED, message)))
-        }
-
-        workflowDetailFlowable
+    @Get("/ping")
+    @Secured(SecurityRule.IS_ANONYMOUS)
+    HttpResponse<String> ping(HttpRequest req) {
+        log.info "Trace ping from ${req.remoteAddress}"
+        HttpResponse.ok('pong')
     }
-
-    private static String getWorkflowDetailFlowableKey(def workflowId) {
-        return "workflow-${workflowId}"
-    }
-
-    @Get("/live/workflowList/{userId}")
-    Publisher<Event<TraceSseResponse>> liveWorkflowList(Long userId) {
-        String workflowListFlowableKey = getWorkflowListFlowableKey(userId)
-
-        log.info("Subscribing to live events of user: ${workflowListFlowableKey}")
-        Flowable<Event<TraceSseResponse>> workflowListFlowable
-        try {
-            workflowListFlowable = serverSentEventsService.getThrottledFlowable(workflowListFlowableKey, throttleWorkflowListFlowableTime)
-        } catch (NonExistingFlowableException e) {
-            String message = "No live events emitter. Generating one: ${workflowListFlowableKey}"
-            log.info(message)
-
-            serverSentEventsService.createFlowable(workflowListFlowableKey, idleWorkflowListFlowableTimeout)
-            workflowListFlowable = serverSentEventsService.getThrottledFlowable(workflowListFlowableKey, throttleWorkflowListFlowableTime)
-        } catch (Exception e) {
-            String message = "Unexpected error while obtaining event emitter: ${workflowListFlowableKey}"
-            log.error("${message} | ${e.message}", e)
-
-            return Flowable.just(Event.of(TraceSseResponse.ofError(SseErrorType.UNEXPECTED, message)))
-        }
-
-        Flowable heartbeatWorkflowListFlowable = serverSentEventsService.generateHeartbeatFlowable(heartbeatWorkflowListFlowableInterval, {
-            log.info("Generating heartbeat ${it} for ${workflowListFlowableKey}")
-            Event.of(TraceSseResponse.ofHeartbeat("Heartbeat ${it}"))
-        })
-
-        return workflowListFlowable.mergeWith(heartbeatWorkflowListFlowable)
-                                   .takeUntil(workflowListFlowable.takeLast(1))
-    }
-
-    private static String getWorkflowListFlowableKey(def userId) {
-        return "user-${userId}"
-    }
-
-
-
-//    @Override
-//    HttpResponse handle(HttpRequest request, JsonProcessingException e) {
-//        log.error """
-//            Unexpected error
-//            - request: ${request.uri}
-//            - params : ${request.parameters}
-//            - user   : ${request.userPrincipal.isPresent() ? request.userPrincipal.get() : '-'}
-//            - message: ${e.message ?: e.toString()}
-//            """, e
-//        return HttpResponse.badRequest("Oops.. something went wrong -- ${e.message?:e.toString()}")
-//    }
 }

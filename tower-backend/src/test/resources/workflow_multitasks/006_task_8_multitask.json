@@ -28,8 +28,7 @@
             "complete": "2019-06-24T07:19:04.855+02:00",
             "duration": 5259,
             "realtime": 5186,
-            "nativeId": 11740,
-            "workflowId": "12345"
+            "nativeId": 11740
         }
     ],
     "workflowId": "12345"

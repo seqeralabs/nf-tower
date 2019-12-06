@@ -4,7 +4,7 @@ import io.seqera.tower.domain.WorkflowTag
 
 class CreateWorkflowTagRequest {
 
-    def workflowId
+    String workflowId
     WorkflowTag workflowTag
 
 }

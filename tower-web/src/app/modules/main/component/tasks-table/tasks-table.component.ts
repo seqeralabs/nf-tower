@@ -10,8 +10,9 @@
  */
 import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {Task} from "../../entity/task/task";
-import {Progress} from "../../entity/progress/progress";
+import {ProgressData} from "../../entity/progress/progress-data";
 import {WorkflowService} from "../../service/workflow.service";
+import {convertTaskStatusToProgressLabel} from "../../entity/task/task-status.enum";
 
 declare var $: any;
 
@@ -23,9 +24,9 @@ declare var $: any;
 export class TasksTableComponent implements OnInit, OnChanges {
 
   @Input()
-  workflowId: number | string;
+  workflowId: string;
   @Input()
-  progress: Progress;
+  progress: ProgressData;
 
   dataTable: any;
 
@@ -59,30 +60,32 @@ export class TasksTableComponent implements OnInit, OnChanges {
     this.dataTable = $('#tasks-table').DataTable({
       scrollX: true,
       serverSide: true,
-      pageLength: 50,
+      pageLength: 30,
+      info: false,
+      pagingType: "full",
       lengthChange: false,
       orderMulti: false,
       rowId: (rowData) => `tr-${rowData[0]}`,
       columns: [
-        {name: "taskId", orderable: true},
+        {name: "taskId", className: 'details-control', orderable: true, render: (taskId) => `<span class="mdi mdi-menu-right"></span>&nbsp&nbsp${taskId}`},
         {name: "process", orderable: false},
         {name: "tag", orderable: false},
         {name: "hash", orderable: false},
-        {name: "status", orderable: false, render: (data) => `<span class="badge badge-pill ${data.toLowerCase()}">${data}</span>`},
+        {name: "status", orderable: false, render: (status) => `<span class="badge badge-pill ${status.toLowerCase()}">${convertTaskStatusToProgressLabel(status)}</span>`},
         {name: "exit", orderable: false},
         {name: "container", orderable: false },
         {name: "nativeId", orderable: false},
-        {name: "submit", orderable: true},
-        {name: "duration", orderable: true},
-        {name: "realtime", orderable: true},
+        {name: "submit", orderable: false},
+        {name: "duration", orderable: false},
+        {name: "realtime", orderable: false},
         {name: "pcpu", orderable: false},
         {name: "pmem", orderable: false},
-        {name: "peakRss", orderable: true},
-        {name: "peakVmem", orderable: true},
-        {name: "rchar", orderable: true},
-        {name: "wchar", orderable: true},
-        {name: "volCtxt", orderable: true},
-        {name: "invCtxt", orderable: true},
+        {name: "peakRss", orderable: false},
+        {name: "peakVmem", orderable: false},
+        {name: "rchar", orderable: false},
+        {name: "wchar", orderable: false},
+        {name: "volCtxt", orderable: false},
+        {name: "invCtxt", orderable: false},
         // hidden columns
         {name: "workdir", visible: false},
         {name: "script", visible: false},
@@ -101,6 +104,10 @@ export class TasksTableComponent implements OnInit, OnChanges {
         {name: "vmem", visible: false},
         {name: "attempt", visible: false},
         {name: "errorAction", visible: false},
+        {name: "executor", visible: false},
+        {name: "machineType", visible: false},
+        {name: "cloudZone", visible: false},
+        {name: "priceModel", visible: false}
       ],
       ajax: {
         url: this.workflowService.buildTasksGetUrl(this.workflowId),
@@ -157,7 +164,11 @@ export class TasksTableComponent implements OnInit, OnChanges {
               task.humanizedRss,
               task.humanizedVmem,
               task.data.attempt,
-              task.data.errorAction
+              task.data.errorAction,
+              task.data.executor,
+              task.data.machineType,
+              task.data.cloudZone,
+              task.data.priceModel
             ]) : [];
 
           return JSON.stringify(json);
@@ -170,8 +181,8 @@ export class TasksTableComponent implements OnInit, OnChanges {
   private attachRowShowEvent(): void {
     const tableBody = $('#tasks-table tbody');
 
-    tableBody.off('click', 'tr');
-    tableBody.on('click', 'tr',(event) => {
+    tableBody.off('click', 'td.details-control');
+    tableBody.on('click', 'td.details-control',(event) => {
       const targetTr = $(event.target).closest('tr');
       const targetRow = this.dataTable.row(targetTr);
 
@@ -182,71 +193,54 @@ export class TasksTableComponent implements OnInit, OnChanges {
         const row = this.dataTable.row(`#${rowId}`);
         if (row.child.isShown()) {
           row.child.hide();
-          tr.removeClass('shown');
+          tr.find('td.details-control span')
+            .removeClass('mdi-menu-down')
+            .addClass('mdi-menu-right');
         }
       });
 
       if (!isRowBeingShown) {
-        console.log('Row not shown');
         targetRow.child(this.generateRowDataChildFormat(targetTr)).show();
-        targetTr.addClass('shown');
+        targetTr.find('td.details-control span')
+                 .removeClass('mdi-menu-right')
+                 .addClass('mdi-menu-down');
       }
     });
   }
 
   private str(x): string {
-    return x == null || x == '' ? '-' : x.toString()
+    return x == null || x == '' ? '-' : x.toString().trim();
   }
 
   private col(row, col:string) {
-    let result = this.dataTable.cell(row, col+':name').data()
-    return this.str(result)
+    const result = this.dataTable.cell(row, col+':name').data();
+    return this.str(result);
   }
 
-  private renderTable(row, cols: any[]) {
-    let result = `<table class="table table-sm table-hover tasks-table">
-                  <tbody>
-                  <thead>
-                    <tr>
-                      <th scope="col" class="c1" >&nbsp;</th>
-                      <th scope="col" class="c2" >&nbsp;</th>
-                      <th scope="col">&nbsp;</th>
-                    </tr>
-                  </thead>
-                `;
+  private generateRowDataChildFormat(data): string {
+    const taskName: string = this.col(data, 'name');
+    const script: string = this.col(data,'script');
+    const workdir: string = this.col(data, 'workdir');
+    const status = this.col(data, 'status');
+    const exitCode = this.col(data, 'exit');
+    const attempt = this.col(data, 'attempt');
+    const action = this.col(data, 'errorAction');
+    const env = this.col(data, 'env');
 
-    for( let index in cols ) {
-      let entry = cols[index];
-      result += `<tr>
-                    <th scope="row">${entry.name}</th>
-                    <td>${this.col(row, entry.name)}</td>
-                    <td>${entry.description}</td>
-                  </tr>`
-    }
-
-    return result += '</tbody></table>'
-  }
-
-  private generateRowDataChildFormat(row): string {
-    const taskName: string = this.dataTable.cell(row, 'name:name').data();
-    const script: string = this.dataTable.cell(row, 'script:name').data();
-    const workdir: string = this.dataTable.cell(row, 'workdir:name').data();
-    const status = this.dataTable.cell(row, 'status:name').data();
-    const exitCode = this.dataTable.cell(row, 'exit:name').data();
-    const attempt = this.dataTable.cell(row, 'attempt:name').data();
-    const action = this.dataTable.cell(row, 'errorAction:name').data();
-
-    let res_requested = [
+    const res_requested = [
       {name: 'container', description: 'Container image name used to execute the task'},
       {name: 'queue', description: 'The queue that the executor attempted to run the process on'},
       {name: 'cpus', description: 'The cpus number request for the task execution'},
       {name: 'memory', description: 'The memory request for the task execution'},
       {name: 'disk', description: 'The disk space request for the task execution'},
       {name: 'time', description: 'The time request for the task execution'},
+      {name: 'executor', description: 'The Nextflow executor used to carry out this task'},
+      {name: 'machineType', description: 'The virtual machine type used to carry out by this task'},
+      {name: 'cloudZone', description: 'The cloud zone where the job get executed'},
+      {name: 'priceModel', description: 'The price model used to charge the job computation'},
     ];
 
-
-    let res_time = [
+    const res_time = [
       {name: 'submit', description: 'Timestamp when the task has been submitted'},
       {name: 'start', description: 'Timestamp when the task execution has started'},
       {name: 'complete', description: 'Timestamp when task execution has completed'},
@@ -277,24 +271,48 @@ export class TasksTableComponent implements OnInit, OnChanges {
               <p class="card-text"><pre>${script}</pre></p>
 
               <h5 class="card-title">Status</h5>
-              <p class="card-text"><pre>Exit: ${this.str(exitCode)} (${status}) Attempts: ${attempt} ${action ? '(action: '+action+')' :''}</pre></p>
+              <p class="card-text"><pre>Exit: ${this.str(exitCode)} (${status}) Attempts: ${attempt} ${action!='-' ? '(action: '+action+')' :''}</pre></p>
 
               <h5 class="card-title">Work directory</h5>
               <p class="card-text"><pre>${workdir}</pre></p>
 
               <h5 class="card-title">Environment</h5>
-              <p class="card-text"><pre>${taskName}</pre></p>
+              <p class="card-text"><pre>${this.col(data,'env')}</pre></p>
+
+              <h5 class="card-title">Execution time</h5>
+              ${this.renderTable(data, res_time)}
 
               <h5 class="card-title">Resources requested</h5>
-              ${this.renderTable(row, res_requested)}
-
-              <h5 class="card-title">Time</h5>
-              ${this.renderTable(row, res_time)}
+              ${this.renderTable(data, res_requested)}
               
-              <h5 class="card-title">Resources used</h5>
-              ${this.renderTable(row, res_used)}    
+              <h5 class="card-title">Resources usage</h5>
+              ${this.renderTable(data, res_used)}    
             </div>
           </div>`;
+  }
+
+  private renderTable(row, cols: any[]) {
+    let result = `<table class="table table-sm table-hover details-table">
+                  <tbody>
+                  <thead>
+                    <tr>
+                      <th scope="col" class="c1" >Label</th>
+                      <th scope="col" class="c2" >Value</th>
+                      <th scope="col">Description</th>
+                    </tr>
+                  </thead>
+                `;
+
+    for( let index in cols ) {
+      let entry = cols[index];
+      result += `<tr>
+                    <th scope="row"><div class="scrollable">${entry.name}</div></th>
+                    <td><div class="scrollable">${this.col(row, entry.name)}</div></td>
+                    <td><div class="scrollable">${entry.description}</div></td>
+                  </tr>`
+    }
+
+    return result += '</tbody></table>'
   }
 
 }

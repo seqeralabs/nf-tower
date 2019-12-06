@@ -3,7 +3,10 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false ,
+  version: "19.08.0",
+  commitId: "63a81b5.dirty",
+  captchaKey: null
 };
 
 /*

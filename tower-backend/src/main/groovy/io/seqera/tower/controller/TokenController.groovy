@@ -24,12 +24,15 @@ import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Post
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
+import io.seqera.tower.domain.AccessToken
 import io.seqera.tower.exceptions.TowerException
 import io.seqera.tower.exchange.MessageResponse
 import io.seqera.tower.exchange.token.CreateAccessTokenResponse
+import io.seqera.tower.exchange.token.GetDefaultTokenResponse
 import io.seqera.tower.exchange.token.ListAccessTokensResponse
 import io.seqera.tower.service.AccessTokenService
 import io.seqera.tower.service.UserService
+import io.seqera.tower.service.audit.AuditEventPublisher
 /**
  * Implement the controller to handle access token operations
  *
@@ -46,10 +49,12 @@ class TokenController  extends BaseController {
 
     @Inject AccessTokenService accessTokenService
 
+    @Inject AuditEventPublisher eventPublisher
+
     @Get("/list")
     HttpResponse<ListAccessTokensResponse> list(Authentication authentication) {
         try {
-            final user = userService.getFromAuthData(authentication)
+            final user = userService.getByAuth(authentication)
             final result = accessTokenService.findByUser(user)
             HttpResponse.ok(new ListAccessTokensResponse(tokens: result))
         }
@@ -62,8 +67,9 @@ class TokenController  extends BaseController {
     @Post("/create")
     HttpResponse<CreateAccessTokenResponse> create(Authentication authentication, String name) {
         try {
-            final user = userService.getFromAuthData(authentication)
+            final user = userService.getByAuth(authentication)
             final token = accessTokenService.createToken(name, user)
+            eventPublisher.accessTokenCreated(token.id)
             HttpResponse.ok(new CreateAccessTokenResponse(token: token))
         }
         catch ( TowerException e ) {
@@ -77,9 +83,12 @@ class TokenController  extends BaseController {
     }
 
     @Delete("/delete/{tokenId}")
-    HttpResponse delete(Long tokenId) {
+    HttpResponse delete(Long tokenId, Authentication authentication) {
         try {
+            final user = userService.getByAuth(authentication)
             final count = accessTokenService.deleteById(tokenId)
+            eventPublisher.accessTokenDeleted(tokenId)
+
             return ( count>0 ?
                     HttpResponse.status(HttpStatus.NO_CONTENT):
                     HttpResponse.badRequest(new MessageResponse(("Oops... Failed to delete access token"))) )
@@ -94,8 +103,10 @@ class TokenController  extends BaseController {
     @Delete("/delete-all")
     HttpResponse deleteAll(Authentication authentication) {
         try {
-            final user = userService.getFromAuthData(authentication)
+            final user = userService.getByAuth(authentication)
             final count = accessTokenService.deleteByUser(user)
+            eventPublisher.accessTokenDeleted('all')
+
             return ( count>0 ?
                     HttpResponse.status(HttpStatus.NO_CONTENT):
                     HttpResponse.badRequest(new MessageResponse("Oops... Failed to revoke all access token")))
@@ -104,6 +115,19 @@ class TokenController  extends BaseController {
             log.error "Unable to delete all tokens for auth=$authentication", e
             HttpResponse.badRequest(new MessageResponse(("Oops... Failed to delete access tokens")))
         }
+    }
+
+    @Get('/default')
+    HttpResponse<GetDefaultTokenResponse> getDefaultToken(Authentication authentication) {
+        final user = userService.getByAuth(authentication)
+        if( !user )
+            return HttpResponse.badRequest(new GetDefaultTokenResponse(message: "Cannot find user: ${authentication.name}"))
+        AccessToken result = user.accessTokens.find { it.name == AccessToken.DEFAULT_TOKEN }
+        if( result )
+            return HttpResponse.ok(new GetDefaultTokenResponse(token: result))
+
+        result = accessTokenService.createToken(AccessToken.DEFAULT_TOKEN, user)
+        HttpResponse.ok(new GetDefaultTokenResponse(token: result))
     }
 
 }

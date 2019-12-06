@@ -11,7 +11,8 @@
 
 package io.seqera.tower.service
 
-import grails.gorm.PagedResultList
+import javax.inject.Inject
+
 import grails.gorm.transactions.Transactional
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.tower.Application
@@ -20,13 +21,12 @@ import io.seqera.tower.domain.Workflow
 import io.seqera.tower.enums.TaskStatus
 import io.seqera.tower.exceptions.NonExistingWorkflowException
 import io.seqera.tower.exchange.trace.TraceTaskRequest
+import io.seqera.tower.service.cloudprice.CloudPriceModel
 import io.seqera.tower.util.AbstractContainerBaseTest
 import io.seqera.tower.util.DomainCreator
 import io.seqera.tower.util.TaskTraceSnapshotStatus
 import io.seqera.tower.util.TracesJsonBank
 import spock.lang.Unroll
-
-import javax.inject.Inject
 
 @MicronautTest(application = Application.class)
 @Transactional
@@ -35,19 +35,43 @@ class TaskServiceTest extends AbstractContainerBaseTest {
     @Inject
     TaskService taskService
 
+    void 'should find a task workflow id and hash' () {
+        given:
+        def creator = new DomainCreator()
+        def wf1 = creator.createWorkflow(sessionId: 'aaa-1')
+        def wf2 = creator.createWorkflow(sessionId: 'zzz-1')
+
+        def t1 = creator.createTask(workflow: wf1, hash: 'abc', name: 'foo')
+        def t2 = creator.createTask(workflow: wf2, hash: 'xyz', name: 'bar')
+        def t3 = creator.createTask(workflow: wf2, data: t1.data)
+
+        when:
+        def result = taskService.getTaskDataBySessionIdAndHash('aaa-1', 'abc')
+        then:
+        result.name == 'foo'
+        result.hash == 'abc'
+
+        when:
+        result = taskService.getTaskDataBySessionIdAndHash('zzz-1', 'xyz')
+        then:
+        result.name == 'bar'
+        result.hash == 'xyz'
+        
+        when:
+        result = taskService.getTaskDataBySessionIdAndHash('aaa-1', 'xyz')
+        then:
+        !result
+    }
 
     void "submit a task given a submit trace"() {
         given: 'create the workflow for the task'
-        Workflow workflow = new DomainCreator().createWorkflow()
+        def workflow = new DomainCreator().createWorkflow()
 
         and: "a task JSON submitted trace"
         TraceTaskRequest taskTraceJson = TracesJsonBank.extractTaskJsonTrace('success', 1, workflow.id, TaskTraceSnapshotStatus.SUBMITTED)
 
         when: "unmarshall the JSON to a task"
-        List<Task> tasks
-        Task.withNewTransaction {
-            tasks = taskService.processTaskTraceRequest(taskTraceJson)
-        }
+        List<Task> tasks = Task.withNewTransaction { taskService.processTaskTraceRequest(taskTraceJson) }
         Task task = tasks[0]
 
         then: "the task has been correctly saved"
@@ -57,9 +81,7 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         task.submit
         !task.start
         !task.complete
-        Task.withNewTransaction {
-            Task.count() == 1
-        }
+        Task.withNewTransaction { Task.count() } == 1
         
     }
 
@@ -90,13 +112,16 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         taskSubmitted.submit
         !taskSubmitted.start
         !taskSubmitted.complete
-        Task.withNewTransaction {
-            Task.count() == 1
-        }
+        taskSubmitted.executor == 'aws-batch'
+        taskSubmitted.machineType == null
+        taskSubmitted.cloudZone == 'some-region'
+        taskSubmitted.priceModel == CloudPriceModel.spot
+
+        Task.withNewTransaction { Task.count() } == 1
 
         when: "unmarshall the started task trace"
-        Task.withNewTransaction {
-            tasks = taskService.processTaskTraceRequest(taskStartedTrace)
+        tasks = Task.withNewTransaction {
+             taskService.processTaskTraceRequest(taskStartedTrace)
         }
         Task taskStarted = tasks[0]
 
@@ -107,9 +132,11 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         taskStarted.submit
         taskStarted.start
         !taskStarted.complete
-        Task.withNewTransaction {
-            Task.count() == 1
-        }
+        taskStarted.executor == 'aws-batch'
+        taskStarted.machineType == 'x1.large'
+        taskStarted.cloudZone == 'eu-north-1'
+        taskStarted.priceModel == CloudPriceModel.standard
+        Task.withNewTransaction { Task.count() } == 1
 
         when: "unmarshall the succeeded task trace"
         Task.withNewTransaction {
@@ -124,9 +151,11 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         taskCompleted.submit
         taskCompleted.start
         taskCompleted.complete
-        Task.withNewTransaction {
-            Task.count() == 1
-        }
+        taskCompleted.executor == 'aws-batch'
+        taskCompleted.machineType == 'x1.large'
+        taskCompleted.cloudZone == 'eu-west-1'
+        taskCompleted.priceModel == CloudPriceModel.spot
+        Task.withNewTransaction { Task.count() } == 1
         
     }
 
@@ -253,19 +282,14 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         taskSubmittedTraceJson.tasks*.taskId = null
 
         when: "unmarshall the JSON to a task"
-        List<Task> tasks
-        Task.withNewTransaction {
-            tasks = taskService.processTaskTraceRequest(taskSubmittedTraceJson)
-        }
+        List<Task> tasks = Task.withNewTransaction { taskService.processTaskTraceRequest(taskSubmittedTraceJson) }
         Task taskSubmitted = tasks[0]
 
         then: "the task has a validation error"
         tasks.size() == 1
         taskSubmitted.hasErrors()
         taskSubmitted.errors.getFieldError('taskId').code == 'nullable'
-        Task.withNewTransaction {
-            Task.count() == 0
-        }
+        Task.withNewTransaction { Task.count()  } == 0
     }
 
     void "try to submit a task given a submit trace for a non existing workflow"() {
@@ -288,7 +312,8 @@ class TaskServiceTest extends AbstractContainerBaseTest {
     @Unroll
     void "find some tasks belonging to a workflow"() {
         given: 'a first task'
-        Task firstTask = new DomainCreator().createTask(taskId: 1)
+        def rnd = new Random()
+        Task firstTask = new DomainCreator().createTask(taskId: 1, status: TaskStatus.RUNNING, duration: rnd.nextLong())
         List<Task> tasks = [firstTask]
 
         and: 'extract its workflow'
@@ -296,25 +321,57 @@ class TaskServiceTest extends AbstractContainerBaseTest {
 
         and: 'generate more tasks associated with the workflow'
         (2..nTasks).each {
-            tasks << new DomainCreator().createTask(workflow: workflow, taskId: it)
+            tasks << new DomainCreator().createTask(workflow: workflow, taskId: it, duration: rnd.nextLong())
         }
 
         when: 'search for the tasks associated with the workflow'
-        PagedResultList<Task> obtainedTasks = taskService.findTasks(workflow.id, max, offset, orderProperty, orderDirection, null)
+        List<Task> obtainedTasks = taskService.findTasks(workflow.id, null, orderProperty, orderDirection, max, offset)
+        long totalCount = taskService.countTasks(workflow.id, null)
 
         then: 'the obtained tasks are as expected'
-        obtainedTasks.totalCount == nTasks
+        totalCount == nTasks
         obtainedTasks.size() == max
         obtainedTasks.id == tasks.sort { t1, t2 ->
             (orderDirection == 'asc') ? t1[orderProperty] <=> t2[orderProperty] : t2[orderProperty] <=> t1[orderProperty]
         }[offset..<(offset + max)].id
 
         where: 'the pagination params are'
-        nTasks | max | offset | orderProperty | orderDirection
-        20     | 10  | 0      | 'hash'        | 'asc'
-        20     | 10  | 10     | 'hash'        | 'asc'
-        20     | 10  | 0      | 'hash'        | 'desc'
-        20     | 10  | 10     | 'hash'        | 'desc'
+        nTasks | max | offset | orderProperty | orderDirection  | filter
+        20     | 10  | 0      | 'taskId'      | 'asc'           | null
+        20     | 10  | 0      | 'taskId'      | 'desc'          | null
+        20     | 10  | 10     | 'taskId'      | 'asc'           | null
+        20     | 1   | 0      | 'taskId'      | 'asc'           | 'running'
+        20     | 10  | 0      | 'submit'      | 'asc'           | null
+        20     | 10  | 10     | 'submit'      | 'asc'           | null
+        20     | 10  | 10     | 'duration'    | 'desc'          | null
+        20     | 9   | 10     | 'submit'      | 'asc'           | 'SUBMITTED'
+
+    }
+
+    def 'should sort by task duration' () {
+        given:
+        def wf = new DomainCreator().createWorkflow()
+        Task t1 = new DomainCreator().createTask(workflow: wf, taskId: 1, duration: 300, process: 'foo 1', status: TaskStatus.COMPLETED)
+        Task t2 = new DomainCreator().createTask(workflow: wf, taskId: 2, duration: 200, process: 'foo 2', status: TaskStatus.RUNNING)
+        Task t3 = new DomainCreator().createTask(workflow: wf, taskId: 3, duration: 100, process: 'bar 3', status: TaskStatus.RUNNING)
+
+        when:
+        def result = taskService.findTasks(wf.id, FILTER, SORT, DIR,  MAX, OFFSET)
+        then:
+        result.taskId == EXPECTED
+
+        where:
+        FILTER      | SORT        | DIR    | MAX   | OFFSET | EXPECTED
+        null        | 'taskId'    | 'asc'  | 10    | 0      | [1,2,3]
+        null        | 'taskId'    | 'desc' | 10    | 0      | [3,2,1]
+        null        | 'duration'  | 'asc'  | 10    | 0      | [3,2,1]
+        null        | 'duration'  | 'desc' | 10    | 0      | [1,2,3]
+        'foo'       | 'taskId'    | 'asc'  | 10    | 0      | [1,2]
+        'FOO*'      | 'duration'  | 'asc'  | 10    | 0      | [2,1]
+        'bar*'      | 'duration'  | 'asc'  | 10    | 0      | [3]
+        'running'   | 'taskId'    | 'asc'  | 10    | 0      | [2,3]
+        'COMPLET*'  |'taskId'     | 'asc'  | 10    | 0      | [1]
+        'UNKNOWN'   | 'taskId'    | 'asc'  | 10    | 0      | []
     }
 
     @Unroll
@@ -332,17 +389,17 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         }
 
         when: 'search for the tasks associated with the workflow'
-        PagedResultList<Task> obtainedTasks = taskService.findTasks(workflow.id, 10, 0, 'taskId', 'asc', search)
+        List<Task> obtainedTasks = taskService.findTasks(workflow.id, search, 'taskId', 'asc',10, 0)
 
         then: 'the obtained tasks are as expected'
         obtainedTasks.taskId == expectedTaskIds
 
         where: 'the search params are'
         search      | expectedTaskIds
-        'hash%'     | [1l, 2l, 3l, 4l]
-        'tag%'      | [1l, 2l, 3l, 4l]
-        'process%'  | [1l, 2l, 3l, 4l]
-        '%a%'       | [1l, 2l, 3l, 4l]
+        'hash*'     | [1l, 2l, 3l, 4l]
+        'tag*'      | [1l, 2l, 3l, 4l]
+        'process*'  | [1l, 2l, 3l, 4l]
+        '*a*'       | [1l, 2l, 3l, 4l]
 
         'hash1'     | [1l]
         'HASH1'     | [1l]
@@ -351,22 +408,27 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         'tag3'      | [3l]
         'TAG3'      | [3l]
 
-        'submit%'   | [1l]
+        'submit*'   | [1l]
         'SUBMITTED' | [1l]
         'submitted' | [1l]
-        'run%'      | [2l]
-        'fail%'     | [3l]
-        'comp%'     | [4l]
+        'run*'      | [2l]
+        'fail*'     | [3l]
+        'comp*'     | [4l]
     }
 
-    @Unroll
     void "try to find some tasks for a nonexistent workflow"() {
         when: 'search for the tasks associated with a nonexistent workflow'
-        PagedResultList<Task> obtainedTasks = taskService.findTasks(100l, 10l, 0l, 'taskId', 'asc', null)
+        List<Task> obtainedTasks = taskService.findTasks('100', 'ab(','taskId', 'asc',10l, 0l)
 
         then: 'there are no tasks'
-        obtainedTasks.totalCount == 0
         obtainedTasks.size() == 0
+    }
+
+    void "should return zero tasks" () {
+        when:
+        def result = taskService.countTasks('100',null)
+        then:
+        result == 0
     }
 
 }

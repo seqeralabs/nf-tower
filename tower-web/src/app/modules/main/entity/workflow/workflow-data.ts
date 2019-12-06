@@ -15,7 +15,7 @@ import {WorkflowStatus} from "./workflow-status.enum";
 
 export interface WorkflowData {
 
-  workflowId: string | number;
+  id: string;
 
   runName: string;
   sessionId: string;
@@ -28,6 +28,7 @@ export interface WorkflowData {
   start: Date;
   complete?: Date;
   duration: number;
+  status: WorkflowStatus;
 
   projectDir: string;
   profile: string;
@@ -56,7 +57,4 @@ export interface WorkflowData {
   configFiles: string[];
   configText: string;
 
-  peakLoadCpus: number;
-  peakLoadTasks: number;
-  peakLoadMemory: number;
 }
