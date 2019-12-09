@@ -81,8 +81,9 @@ export class WorkflowNotesTabComponent implements OnChanges {
 
   deleteWorkflowComment(commentId: number): void {
     const confirm = prompt(`Please confirm the note deletion typing 'YES' below (operation is not recoverable):`);
-    if( confirm !== 'YES' )
+    if (confirm !== 'YES') {
       return;
+    }
 
     this.deleteWorkFlowCommentById(this.workflow.id, commentId)
       .subscribe(() => {
@@ -95,7 +96,7 @@ export class WorkflowNotesTabComponent implements OnChanges {
   }
 
   private getCommentsByWorkflowId(workflowId: string): Observable<any> {
-    return this.http.get<any>(`${WORKFLOW_ENDPOINT}/{workflowId}/comments`);
+    return this.http.get<any>(`${WORKFLOW_ENDPOINT}/${workflowId}/comments`);
   }
 
   private deleteWorkFlowCommentById(workflowId: string, commentId: number): Observable<any> {
