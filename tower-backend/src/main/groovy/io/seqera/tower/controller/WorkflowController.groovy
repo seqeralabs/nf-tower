@@ -173,6 +173,19 @@ class WorkflowController extends BaseController {
     }
 
     @Transactional
+    @Get("/{workflowId}/task/{taskId}")
+    HttpResponse<TaskGet> taskById(String workflowId, Long taskId) {
+        final workflow = workflowService.get(workflowId)
+
+        if (!workflow)
+            return HttpResponse
+                    .notFound(new GetWorkflowMetricsResponse(message: "Oops... Can't find workflow ID $workflowId"))
+
+        def task = taskService.findByTaskIdAndWorkflow(taskId, workflow)
+        HttpResponse.ok(TaskGet.of(task))
+    }
+
+    @Transactional
     @Secured(['ROLE_USER'])
     @Delete('/{workflowId}')
     HttpResponse delete(String workflowId, Authentication authentication) {

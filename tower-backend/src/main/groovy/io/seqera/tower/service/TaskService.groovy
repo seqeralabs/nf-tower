@@ -14,6 +14,7 @@ package io.seqera.tower.service
 
 import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.TaskData
+import io.seqera.tower.domain.Workflow
 import io.seqera.tower.exchange.trace.TraceTaskRequest
 
 interface TaskService {
@@ -25,5 +26,7 @@ interface TaskService {
     List<Task> findTasks(String workflowId, String filter, String orderProperty, String orderDirection, Long max, Long offset)
 
     long countTasks(String workflowId, String filter)
+
+    Task findByTaskIdAndWorkflow(Long taskId, Workflow workflow)
 
 }

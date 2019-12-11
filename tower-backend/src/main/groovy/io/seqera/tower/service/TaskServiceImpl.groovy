@@ -11,7 +11,6 @@
 
 package io.seqera.tower.service
 
-
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -179,6 +178,13 @@ class TaskServiceImpl implements TaskService {
         def query = createTaskQuery0(params, filter, true)
         def result = Task.executeQuery(query, params)
         return result[0] as long
+    }
+
+    @Override
+    Task findByTaskIdAndWorkflow(Long taskId, Workflow workflow) {
+        final params = [taskId: taskId, workflowId: workflow.id]
+        final query = "from Task t where t.taskId = :taskId and t.workflow.id=:workflowId"
+        Task.find(query, params)
     }
 
     private String createTaskQuery0(Map params, String search, boolean count=false) {
