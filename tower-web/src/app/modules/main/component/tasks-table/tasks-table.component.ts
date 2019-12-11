@@ -29,6 +29,7 @@ export class TasksTableComponent implements OnInit, OnChanges {
   progress: ProgressData;
 
   dataTable: any;
+  htmlDataForModal: string;
 
   constructor(private workflowService: WorkflowService) {}
 
@@ -67,7 +68,7 @@ export class TasksTableComponent implements OnInit, OnChanges {
       orderMulti: false,
       rowId: (rowData) => `tr-${rowData[0]}`,
       columns: [
-        {name: "taskId", className: 'details-control', orderable: true, render: (taskId) => `<span class="mdi mdi-menu-right"></span>&nbsp&nbsp${taskId}`},
+        {name: "taskId", className: 'details-control', orderable: true, render: (taskId) => `<span class="mdi mdi-play" data-toggle="modal" data-target="#exampleModalLong"></span>&nbsp&nbsp${taskId}`},
         {name: "process", orderable: false},
         {name: "tag", orderable: false},
         {name: "hash", orderable: false},
@@ -185,7 +186,6 @@ export class TasksTableComponent implements OnInit, OnChanges {
     tableBody.on('click', 'td.details-control',(event) => {
       const targetTr = $(event.target).closest('tr');
       const targetRow = this.dataTable.row(targetTr);
-
       const isRowBeingShown: boolean = targetRow.child.isShown();
 
       this.dataTable.rows().ids().each(rowId => {
@@ -198,8 +198,7 @@ export class TasksTableComponent implements OnInit, OnChanges {
             .addClass('mdi-menu-right');
         }
       });
-
-      if (!isRowBeingShown) {
+      if (!isRowBeingShown && this.generateRowDataChildFormat(targetTr)) {
         targetRow.child(this.generateRowDataChildFormat(targetTr)).show();
         targetTr.find('td.details-control span')
                  .removeClass('mdi-menu-right')
@@ -217,7 +216,7 @@ export class TasksTableComponent implements OnInit, OnChanges {
     return this.str(result);
   }
 
-  private generateRowDataChildFormat(data): string {
+  private generateRowDataChildFormat(data): string | void {
     const taskName: string = this.col(data, 'name');
     const script: string = this.col(data,'script');
     const workdir: string = this.col(data, 'workdir');
@@ -263,8 +262,7 @@ export class TasksTableComponent implements OnInit, OnChanges {
       {name: 'invCtxt', description: 'Number of involuntary context switches'},
     ];
 
-
-    return `<div class="card">
+    this.htmlDataForModal = `<div class="card">
             <h5 class="card-header">Task: ${taskName}</h5>
             <div class="card-body">
               <h5 class="card-title">Command</h5>
@@ -284,9 +282,9 @@ export class TasksTableComponent implements OnInit, OnChanges {
 
               <h5 class="card-title">Resources requested</h5>
               ${this.renderTable(data, res_requested)}
-              
+
               <h5 class="card-title">Resources usage</h5>
-              ${this.renderTable(data, res_used)}    
+              ${this.renderTable(data, res_used)}
             </div>
           </div>`;
   }
