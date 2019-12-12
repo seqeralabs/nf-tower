@@ -8,27 +8,27 @@
   height: 6px;
 
   .submitted {
-    background-color: $submitted-orange;
+    background-color: $clr-submitted;
   }
 
   .pending {
-    background-color: $pending-purple;
+    background-color: $clr-pending;
   }
 
   .running {
-    background-color: $running-blue;
+    background-color: $clr-running;
   }
 
   .cached {
-    background-color: $cached-grey;
+    background-color: $clr-cached;
   }
 
   .succeeded {
-    background-color: $succeed-green;
+    background-color: $clr-succeed;
   }
 
   .failed {
-    background-color: $failed-red;
+    background-color: $clr-failed;
   }
 
 }
