@@ -23,11 +23,11 @@ export class WorkflowTopicService {
     );
   }
 
-  saveTopicList(workflowId: string, request: any): Observable<WorkflowTopic[]> {
-    const url = `${endpointUrl}/save/${workflowId}`;
+  saveTopicList(request: any): Observable<WorkflowTopic[]> {
+    const url = `${endpointUrl}/save`;
 
     return this.http.post(url, request).pipe(
-      map((response: any) => response.topics),
+      map((response: any) => response.workflowTopics),
     );
   }
 

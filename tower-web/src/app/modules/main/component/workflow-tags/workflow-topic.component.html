@@ -1,7 +1,7 @@
 <div class="row mt-2 ml-2">
   <div class="topics">
     <div class="topics-view" *ngIf="!showForm">
-      <a href="#" *ngFor="let topic of topics">{{topic.data.text}}</a>
+      <a href="#" *ngFor="let topic of topics">{{topic.text}}</a>
       <a class="manage-topics" (click)="showFormTopics()">Manage topics</a>
     </div>
     <div class="topics-edit" *ngIf="showForm">
@@ -10,7 +10,7 @@
         <div class="topics-fake-input" (click)="closeAutocompleteInput($event)">
           <ul class="topics-list">
             <li *ngFor="let topic of editingTopics">
-              {{topic.data.text}}
+              {{topic.text}}
               <button type="button" class="topics-btn-delete" (click)="deleteTopic($event, topic)">x</button>
             </li>
             <li class="input">

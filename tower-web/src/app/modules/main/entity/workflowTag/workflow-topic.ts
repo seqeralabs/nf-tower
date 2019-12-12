@@ -12,12 +12,10 @@ import {WorkflowTopicData} from "./workflow-topic-data";
 
 export class WorkflowTopic {
 
-  data: WorkflowTopicData;
+  text: string;
 
-  isValid = true;
-
-  constructor(json?: any) {
-    this.data = json ? this.data = <WorkflowTopicData> json : <WorkflowTopicData> {};
+  constructor(json?: WorkflowTopicData) {
+    this.text = json.text;
   }
 
 }

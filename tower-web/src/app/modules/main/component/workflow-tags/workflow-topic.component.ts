@@ -14,6 +14,7 @@ import {WorkflowTopicService} from "../../service/workflow-topic.service";
 import {Subject} from "rxjs";
 import {debounceTime} from "rxjs/operators";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
+import {WorkflowTopicData} from "../../entity/workflowTag/workflow-topic-data";
 
 @Component({
   selector: 'wt-workflow-topic',
@@ -26,8 +27,8 @@ export class WorkflowTopicComponent implements OnInit, OnChanges {
   workflowId: string;
   @ViewChild('inputAutocomplete', {static: false}) inputAutocomplete;
 
-  topics: WorkflowTopic[] = [];
-  editingTopics: WorkflowTopic[] = [];
+  topics: WorkflowTopicData[] = [];
+  editingTopics: WorkflowTopicData[] = [];
   textEditionSubject: Subject<{ tag: WorkflowTopic, text: string }> = new Subject();
   showForm: boolean;
   formTopics: FormGroup;
@@ -57,7 +58,7 @@ export class WorkflowTopicComponent implements OnInit, OnChanges {
   }
 
   saveTopics() {
-    this.workflowTopicService.saveTopicList(this.workflowId, {topics: this.editingTopics})
+    this.workflowTopicService.saveTopicList({workflowTopics: this.editingTopics, workflowId: this.workflowId})
       .subscribe((topics: WorkflowTopic[]) => {
         this.topics = topics;
       });
@@ -70,16 +71,18 @@ export class WorkflowTopicComponent implements OnInit, OnChanges {
       debounceTime(500)
     ).subscribe((editPair: { tag: WorkflowTopic, text: string }) => {
       const workflowTag: WorkflowTopic = editPair.tag;
-      workflowTag.data.text = editPair.text;
+      workflowTag.text = editPair.text;
     });
   }
 
   addTag(event) {
     event.preventDefault();
     event.stopPropagation();
-    const theSameTopic = this.editingTopics.some(t => t.data.text === this.formTopics.get('topicText').value);
+    const theSameTopic = this.editingTopics.some(t => t.text === this.formTopics.get('topicText').value);
     if (this.formTopics.valid && !theSameTopic && this.formTopics.get('topicText').value.trim()) {
-      this.editingTopics.push(new WorkflowTopic({text: this.formTopics.get('topicText').value}));
+      this.editingTopics.push(new WorkflowTopic({
+        text: this.formTopics.get('topicText').value
+      }));
       this.formTopics.get('topicText').setValue('');
     }
   }

@@ -13,6 +13,8 @@ interface WorkflowTagService {
 
     WorkflowTag create(WorkflowTag newWorkflowTag, Workflow associatedWorkflow)
 
+    List<WorkflowTag> save(List<WorkflowTag> newWorkflowTags, Workflow associatedWorkflow)
+
     WorkflowTag update(WorkflowTag existingTag, WorkflowTag updatedTag)
 
 }

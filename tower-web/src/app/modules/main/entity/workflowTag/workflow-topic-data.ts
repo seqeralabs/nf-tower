@@ -10,8 +10,8 @@
  */
 export interface WorkflowTopicData {
 
-  id: string | number;
   text: string;
-  dateCreate: Date;
+  id?: string | number;
+  dateCreated?: Date;
 
 }
