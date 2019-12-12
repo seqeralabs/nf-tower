@@ -18,6 +18,8 @@ import io.seqera.tower.exchange.MessageResponse
 import io.seqera.tower.exchange.workflowTag.CreateWorkflowTagRequest
 import io.seqera.tower.exchange.workflowTag.CreateWorkflowTagResponse
 import io.seqera.tower.exchange.workflowTag.ListWorkflowTagResponse
+import io.seqera.tower.exchange.workflowTag.SaveWorkflowTagRequest
+import io.seqera.tower.exchange.workflowTag.SaveWorkflowTagResponse
 import io.seqera.tower.exchange.workflowTag.UpdateWorkflowTagRequest
 import io.seqera.tower.exchange.workflowTag.UpdateWorkflowTagResponse
 import io.seqera.tower.service.UserService
@@ -92,6 +94,31 @@ class WorkflowTagController {
         } catch (Exception e) {
             log.error("Unexpected error creating workflow tag -- request=$request", e)
             return HttpResponse.badRequest(CreateWorkflowTagResponse.ofError('Unexpected error creating workflow tag'))
+        }
+    }
+
+    @Post("/save")
+    @Transactional
+    HttpResponse<SaveWorkflowTagResponse> save(@Body SaveWorkflowTagRequest request, Authentication authentication) {
+        try {
+            Workflow workflow = workflowService.get(request.workflowId)
+            if (!workflow) {
+                return HttpResponse.badRequest(SaveWorkflowTagResponse.ofError('Trying to associate to nonexistent workflow'))
+            }
+
+            User currentUser = userService.getByAuth(authentication)
+            if (workflow.ownerId != currentUser.id) {
+                return HttpResponse.badRequest(SaveWorkflowTagResponse.ofError('Trying to associate to a not owned workflow'))
+            }
+
+            List<WorkflowTag> workflowTags = workflowTagService.save(request.workflowTopics, workflow)
+            return HttpResponse.created(SaveWorkflowTagResponse.ofTags(workflowTags))
+        } catch (ValidationException e) {
+            String firstErrorMessage = messageSource.getMessage(e.getErrors().fieldError, Locale.ENGLISH)
+            return HttpResponse.badRequest(SaveWorkflowTagResponse.ofError(firstErrorMessage))
+        } catch (Exception e) {
+            log.error("Unexpected error creating workflow tag -- request=$request", e)
+            return HttpResponse.badRequest(SaveWorkflowTagResponse.ofError('Unexpected error creating workflow tag'))
         }
     }
 

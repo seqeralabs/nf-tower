@@ -11,12 +11,22 @@ $submitted-orange: #f57f27;
 
 $thin-grey: #dee2e6;
 $tag-lightGrey: #dddddd;
+$clr-running: #199fdb;
+$clr-succeed: #28ae61;
+$clr-failed: #e7363e;
+$clr-aborted: #e7363e;
+$clr-partial: darkOrange;
+$clr-cached: #939598;
+$clr-pending: #8f4199;
+$clr-submitted: #f57f27;
+$clr-border: #dee2e6;
 
 $body-background: #f8f9fa;
 $sidebar-width: 22rem;
 $sidebar-collapsed-width: 4rem;
 $sidebar-background: #f8f9fa;
-$sidebar-border: 1px solid $thin-grey;
+$sidebar-border: 1px solid $clr-border;
 
+$footer-padding: 28px;
 $navbar-height: 63px;
 $font-size-root: 0.90rem;

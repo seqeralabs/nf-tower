@@ -12,14 +12,13 @@
 package io.seqera.tower.service.cron
 
 import javax.inject.Inject
+import javax.inject.Named
 import javax.inject.Singleton
-import java.util.concurrent.Executors
-import java.util.concurrent.ScheduledExecutorService
-import java.util.concurrent.TimeUnit
 
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
-import io.micronaut.context.annotation.Value
+import io.micronaut.scheduling.TaskExecutors
+import io.micronaut.scheduling.TaskScheduler
 import io.seqera.tower.service.mail.MailService
 /**
  * Implements basic cron service to execute tasks at scheduled time
@@ -31,15 +30,13 @@ import io.seqera.tower.service.mail.MailService
 @CompileStatic
 class CronServiceImpl implements CronService {
 
-    ScheduledExecutorService scheduler
-
-    @Value('${tower.cron.poolSize:2}')
-    int threadPoolSize
-
     @Inject MailService mailService
     @Inject ReconcileProgressJob reconcileProgressCronJob
     @Inject WorkflowDeleteJob workflowDeleteCronJob
     @Inject WorkflowWatchdogJob workflowWatchdogJob
+
+    @Inject @Named(TaskExecutors.SCHEDULED)
+    TaskScheduler taskScheduler
 
     @Override
     void start() {
@@ -51,7 +48,6 @@ class CronServiceImpl implements CronService {
         // start mail service
         mailService.start()
         // start scheduler jobs
-        scheduler = Executors.newScheduledThreadPool(threadPoolSize)
         createJobs()
     }
 
@@ -63,11 +59,10 @@ class CronServiceImpl implements CronService {
 
     protected void addJob(CronJob job) {
         if( job.enabled )
-            scheduler.scheduleWithFixedDelay(
-                    job.getJob(),
-                    job.getDelay().toMillis(),
-                    job.getInterval().toMillis(),
-                    TimeUnit.MILLISECONDS)
+            taskScheduler.scheduleWithFixedDelay(
+                    job.getDelay(),
+                    job.getInterval(),
+                    job.getJob() )
     }
 
     @Override
@@ -79,8 +74,6 @@ class CronServiceImpl implements CronService {
         log.debug "+ Stopping cron service"
         try {
             mailService.stop()
-            scheduler.shutdownNow()
-            scheduler.awaitTermination(30,TimeUnit.SECONDS)
         }
         catch (Exception e ) {
             log.error("Error shutting down scheduler service | ${e.message}")

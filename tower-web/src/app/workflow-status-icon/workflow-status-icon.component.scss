@@ -2,7 +2,7 @@
 
 
 .spinner-border {
-  color: $running-blue;
+  color: $clr-running;
   font-size: 5px;
   width: 2.9rem;
   height: 2.9rem;
@@ -12,19 +12,19 @@
   vertical-align: text-top;
 
   &.succeed {
-    color: $succeed-green;
+    color: $clr-succeed;
   }
 
   &.failed {
-    color: $failed-red;
+    color: $clr-failed;
   }
 
   &.failed {
-    color: $failed-red;
+    color: $clr-failed;
   }
 
   &.partial {
-    color: $partial-orange;
+    color: $clr-partial;
   }
 }
 
@@ -33,5 +33,5 @@
 }
 
 .live-off {
-  color: $failed-red;
+  color: $clr-failed;
 }
