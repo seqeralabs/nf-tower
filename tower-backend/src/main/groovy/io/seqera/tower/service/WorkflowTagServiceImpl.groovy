@@ -24,6 +24,9 @@ abstract class WorkflowTagServiceImpl implements WorkflowTagService {
 
     @Override
     List<WorkflowTag> save(List<WorkflowTag> newWorkflowTags, Workflow associatedWorkflow) {
+        list(associatedWorkflow.id).each { workflowTag ->
+            delete(workflowTag.id)
+        }
         newWorkflowTags.each { workflowTag ->
             create(workflowTag, associatedWorkflow)
         }
