@@ -1,4 +1,4 @@
-<div class="row mt-2">
+<div class="row mt-2 ml-2">
   <div class="topics">
     <div class="topics-view" *ngIf="!showForm">
       <a href="#" *ngFor="let topic of topics">{{topic.data.text}}</a>
@@ -7,17 +7,32 @@
     <div class="topics-edit" *ngIf="showForm">
       <p class="topics-edit-title">Add topics</p>
       <form class="topics-edit-form" [formGroup]="formTopics" (ngSubmit)="saveTopics()">
-        <div class="topics-fake-input" (click)="focusInput()">
+        <div class="topics-fake-input" (click)="closeAutocompleteInput($event)">
           <ul class="topics-list">
             <li *ngFor="let topic of editingTopics">
               {{topic.data.text}}
               <button type="button" class="topics-btn-delete" (click)="deleteTopic($event, topic)">x</button>
             </li>
             <li class="input">
-              <input type="text"
-                     formControlName="topicText"
-                     #inputText
-                     (keydown.enter)="addTag($event)">
+              <div class="ng-autocomplete">
+                <ng-autocomplete
+                  #inputAutocomplete
+                  placeHolder="Enter the topic"
+                  [data]="data"
+                  formControlName="topicText"
+                  (keydown.enter)="addTag($event)"
+                  [itemTemplate]="itemTemplate"
+                  [notFoundTemplate]="notFoundTemplate">
+                </ng-autocomplete>
+
+                <ng-template #itemTemplate let-item>
+                  <a [innerHTML]="item"></a>
+                </ng-template>
+
+                <ng-template #notFoundTemplate let-notFound>
+                  <div [innerHTML]="notFound"></div>
+                </ng-template>
+              </div>
             </li>
           </ul>
         </div>

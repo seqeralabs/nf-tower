@@ -8,7 +8,7 @@
  * This Source Code Form is "Incompatible With Secondary Licenses", as
  * defined by the Mozilla Public License, v. 2.0.
  */
-import {Component, ElementRef, Input, OnChanges, OnInit, ViewChild} from '@angular/core';
+import {Component, Input, OnChanges, OnInit, ViewChild} from '@angular/core';
 import {WorkflowTopic} from "../../entity/workflowTag/workflow-topic";
 import {WorkflowTopicService} from "../../service/workflow-topic.service";
 import {Subject} from "rxjs";
@@ -24,23 +24,20 @@ export class WorkflowTopicComponent implements OnInit, OnChanges {
 
   @Input()
   workflowId: string;
+  @ViewChild('inputAutocomplete', {static: false}) inputAutocomplete;
 
-  @ViewChild('inputText', {static: false}) inputText: ElementRef;
-
-  topics: WorkflowTopic[];
+  topics: WorkflowTopic[] = [];
   editingTopics: WorkflowTopic[] = [];
-
   textEditionSubject: Subject<{ tag: WorkflowTopic, text: string }> = new Subject();
-
   showForm: boolean;
   formTopics: FormGroup;
+  data = ['Usa', 'England'];
 
-  constructor(private workflowTopicService: WorkflowTopicService) {
-  }
+  constructor(private workflowTopicService: WorkflowTopicService) {}
 
   ngOnInit() {
     this.formTopics = new FormGroup({
-      topicText: new FormControl(null, [
+      topicText: new FormControl('', [
         Validators.required,
         Validators.maxLength(35)
       ])
@@ -83,7 +80,7 @@ export class WorkflowTopicComponent implements OnInit, OnChanges {
     const theSameTopic = this.editingTopics.some(t => t.data.text === this.formTopics.get('topicText').value);
     if (this.formTopics.valid && !theSameTopic && this.formTopics.get('topicText').value.trim()) {
       this.editingTopics.push(new WorkflowTopic({text: this.formTopics.get('topicText').value}));
-      this.formTopics.reset();
+      this.formTopics.get('topicText').setValue('');
     }
   }
 
@@ -92,13 +89,15 @@ export class WorkflowTopicComponent implements OnInit, OnChanges {
   }
 
   showFormTopics() {
-    this.formTopics.reset();
+    this.formTopics.get('topicText').setValue('');
     this.showForm = true;
     this.editingTopics = [...this.topics];
   }
 
-  focusInput() {
-    this.inputText.nativeElement.focus();
+  closeAutocompleteInput(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.inputAutocomplete.close();
   }
 
 }

@@ -78,7 +78,6 @@ button.new {
         background-color: #fff;
         padding: 4px 5px;
         margin-right: 10px;
-        cursor: text;
         border: 1px solid #d1d5da;
         border-radius: 3px;
 
@@ -90,6 +89,7 @@ button.new {
           padding: 0;
 
           li {
+            height: 25px;
             margin: 5px 5px;
             background-color: #f1f8ff;
             border-radius: 3px;
@@ -98,6 +98,24 @@ button.new {
 
             &.input {
               background: none;
+
+              .ng-autocomplete {
+                width: 125px;
+
+                ::ng-deep {
+
+                  .autocomplete-container {
+                    height: 25px;
+                    box-shadow: none;
+
+                    input {
+                      line-height: 25px;
+                      height: 25px;
+                      padding-right: 30px !important;
+                    }
+                  }
+                }
+              }
             }
 
             .topics-btn-delete {

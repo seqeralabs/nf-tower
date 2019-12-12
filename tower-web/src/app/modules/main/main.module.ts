@@ -48,6 +48,7 @@ import { LoadingComponent } from './component/loading/loading.component';
 import { TreeListComponent } from "./component/tree-list/TreeListComponent";
 import { WorkflowStatusIconComponent } from "../../workflow-status-icon/workflow-status-icon.component";
 import {WorkflowTopicComponent} from "./component/workflow-tags/workflow-topic.component";
+import {AutocompleteLibModule} from 'angular-ng-autocomplete';
 
 /*
  * Main application routing strategy
@@ -110,7 +111,8 @@ export class MainRoutingModule { }
     HttpClientModule,
     FormsModule,
     ChartistModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    AutocompleteLibModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
