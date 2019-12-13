@@ -30,11 +30,6 @@ export class TasksTableComponent implements OnInit, OnChanges {
 
   dataTable: any;
   taskId: string | number;
-  exitCode: string;
-  env: string;
-  resTime: string;
-  resRequest: string;
-  resUsed: string;
 
   constructor(private workflowService: WorkflowService) {}
 
@@ -194,20 +189,13 @@ export class TasksTableComponent implements OnInit, OnChanges {
       const isRowBeingShown: boolean = targetRow.child.isShown();
 
       this.dataTable.rows().ids().each(rowId => {
-        const tr = $(`#${rowId}`);
         const row = this.dataTable.row(`#${rowId}`);
         if (row.child.isShown()) {
           row.child.hide();
-          tr.find('td.details-control span')
-            .removeClass('mdi-menu-down')
-            .addClass('mdi-menu-right');
         }
       });
-      if (!isRowBeingShown && this.generateRowDataChildFormat(targetTr)) {
-        targetRow.child(this.generateRowDataChildFormat(targetTr)).show();
-        targetTr.find('td.details-control span')
-                 .removeClass('mdi-menu-right')
-                 .addClass('mdi-menu-down');
+      if (!isRowBeingShown && this.getIdForTask(targetTr)) {
+        targetRow.child(this.getIdForTask(targetTr)).show();
       }
     });
   }
@@ -221,76 +209,8 @@ export class TasksTableComponent implements OnInit, OnChanges {
     return this.str(result);
   }
 
-  private generateRowDataChildFormat(data): string | void {
-    const exitCode = this.col(data, 'exit');
-    const env = this.col(data, 'env');
-
-    const res_requested = [
-      {name: 'container', description: 'Container image name used to execute the task'},
-      {name: 'queue', description: 'The queue that the executor attempted to run the process on'},
-      {name: 'cpus', description: 'The cpus number request for the task execution'},
-      {name: 'memory', description: 'The memory request for the task execution'},
-      {name: 'disk', description: 'The disk space request for the task execution'},
-      {name: 'time', description: 'The time request for the task execution'},
-      {name: 'executor', description: 'The Nextflow executor used to carry out this task'},
-      {name: 'machineType', description: 'The virtual machine type used to carry out by this task'},
-      {name: 'cloudZone', description: 'The cloud zone where the job get executed'},
-      {name: 'priceModel', description: 'The price model used to charge the job computation'},
-    ];
-
-    const res_time = [
-      {name: 'submit', description: 'Timestamp when the task has been submitted'},
-      {name: 'start', description: 'Timestamp when the task execution has started'},
-      {name: 'complete', description: 'Timestamp when task execution has completed'},
-      {name: 'duration', description: 'Time elapsed to complete since the submission i.e. including scheduling time'},
-      {name: 'realtime', description: 'Task execution time i.e. delta between completion and start timestamp i.e. compute wall-time'},
-    ];
-    let res_used = [
-      {name: 'pcpu', description: 'Percentage of CPU used by the process' },
-      {name: 'rss', description: 'Real memory (resident set) size of the process'},
-      {name: 'peakRss', description: 'Peak of real memory'},
-      {name: 'vmem', description: 'Virtual memory size of the process'},
-      {name: 'peakVmem', description: 'Peak of virtual memory'},
-      {name: 'rchar', description: 'Number of bytes the process read, using any read-like system call from files, pipes, tty, etc'},
-      {name: 'wchar', description: 'Number of bytes the process wrote, using any write-like system call.'},
-      {name: 'readBytes', description: 'Number of bytes the process directly read from disk'},
-      {name: 'writeBytes', description: 'Number of bytes the process originally dirtied in the page-cache (assuming they will go to disk later).'},
-      {name: 'syscr', description: 'Number of read-like system call invocations that the process performed'},
-      {name: 'syscw', description: 'Number of write-like system call invocations that the process performed'},
-      {name: 'volCtxt', description: 'Number of voluntary context switches'},
-      {name: 'invCtxt', description: 'Number of involuntary context switches'},
-    ];
-
+  private getIdForTask(data): string | void {
     this.taskId = this.col(data, 'taskId');
-    this.exitCode = this.str(exitCode);
-    this.env = env;
-    this.resTime = this.renderTable(data, res_time);
-    this.resRequest = this.renderTable(data, res_requested);
-    this.resUsed = this.renderTable(data, res_used);
-  }
-
-  private renderTable(row, cols: any[]) {
-    let result = `<table class="table table-sm table-hover details-table">
-                  <tbody>
-                  <thead>
-                    <tr>
-                      <th scope="col" class="c1" >Label</th>
-                      <th scope="col" class="c2" >Value</th>
-                      <th scope="col">Description</th>
-                    </tr>
-                  </thead>
-                `;
-
-    for( let index in cols ) {
-      let entry = cols[index];
-      result += `<tr>
-                    <th scope="row"><div class="scrollable">${entry.name}</div></th>
-                    <td><div class="scrollable">${this.col(row, entry.name)}</div></td>
-                    <td><div class="scrollable">${entry.description}</div></td>
-                  </tr>`
-    }
-
-    return result += '</tbody></table>'
   }
 
 }

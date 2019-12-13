@@ -17,7 +17,7 @@
 
           <h5 class="card-title">Status</h5>
           <p class="card-text">
-          <pre>Exit: ${{exitCode}} ({{task?.status}}) Attempts: {{task?.attempt}} ${{getAction()}}</pre>
+          <pre>Exit: ${{task?.exit}} ({{task?.status}}) Attempts: {{task?.attempt}} ${{getAction()}}</pre>
           <p>
 
           <h5 class="card-title">Work directory</h5>
@@ -27,17 +27,362 @@
 
           <h5 class="card-title">Environment</h5>
           <p class="card-text">
-          <pre>{{env}}</pre>
+          <pre>{{task?.env}}</pre>
           <p>
 
           <h5 class="card-title">Execution time</h5>
-          <div [innerHTML]="resTime"></div>
+          <table class="table table-sm table-hover details-table">
+            <thead>
+            <tr>
+              <th scope="col" class="c1">Label</th>
+              <th scope="col" class="c2">Value</th>
+              <th scope="col">Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+              <th scope="row">
+                <div class="scrollable">submit</div>
+              </th>
+              <td>
+                <div class="scrollable">{{task?.submit}}</div>
+              </td>
+              <td>
+                <div class="scrollable">Timestamp when the task has been submitted</div>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">
+                <div class="scrollable">start</div>
+              </th>
+              <td>
+                <div class="scrollable">{{task?.start}}</div>
+              </td>
+              <td>
+                <div class="scrollable">Timestamp when the task execution has started</div>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">
+                <div class="scrollable">complete</div>
+              </th>
+              <td>
+                <div class="scrollable">{{task?.complete}}</div>
+              </td>
+              <td>
+                <div class="scrollable">Timestamp when task execution has completed</div>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">
+                <div class="scrollable">duration</div>
+              </th>
+              <td>
+                <div class="scrollable">{{task?.duration}}</div>
+              </td>
+              <td>
+                <div class="scrollable">Time elapsed to complete since the submission i.e. including scheduling time
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">
+                <div class="scrollable">realtime</div>
+              </th>
+              <td>
+                <div class="scrollable">{{task?.realtime}}</div>
+              </td>
+              <td>
+                <div class="scrollable">Task execution time i.e. delta between completion and start timestamp i.e.
+                  compute wall-time
+                </div>
+              </td>
+            </tr>
+            <tbody>
+          </table>
 
           <h5 class="card-title">Resources requested</h5>
-          <div [innerHTML]="resRequest"></div>
+          <table class="table table-sm table-hover details-table">
+            <thead>
+            <tr>
+              <th scope="col" class="c1">Label</th>
+              <th scope="col" class="c2">Value</th>
+              <th scope="col">Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+              <th scope="row">
+                <div class="scrollable">container</div>
+              </th>
+              <td>
+                <div class="scrollable">{{task?.container}}</div>
+              </td>
+              <td>
+                <div class="scrollable">Container image name used to execute the task</div>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">
+                <div class="scrollable">queue</div>
+              </th>
+              <td>
+                <div class="scrollable">{{task?.queue}}</div>
+              </td>
+              <td>
+                <div class="scrollable">The queue that the executor attempted to run the process on</div>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">
+                <div class="scrollable">cpus</div>
+              </th>
+              <td>
+                <div class="scrollable">{{task?.cpus}}</div>
+              </td>
+              <td>
+                <div class="scrollable">The cpus number request for the task execution</div>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">
+                <div class="scrollable">memory</div>
+              </th>
+              <td>
+                <div class="scrollable">{{task?.memory}}</div>
+              </td>
+              <td>
+                <div class="scrollable">The memory request for the task execution</div>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">
+                <div class="scrollable">disk</div>
+              </th>
+              <td>
+                <div class="scrollable">{{task?.disk}}</div>
+              </td>
+              <td>
+                <div class="scrollable">The disk space request for the task execution</div>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">
+                <div class="scrollable">time</div>
+              </th>
+              <td>
+                <div class="scrollable">{{task?.time}}</div>
+              </td>
+              <td>
+                <div class="scrollable">The time request for the task execution</div>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">
+                <div class="scrollable">executor</div>
+              </th>
+              <td>
+                <div class="scrollable">{{task?.executor}}</div>
+              </td>
+              <td>
+                <div class="scrollable">The Nextflow executor used to carry out this task</div>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">
+                <div class="scrollable">machineType</div>
+              </th>
+              <td>
+                <div class="scrollable">{{task?.machineType}}</div>
+              </td>
+              <td>
+                <div class="scrollable">The virtual machine type used to carry out by this task</div>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">
+                <div class="scrollable">cloudZone</div>
+              </th>
+              <td>
+                <div class="scrollable">{{task?.cloudZone}}</div>
+              </td>
+              <td>
+                <div class="scrollable">The cloud zone where the job get executed</div>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">
+                <div class="scrollable">priceModel</div>
+              </th>
+              <td>
+                <div class="scrollable">{{task?.priceModel}}</div>
+              </td>
+              <td>
+                <div class="scrollable">The price model used to charge the job computation</div>
+              </td>
+            </tr>
+            <tbody>
+          </table>
 
           <h5 class="card-title">Resources usage</h5>
-          <div [innerHTML]="resUsed"></div>
+          <table class="table table-sm table-hover details-table">
+            <thead>
+            <tr>
+              <th scope="col" class="c1">Label</th>
+              <th scope="col" class="c2">Value</th>
+              <th scope="col">Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+              <th scope="row">
+                <div class="scrollable">pcpu</div>
+              </th>
+              <td>
+                <div class="scrollable">{{task?.pcpu}}</div>
+              </td>
+              <td>
+                <div class="scrollable">Percentage of CPU used by the process</div>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">
+                <div class="scrollable">rss</div>
+              </th>
+              <td>
+                <div class="scrollable">{{task?.rss}}</div>
+              </td>
+              <td>
+                <div class="scrollable">Real memory (resident set) size of the process</div>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">
+                <div class="scrollable">peakRss</div>
+              </th>
+              <td>
+                <div class="scrollable">{{task?.peakRss}}</div>
+              </td>
+              <td>
+                <div class="scrollable">Peak of real memory</div>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">
+                <div class="scrollable">vmem</div>
+              </th>
+              <td>
+                <div class="scrollable">{{task?.vmem}}</div>
+              </td>
+              <td>
+                <div class="scrollable">Virtual memory size of the process</div>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">
+                <div class="scrollable">peakVmem</div>
+              </th>
+              <td>
+                <div class="scrollable">{{task?.peakVmem}}</div>
+              </td>
+              <td>
+                <div class="scrollable">Peak of virtual memory</div>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">
+                <div class="scrollable">rchar</div>
+              </th>
+              <td>
+                <div class="scrollable">{{task?.rchar}}</div>
+              </td>
+              <td>
+                <div class="scrollable">Number of bytes the process read, using any read-like system call from files,
+                  pipes, tty, etc
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">
+                <div class="scrollable">wchar</div>
+              </th>
+              <td>
+                <div class="scrollable">{{task?.wchar}}</div>
+              </td>
+              <td>
+                <div class="scrollable">Number of bytes the process wrote, using any write-like system call.</div>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">
+                <div class="scrollable">readBytes</div>
+              </th>
+              <td>
+                <div class="scrollable">{{task?.readBytes}}</div>
+              </td>
+              <td>
+                <div class="scrollable">Number of bytes the process directly read from disk</div>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">
+                <div class="scrollable">writeBytes</div>
+              </th>
+              <td>
+                <div class="scrollable">{{task?.writeBytes}}</div>
+              </td>
+              <td>
+                <div class="scrollable">Number of bytes the process originally dirtied in the page-cache (assuming they
+                  will go to disk later).
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">
+                <div class="scrollable">syscr</div>
+              </th>
+              <td>
+                <div class="scrollable">{{task?.syscr}}</div>
+              </td>
+              <td>
+                <div class="scrollable">Number of read-like system call invocations that the process performed</div>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">
+                <div class="scrollable">syscw</div>
+              </th>
+              <td>
+                <div class="scrollable">{{task?.syscw}}</div>
+              </td>
+              <td>
+                <div class="scrollable">Number of write-like system call invocations that the process performed</div>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">
+                <div class="scrollable">volCtxt</div>
+              </th>
+              <td>
+                <div class="scrollable">{{task?.volCtxt}}</div>
+              </td>
+              <td>
+                <div class="scrollable">Number of voluntary context switches</div>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">
+                <div class="scrollable">invCtxt</div>
+              </th>
+              <td>
+                <div class="scrollable">{{task?.invCtxt}}</div>
+              </td>
+              <td>
+                <div class="scrollable">Number of involuntary context switches</div>
+              </td>
+            </tr>
+            <tbody>
+          </table>
         </div>
       </div>
     </div>
