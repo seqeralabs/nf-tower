@@ -173,6 +173,7 @@ class WorkflowController extends BaseController {
     }
 
     @Transactional
+    @Secured(SecurityRule.IS_ANONYMOUS)
     @Get("/{workflowId}/task/{taskId}")
     HttpResponse<TaskGet> taskById(String workflowId, Long taskId) {
         final workflow = workflowService.get(workflowId)

@@ -47,6 +47,7 @@ import { WorkflowUnknownComponent } from "./component/workflow-unknown/workflow-
 import { LoadingComponent } from './component/loading/loading.component';
 import { TreeListComponent } from "./component/tree-list/TreeListComponent";
 import { WorkflowStatusIconComponent } from "../../workflow-status-icon/workflow-status-icon.component";
+import {TaskDetailsComponent} from "./component/task-details/task-details.component";
 
 /*
  * Main application routing strategy
@@ -100,7 +101,8 @@ export class MainRoutingModule { }
     HomeComponent,
     NotificationComponent,
     LandingComponent,
-    TreeListComponent
+    TreeListComponent,
+    TaskDetailsComponent
   ],
   imports: [
     BrowserModule,

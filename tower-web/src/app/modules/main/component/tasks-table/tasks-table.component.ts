@@ -29,7 +29,12 @@ export class TasksTableComponent implements OnInit, OnChanges {
   progress: ProgressData;
 
   dataTable: any;
-  htmlDataForModal: string;
+  taskId: string | number;
+  exitCode: string;
+  env: string;
+  resTime: string;
+  resRequest: string;
+  resUsed: string;
 
   constructor(private workflowService: WorkflowService) {}
 
@@ -217,13 +222,7 @@ export class TasksTableComponent implements OnInit, OnChanges {
   }
 
   private generateRowDataChildFormat(data): string | void {
-    const taskName: string = this.col(data, 'name');
-    const script: string = this.col(data,'script');
-    const workdir: string = this.col(data, 'workdir');
-    const status = this.col(data, 'status');
     const exitCode = this.col(data, 'exit');
-    const attempt = this.col(data, 'attempt');
-    const action = this.col(data, 'errorAction');
     const env = this.col(data, 'env');
 
     const res_requested = [
@@ -262,31 +261,12 @@ export class TasksTableComponent implements OnInit, OnChanges {
       {name: 'invCtxt', description: 'Number of involuntary context switches'},
     ];
 
-    this.htmlDataForModal = `<div class="card">
-            <h5 class="card-header">Task: ${taskName}</h5>
-            <div class="card-body">
-              <h5 class="card-title">Command</h5>
-              <p class="card-text"><pre>${script}</pre></p>
-
-              <h5 class="card-title">Status</h5>
-              <p class="card-text"><pre>Exit: ${this.str(exitCode)} (${status}) Attempts: ${attempt} ${action!='-' ? '(action: '+action+')' :''}</pre></p>
-
-              <h5 class="card-title">Work directory</h5>
-              <p class="card-text"><pre>${workdir}</pre></p>
-
-              <h5 class="card-title">Environment</h5>
-              <p class="card-text"><pre>${this.col(data,'env')}</pre></p>
-
-              <h5 class="card-title">Execution time</h5>
-              ${this.renderTable(data, res_time)}
-
-              <h5 class="card-title">Resources requested</h5>
-              ${this.renderTable(data, res_requested)}
-
-              <h5 class="card-title">Resources usage</h5>
-              ${this.renderTable(data, res_used)}
-            </div>
-          </div>`;
+    this.taskId = this.col(data, 'taskId');
+    this.exitCode = this.str(exitCode);
+    this.env = env;
+    this.resTime = this.renderTable(data, res_time);
+    this.resRequest = this.renderTable(data, res_requested);
+    this.resUsed = this.renderTable(data, res_used);
   }
 
   private renderTable(row, cols: any[]) {

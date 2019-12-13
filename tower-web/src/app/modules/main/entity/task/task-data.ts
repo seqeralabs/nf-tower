@@ -21,6 +21,7 @@ export interface TaskData {
   start: Date;
   process: string;
   tag?: any;
+  action?: string;
   module: any[];
   container: string;
   attempt: number;
