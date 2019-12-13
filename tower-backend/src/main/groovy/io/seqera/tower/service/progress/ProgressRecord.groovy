@@ -16,17 +16,12 @@ import static io.seqera.tower.enums.TaskStatus.*
 import com.fasterxml.jackson.annotation.JsonGetter
 import io.seqera.tower.domain.Task
 import io.seqera.tower.enums.TaskStatus
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-
 /**
  * Common logic for task and workflow progress metadata
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
 trait ProgressRecord {
-
-    private static final Logger log = LoggerFactory.getLogger(ProgressRecord)
 
     private Map<TaskStatus,Long> taskStatuses = new HashMap<>(6);
 
@@ -93,7 +88,7 @@ trait ProgressRecord {
         if( newValue >= 0 )
             setStatus(status, newValue)
         else
-            log.warn "Unexpected progress status negative value: status=$status; value=$value; newValue=$newValue -- ignoring it"
+            throw new IllegalArgumentException("Unexpected negative progress status value: status=$status; value=$value; newValue=$newValue -- ignoring it")
     }
 
     long getPending() { getStatus(NEW) }
@@ -121,16 +116,13 @@ trait ProgressRecord {
         final newCpus = loadCpus - (task.cpus ?: 0)
         final newMemory = loadMemory - (task.memory ?: 0)
         if( newTasks < 0 ) {
-            log.warn "Unexpected negative load tasks value: current=$loadTasks; newTasks=$newTasks -- ignoring it"
-            return
+            throw new IllegalArgumentException("Unexpected negative load tasks value: current=$loadTasks; newTasks=$newTasks -- ignoring it")
         }
         if( newCpus < 0 ) {
-            log.warn "Unexpected negative load cpus value: current=$loadCpus; newCpus=$newCpus -- ignoring it"
-            return
+            throw new IllegalArgumentException("Unexpected negative load cpus value: current=$loadCpus; newCpus=$newCpus -- ignoring it")
         }
         if( newCpus < 0 ) {
-            log.warn "Unexpected negative load memory value: current=$loadMemory; newMemory=$newMemory -- ignoring it"
-            return
+            throw new IllegalArgumentException("Unexpected negative load memory value: current=$loadMemory; newMemory=$newMemory -- ignoring it")
         }
         loadTasks = newTasks
         loadCpus = newCpus

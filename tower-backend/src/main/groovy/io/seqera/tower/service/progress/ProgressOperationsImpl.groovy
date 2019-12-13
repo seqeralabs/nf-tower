@@ -99,7 +99,8 @@ class ProgressOperationsImpl implements ProgressOperations {
          * decrement the counter the task in the previous status
          */
         if( previous ) {
-            process.decStatus(previous)
+            try { process.decStatus(previous) }
+            catch( Exception e ) { log.warn "${e.message} | workflowId=$progress.workflowId; taskId=$task.id" }
         }
 
         /*
@@ -121,7 +122,8 @@ class ProgressOperationsImpl implements ProgressOperations {
             // if there's a status transition from RUNNING to DONE
             // decrement the load for the task
             if( previous == TaskStatus.RUNNING ) {
-                process.decLoad(task)
+                try { process.decLoad(task) }
+                catch( Exception e ) { log.warn "${e.message} | workflowId=$progress.workflowId; taskId=$task.id" }
             }
 
             // increment the stats for the task
