@@ -5,5 +5,21 @@
   .modal-body {
     height: 77vh;
     overflow-y: scroll;
+
+    table {
+      tbody {
+        th {
+          width: 20%;
+        }
+
+        td:nth-child(2) {
+          width: 30%;
+        }
+
+        td:nth-child(3) {
+          width: 50%;
+        }
+      }
+    }
   }
 }

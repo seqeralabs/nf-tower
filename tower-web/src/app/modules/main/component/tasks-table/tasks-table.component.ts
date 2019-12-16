@@ -68,7 +68,7 @@ export class TasksTableComponent implements OnInit, OnChanges {
       orderMulti: false,
       rowId: (rowData) => `tr-${rowData[0]}`,
       columns: [
-        {name: "taskId", className: 'details-control', orderable: true, render: (taskId) => `<span class="mdi mdi-play" data-toggle="modal" data-target="#exampleModalLong"></span>&nbsp&nbsp${taskId}`},
+        {name: "taskId", className: 'details-control', orderable: true, render: (taskId) => `<span class="mdi mdi-plus-circle-outline" data-toggle="modal" data-target="#exampleModalLong"></span>&nbsp&nbsp${taskId}`},
         {name: "process", orderable: false},
         {name: "tag", orderable: false},
         {name: "hash", orderable: false},
@@ -181,13 +181,13 @@ export class TasksTableComponent implements OnInit, OnChanges {
 
   private attachRowShowEvent(): void {
     const tableBody = $('#tasks-table tbody');
-
-    tableBody.off('click', 'td.details-control');
-    tableBody.on('click', 'td.details-control',(event) => {
+    tableBody.off('click', 'td');
+    tableBody.on('click', 'td',(event) => {
+      event.target.setAttribute('data-toggle', 'modal');
+      event.target.setAttribute('data-target', '#exampleModalLong');
       const targetTr = $(event.target).closest('tr');
       const targetRow = this.dataTable.row(targetTr);
       const isRowBeingShown: boolean = targetRow.child.isShown();
-
       this.dataTable.rows().ids().each(rowId => {
         const row = this.dataTable.row(`#${rowId}`);
         if (row.child.isShown()) {
