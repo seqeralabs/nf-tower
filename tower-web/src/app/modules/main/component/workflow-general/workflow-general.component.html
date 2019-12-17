@@ -2,12 +2,14 @@
   <div class="card-header">General</div>
   <div class="card-body">
     <ul class="list-unstyled">
-      <li><span class="mr-3 mdi mdi-24px mdi-calendar"></span> {{workflow.startDateFormatted}}</li>
-      <li><span class="mr-3 mdi mdi-24px mdi-source-commit"></span> {{workflow.humanizedRevision}}</li>
-      <li><span class="mr-3 mdi mdi-24px mdi-restore-clock"></span> {{workflow.data.sessionId}}</li>
-      <li><span class="mr-3 mdi mdi-24px mdi-account"></span> {{workflow.data.userName}}</li>
-      <li><span class="mr-3 mdi mdi-24px mdi-server"></span> {{workflow.data.workDir}}</li>
-      <li><span class="mr-3 mdi mdi-24px mdi-docker"></span> {{workflow.humanizedContainer}}</li>
+      <li><span class="mr-3 mdi mdi-24px" title="Workflow unique ID"><img src="assets/identifier-icon.svg"></span> {{workflow.id}}</li>
+      <li><span class="mr-3 mdi mdi-24px mdi-calendar" title="Execution start timestamp"></span> {{workflow.startDateFormatted}}</li>
+      <li><span class="mr-3 mdi mdi-24px mdi-source-commit" title="Revision & Git commit ID"></span> {{workflow.humanizedRevision}}</li>
+      <li><span class="mr-3 mdi mdi-24px mdi-restore-clock" title="Nextflow session ID"></span> {{workflow.data.sessionId}}</li>
+      <li><span class="mr-3 mdi mdi-24px mdi-account" title="User name"></span> {{workflow.data.userName}}</li>
+      <li><span class="mr-3 mdi mdi-24px mdi-server" title="Work directory"></span> {{workflow.data.workDir}}</li>
+      <li><span class="mr-3 mdi mdi-24px mdi-docker" title="Container image"></span> {{workflow.humanizedContainer}}</li>
+      <li><span class="mr-3 mdi mdi-24px" title="Nextflow version"><img src="assets/nextflow-icon-128x128.svg"></span> {{workflow.nextflowVersion}}</li>
     </ul>
   </div>
 </div>

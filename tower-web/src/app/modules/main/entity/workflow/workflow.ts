@@ -92,4 +92,13 @@ export class Workflow {
   get displayName(): string {
     return this.data.manifest.name != null ? this.data.manifest.name : this.data.projectName;
   }
+
+  get nextflowVersion(): string {
+    let result = this.data.nextflow.version;
+    if( result == null )
+      return 'n/a';
+    if( this.data.nextflow.build )
+      result = `${result} build # ${this.data.nextflow.build}`;
+    return result;
+  }
 }
