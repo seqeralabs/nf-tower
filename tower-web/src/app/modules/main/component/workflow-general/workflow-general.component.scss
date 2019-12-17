@@ -2,4 +2,16 @@ ul li {
     max-width: 100%;
     white-space: nowrap;
     overflow-x: auto;
+
+  span {
+    width: 24px;
+    height: 36px;
+
+    img {
+      width: 22px;
+      height: 22px;
+      margin-right: 13px;
+      opacity: .8;
+    }
+  }
 }
