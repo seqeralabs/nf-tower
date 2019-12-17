@@ -2,6 +2,8 @@ ul li {
     max-width: 100%;
     white-space: nowrap;
     overflow-x: auto;
+    display: flex;
+    align-items: center;
 
   span {
     width: 24px;
