@@ -24,7 +24,7 @@ repositories {
 
 dependencyManagement {
     imports {
-        mavenBom 'io.micronaut:micronaut-bom:1.2.5'
+        mavenBom 'io.micronaut:micronaut-bom:1.2.7'
     }
 }
 
@@ -51,13 +51,10 @@ dependencies {
     compile "org.codehaus.groovy:groovy-datetime:2.5.6"
     compile "org.codehaus.groovy:groovy-templates:2.5.6"
     compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.8"
-    compile "io.github.resilience4j:resilience4j-ratelimiter:0.17.0"
     compile 'org.hashids:hashids:1.0.3'
     
     compileOnly "io.micronaut:micronaut-inject-groovy"
 
-    compile "io.micronaut:micronaut-management"
-    
     annotationProcessor "io.micronaut:micronaut-security"
     compile "io.micronaut:micronaut-security-jwt"
     
