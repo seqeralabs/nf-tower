@@ -101,4 +101,11 @@ export class Workflow {
       result = `${result} build # ${this.data.nextflow.build}`;
     return result;
   }
+
+  get executorNames(): string {
+    if( this.progress.workflowProgress.executorNames )
+      return this.progress.workflowProgress.executorNames.join(',');
+    else
+      return 'n/a';
+  }
 }

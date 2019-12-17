@@ -33,8 +33,11 @@ export interface ProgressRecord {
   loadTasks: number;
   loadMemory: number;
 
+  // the following attributes are are available
+  // when unmarshalling a `WorkflowLoad` object
   peakCpus: number;
   peakTasks: number;
   peakMemory: number;
+  executors: string[];
 
 }

@@ -9,6 +9,7 @@
       <li><span class="mr-3 mdi mdi-24px mdi-account" title="User name"></span> {{workflow.data.userName}}</li>
       <li><span class="mr-3 mdi mdi-24px mdi-server" title="Work directory"></span> {{workflow.data.workDir}}</li>
       <li><span class="mr-3 mdi mdi-24px mdi-docker" title="Container image"></span> {{workflow.humanizedContainer}}</li>
+      <li><span class="mr-3 mdi mdi-24px mdi-settings" title="Executor(s) used to run the jobs"></span> {{workflow.executorNames || '-'}}</li>
       <li><span class="mr-3 mdi mdi-24px" title="Nextflow version"><img src="assets/nextflow-icon-128x128.svg"></span> {{workflow.nextflowVersion}}</li>
     </ul>
   </div>

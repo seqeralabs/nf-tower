@@ -46,5 +46,8 @@ export class WorkflowLoad {
   get peakTasks(): number {
     return this.data.peakTasks;
   }
+  get executorNames(): string[] {
+    return this.data.executors;
+  }
 }
 

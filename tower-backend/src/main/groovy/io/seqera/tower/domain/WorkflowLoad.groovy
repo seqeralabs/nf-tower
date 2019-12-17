@@ -22,6 +22,8 @@ import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
 import io.seqera.tower.service.progress.ProgressRow
 import io.seqera.tower.service.progress.ProgressRecord
+import io.seqera.util.H8ListToStringType
+
 /**
  * Model workflow execution progress aggregate metrics
  *
@@ -54,6 +56,8 @@ class WorkflowLoad implements ProgressRecord, Serializable {
     long peakTasks
     long peakMemory
 
+    List<String> executors
+
     OffsetDateTime dateCreated
     OffsetDateTime lastUpdated
 
@@ -78,4 +82,11 @@ class WorkflowLoad implements ProgressRecord, Serializable {
         return this
     }
 
+    static constraints = {
+        executors nullable: true
+    }
+
+    static mapping = {
+        executors type: H8ListToStringType
+    }
 }
