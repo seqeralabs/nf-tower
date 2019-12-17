@@ -92,4 +92,8 @@ export class Workflow {
   get displayName(): string {
     return this.data.manifest.name != null ? this.data.manifest.name : this.data.projectName;
   }
+
+  get humanizedExecutor(): string {
+    return 'TO BE DONE';
+  }
 }

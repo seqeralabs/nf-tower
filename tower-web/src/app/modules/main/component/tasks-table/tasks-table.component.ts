@@ -73,6 +73,7 @@ export class TasksTableComponent implements OnInit, OnChanges {
         {name: "hash", orderable: false},
         {name: "status", orderable: false, render: (status) => `<span class="badge badge-pill ${status.toLowerCase()}">${convertTaskStatusToProgressLabel(status)}</span>`},
         {name: "exit", orderable: false},
+        {name: "executor", orderable: false},
         {name: "container", orderable: false },
         {name: "nativeId", orderable: false},
         {name: "submit", orderable: false},
@@ -134,6 +135,7 @@ export class TasksTableComponent implements OnInit, OnChanges {
               task.data.hash,
               task.statusTag,
               task.humanizedExit,
+              task.humanizedExecutor,
               task.data.container,
               task.data.nativeId,
               task.humanizedSubmit,
@@ -284,9 +286,9 @@ export class TasksTableComponent implements OnInit, OnChanges {
 
               <h5 class="card-title">Resources requested</h5>
               ${this.renderTable(data, res_requested)}
-              
+
               <h5 class="card-title">Resources usage</h5>
-              ${this.renderTable(data, res_used)}    
+              ${this.renderTable(data, res_used)}
             </div>
           </div>`;
   }

@@ -52,6 +52,7 @@ export class Task {
   get humanizedSubmit(): string { return FormatterUtil.formatDate(this.data.submit) }
   get humanizedStart(): string { return FormatterUtil.formatDate(this.data.start) }
   get humanizedComplete(): string { return FormatterUtil.formatDate(this.data.complete) }
+  get humanizedExecutor(): string { return FormatterUtil.formatDate(this.data.executor) || '-' }
 
   /* Code values */
   get humanizedExit(): string {
