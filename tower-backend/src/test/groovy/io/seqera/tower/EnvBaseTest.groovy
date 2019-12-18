@@ -22,13 +22,13 @@ import io.seqera.tower.service.live.LiveEventsServiceImpl
 import io.seqera.tower.service.mail.MailServiceImpl
 import io.seqera.tower.service.progress.LocalStatsStore
 import io.seqera.tower.service.progress.ProgressStore
-import spock.lang.Specification
+import io.seqera.tower.util.AbstractContainerBaseTest
 /**
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
 @MicronautTest(environments = ['test'])
-class EnvBaseTest extends Specification {
+class EnvBaseTest extends AbstractContainerBaseTest {
 
     @Inject ApplicationContext ctx
 
