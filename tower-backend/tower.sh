@@ -6,4 +6,4 @@ exec java \
   -noverify \
   -Dmicronaut.config.files=tower.yml \
   ${JAVA_OPTS} \
-  -jar /tower/tower-backend.jar
+  -jar /tower/tower-backend-all.jar

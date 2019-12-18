@@ -61,7 +61,6 @@ const routes: Routes = [
      {path: 'login',        component: LoginComponent},
    ]
   },
-  {path: 'metrics/:id',  component: WorkflowMetricsComponent},
   {path: 'auth',         component: AuthComponent},
   {path: 'logout',       component: LogoutComponent},
 

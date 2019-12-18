@@ -32,6 +32,7 @@ class ProgressState implements Serializable {
     private List<String> processNames
     private Map<String, ProcessLoad> processes
     private WorkflowLoad workflow
+    private Set<String> executors = new HashSet<>()
 
     ProgressState(String workflowId, List<String> processNames) {
         assert processNames != null
@@ -44,6 +45,8 @@ class ProgressState implements Serializable {
     }
 
     String getWorkflowId() { workflowId }
+
+    Set<String> getExecutors() { executors }
 
     List<ProcessLoad> getProcessLoads() {
         def result = new ArrayList(processNames.size())
@@ -72,7 +75,9 @@ class ProgressState implements Serializable {
         workflow = new WorkflowLoad(
                 peakTasks: workflow.peakTasks,
                 peakCpus: workflow.peakCpus,
-                peakMemory: workflow.peakMemory )
+                peakMemory: workflow.peakMemory,
+                executors: new ArrayList<String>(this.executors)
+        )
 
         for( ProcessLoad state : processes.values() ) {
             state.updatePeaks()

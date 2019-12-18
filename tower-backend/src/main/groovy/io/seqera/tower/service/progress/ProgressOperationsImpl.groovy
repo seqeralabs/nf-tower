@@ -86,6 +86,10 @@ class ProgressOperationsImpl implements ProgressOperations {
 
     private void updateStats0(Task task, ProgressState progress, Map<Long,TaskStatus> state) {
 
+        // track the executor uses
+        if( task.executor )
+            progress.executors.add( task.executor )
+
         /*
          * check the previous status
          */

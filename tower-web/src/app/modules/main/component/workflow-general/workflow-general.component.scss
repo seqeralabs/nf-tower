@@ -2,4 +2,19 @@ ul li {
     max-width: 100%;
     white-space: nowrap;
     overflow-x: auto;
+    display: flex;
+    align-items: center;
+
+  span {
+    width: 24px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+
+    img {
+      width: 20px;
+      height: 20px;
+      opacity: .8;
+    }
+  }
 }
