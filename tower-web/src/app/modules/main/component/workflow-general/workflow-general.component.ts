@@ -11,6 +11,8 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {Workflow} from "../../entity/workflow/workflow";
 
+declare var $: any;
+
 @Component({
   selector: 'wt-workflow-general',
   templateUrl: './workflow-general.component.html',
@@ -24,6 +26,9 @@ export class WorkflowGeneralComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
+    $('[data-toggle="tooltip"]').tooltip({
+      placement: 'left'
+    });
   }
 
 }
