@@ -1,6 +1,6 @@
 import {Component, Input, OnChanges, OnInit} from '@angular/core';
 import {WorkflowService} from "../../service/workflow.service";
-import {TaskData} from '../../entity/task/task-data';
+import {Task} from '../../entity/task/task';
 
 @Component({
   selector: 'wt-task-details',
@@ -13,7 +13,7 @@ export class TaskDetailsComponent implements OnChanges, OnInit {
   @Input() workflowId;
   @Input() taskId;
 
-  task: TaskData;
+  task: any;
 
   constructor(private workflowService: WorkflowService) {
   }
@@ -21,7 +21,7 @@ export class TaskDetailsComponent implements OnChanges, OnInit {
   ngOnChanges(): void {
     if (this.taskId) {
       this.workflowService.getTaskById(this.workflowId, this.taskId).subscribe(data => {
-        this.task = data;
+        this.task = new Task({task: data});
       });
     }
   }
@@ -30,7 +30,7 @@ export class TaskDetailsComponent implements OnChanges, OnInit {
   }
 
   getAction(): string {
-    return this.task && this.task.action && this.task.action !== '-' ? '(action: ' + this.task.action + ')' : '';
+    return this.task && this.task.data.action && this.task.data.action !== '-' ? '(action: ' + this.task.data.action + ')' : '';
   }
 
 }

@@ -8,26 +8,27 @@
     </div>
     <div class="modal-body">
       <div class="card">
-        <h5 class="card-header">Task: {{task?.name}}</h5>
+        <h5 class="card-header">Task: {{task?.data?.name}}</h5>
         <div class="card-body">
           <h5 class="card-title">Command</h5>
           <p class="card-text">
-          <pre>{{task?.script}}</pre>
+          <pre>{{task?.data?.script}}</pre>
           <p>
 
           <h5 class="card-title">Status</h5>
           <p class="card-text">
-          <pre>Exit: ${{task?.exit}} ({{task?.status}}) Attempts: {{task?.attempt}} ${{getAction()}}</pre>
+          <pre>Exit: ${{task?.humanizedExit}} ({{task?.statusTag}}) Attempts: {{task?.data?.attempt}}
+            ${{getAction()}}</pre>
           <p>
 
           <h5 class="card-title">Work directory</h5>
           <p class="card-text">
-          <pre>{{task?.workdir}}</pre>
+          <pre>{{task?.data?.workdir}}</pre>
           <p>
 
           <h5 class="card-title">Environment</h5>
           <p class="card-text">
-          <pre>{{task?.env}}</pre>
+          <pre>{{task?.data?.env}}</pre>
           <p>
 
           <h5 class="card-title">Execution time</h5>
@@ -45,7 +46,7 @@
                 <div class="scrollable">submit</div>
               </th>
               <td>
-                <div class="scrollable">{{task?.submit}}</div>
+                <div class="scrollable">{{task?.humanizedSubmit}}</div>
               </td>
               <td>
                 <div class="scrollable">Timestamp when the task has been submitted</div>
@@ -56,7 +57,7 @@
                 <div class="scrollable">start</div>
               </th>
               <td>
-                <div class="scrollable">{{task?.start}}</div>
+                <div class="scrollable">{{task?.humanizedStart}}</div>
               </td>
               <td>
                 <div class="scrollable">Timestamp when the task execution has started</div>
@@ -67,7 +68,7 @@
                 <div class="scrollable">complete</div>
               </th>
               <td>
-                <div class="scrollable">{{task?.complete}}</div>
+                <div class="scrollable">{{task?.humanizedComplete}}</div>
               </td>
               <td>
                 <div class="scrollable">Timestamp when task execution has completed</div>
@@ -78,7 +79,7 @@
                 <div class="scrollable">duration</div>
               </th>
               <td>
-                <div class="scrollable">{{task?.duration}}</div>
+                <div class="scrollable">{{task?.humanizedDuration}}</div>
               </td>
               <td>
                 <div class="scrollable">Time elapsed to complete since the submission i.e. including scheduling time
@@ -90,7 +91,7 @@
                 <div class="scrollable">realtime</div>
               </th>
               <td>
-                <div class="scrollable">{{task?.realtime}}</div>
+                <div class="scrollable">{{task?.humanizedRealtime}}</div>
               </td>
               <td>
                 <div class="scrollable">Task execution time i.e. delta between completion and start timestamp i.e.
@@ -116,7 +117,7 @@
                 <div class="scrollable">container</div>
               </th>
               <td>
-                <div class="scrollable">{{task?.container}}</div>
+                <div class="scrollable">{{task?.data?.container}}</div>
               </td>
               <td>
                 <div class="scrollable">Container image name used to execute the task</div>
@@ -127,7 +128,7 @@
                 <div class="scrollable">queue</div>
               </th>
               <td>
-                <div class="scrollable">{{task?.queue}}</div>
+                <div class="scrollable">{{task?.data?.queue}}</div>
               </td>
               <td>
                 <div class="scrollable">The queue that the executor attempted to run the process on</div>
@@ -138,7 +139,7 @@
                 <div class="scrollable">cpus</div>
               </th>
               <td>
-                <div class="scrollable">{{task?.cpus}}</div>
+                <div class="scrollable">{{task?.data?.cpus}}</div>
               </td>
               <td>
                 <div class="scrollable">The cpus number request for the task execution</div>
@@ -149,7 +150,7 @@
                 <div class="scrollable">memory</div>
               </th>
               <td>
-                <div class="scrollable">{{task?.memory}}</div>
+                <div class="scrollable">{{task?.humanizedMemory}}</div>
               </td>
               <td>
                 <div class="scrollable">The memory request for the task execution</div>
@@ -160,7 +161,7 @@
                 <div class="scrollable">disk</div>
               </th>
               <td>
-                <div class="scrollable">{{task?.disk}}</div>
+                <div class="scrollable">{{task?.data?.disk}}</div>
               </td>
               <td>
                 <div class="scrollable">The disk space request for the task execution</div>
@@ -171,7 +172,7 @@
                 <div class="scrollable">time</div>
               </th>
               <td>
-                <div class="scrollable">{{task?.time}}</div>
+                <div class="scrollable">{{task?.humanizedTime}}</div>
               </td>
               <td>
                 <div class="scrollable">The time request for the task execution</div>
@@ -182,7 +183,7 @@
                 <div class="scrollable">executor</div>
               </th>
               <td>
-                <div class="scrollable">{{task?.executor}}</div>
+                <div class="scrollable">{{task?.data?.executor}}</div>
               </td>
               <td>
                 <div class="scrollable">The Nextflow executor used to carry out this task</div>
@@ -193,7 +194,7 @@
                 <div class="scrollable">machineType</div>
               </th>
               <td>
-                <div class="scrollable">{{task?.machineType}}</div>
+                <div class="scrollable">{{task?.data?.machineType}}</div>
               </td>
               <td>
                 <div class="scrollable">The virtual machine type used to carry out by this task</div>
@@ -204,7 +205,7 @@
                 <div class="scrollable">cloudZone</div>
               </th>
               <td>
-                <div class="scrollable">{{task?.cloudZone}}</div>
+                <div class="scrollable">{{task?.data?.cloudZone}}</div>
               </td>
               <td>
                 <div class="scrollable">The cloud zone where the job get executed</div>
@@ -215,7 +216,7 @@
                 <div class="scrollable">priceModel</div>
               </th>
               <td>
-                <div class="scrollable">{{task?.priceModel}}</div>
+                <div class="scrollable">{{task?.data?.priceModel}}</div>
               </td>
               <td>
                 <div class="scrollable">The price model used to charge the job computation</div>
@@ -239,7 +240,7 @@
                 <div class="scrollable">pcpu</div>
               </th>
               <td>
-                <div class="scrollable">{{task?.pcpu}}</div>
+                <div class="scrollable">{{task?.data?.pcpu}}</div>
               </td>
               <td>
                 <div class="scrollable">Percentage of CPU used by the process</div>
@@ -250,7 +251,7 @@
                 <div class="scrollable">rss</div>
               </th>
               <td>
-                <div class="scrollable">{{task?.rss}}</div>
+                <div class="scrollable">{{task?.humanizedPeakRss}}</div>
               </td>
               <td>
                 <div class="scrollable">Real memory (resident set) size of the process</div>
@@ -261,7 +262,7 @@
                 <div class="scrollable">peakRss</div>
               </th>
               <td>
-                <div class="scrollable">{{task?.peakRss}}</div>
+                <div class="scrollable">{{task?.humanizedPeakRss}}</div>
               </td>
               <td>
                 <div class="scrollable">Peak of real memory</div>
@@ -272,7 +273,7 @@
                 <div class="scrollable">vmem</div>
               </th>
               <td>
-                <div class="scrollable">{{task?.vmem}}</div>
+                <div class="scrollable">{{task?.humanizedVmem}}</div>
               </td>
               <td>
                 <div class="scrollable">Virtual memory size of the process</div>
@@ -283,7 +284,7 @@
                 <div class="scrollable">peakVmem</div>
               </th>
               <td>
-                <div class="scrollable">{{task?.peakVmem}}</div>
+                <div class="scrollable">{{task?.humanizedPeakVmem}}</div>
               </td>
               <td>
                 <div class="scrollable">Peak of virtual memory</div>
@@ -294,7 +295,7 @@
                 <div class="scrollable">rchar</div>
               </th>
               <td>
-                <div class="scrollable">{{task?.rchar}}</div>
+                <div class="scrollable">{{task?.humanizedRchar}}</div>
               </td>
               <td>
                 <div class="scrollable">Number of bytes the process read, using any read-like system call from files,
@@ -307,7 +308,7 @@
                 <div class="scrollable">wchar</div>
               </th>
               <td>
-                <div class="scrollable">{{task?.wchar}}</div>
+                <div class="scrollable">{{task?.humanizedWchar}}</div>
               </td>
               <td>
                 <div class="scrollable">Number of bytes the process wrote, using any write-like system call.</div>
@@ -318,7 +319,7 @@
                 <div class="scrollable">readBytes</div>
               </th>
               <td>
-                <div class="scrollable">{{task?.readBytes}}</div>
+                <div class="scrollable">{{task?.humanizedReadBytes}}</div>
               </td>
               <td>
                 <div class="scrollable">Number of bytes the process directly read from disk</div>
@@ -329,7 +330,7 @@
                 <div class="scrollable">writeBytes</div>
               </th>
               <td>
-                <div class="scrollable">{{task?.writeBytes}}</div>
+                <div class="scrollable">{{task?.humanizedWriteBytes}}</div>
               </td>
               <td>
                 <div class="scrollable">Number of bytes the process originally dirtied in the page-cache (assuming they
@@ -342,7 +343,7 @@
                 <div class="scrollable">syscr</div>
               </th>
               <td>
-                <div class="scrollable">{{task?.syscr}}</div>
+                <div class="scrollable">{{task?.humanizedSyscr}}</div>
               </td>
               <td>
                 <div class="scrollable">Number of read-like system call invocations that the process performed</div>
@@ -353,7 +354,7 @@
                 <div class="scrollable">syscw</div>
               </th>
               <td>
-                <div class="scrollable">{{task?.syscw}}</div>
+                <div class="scrollable">{{task?.humanizedSyscw}}</div>
               </td>
               <td>
                 <div class="scrollable">Number of write-like system call invocations that the process performed</div>
@@ -364,7 +365,7 @@
                 <div class="scrollable">volCtxt</div>
               </th>
               <td>
-                <div class="scrollable">{{task?.volCtxt}}</div>
+                <div class="scrollable">{{task?.data?.volCtxt}}</div>
               </td>
               <td>
                 <div class="scrollable">Number of voluntary context switches</div>
@@ -375,7 +376,7 @@
                 <div class="scrollable">invCtxt</div>
               </th>
               <td>
-                <div class="scrollable">{{task?.invCtxt}}</div>
+                <div class="scrollable">{{task?.data?.invCtxt}}</div>
               </td>
               <td>
                 <div class="scrollable">Number of involuntary context switches</div>
