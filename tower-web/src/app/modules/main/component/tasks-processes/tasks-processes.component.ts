@@ -63,7 +63,7 @@ export class TasksProcessesComponent implements OnInit, OnChanges {
       const count=progress.data[status];
 
       if( count>0 ) {
-        result += `${capitalize(status)}: <b>${count}</b></br>`
+        result += `${capitalize(status)}: <b>${count}</b></br>`;
       }
     }
     return result;

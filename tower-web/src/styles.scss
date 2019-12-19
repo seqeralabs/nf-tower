@@ -301,3 +301,8 @@ footer {
     }
   }
 }
+
+// patch tooltip flicking -- https://github.com/valor-software/ngx-bootstrap/issues/3075#issuecomment-363461060
+.tooltip {
+  pointer-events: none;
+}
