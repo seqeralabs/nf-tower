@@ -84,7 +84,8 @@ class MailServiceImpl implements MailService {
     protected sendLoop(dummy) {
         while(!terminated) {
             if( awaitMillis ) {
-                sleep(awaitMillis); awaitMillis=0
+                sleep(awaitMillis)
+                awaitMillis=0
             }
 
             takeAndSendMail0()
@@ -101,8 +102,7 @@ class MailServiceImpl implements MailService {
             errorCount =0
         }
         catch (InterruptedException e) {
-            log.warn("Mail service got interrupted", e)
-            terminated = true
+            log.warn("Mail service got interrupted")
         }
         catch (Exception e) {
             // put back the mail message in the send queue to try it again
