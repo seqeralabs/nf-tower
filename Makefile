@@ -14,7 +14,7 @@ endif
 
 build:
 	./gradlew assemble
-	docker build -t tower-backend:latest tower-backend/
+	./gradlew tower-backend:jibDockerBuild
 	docker build -t tower-web:latest tower-web/
 
 run:

@@ -1,3 +1,6 @@
+import java.time.OffsetDateTime
+import java.time.format.DateTimeFormatter
+
 /*
  * Copyright (c) 2019, Seqera Labs.
  *
@@ -11,10 +14,9 @@
 
 plugins {
     id "io.spring.dependency-management" version "1.0.6.RELEASE"
+    id "com.google.cloud.tools.jib" version "1.8.0"
     id "groovy"
-    id "com.github.johnrengelman.shadow" version "5.1.0"
     id "application"
-    id "com.google.cloud.tools.jib" version "0.9.9"
 }
 
 repositories {
@@ -107,10 +109,22 @@ afterEvaluate {
 //Only for the main (not test) source set
 compileGroovy.groovyOptions.configurationScript = file('src/groovyCompile/groovycConfig.groovy')
 
-shadowJar {
-    mergeServiceFiles()
-}
+//shadowJar {
+//    mergeServiceFiles()
+//}
 
 run.classpath += configurations.developmentOnly
 run.jvmArgs('-noverify', '-XX:TieredStopAtLevel=1', '-Dcom.sun.management.jmxremote')
-jib.to.image = 'gcr.io/tower-backend/jib-image'
+
+//
+// Build container image with JIB
+// https://github.com/GoogleContainerTools/jib/tree/master/jib-gradle-plugin
+//
+jib.from.image = 'openjdk:8-alpine'
+jib.to.image = 'tower-backend:latest'
+jib.container.creationTime = "${OffsetDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME)}"
+jib.container.filesModificationTime = "${OffsetDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME)}"
+jib.container.ports = ['8080']
+jib.container.entrypoint = '/bin/sh'
+jib.container.args = ['/tower.sh']  // copied from `src/main/jib` directory
+jib.extraDirectories.permissions = ['/tower.sh': '755']
