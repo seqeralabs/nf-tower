@@ -213,8 +213,8 @@ class ProgressOperationsImpl implements ProgressOperations {
      * persist logic
      */
     void persistProgressData(String workflowId) {
-        final data = computeStats(workflowId)
         try {
+            final data = computeStats(workflowId)
             persistProgressData(workflowId, data)
         }
         catch( Exception e ) {
