@@ -215,7 +215,10 @@ class ProgressOperationsImpl implements ProgressOperations {
     void persistProgressData(String workflowId) {
         try {
             final data = computeStats(workflowId)
-            persistProgressData(workflowId, data)
+            if( data )
+                persistProgressData(workflowId, data)
+            else
+                log.error "Unable to persists progress stats for workflow=$workflowId -- Missing stats data"
         }
         catch( Exception e ) {
             log.error "Unable to persists progress stats for workflow=$workflowId", e
