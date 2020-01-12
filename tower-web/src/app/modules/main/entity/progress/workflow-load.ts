@@ -13,10 +13,10 @@ import {FormatterUtil} from "../../util/formatter-util";
 
 export class WorkflowLoad {
 
-  data: ProgressRecord;
+  data: WorkflowLoadData;
 
   constructor(json: any) {
-    this.data = json as ProgressRecord;
+    this.data = json as WorkflowLoadData;
   }
 
   get totalCpuHours(): string {
@@ -49,5 +49,44 @@ export class WorkflowLoad {
   get executorNames(): string[] {
     return this.data.executors;
   }
+
+  get humanizedCost(): string {
+    const value = this.data.cost;
+    if( value === null || value === undefined  )
+      return '-';
+    return value.toFixed(2) + ' $';
+  }
 }
 
+
+export interface WorkflowLoadData {
+
+  pending: number;
+  running: number;
+  cached: number;
+  submitted: number;
+  succeeded: number;
+  failed: number;
+
+  cpus: number;
+  cpuTime: number;
+  cpuLoad: number;
+  memoryRss: number;
+  memoryReq: number;
+  readBytes: number;
+  writeBytes: number;
+  volCtxSwitch: number;
+  invCtxSwitch: number;
+  memoryEfficiency: number;
+  cpuEfficiency: number;
+
+  loadCpus: number;
+  loadTasks: number;
+  loadMemory: number;
+
+  peakCpus: number;
+  peakTasks: number;
+  peakMemory: number;
+  executors: string[];
+  cost: number;
+}

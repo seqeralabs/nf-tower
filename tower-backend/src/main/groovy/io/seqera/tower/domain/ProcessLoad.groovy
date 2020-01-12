@@ -11,7 +11,6 @@
 
 package io.seqera.tower.domain
 
-
 import java.time.OffsetDateTime
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
@@ -19,9 +18,8 @@ import grails.gorm.annotation.Entity
 import groovy.transform.CompileDynamic
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
-import io.seqera.tower.service.progress.ProgressRow
 import io.seqera.tower.service.progress.ProgressRecord
-
+import io.seqera.tower.service.progress.ProgressRow
 /**
  * Models the workflow execution metrics aggregated at process level
  */
@@ -37,17 +35,17 @@ class ProcessLoad implements ProgressRecord, Serializable {
 
     String process
 
-    long cpus
-    long cpuTime
-    long cpuLoad
-    long memoryRss
-    long memoryReq
-    long readBytes
-    long writeBytes
-    long volCtxSwitch
-    long invCtxSwitch
+    @Deprecated long cpus
+    @Deprecated long cpuTime
+    @Deprecated long cpuLoad
+    @Deprecated long memoryRss
+    @Deprecated long memoryReq
+    @Deprecated long readBytes
+    @Deprecated long writeBytes
+    @Deprecated long volCtxSwitch
+    @Deprecated long invCtxSwitch
 
-    long loadTasks
+    @Deprecated long loadTasks
     long loadCpus
     long loadMemory
     long peakCpus

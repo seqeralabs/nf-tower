@@ -11,29 +11,31 @@
 
 package io.seqera.tower.exchange.trace
 
+import groovy.transform.CompileStatic
 import groovy.transform.ToString
 import io.seqera.tower.enums.TraceProcessingStatus
 import io.seqera.tower.exchange.BaseResponse
+
 /**
  * Model a Trace workflow response
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
-@Deprecated
-@ToString
-class TraceWorkflowResponse implements BaseResponse {
+@CompileStatic
+@ToString(includeNames = true, includePackage = false)
+class TraceRecordResponse implements BaseResponse{
 
     TraceProcessingStatus status
     String message
     String workflowId
-    String watchUrl
 
-    static TraceWorkflowResponse ofSuccess(String workflowId) {
-        new TraceWorkflowResponse(status: TraceProcessingStatus.OK, workflowId: workflowId)
+
+    static TraceRecordResponse ofSuccess(String workflowId) {
+        new TraceRecordResponse(status: TraceProcessingStatus.OK, workflowId: workflowId)
     }
 
-    static TraceWorkflowResponse ofError(String message) {
-        new TraceWorkflowResponse(status: TraceProcessingStatus.KO, message: message)
+    static TraceRecordResponse ofError(String message) {
+        new TraceRecordResponse(status: TraceProcessingStatus.KO, message: message)
     }
 
 }

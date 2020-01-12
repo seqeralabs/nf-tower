@@ -71,6 +71,7 @@ class ProgressState implements Serializable {
         processes.computeIfAbsent(processName, {new ProcessLoad(process:processName)})
     }
 
+    @Deprecated
     void updatePeaks() {
         workflow = new WorkflowLoad(
                 peakTasks: workflow.peakTasks,

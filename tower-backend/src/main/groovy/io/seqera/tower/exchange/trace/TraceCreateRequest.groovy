@@ -10,11 +10,19 @@
  */
 
 package io.seqera.tower.exchange.trace
+
+import groovy.transform.CompileStatic
+import groovy.transform.ToString
+
 /**
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
-@Deprecated
-class TraceAliveRequest {
-    String workflowId
+@CompileStatic
+@ToString(includeNames = true, includePackage = false)
+class TraceCreateRequest {
+    String sessionId
+    String runName
+    String projectName
+    String repository
 }

@@ -11,20 +11,36 @@
 
 package io.seqera.tower.exchange.trace
 
-
+import groovy.transform.CompileStatic
 import groovy.transform.ToString
-import io.seqera.tower.domain.Task
+
 /**
- * Model a Trace workflow request
+ * Process progress metadata as computed by NF
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
-@Deprecated
-@ToString(includeNames = true)
-class TraceTaskRequest {
+@ToString(includePackage = false, includeNames = true)
+@CompileStatic
+class TraceProgressDetail {
 
-    String workflowId
-    List<Task> tasks
-    TraceProgressData progress
+    int index
+    String name
+    int pending
+    int submitted
+    int running
+    int succeeded
+    int cached
+    int failed
+    int aborted
+    int stored
+    int ignored
+    int retries
+    boolean terminated
+
+    long loadCpus
+    long loadMemory
+    int peakRunning
+    long peakCpus
+    long peakMemory
 
 }

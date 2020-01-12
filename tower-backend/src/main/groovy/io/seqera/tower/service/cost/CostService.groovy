@@ -9,12 +9,16 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 
-package io.seqera.tower.exchange.trace
+package io.seqera.tower.service.cost
+
+import io.seqera.tower.domain.Task
+
 /**
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
-@Deprecated
-class TraceAliveRequest {
-    String workflowId
+interface CostService {
+
+    BigDecimal computeCost(Task task)
+
 }

@@ -31,6 +31,7 @@ import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.domain.WorkflowLoad
 import io.seqera.tower.exchange.progress.ProgressData
+import io.seqera.tower.exchange.trace.TraceProgressData
 import io.seqera.tower.service.audit.AuditEventPublisher
 import io.seqera.tower.service.live.LiveEventsService
 import org.hibernate.Session
@@ -82,17 +83,26 @@ class ProgressServiceImpl implements ProgressService {
         return target.getProgressData(workflowId)
     }
 
-    void create(String workflowId, List<String> processNames) {
+    @Deprecated void create(String workflowId, List<String> processNames) {
         // defer the invocation
         publisher.onNext( { target.create(workflowId, processNames) } )
     }
 
-    void updateStats(String workflowId, List<Task> tasks) {
+    @Deprecated void updateStats(String workflowId, List<Task> tasks) {
         // defer the invocation
         publisher.onNext( { target.updateStats(workflowId, tasks) } )
     }
 
-    void complete(String workflowId) {
+    void updateProgress(String workflowId, TraceProgressData progress) {
+        target.updateProgress(workflowId, progress)
+    }
+
+    @Override
+    void aggregateMetrics(String workflowId, List<Task> tasks) {
+        target.aggregateMetrics(workflowId, tasks)
+    }
+
+    @Deprecated void complete(String workflowId) {
         // defer the invocation
         publisher.onNext( { target.complete(workflowId) } )
     }
@@ -148,7 +158,7 @@ class ProgressServiceImpl implements ProgressService {
         if( !workflow ) {
             log.warn "Unknown workflow for Id=$workflowId | Ignore timeout marking event"
             // remove progress from the cache in any case to avoid entering an endless re-try
-            store.deleteProgress(workflowId)
+            store.deleteData(workflowId)
             return
         }
 
@@ -160,10 +170,13 @@ class ProgressServiceImpl implements ProgressService {
             // notify audit event
             auditEventPublisher.workflowStatusChangeBySystem(workflowId, "new=$UNKNOWN; was=$RUNNING")
         }
+        else if( workflow.status == SUCCEEDED || workflow.status == FAILED ) {
+            log.debug "Saving progeress data for workflow Id=$workflowId"
+            target.persistProgressData(workflowId)
+            store.deleteData(workflowId)
+        }
         else if( workflow.status!=UNKNOWN ) {
-            log.warn "Invalid status for workflow Id=$workflowId | Expected status=RUNNIG; found=$workflow.status"
-            if( workflow.status==SUCCEEDED )
-                store.deleteProgress(workflowId)
+            log.warn "Invalid status for workflow Id=$workflowId | Expected status=UNKNOWN; found=$workflow.status"
         }
     }
 
@@ -171,7 +184,7 @@ class ProgressServiceImpl implements ProgressService {
         try {
             markWorkflowUnknownStatus1(workflowId)
             // remove progress from the cache in any case to avoid entering an endless re-try
-            store.deleteProgress(workflowId)
+            store.deleteData(workflowId)
         }
         catch( Exception e ) {
             log.error("Unable to terminate workflow with Id=$workflowId", e)

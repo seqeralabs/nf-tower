@@ -14,7 +14,10 @@ package io.seqera.tower.service.progress
 import java.time.Duration
 
 import io.micronaut.context.annotation.DefaultImplementation
+import io.seqera.tower.domain.Task
+import io.seqera.tower.domain.WorkflowLoad
 import io.seqera.tower.enums.TaskStatus
+import io.seqera.tower.exchange.trace.TraceProgressData
 /**
  * Define the interface to store progress metadata
  *
@@ -23,15 +26,23 @@ import io.seqera.tower.enums.TaskStatus
 @DefaultImplementation(LocalStatsStore)
 interface ProgressStore {
 
-    TaskStatus getTaskStatus(String workflowId, Long taskId)
+    @Deprecated TaskStatus getTaskStatus(String workflowId, Long taskId)
 
-    ProgressState getProgress(String workflowId)
+    @Deprecated ProgressState getProgress(String workflowId)
 
-    void storeProgress(String workflowId, ProgressState counters)
+    @Deprecated void storeProgress(String workflowId, ProgressState counters)
 
-    void storeTaskStatuses(String workflowId, Map<Long, TaskStatus> status)
+    @Deprecated void storeTaskStatuses(String workflowId, Map<Long, TaskStatus> status)
 
-    void deleteProgress(String workflowId)
+    void deleteData(String workflowId)
+
+    TraceProgressData getTraceData(String workflowId)
+
+    void putTraceData(String workflowId, TraceProgressData data)
+
+    WorkflowLoad getWorkflowLoad(String workflowId)
+
+    void updateStats(String workflowId, Set<String> executorNames, List<Task> tasks)
 
     List<String> findExpiredKeys(Duration duration)
 

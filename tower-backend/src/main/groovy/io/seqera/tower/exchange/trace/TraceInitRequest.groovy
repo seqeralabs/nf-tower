@@ -16,6 +16,7 @@ package io.seqera.tower.exchange.trace
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
+@Deprecated
 class TraceInitRequest {
     String sessionId
 }

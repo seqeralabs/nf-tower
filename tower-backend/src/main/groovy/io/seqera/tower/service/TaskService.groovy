@@ -14,13 +14,16 @@ package io.seqera.tower.service
 
 import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.TaskData
+import io.seqera.tower.domain.Workflow
 import io.seqera.tower.exchange.trace.TraceTaskRequest
 
 interface TaskService {
 
     TaskData getTaskDataBySessionIdAndHash(String sessionId, String hash)
 
-    List<Task> processTaskTraceRequest(TraceTaskRequest request)
+    @Deprecated List<Task> processTaskTraceRequest(TraceTaskRequest request)
+
+    Task saveTask(Task task, Workflow workflow)
 
     List<Task> findTasks(String workflowId, String filter, String orderProperty, String orderDirection, Long max, Long offset)
 

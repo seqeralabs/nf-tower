@@ -46,7 +46,7 @@ export class WorkflowUtilizationComponent implements OnInit, OnChanges {
   }
 
   private centerTextInDonut(ctx): void {
-    if (ctx.type != 'label') {
+    if (ctx.type !== 'label') {
       return;
     }
 
@@ -72,7 +72,7 @@ export class WorkflowUtilizationComponent implements OnInit, OnChanges {
   }
 
   private computeDonutBinarySeries(filledValue: number, emptyValue: number): any[] {
-    //Avoid phantom empty circle fragment when the empty value is a negative number (filled value exceeds 100%)
+    // Avoid phantom empty circle fragment when the empty value is a negative number (filled value exceeds 100%)
     emptyValue = (emptyValue < 0) ? 0 : emptyValue;
 
     return [

@@ -17,6 +17,7 @@ import io.seqera.tower.exchange.BaseResponse
  * Model the workflow tracing initialization response
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
+@Deprecated
 class TraceInitResponse implements BaseResponse {
     String message
     String workflowId

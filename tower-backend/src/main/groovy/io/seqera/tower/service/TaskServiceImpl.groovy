@@ -64,6 +64,7 @@ class TaskServiceImpl implements TaskService {
 //    }
 
 
+    @Deprecated
     List<Task> processTaskTraceRequest(TraceTaskRequest request) {
         final Workflow workflow = Workflow.get(request.workflowId)
         if (!workflow) {
@@ -76,7 +77,7 @@ class TaskServiceImpl implements TaskService {
     }
 
     @CompileDynamic
-    private Task saveTask(Task task, Workflow workflow) {
+    Task saveTask(Task task, Workflow workflow) {
 
         // task `cached` are submitted just one time
         TaskData record
@@ -127,6 +128,7 @@ class TaskServiceImpl implements TaskService {
         taskToUpdate.machineType = originalTask.machineType
         taskToUpdate.cloudZone = originalTask.cloudZone
         taskToUpdate.priceModel = originalTask.priceModel
+        taskToUpdate.cost = originalTask.cost
         taskToUpdate.errorAction = originalTask.errorAction
         taskToUpdate.exitStatus = originalTask.exitStatus
         taskToUpdate.duration = originalTask.duration

@@ -15,7 +15,7 @@ import java.time.Duration
 
 import io.seqera.tower.domain.Task
 import io.seqera.tower.exchange.progress.ProgressData
-
+import io.seqera.tower.exchange.trace.TraceProgressData
 /**
  * Defines progress service operations
  *
@@ -23,13 +23,17 @@ import io.seqera.tower.exchange.progress.ProgressData
  */
 interface ProgressOperations {
 
-    void create(String workflowId, List<String> processNames)
+    @Deprecated void create(String workflowId, List<String> processNames)
 
-    void updateStats(String workflowId, List<Task> tasks)
+    @Deprecated void updateStats(String workflowId, List<Task> tasks)
+
+    void updateProgress(String workflowId, TraceProgressData progress)
+
+    void aggregateMetrics(String workflowId, List<Task> tasks)
 
     ProgressData getProgressData(String workflowId)
 
-    void complete(String workflowId)
+    @Deprecated void complete(String workflowId)
 
     List<String> findExpired(Duration duration)
 

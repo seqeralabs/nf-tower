@@ -10,11 +10,17 @@
  */
 
 package io.seqera.tower.exchange.trace
+
+import groovy.transform.CompileStatic
+import groovy.transform.ToString
+import io.seqera.tower.exchange.BaseResponse
+
 /**
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
-@Deprecated
-class TraceAliveRequest {
-    String workflowId
+@CompileStatic
+@ToString(includeNames = true, includePackage = false)
+class TraceHeartbeatResponse implements BaseResponse {
+    String message
 }

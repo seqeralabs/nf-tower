@@ -136,6 +136,7 @@ class Task implements TaskDef {
             'machineType',
             'cloudZone',
             'priceModel',
+            'cost',
             'errorAction',
             'exitStatus',
             'duration',
@@ -185,6 +186,7 @@ class Task implements TaskDef {
     String getMachineType() { _data().machineType }
     String getCloudZone() { _data().cloudZone }
     CloudPriceModel getPriceModel() { _data().priceModel }
+    BigDecimal getCost() { _data().cost }
     String getErrorAction() { _data().errorAction }
 
     Integer getExitStatus() { _data().exitStatus }
@@ -235,6 +237,7 @@ class Task implements TaskDef {
     void setMachineType(String x) { _data().machineType = x }
     void setCloudZone(String x) { _data().cloudZone = x }
     void setPriceModel(CloudPriceModel x) { _data().priceModel = x }
+    void setCost(BigDecimal x) { _data().cost = x }
     void setErrorAction(String x) { _data().errorAction = x }
 
     void setExitStatus(Integer x) { _data().exitStatus = x }

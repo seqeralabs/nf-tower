@@ -20,10 +20,9 @@ import grails.gorm.annotation.Entity
 import groovy.transform.CompileDynamic
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
-import io.seqera.tower.service.progress.ProgressRow
 import io.seqera.tower.service.progress.ProgressRecord
+import io.seqera.tower.service.progress.ProgressRow
 import io.seqera.util.H8ListToStringType
-
 /**
  * Model workflow execution progress aggregate metrics
  *
@@ -48,6 +47,7 @@ class WorkflowLoad implements ProgressRecord, Serializable {
     long writeBytes
     long volCtxSwitch
     long invCtxSwitch
+    BigDecimal cost
 
     long loadTasks
     long loadCpus
@@ -60,7 +60,6 @@ class WorkflowLoad implements ProgressRecord, Serializable {
 
     OffsetDateTime dateCreated
     OffsetDateTime lastUpdated
-
 
     @Deprecated
     WorkflowLoad plus(ProgressRow row) {
@@ -82,11 +81,31 @@ class WorkflowLoad implements ProgressRecord, Serializable {
         return this
     }
 
+    void incStats(Task task) {
+        ProgressRecord.super.incStats(task)
+        if( cost != null )
+            this.cost += (task.cost ?: 0)
+        else
+            this.cost = (task.cost ?: 0)
+    }
+
+    WorkflowLoad addExecutor(String name) {
+        if( !name )
+            return this
+        if( executors == null )
+            executors = new ArrayList<>()
+        if( !executors.contains(name) )
+            executors.add(name)
+        return this
+    }
+
     static constraints = {
+        cost nullable: true
         executors nullable: true
     }
 
     static mapping = {
+        cost(scale: 10)
         executors type: H8ListToStringType
     }
 }

@@ -10,11 +10,22 @@
  */
 
 package io.seqera.tower.exchange.trace
+
+import groovy.transform.CompileStatic
+import groovy.transform.ToString
+import io.seqera.tower.domain.Workflow
+import io.seqera.tower.domain.WorkflowMetrics
+
 /**
+ * Model a workflow trace complete request
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
-@Deprecated
-class TraceAliveRequest {
-    String workflowId
+@CompileStatic
+@ToString(includeNames = true, includePackage = false)
+class TraceCompleteRequest {
+
+    Workflow workflow
+    List<WorkflowMetrics> metrics
+
 }

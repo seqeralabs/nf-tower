@@ -18,6 +18,9 @@ import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.client.BlockingHttpClient
 import io.seqera.tower.domain.User
+import io.seqera.tower.exchange.trace.TraceBeginRequest
+import io.seqera.tower.exchange.trace.TraceCompleteRequest
+import io.seqera.tower.exchange.trace.TraceRecordRequest
 import io.seqera.tower.exchange.trace.TraceTaskRequest
 import io.seqera.tower.exchange.trace.TraceTaskResponse
 import io.seqera.tower.exchange.trace.TraceWorkflowRequest
@@ -40,6 +43,45 @@ class TracesJsonBank {
 
     private static File getWorkflowDir(String workflowLabel) {
         new File(RESOURCES_DIR_PATH, "workflow_${workflowLabel}")
+    }
+
+    static TraceBeginRequest extractTraceBeginRequest(String workflowLabel, String workflowId) {
+        File workflowDir = getWorkflowDir(workflowLabel)
+
+        String fileNamePart = "workflow_started.json"
+        File jsonFile = workflowDir.listFiles().find { it.name.endsWith(fileNamePart) }
+        log.debug "Test json file: $jsonFile"
+        def workflowTrace = DomainHelper.mapper.readValue(jsonFile, TraceBeginRequest.class)
+        if( workflowId )
+            workflowTrace.workflow.id = workflowId
+
+        return workflowTrace
+    }
+
+    static TraceCompleteRequest extractTraceCompleteRequest(String workflowLabel, String workflowId) {
+        File workflowDir = getWorkflowDir(workflowLabel)
+
+        String fileNamePart = "workflow_succeeded.json"
+        File jsonFile = workflowDir.listFiles().find { it.name.endsWith(fileNamePart) }
+        log.debug "Test json file: $jsonFile"
+        def workflowTrace = DomainHelper.mapper.readValue(jsonFile, TraceCompleteRequest.class)
+        if( workflowId )
+            workflowTrace.workflow.id = workflowId
+
+        return workflowTrace
+    }
+
+    static TraceRecordRequest extractTraceRecord(String workflowLabel, Long taskId, String workflowId, TaskTraceSnapshotStatus taskStatus) {
+        File workflowDir = getWorkflowDir(workflowLabel)
+
+        String fileNamePart = "task_${taskId}_${taskStatus.name().toLowerCase()}.json"
+        File jsonFile = workflowDir.listFiles().sort { it.name }.find { it.name.endsWith(fileNamePart) }
+        println "JsonFile=$jsonFile"
+
+        TraceRecordRequest taskTrace = DomainHelper.mapper.readValue(jsonFile, TraceRecordRequest)
+        taskTrace.workflowId = workflowId
+
+        taskTrace
     }
 
     static TraceWorkflowRequest extractWorkflowJsonTrace(String workflowLabel, String workflowId, WorkflowTraceSnapshotStatus workflowStatus) {
