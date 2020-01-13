@@ -21,6 +21,6 @@ ul li {
 
 ::ng-deep {
   .tooltip {
-    left: -210px !important;
+    left: calc(-14% + 50px) !important;
   }
 }
