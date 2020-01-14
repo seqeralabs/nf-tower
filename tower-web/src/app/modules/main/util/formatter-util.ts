@@ -62,5 +62,11 @@ export abstract class FormatterUtil {
       .toUpperCase();
   }
 
+  static formatMoney(value: number, decimals=2): string {
+    if( value === null || value === undefined )
+        return '';
+    return value.toLocaleString('EN-us', {maximumFractionDigits:decimals, style: 'currency',currency: 'USD', currencyDisplay: 'symbol'})
+  }
+
 }
 FormatterUtil.initialize();

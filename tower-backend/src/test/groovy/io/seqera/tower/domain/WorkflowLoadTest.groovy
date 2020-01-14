@@ -36,4 +36,77 @@ class WorkflowLoadTest extends AbstractContainerBaseTest {
         record.executors ==  ['alpha','beta','delta']
 
     }
+
+    def 'should add task stats' () {
+        given:
+        def workflow = new WorkflowLoad()
+
+        when:
+        workflow.incStats( new Task() )
+        then:
+        with(workflow) {
+            cpus == 0
+            cpuTime == 0
+            cpuLoad == 0
+            memoryRss == 0
+            memoryReq == 0
+            readBytes == 0
+            writeBytes == 0
+            volCtxSwitch == 0
+            invCtxSwitch == 0 
+        }
+
+        when:
+        workflow.incStats( new Task(
+                cpus: 1,
+                realtime: 200,
+                pcpu: 200,
+                peakRss: 300,
+                memory: 400,
+                rchar: 500,
+                wchar: 600,
+                volCtxt: 700,
+                invCtxt: 800,
+                cost: 1000 ))
+        then:
+        with(workflow) {
+            cpus == 1
+            cpuTime == 1 * 200
+            cpuLoad == 200 / 100 * 200 as long
+            memoryRss == 300
+            memoryReq == 400
+            readBytes == 500
+            writeBytes == 600
+            volCtxSwitch == 700
+            invCtxSwitch == 800
+            cost == 1000
+        }
+
+
+        when:
+        workflow.incStats( new Task(
+                cpus: 2,
+                realtime: 300,
+                pcpu: 400,
+                peakRss: 1300,
+                memory: 1400,
+                rchar: 1500,
+                wchar: 1600,
+                volCtxt: 1700,
+                invCtxt: 1800,
+                cost: 11000 ))
+        then:
+        with(workflow) {
+            cpus == 3
+            cpuTime == 200 + ( 2 * 300 )
+            cpuLoad == 400 + ( 400 / 100 * 300 as long)
+            memoryRss == 1600
+            memoryReq == 1800
+            readBytes == 2000
+            writeBytes == 2200
+            volCtxSwitch == 2400
+            invCtxSwitch == 2600
+            cost == 12000
+        }
+    }
 }

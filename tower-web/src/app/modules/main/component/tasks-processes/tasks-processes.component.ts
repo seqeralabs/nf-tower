@@ -41,11 +41,7 @@ export class TasksProcessesComponent implements OnInit, OnChanges {
       this.tooltips.forEach(tooltipElement => $(tooltipElement).tooltip('dispose'));
 
       this.tooltips = $('[data-toggle="tooltip"]').get();
-      this.tooltips.forEach(tooltipElement => $(tooltipElement).tooltip({
-          placement: 'top',
-          html: true,
-          trigger: 'manual'
-      }));
+      this.tooltips.forEach(tooltipElement => $(tooltipElement).tooltip({trigger: 'manual'}));
     });
 
   }

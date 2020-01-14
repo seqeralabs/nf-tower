@@ -83,6 +83,7 @@ trait ProgressRecord {
         setStatus(status, getStatus(status) +value)
     }
 
+    @Deprecated
     void decStatus( TaskStatus status, long value=1 ) {
         final newValue = getStatus(status) -value
         if( newValue >= 0 )
@@ -105,12 +106,14 @@ trait ProgressRecord {
     void setFailed(long value) { setStatus(FAILED, value) }
     void setCached(long value) { setStatus(CACHED, value) }
 
+    @Deprecated
     void incLoad(Task task) {
         loadTasks += 1
         loadCpus += task.cpus ?: 0
         loadMemory += task.memory ?: 0
     }
 
+    @Deprecated
     void decLoad(Task task) {
         final newTasks = loadTasks - 1
         final newCpus = loadCpus - (task.cpus ?: 0)

@@ -107,7 +107,8 @@ export class TasksTableComponent implements OnInit, OnChanges {
         {name: "executor", visible: false},
         {name: "machineType", visible: false},
         {name: "cloudZone", visible: false},
-        {name: "priceModel", visible: false}
+        {name: "priceModel", visible: false},
+        {name: "cost", visible: false}
       ],
       ajax: {
         url: this.workflowService.buildTasksGetUrl(this.workflowId),
@@ -168,7 +169,8 @@ export class TasksTableComponent implements OnInit, OnChanges {
               task.data.executor,
               task.data.machineType,
               task.data.cloudZone,
-              task.data.priceModel
+              task.data.priceModel,
+              task.humanizedCost
             ]) : [];
 
           return JSON.stringify(json);
@@ -238,6 +240,7 @@ export class TasksTableComponent implements OnInit, OnChanges {
       {name: 'machineType', description: 'The virtual machine type used to carry out by this task'},
       {name: 'cloudZone', description: 'The cloud zone where the job get executed'},
       {name: 'priceModel', description: 'The price model used to charge the job computation'},
+      {name: 'cost', description: 'The estimated cost to compute this task'},
     ];
 
     const res_time = [

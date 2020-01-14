@@ -18,6 +18,15 @@ tower:
     - 'paolo.ditommaso@gmail.com'
   trace:
     timeout: 90s
+  cron:
+    enabled: true
+    workflow-delete:
+      enabled: false
+    cloud-prices:
+      enabled: false
+  costs:
+    local:
+      costPerCpuHour: 1
 ---
 dataSource:
   pooled: false

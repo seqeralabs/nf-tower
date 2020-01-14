@@ -80,6 +80,7 @@ class TaskData implements TaskDef {
     String machineType
     String cloudZone
     CloudPriceModel priceModel
+    BigDecimal cost
     String errorAction
 
     Integer exitStatus
@@ -130,6 +131,7 @@ class TaskData implements TaskDef {
         machineType(nullable: true, maxSize: 25)
         cloudZone(nullable: true, maxSize: 25)
         priceModel(nullable: true)
+        cost(nullable: true)
         errorAction(nullable: true, maxSize: 10)
         duration(nullable: true)
         realtime(nullable: true)
@@ -155,6 +157,7 @@ class TaskData implements TaskDef {
     static mapping = {
         script(type: 'text')
         priceModel(length: 15)
+        cost(scale: 10)
     }
 
     String toString() {

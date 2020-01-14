@@ -49,6 +49,7 @@ interface TaskDef {
     String getMachineType()
     String getCloudZone()
     CloudPriceModel getPriceModel()
+    BigDecimal getCost()
     String getErrorAction()
 
     Integer getExitStatus()
@@ -101,6 +102,7 @@ interface TaskDef {
     void setMachineType(String x)
     void setCloudZone(String x)
     void setPriceModel(CloudPriceModel x)
+    void setCost(BigDecimal x)
     void setErrorAction(String x)
 
     void setExitStatus(Integer x)

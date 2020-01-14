@@ -98,7 +98,7 @@ export class Workflow {
     if( result == null )
       return 'n/a';
     if( this.data.nextflow.build )
-      result = `${result} build # ${this.data.nextflow.build}`;
+      result = `${result} build ${this.data.nextflow.build}`;
     return result;
   }
 

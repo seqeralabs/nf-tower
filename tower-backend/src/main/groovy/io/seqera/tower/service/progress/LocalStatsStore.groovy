@@ -16,19 +16,29 @@ import java.time.Duration
 import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
 
+import groovy.transform.CompileStatic
+import groovy.util.logging.Slf4j
+import io.seqera.tower.domain.Task
+import io.seqera.tower.domain.WorkflowLoad
 import io.seqera.tower.enums.TaskStatus
-
+import io.seqera.tower.exchange.trace.TraceProgressData
 /**
  * Implements a simple in-memory map store for execution progress
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
+@Slf4j
+@CompileStatic
 @Singleton
 class LocalStatsStore implements ProgressStore {
 
-    Map<String, Map<Long,TaskStatus>> taskStatus = new ConcurrentHashMap<>()
-    Map<String, ProgressState> workflowCounters = new ConcurrentHashMap<>()
+    private static final Closure CREATE_LOAD_RECORD = { new WorkflowLoad() }
+
+    @Deprecated Map<String, Map<Long,TaskStatus>> taskStatus = new ConcurrentHashMap<>()
+    @Deprecated Map<String, ProgressState> workflowCounters = new ConcurrentHashMap<>()
     Map<String, Instant> workflowLastModified = new ConcurrentHashMap<>()
+    Map<String, TraceProgressData> traceData = new ConcurrentHashMap<>()
+    Map<String, WorkflowLoad> workflowLoadMap = new ConcurrentHashMap<>()
 
     @Override
     TaskStatus getTaskStatus(String workflowId, Long taskId) {
@@ -53,11 +63,13 @@ class LocalStatsStore implements ProgressStore {
     }
 
     @Override
+    @Deprecated
     void storeProgress(String workflowId, ProgressState counters) {
         workflowCounters.put(workflowId, counters)
         workflowLastModified.put(workflowId, Instant.now())
     }
 
+    @Deprecated
     @Override
     void storeTaskStatuses(String workflowId, Map<Long, TaskStatus> statuses) {
         for( Map.Entry<Long,TaskStatus> entry : statuses) {
@@ -71,10 +83,12 @@ class LocalStatsStore implements ProgressStore {
     }
 
     @Override
-    void deleteProgress(String workflowId) {
+    void deleteData(String workflowId) {
         workflowCounters.remove(workflowId)
         workflowLastModified.remove(workflowId)
         taskStatus.remove(workflowId)
+        traceData.remove(workflowId)
+        workflowLoadMap.remove(workflowId)
     }
 
     @Override
@@ -88,6 +102,35 @@ class LocalStatsStore implements ProgressStore {
     }
 
     List<String> getAllKeys() {
-        new ArrayList<String>(workflowCounters.keySet())
+        new ArrayList<String>(workflowLastModified.keySet())
+    }
+
+    @Override
+    TraceProgressData getTraceData(String workflowId) {
+        traceData.get(workflowId)
+    }
+
+    @Override
+    void putTraceData(String workflowId, TraceProgressData data) {
+        traceData.put(workflowId, data)
+        workflowLastModified.put(workflowId, Instant.now())
+    }
+
+    WorkflowLoad getWorkflowLoad(String workflowId) {
+        synchronized(workflowLoadMap) {
+            workflowLoadMap.get(workflowId)
+        }
+    }
+
+    @Override
+    void updateStats(String workflowId, Set<String> executorNames, List<Task> tasks) {
+        def current = workflowLoadMap.computeIfAbsent(workflowId, CREATE_LOAD_RECORD)
+        synchronized (workflowLoadMap) {
+            for( String it : executorNames )
+                current.addExecutor(it)
+
+            for( Task it : tasks )
+                current.incStats(it)
+        }
     }
 }

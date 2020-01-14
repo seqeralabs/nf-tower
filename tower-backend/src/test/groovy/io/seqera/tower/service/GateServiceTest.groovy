@@ -76,14 +76,14 @@ class GateServiceTest extends AbstractContainerBaseTest {
         !resp.user.authToken
         !resp.user.authTime
         and:
-        User.withNewTransaction { User.count() } == 1
+        User.withNewTransaction { User.get(resp.user.id) }.email == EMAIL
 
         and: "the user access need to be approved"
         resp.state == AccessGateResponse.State.PENDING_APPROVAL
         
         and: "the access token has been created"
         resp.user.accessTokens.size() == 1
-        AccessToken.withNewTransaction { AccessToken.count() } == 1
+        AccessToken.withNewTransaction { AccessToken.get(resp.user.accessTokens[0].id) }
 
         and: "a role was attached to the user"
         UserRole.list().first().user.id == resp.user.id
@@ -111,7 +111,7 @@ class GateServiceTest extends AbstractContainerBaseTest {
         resp.user.authToken
         resp.user.authTime
         and:
-        User.withNewTransaction { User.count() } == 1
+        User.withNewTransaction { User.get(resp.user.id) }
 
         and:
         resp.state == AccessGateResponse.State.LOGIN_ALLOWED
@@ -138,7 +138,7 @@ class GateServiceTest extends AbstractContainerBaseTest {
         and: "the returned user is the same as the previous one"
         resp.user.id == user.id
         resp.user.email == user.email
-        tx.withNewTransaction { User.count() } == 1
+        tx.withNewTransaction { User.get(user.id) }
 
         and: 'the auth token has been refreshed'
         resp.user.authToken != authToken
@@ -166,7 +166,7 @@ class GateServiceTest extends AbstractContainerBaseTest {
         and: "the returned user is the same as the previous one"
         resp.user.id == user.id
         resp.user.email == user.email
-        tx.withNewTransaction { User.count() } == 1
+        tx.withNewTransaction { User.get(user.id) }
 
         and: 'no email was sent'
         pendingEmails().size()==1
@@ -186,7 +186,7 @@ class GateServiceTest extends AbstractContainerBaseTest {
         user.userName == email.replaceAll(/@.*/, '')
         !user.authToken
         !user.trusted
-        tx.withNewTransaction { User.count() } == 1
+        tx.withNewTransaction { User.get(user.id) }
 
         when: "register a user with a similar email to the first one"
         String email2 = 'user@email.com'
@@ -198,7 +198,8 @@ class GateServiceTest extends AbstractContainerBaseTest {
         user2.userName == 'user1'
         !user2.authToken
         !user2.trusted
-        tx.withNewTransaction { User.count() } == 2
+        tx.withNewTransaction { User.get(user.id) }
+        tx.withNewTransaction { User.get(user2.id) }
     }
 
     void "try to register a user given an invalid email"() {

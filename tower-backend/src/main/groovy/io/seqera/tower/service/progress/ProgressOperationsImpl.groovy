@@ -23,6 +23,8 @@ import io.seqera.tower.domain.Workflow
 import io.seqera.tower.domain.WorkflowLoad
 import io.seqera.tower.enums.TaskStatus
 import io.seqera.tower.exchange.progress.ProgressData
+import io.seqera.tower.exchange.trace.TraceProgressData
+import io.seqera.tower.exchange.trace.TraceProgressDetail
 import org.springframework.transaction.annotation.Propagation
 /**
  *
@@ -46,12 +48,32 @@ class ProgressOperationsImpl implements ProgressOperations {
         store.storeProgress(workflowId, new ProgressState(workflowId, processNames))
     }
 
+    void updateProgress(String workflowId, TraceProgressData progressData) {
+        assert workflowId
+        assert progressData != null
+        store.putTraceData(workflowId, progressData)
+    }
+
+    void aggregateMetrics(String workflowId, List<Task> tasks) {
+        final executors = new HashSet()
+        final terminated = new ArrayList(tasks.size())
+
+        for( Task it : tasks ) {
+            executors.add(it.executor)
+            if( it.status.terminated )
+                terminated.add(it)
+        }
+        
+        store.updateStats(workflowId, executors, terminated)
+    }
+    
     /**
      * Update the workflow execution progress
      *
      * @param workflowId The workflow Id
      * @param tasks A list of {@link io.seqera.tower.domain.Task} instances that were carried out
      */
+    @Deprecated
     @Override
     void updateStats(String workflowId, List<Task> tasks) {
         assert workflowId
@@ -144,6 +166,48 @@ class ProgressOperationsImpl implements ProgressOperations {
     }
 
     ProgressData computeStats(String workflowId) {
+        def trace = store.getTraceData(workflowId)
+        if( trace ) {
+            def load = store.getWorkflowLoad(workflowId) ?: new WorkflowLoad()
+            load.pending = trace.pending
+            load.submitted = trace.submitted
+            load.running = trace.running
+            load.succeeded = trace.succeeded
+            load.failed = trace.failed
+            load.cached = trace.cached
+            // load and peaks
+            load.loadCpus = trace.loadCpus
+            load.loadMemory = trace.loadMemory
+            load.peakTasks = trace.peakRunning
+            load.peakCpus = trace.peakCpus
+            load.peakMemory = trace.peakMemory
+
+            def processes = new ArrayList<ProcessLoad>()
+            for(TraceProgressDetail detail : trace.processes ) {
+                def item = new ProcessLoad()
+                item.pending = detail.pending
+                item.submitted = detail.submitted
+                item.running = detail.running
+                item.succeeded = detail.succeeded
+                item.failed = detail.failed
+                item.cached = detail.cached
+                // load and peaks
+                item.loadCpus = detail.loadCpus
+                item.loadMemory = detail.loadMemory
+                item.peakTasks = detail.peakRunning
+                item.peakCpus = detail.peakCpus
+                item.peakMemory = detail.peakMemory
+
+                processes.add(item)
+            }
+
+            return new ProgressData(
+                    workflowProgress: load,
+                    processesProgress: processes
+            )
+        }
+
+        // fallback mechanism
         ProgressState progress = store.getProgress(workflowId)
         progress ? new ProgressData(
                 workflowProgress: progress.workflow,
@@ -203,10 +267,10 @@ class ProgressOperationsImpl implements ProgressOperations {
      *
      * @param workflowId The workflow Id
      */
-    void complete(String workflowId) {
+    @Deprecated void complete(String workflowId) {
         log.trace("Completing progress state for workflow Id=$workflowId")
         persistProgressData(workflowId)
-        store.deleteProgress(workflowId)
+        store.deleteData(workflowId)
     }
 
     /*

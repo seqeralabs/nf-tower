@@ -17,27 +17,4 @@ export interface ProgressRecord {
   succeeded: number;
   failed: number;
 
-  cpus: number;
-  cpuTime: number;
-  cpuLoad: number;
-  memoryRss: number;
-  memoryReq: number;
-  readBytes: number;
-  writeBytes: number;
-  volCtxSwitch: number;
-  invCtxSwitch: number;
-  memoryEfficiency: number;
-  cpuEfficiency: number;
-
-  loadCpus: number;
-  loadTasks: number;
-  loadMemory: number;
-
-  // the following attributes are are available
-  // when unmarshalling a `WorkflowLoad` object
-  peakCpus: number;
-  peakTasks: number;
-  peakMemory: number;
-  executors: string[];
-
 }

@@ -1,4 +1,5 @@
 {
+  "workflowId": "12345",
   "tasks": [
     {
       "taskId": 1,
@@ -31,5 +32,62 @@
       "priceModel": "spot"
     }
   ],
-  "workflowId": "12345"
+  "progress": {
+    "succeeded": 1,
+    "cached": 2,
+    "failed": 3,
+    "ignored": 4,
+    "pending": 5,
+    "submitted": 6,
+    "running": 7,
+    "retries": 8,
+    "aborted": 9,
+    "loadCpus": 0,
+    "loadMemory": 0,
+    "peakCpus": 0,
+    "peakMemory": 0,
+    "peakRunning": 0,
+    "processes": [
+      {
+        "index": 1,
+        "name": "foo",
+        "pending": 0,
+        "ignored": 0,
+        "loadCpus": 0,
+        "succeeded": 0,
+        "running": 0,
+        "retries": 0,
+        "peakRunning": 0,
+        "loadMemory": 0,
+        "stored": 0,
+        "terminated": false,
+        "aborted": 0,
+        "failed": 0,
+        "peakCpus": 0,
+        "peakMemory": 0,
+        "cached": 0,
+        "submitted": 0
+      },
+      {
+        "index": 2,
+        "name": "bar",
+        "pending": 1,
+        "ignored": 8,
+        "loadCpus": 11,
+        "succeeded": 4,
+        "running": 3,
+        "retries": 9,
+        "peakRunning": 13,
+        "loadMemory": 12,
+        "stored": 7,
+        "terminated": true,
+        "aborted": 6,
+        "failed": 5,
+        "peakCpus": 14,
+        "peakMemory": 15,
+        "cached": 10,
+        "submitted": 2
+      }
+    ]
+  }
 }

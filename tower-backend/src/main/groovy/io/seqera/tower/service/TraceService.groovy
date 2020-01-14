@@ -14,6 +14,10 @@ package io.seqera.tower.service
 import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.User
 import io.seqera.tower.domain.Workflow
+import io.seqera.tower.exchange.trace.TraceBeginRequest
+import io.seqera.tower.exchange.trace.TraceCompleteRequest
+import io.seqera.tower.exchange.trace.TraceProgressData
+import io.seqera.tower.exchange.trace.TraceRecordRequest
 import io.seqera.tower.exchange.trace.TraceTaskRequest
 import io.seqera.tower.exchange.trace.TraceWorkflowRequest
 
@@ -21,11 +25,15 @@ interface TraceService {
 
     String createWorkflowKey()
 
-    Workflow processWorkflowTrace(TraceWorkflowRequest request, User user)
+    @Deprecated Workflow processWorkflowTrace(TraceWorkflowRequest request, User user)
 
-    List<Task> processTaskTrace(TraceTaskRequest request)
+    @Deprecated List<Task> processTaskTrace(TraceTaskRequest request)
 
-    void keepAlive(String workflowId)
+    @Deprecated void keepAlive(String workflowId)
 
+    Workflow handleFlowBegin(TraceBeginRequest request, User user)
+    Workflow handleFlowComplete(TraceCompleteRequest request, User user)
+    void handleTaskTrace(TraceRecordRequest request)
+    void heartbeat(String workflowId, TraceProgressData progress)
 }
 

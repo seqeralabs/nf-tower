@@ -28,6 +28,10 @@ interface WorkflowService {
      */
     Workflow get(String id)
 
+    Workflow createWorkflow(Workflow workflow, List<String> processName, User user)
+
+    Workflow updateWorkflow(Workflow workflow, List<WorkflowMetrics> metrics)
+
     /**
      * List all {@link Workflow} objects for the given owner {@link User}
      *

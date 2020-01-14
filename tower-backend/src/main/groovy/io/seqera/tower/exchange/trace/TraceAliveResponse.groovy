@@ -17,6 +17,7 @@ import io.seqera.tower.exchange.BaseResponse
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
+@Deprecated
 class TraceAliveResponse implements BaseResponse {
     String message
 }

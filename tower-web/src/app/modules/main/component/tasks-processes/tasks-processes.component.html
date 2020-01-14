@@ -12,7 +12,7 @@
             {{progress.completeTasksFmt}} of {{progress.totalTasksFmt}}
           </div>
         </div>
-        <div class="progress-wrapper" [title]="getTooltipText(progress)" data-toggle="tooltip">
+        <div class="progress-wrapper" [title]="getTooltipText(progress)" data-toggle="tooltip" data-html="true">
           <div class="progress">
             <div class="progress-bar"
                  *ngFor="let status of statusesTags"

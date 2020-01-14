@@ -58,4 +58,8 @@ export class Task {
     return this.data.exit == 2147483647 ? '' : `${this.data.exit}`;
   }
 
+  get humanizedCost(): string {
+    return FormatterUtil.formatMoney(this.data.cost, 10);
+  }
+
 }

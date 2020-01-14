@@ -37,6 +37,7 @@ export interface TaskData {
   machineType: string;
   cloudZone: string;
   priceModel: string;
+  cost: number;
   errorAction: string;
   complete: Date;
   duration: number;

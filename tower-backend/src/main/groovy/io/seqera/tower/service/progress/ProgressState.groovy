@@ -23,6 +23,7 @@ import io.seqera.tower.domain.WorkflowLoad
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
 @Slf4j
+@Deprecated
 @CompileStatic
 @EqualsAndHashCode(includeFields = true)
 @ToString(includeNames = true, includePackage = false)
@@ -71,6 +72,7 @@ class ProgressState implements Serializable {
         processes.computeIfAbsent(processName, {new ProcessLoad(process:processName)})
     }
 
+    @Deprecated
     void updatePeaks() {
         workflow = new WorkflowLoad(
                 peakTasks: workflow.peakTasks,

@@ -100,8 +100,23 @@ class WorkflowServiceImpl implements WorkflowService {
         return workflow
     }
 
+    @Override
+    Workflow createWorkflow(Workflow workflow, List<String> processNames, User user) {
+        saveNewWorkflow(workflow, user)
+
+        // save the process names
+        for( int i=0; i<processNames?.size(); i++ ) {
+            final name = processNames[i]
+            final p = new WorkflowProcess(name: name, position: i, workflow: workflow)
+            p.save()
+        }
+
+        return workflow
+    }
+
+    @Override
     @CompileDynamic
-    private Workflow updateWorkflow(Workflow workflow, List<WorkflowMetrics> metrics) {
+    Workflow updateWorkflow(Workflow workflow, List<WorkflowMetrics> metrics) {
         Workflow existingWorkflow = Workflow.get(workflow.id)
         if (!existingWorkflow) {
             throw new NonExistingWorkflowException("Can't find workflow record with ID=${workflow.id}")
@@ -169,6 +184,9 @@ class WorkflowServiceImpl implements WorkflowService {
     @Override
     void markForRunning(String workflowId) {
         final workflow = Workflow.get(workflowId)
+        if (!workflow) {
+            throw new NonExistingWorkflowException("Can't find task for workflow Id: ${workflowId}")
+        }
         // if complete report an error
         if( workflow.checkIsComplete() ) {
             throw new IllegalStateException("Unexpected execution status workflow with Id: ${workflowId}")
