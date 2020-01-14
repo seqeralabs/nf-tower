@@ -8,22 +8,27 @@
  * This Source Code Form is "Incompatible With Secondary Licenses", as
  * defined by the Mozilla Public License, v. 2.0.
  */
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnChanges} from '@angular/core';
 import {Workflow} from "../../entity/workflow/workflow";
+
+declare var $: any;
 
 @Component({
   selector: 'wt-workflow-general',
   templateUrl: './workflow-general.component.html',
   styleUrls: ['./workflow-general.component.scss']
 })
-export class WorkflowGeneralComponent implements OnInit {
+export class WorkflowGeneralComponent implements OnChanges {
 
   @Input()
   workflow: Workflow;
 
   constructor() { }
 
-  ngOnInit() {
+  ngOnChanges(): void {
+    $('[data-toggle="tooltip"]').tooltip({
+      placement: 'top'
+    });
   }
 
 }

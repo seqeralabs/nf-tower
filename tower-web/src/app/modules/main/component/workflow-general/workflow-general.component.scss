@@ -1,9 +1,9 @@
 ul li {
-    max-width: 100%;
-    white-space: nowrap;
-    overflow-x: auto;
-    display: flex;
-    align-items: center;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow-x: auto;
+  display: flex;
+  align-items: center;
 
   span {
     width: 24px;
@@ -16,5 +16,11 @@ ul li {
       height: 20px;
       opacity: .8;
     }
+  }
+}
+
+::ng-deep {
+  .tooltip {
+    left: calc(-14% + 50px) !important;
   }
 }
