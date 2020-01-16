@@ -11,12 +11,15 @@
 
 package io.seqera.tower.domain
 
+import java.nio.file.Files
+import java.nio.file.Paths
+
 import grails.gorm.transactions.Transactional
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.tower.Application
 import io.seqera.tower.util.AbstractContainerBaseTest
 import io.seqera.tower.util.DomainCreator
-
+import org.nustaq.serialization.FSTConfiguration
 /**
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
@@ -24,6 +27,7 @@ import io.seqera.tower.util.DomainCreator
 @Transactional
 @MicronautTest(application = Application.class)
 class WorkflowLoadTest extends AbstractContainerBaseTest {
+
 
     def 'should save and load list of executors' () {
         given:
@@ -108,5 +112,39 @@ class WorkflowLoadTest extends AbstractContainerBaseTest {
             invCtxSwitch == 2600
             cost == 12000
         }
+    }
+
+
+    static FSTConfiguration fstConf = FSTConfiguration.createDefaultConfiguration()
+
+    def 'should ser-deser progress state' () {
+        given:
+        def state = new WorkflowLoad(
+                running: 1,
+                submitted: 2,
+                pending: 3,
+                executors: ['local','batch'] )
+
+        when:
+        byte[] buffer = fstConf.asByteArray(state)
+        then:
+        def copy = (WorkflowLoad)fstConf.asObject(buffer)
+        and:
+        state == copy
+
+    }
+
+    def 'should deserialize bin state' () {
+        given:
+        def state = new WorkflowLoad(
+                running: 1,
+                submitted: 2,
+                pending: 3,
+                executors: ['local','batch'] )
+        and:
+        def buffer = Files.readAllBytes(Paths.get('./src/test/resources/serialization/WorkflowLoad.fst.bin'))
+
+        expect:
+        fstConf.asObject(buffer) == state
     }
 }

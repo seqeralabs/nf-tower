@@ -11,7 +11,10 @@
 
 package io.seqera.tower.service.progress
 
+import java.nio.file.Files
+import java.nio.file.Paths
 
+import org.nustaq.serialization.FSTConfiguration
 import spock.lang.Specification
 /**
  *
@@ -46,6 +49,31 @@ class ProgressStateTest extends Specification {
         then:
         s1 == s2
         s1 != s3
+    }
+
+
+    static FSTConfiguration fstConf = FSTConfiguration.createDefaultConfiguration()
+    
+    def 'should ser-deser progress state' () {
+        given:
+        def state = new ProgressState('xyz-123', ['foo','bar'])
+
+        when:
+        byte[] buffer = fstConf.asByteArray(state)
+        then:
+        def copy = (ProgressState)fstConf.asObject(buffer)
+        and:
+        state == copy
+
+    }
+
+    def 'should deserialize bin state' () {
+        given:
+        def file = Paths.get('./src/test/resources/serialization/ProgressState.fst.bin')
+        def buffer = Files.readAllBytes(file)
+
+        expect: 
+        fstConf.asObject(buffer) == new ProgressState('xyz-123', ['foo','bar'])
     }
 
 
