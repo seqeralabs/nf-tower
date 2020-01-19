@@ -436,7 +436,7 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         def creator = new DomainCreator()
         Workflow workflow = creator.createWorkflow()
         and:
-        def req = TracesJsonBank.extractTraceRecord('success', 1, workflow.id, TaskTraceSnapshotStatus.SUBMITTED)
+        def req = TracesJsonBank.extractTraceProgress('success', 1, TaskTraceSnapshotStatus.SUBMITTED)
 
         when:
         def taskId = taskService
@@ -449,7 +449,7 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         }
 
         when:
-        req = TracesJsonBank.extractTraceRecord('success', 1, workflow.id, TaskTraceSnapshotStatus.SUCCEEDED)
+        req = TracesJsonBank.extractTraceProgress('success', 1, TaskTraceSnapshotStatus.SUCCEEDED)
         req.tasks[0].cost = 0.25
         and:
         taskService.saveTask(req.tasks[0], workflow)

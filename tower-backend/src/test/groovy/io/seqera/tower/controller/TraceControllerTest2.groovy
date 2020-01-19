@@ -39,8 +39,8 @@ import io.seqera.tower.exchange.trace.TraceCreateResponse
 import io.seqera.tower.exchange.trace.TraceHeartbeatRequest
 import io.seqera.tower.exchange.trace.TraceHeartbeatResponse
 import io.seqera.tower.exchange.trace.TraceProgressData
-import io.seqera.tower.exchange.trace.TraceRecordRequest
-import io.seqera.tower.exchange.trace.TraceRecordResponse
+import io.seqera.tower.exchange.trace.TraceProgressRequest
+import io.seqera.tower.exchange.trace.TraceProgressResponse
 import io.seqera.tower.service.auth.AuthenticationByApiToken
 import io.seqera.tower.service.progress.ProgressStore
 import io.seqera.tower.util.AbstractContainerBaseTest
@@ -88,11 +88,12 @@ class TraceControllerTest2 extends AbstractContainerBaseTest {
         User user = new DomainCreator().generateAllowedUser()
         and: 'a workflow started JSON trace'
         TraceBeginRequest trace = TracesJsonBank.extractTraceBeginRequest('success', null)
+        def workflowId = trace.workflow.id
         and:
         assert trace.workflow.status == WorkflowStatus.RUNNING
 
         when: 'send a save request'
-        MutableHttpRequest request = HttpRequest.POST('/trace/begin', trace)
+        MutableHttpRequest request = HttpRequest.PUT("/trace/${workflowId}/begin", trace)
         request = appendBasicAuth(user, request)
         and:
         HttpResponse<TraceBeginResponse> response = client.toBlocking().exchange( request, TraceBeginResponse )
@@ -116,11 +117,10 @@ class TraceControllerTest2 extends AbstractContainerBaseTest {
         def creator = new DomainCreator()
         User user = creator.generateAllowedUser()
         def workflow = creator.createWorkflow(owner: user)
+        TraceCompleteRequest completion = TracesJsonBank.extractTraceCompleteRequest('success', workflow.id)
 
         when:
-        TraceCompleteRequest completion = TracesJsonBank.extractTraceCompleteRequest('success', workflow.id)
-        and:
-        MutableHttpRequest request = HttpRequest.POST('/trace/complete', completion)
+        MutableHttpRequest request = HttpRequest.PUT("/trace/${workflow.id}/complete", completion)
         request = appendBasicAuth(user, request)
         and:
         HttpResponse<TraceCompleteResponse> response = client.toBlocking().exchange( request, TraceCompleteResponse )
@@ -136,10 +136,10 @@ class TraceControllerTest2 extends AbstractContainerBaseTest {
 
         and: 'a workflow'
         Workflow workflow = new DomainCreator().createWorkflow()
-        TraceHeartbeatRequest data = new TraceHeartbeatRequest(workflowId: workflow.id, progress: new TraceProgressData())
+        TraceHeartbeatRequest data = new TraceHeartbeatRequest(progress: new TraceProgressData())
 
         when: 'send a save request'
-        MutableHttpRequest request = HttpRequest.POST('/trace/heartbeat', data)
+        MutableHttpRequest request = HttpRequest.PUT("/trace/${workflow.id}/heartbeat", data)
         request = appendBasicAuth(user, request)
 
         HttpResponse<TraceHeartbeatResponse> response = client.toBlocking().exchange( request, TraceHeartbeatResponse )
@@ -155,10 +155,10 @@ class TraceControllerTest2 extends AbstractContainerBaseTest {
 
         and: 'a workflow'
         Workflow workflow = new DomainCreator().createWorkflow(status: WorkflowStatus.UNKNOWN)
-        TraceHeartbeatRequest data = new TraceHeartbeatRequest(workflowId: workflow.id, progress: new TraceProgressData())
+        TraceHeartbeatRequest data = new TraceHeartbeatRequest(progress: new TraceProgressData())
 
         when: 'send a save request'
-        MutableHttpRequest request = HttpRequest.POST('/trace/heartbeat', data)
+        MutableHttpRequest request = HttpRequest.PUT("/trace/${workflow.id}/heartbeat", data)
         request = appendBasicAuth(user, request)
 
         HttpResponse<TraceHeartbeatResponse> response = client.toBlocking().exchange( request, TraceHeartbeatResponse )
@@ -178,15 +178,15 @@ class TraceControllerTest2 extends AbstractContainerBaseTest {
         Workflow workflow = new DomainCreator().createWorkflow()
 
         and: 'a task submitted JSON trace'
-        TraceRecordRequest taskSubmittedJsonTrace = TracesJsonBank.extractTraceRecord('success', 1, workflow.id, TaskTraceSnapshotStatus.SUBMITTED)
+        TraceProgressRequest taskSubmittedJsonTrace = TracesJsonBank.extractTraceProgress('success', 1, TaskTraceSnapshotStatus.SUBMITTED)
 
         when: 'send a save request'
-        MutableHttpRequest request = HttpRequest.POST('/trace/record', taskSubmittedJsonTrace)
+        MutableHttpRequest request = HttpRequest.PUT("/trace/${workflow.id}/progress", taskSubmittedJsonTrace)
         request = appendBasicAuth(user, request)
 
         def response = client
                 .toBlocking()
-                .exchange(request, TraceRecordResponse )
+                .exchange(request, TraceProgressResponse )
 
         then: 'the task has been saved successfully'
         response.status == HttpStatus.OK
@@ -233,7 +233,7 @@ class TraceControllerTest2 extends AbstractContainerBaseTest {
         TraceBeginRequest workflowStartedJsonTrace = TracesJsonBank.extractTraceBeginRequest('success', null)
 
         when: 'send a save request'
-        MutableHttpRequest request = HttpRequest.POST('/trace/begin', workflowStartedJsonTrace)
+        MutableHttpRequest request = HttpRequest.PUT('/trace/12345/begin', workflowStartedJsonTrace)
         client.toBlocking().exchange( request, TraceBeginResponse )
 
         then: "the server responds UNAUTHORIZED"
@@ -246,11 +246,11 @@ class TraceControllerTest2 extends AbstractContainerBaseTest {
         Workflow workflow = new DomainCreator().createWorkflow()
 
         and: 'a task submitted JSON trace'
-        TraceRecordRequest taskSubmittedJsonTrace = TracesJsonBank.extractTraceRecord('success', 1, workflow.id, TaskTraceSnapshotStatus.SUBMITTED)
+        TraceProgressRequest taskSubmittedJsonTrace = TracesJsonBank.extractTraceProgress('success', 1, TaskTraceSnapshotStatus.SUBMITTED)
 
         when: 'send a save request'
-        MutableHttpRequest request = HttpRequest.POST('/trace/record', taskSubmittedJsonTrace)
-        client.toBlocking().exchange(request, TraceRecordResponse)
+        MutableHttpRequest request = HttpRequest.PUT("trace/${workflow.id}/task", taskSubmittedJsonTrace)
+        client.toBlocking().exchange(request, TraceProgressResponse)
 
         then: "the server responds UNAUTHORIZED"
         HttpClientResponseException e = thrown(HttpClientResponseException)

@@ -15,12 +15,12 @@ import groovy.transform.CompileStatic
 import groovy.transform.ToString
 
 /**
+ * Model a workflow trace heartbeat request
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
 @CompileStatic
 @ToString(includeNames = true, includePackage = false)
 class TraceHeartbeatRequest {
-    String workflowId
     TraceProgressData progress
 }

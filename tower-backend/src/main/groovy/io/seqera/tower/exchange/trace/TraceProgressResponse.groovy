@@ -17,25 +17,25 @@ import io.seqera.tower.enums.TraceProcessingStatus
 import io.seqera.tower.exchange.BaseResponse
 
 /**
- * Model a Trace workflow response
+ * Model a Trace workflow progress response
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
 @CompileStatic
 @ToString(includeNames = true, includePackage = false)
-class TraceRecordResponse implements BaseResponse{
+class TraceProgressResponse implements BaseResponse{
 
     TraceProcessingStatus status
     String message
     String workflowId
 
 
-    static TraceRecordResponse ofSuccess(String workflowId) {
-        new TraceRecordResponse(status: TraceProcessingStatus.OK, workflowId: workflowId)
+    static TraceProgressResponse ofSuccess(String workflowId) {
+        new TraceProgressResponse(status: TraceProcessingStatus.OK, workflowId: workflowId)
     }
 
-    static TraceRecordResponse ofError(String message) {
-        new TraceRecordResponse(status: TraceProcessingStatus.KO, message: message)
+    static TraceProgressResponse ofError(String message) {
+        new TraceProgressResponse(status: TraceProcessingStatus.KO, message: message)
     }
 
 }

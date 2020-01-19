@@ -16,7 +16,8 @@ import groovy.transform.ToString
 import io.seqera.tower.exchange.BaseResponse
 
 /**
- * Model the workflow trace creation response
+ * Model a workflow trace create response
+ *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
 @CompileStatic

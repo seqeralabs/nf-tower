@@ -15,7 +15,7 @@ import groovy.transform.CompileStatic
 import groovy.transform.ToString
 import io.seqera.tower.domain.Workflow
 /**
- * Model a Trace workflow request
+ * Model a workflow trace begin request
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */

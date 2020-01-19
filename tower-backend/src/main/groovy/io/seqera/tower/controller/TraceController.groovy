@@ -22,6 +22,7 @@ import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Post
+import io.micronaut.http.annotation.Put
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.micronaut.security.rules.SecurityRule
@@ -39,8 +40,8 @@ import io.seqera.tower.exchange.trace.TraceHeartbeatRequest
 import io.seqera.tower.exchange.trace.TraceHeartbeatResponse
 import io.seqera.tower.exchange.trace.TraceInitRequest
 import io.seqera.tower.exchange.trace.TraceInitResponse
-import io.seqera.tower.exchange.trace.TraceRecordRequest
-import io.seqera.tower.exchange.trace.TraceRecordResponse
+import io.seqera.tower.exchange.trace.TraceProgressRequest
+import io.seqera.tower.exchange.trace.TraceProgressResponse
 import io.seqera.tower.exchange.trace.TraceTaskRequest
 import io.seqera.tower.exchange.trace.TraceTaskResponse
 import io.seqera.tower.exchange.trace.TraceWorkflowRequest
@@ -157,19 +158,19 @@ class TraceController extends BaseController {
     @Post("/create")
     @Secured(['ROLE_USER'])
     HttpResponse<TraceCreateResponse> flowCreate(TraceCreateRequest req, Authentication authentication) {
-        log.info "Trace create request [user=${authentication.getName()}]"
+        log.info "> Trace create request [user=${authentication.getName()}]"
         final workflowId = traceService.createWorkflowKey()
         final resp = new TraceCreateResponse(workflowId: workflowId)
-        log.info "Created new workflow ID=${workflowId} [user=${authentication.getName()}]"
+        log.info "> Created new workflow ID=${workflowId} [user=${authentication.getName()}]"
         HttpResponse.ok(resp)
     }
 
-    @Post("/begin")
+    @Put("/{workflowId}/begin")
     @Transactional
     @Secured(['ROLE_USER'])
-    HttpResponse<TraceBeginResponse> flowBegin(@Body TraceBeginRequest req, Authentication authentication) {
+    HttpResponse<TraceBeginResponse> flowBegin(final String workflowId, @Body TraceBeginRequest req, Authentication authentication) {
         try {
-            log.info( "Receiving trace for workflow begin [workflowId=${req.workflow.id}; user=${authentication.name}]")
+            log.info( "> Receiving trace for workflow begin [workflowId=${workflowId}; user=${authentication.name}]")
 
             final user = userService.getByAuth(authentication)
             final workflow = traceService.handleFlowBegin(req, user)
@@ -182,17 +183,17 @@ class TraceController extends BaseController {
             return HttpResponse.ok(resp)
         }
         catch (Exception e) {
-            log.error("Failed to handle workflow trace=${req.workflow.id}", e)
+            log.error("Failed to handle workflow trace=${workflowId}", e)
             return HttpResponse.badRequest(TraceBeginResponse.ofError(e.message))
         }
     }
 
-    @Post("/complete")
+    @Put("/{workflowId}/complete")
     @Transactional
     @Secured(['ROLE_USER'])
-    HttpResponse<TraceCompleteResponse> flowComplete(@Body TraceCompleteRequest req, Authentication authentication) {
+    HttpResponse<TraceCompleteResponse> flowComplete(final String workflowId, @Body TraceCompleteRequest req, Authentication authentication) {
         try {
-            log.info("Receiving trace for workflow completion [workflowId=${req.workflow.id}; user=${authentication.name}]")
+            log.info("> Receiving trace for workflow completion [workflowId=${workflowId}; user=${authentication.name}]")
 
             final user = userService.getByAuth(authentication)
             final workflow = traceService.handleFlowComplete(req, user)
@@ -204,51 +205,48 @@ class TraceController extends BaseController {
             return HttpResponse.ok(resp)
         }
         catch (Exception e) {
-            log.error("Failed to handle workflow trace=${req.workflow.id}", e)
+            log.error("Failed to handle workflow trace=${workflowId}", e)
             return HttpResponse.badRequest(TraceCompleteResponse.ofError(e.message))
         }
     }
 
 
-    @Post("/record")
+    @Put("/{workflowId}/progress")
     @Transactional
     @Secured(['ROLE_USER'])
-    HttpResponse<TraceRecordResponse> record(@Body TraceRecordRequest req, Authentication authentication) {
-        log.info "Receiving task trace request [workflowId=${req.workflowId}; tasks=${req.tasks?.size()}; user=${authentication.name}]"
+    HttpResponse<TraceProgressResponse> record(String workflowId, @Body TraceProgressRequest req, Authentication authentication) {
+        log.info "> Receiving trace tasks progress [workflowId=${workflowId}; tasks=${req.tasks?.size()}; user=${authentication.name}]"
 
-        HttpResponse<TraceRecordResponse> response
-        if( !req.workflowId )
-            return HttpResponse.badRequest(TraceRecordResponse.ofError("Missing workflow ID"))
-
+        HttpResponse<TraceProgressResponse> response
         if( req.tasks?.size()>100 ) {
-            log.warn "Too many tasks for workflow Id=$req.workflowId; size=${req.tasks.size()}"
-            return HttpResponse.badRequest(TraceRecordResponse.ofError("Workflow trace request too big"))
+            log.warn "Too many tasks for workflow Id=$workflowId; size=${req.tasks.size()}"
+            return HttpResponse.badRequest(TraceProgressResponse.ofError("Workflow trace request too big"))
         }
 
-        def workflow = workflowService.get(req.workflowId)
+        def workflow = workflowService.get(workflowId)
         if( !workflow )
-            return HttpResponse.badRequest(TraceRecordResponse.ofError("Unknown workflow Id=$req.workflowId"))
+            return HttpResponse.badRequest(TraceProgressResponse.ofError("Unknown workflow Id=$workflowId"))
 
         try {
-            traceService.handleTaskTrace(req)
+            traceService.handleTaskTrace(workflowId, req.progress, req.tasks)
             liveEventsService.publishProgressEvent(workflow)
-            response = HttpResponse.ok(TraceRecordResponse.ofSuccess(workflow.id))
+            response = HttpResponse.ok(TraceProgressResponse.ofSuccess(workflow.id))
 
         }
         catch (Exception e) {
             log.error("Failed to handle tasks trace for request: $req", e)
-            response = HttpResponse.badRequest(TraceRecordResponse.ofError(e.message))
+            response = HttpResponse.badRequest(TraceProgressResponse.ofError(e.message))
         }
 
         return response
     }
 
-    @Post("/heartbeat")
+    @Put("/{workflowId}/heartbeat")
     @Transactional
     @Secured(['ROLE_USER'])
-    HttpResponse<TraceHeartbeatResponse> heartbeat(@Body TraceHeartbeatRequest req) {
-        log.debug "Receiving trace heartbeat [workflowId=${req.workflowId}]"
-        traceService.heartbeat(req.workflowId, req.progress)
+    HttpResponse<TraceHeartbeatResponse> heartbeat(String workflowId, @Body TraceHeartbeatRequest req) {
+        log.debug "> Receiving trace heartbeat [workflowId=${workflowId}]"
+        traceService.handleHeartbeat(workflowId, req.progress)
         HttpResponse.ok(new TraceHeartbeatResponse(message: 'OK'))
     }
 }

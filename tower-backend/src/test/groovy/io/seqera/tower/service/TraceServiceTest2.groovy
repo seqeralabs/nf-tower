@@ -20,7 +20,7 @@ import io.seqera.tower.Application
 import io.seqera.tower.domain.Task
 import io.seqera.tower.exchange.trace.TraceProgressData
 import io.seqera.tower.exchange.trace.TraceProgressDetail
-import io.seqera.tower.exchange.trace.TraceRecordRequest
+import io.seqera.tower.exchange.trace.TraceProgressRequest
 import io.seqera.tower.service.progress.ProgressService
 import io.seqera.tower.service.progress.ProgressStore
 import io.seqera.tower.util.AbstractContainerBaseTest
@@ -58,14 +58,14 @@ class TraceServiceTest2 extends AbstractContainerBaseTest {
         // ----------------------------------------
         def wf = domain.createWorkflow(id: WORKFLOW_ID, sessionId: session)
         and:
-        def req = TracesJsonBank.extractTraceRecord('success', TASK1, wf.id, TaskTraceSnapshotStatus.SUBMITTED)
+        def req = TracesJsonBank.extractTraceProgress('success', TASK1, TaskTraceSnapshotStatus.SUBMITTED)
         def prog = new TraceProgressData(running: 1, succeeded: 2, processes: [new TraceProgressDetail(index: 1, name: 'foo', succeeded: 1), new TraceProgressDetail(index: 2, name:'bar', running: 1) ])
         req.progress = prog
         and:
         def taskProcessorTest = (traceService).taskProcessor.test()
 
         when:
-        traceService.handleTaskTrace(req)
+        traceService.handleTaskTrace(WORKFLOW_ID, req.progress, req.tasks)
         then:
         progressStore.getTraceData(WORKFLOW_ID) == req.progress
         and:
@@ -114,16 +114,14 @@ class TraceServiceTest2 extends AbstractContainerBaseTest {
         def HASH2 = '56/c2d5c7'
         def TASK1 = 1L
         def TASK2 = 2L
-
+        def WORKFLOW_ID = '12345'
         and:
-        def req = DomainHelper.mapper.readValue(new File('src/test/resources/trace/trace_service.json'), TraceRecordRequest)
+        def req = DomainHelper.mapper.readValue(new File('src/test/resources/trace/trace_service.json'), TraceProgressRequest)
         and:
-        def WORKFLOW_ID = req.workflowId
         def wf = domain.createWorkflow(id: WORKFLOW_ID, sessionId: session)
         and:
         def prog = new TraceProgressData(running: 0, succeeded: 3, processes: [new TraceProgressDetail(index: 1, name: 'foo', succeeded: 1), new TraceProgressDetail(index: 2, name:'bar', succeeded: 2) ])
         req.progress = prog
-        req.workflowId = WORKFLOW_ID
         assert req.tasks.size() == 2
         and:
         def taskProcessorTest = (traceService).taskProcessor.test()
@@ -132,7 +130,7 @@ class TraceServiceTest2 extends AbstractContainerBaseTest {
         // request for a task with SUCCEEDED status
         // ----------------------------------------
         when:
-        traceService.handleTaskTrace(req)
+        traceService.handleTaskTrace(WORKFLOW_ID, req.progress, req.tasks)
 
         then:
         taskProcessorTest.valueCount() == 2

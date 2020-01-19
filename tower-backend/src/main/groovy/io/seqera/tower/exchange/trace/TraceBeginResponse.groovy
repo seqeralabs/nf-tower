@@ -16,7 +16,7 @@ import groovy.transform.ToString
 import io.seqera.tower.enums.TraceProcessingStatus
 import io.seqera.tower.exchange.BaseResponse
 /**
- * Model a Trace workflow response
+ * Model a workflow trace begin response
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */

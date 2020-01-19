@@ -37,7 +37,6 @@ import io.seqera.tower.domain.WorkflowKey
 import io.seqera.tower.exchange.trace.TraceBeginRequest
 import io.seqera.tower.exchange.trace.TraceCompleteRequest
 import io.seqera.tower.exchange.trace.TraceProgressData
-import io.seqera.tower.exchange.trace.TraceRecordRequest
 import io.seqera.tower.exchange.trace.TraceTaskRequest
 import io.seqera.tower.exchange.trace.TraceWorkflowRequest
 import io.seqera.tower.service.audit.AuditEventPublisher
@@ -246,18 +245,22 @@ class TraceServiceImpl implements TraceService {
      *
      * @param req
      */
-    void handleTaskTrace(TraceRecordRequest req) {
+    void handleTaskTrace(String workflowId, TraceProgressData progress, List<Task> tasks) {
+        assert workflowId, 'Workflow ID cannot be empty in trace request'
+        assert progress != null, 'Workflow progress cannot be null in trace request'
+        assert tasks != null, 'Workflow tasks cannot be null in trace request'
+
         // update live progress
-        progressService.updateProgress(req.workflowId, req.progress)
+        progressService.updateProgress(workflowId, progress)
 
         // save & aggregate metrics
-        Workflow workflow = Workflow.get(req.workflowId)
-        for( Task task : req.tasks )
+        Workflow workflow = Workflow.get(workflowId)
+        for( Task task : tasks )
             taskProcessor.onNext(new TaskEntry(task, workflow))
     }
 
     @Override
-    void heartbeat(String workflowId, TraceProgressData progress) {
+    void handleHeartbeat(String workflowId, TraceProgressData progress) {
         workflowService.markForRunning(workflowId)
         progressService.updateProgress(workflowId, progress)
     }

@@ -17,7 +17,6 @@ import io.seqera.tower.domain.Workflow
 import io.seqera.tower.exchange.trace.TraceBeginRequest
 import io.seqera.tower.exchange.trace.TraceCompleteRequest
 import io.seqera.tower.exchange.trace.TraceProgressData
-import io.seqera.tower.exchange.trace.TraceRecordRequest
 import io.seqera.tower.exchange.trace.TraceTaskRequest
 import io.seqera.tower.exchange.trace.TraceWorkflowRequest
 
@@ -33,7 +32,7 @@ interface TraceService {
 
     Workflow handleFlowBegin(TraceBeginRequest request, User user)
     Workflow handleFlowComplete(TraceCompleteRequest request, User user)
-    void handleTaskTrace(TraceRecordRequest request)
-    void heartbeat(String workflowId, TraceProgressData progress)
+    void handleTaskTrace(String workflowId, TraceProgressData progress, List<Task> tasks)
+    void handleHeartbeat(String workflowId, TraceProgressData progress)
 }
 

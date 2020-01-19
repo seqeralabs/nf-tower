@@ -15,15 +15,14 @@ import groovy.transform.CompileStatic
 import groovy.transform.ToString
 import io.seqera.tower.domain.Task
 /**
- * Model a Trace workflow request
+ * Model a Trace workflow progress request
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
 @CompileStatic
 @ToString(includeNames = true, includePackage = false)
-class TraceRecordRequest {
+class TraceProgressRequest {
 
-    String workflowId
     List<Task> tasks
     TraceProgressData progress
 

@@ -16,6 +16,7 @@ import groovy.transform.ToString
 import io.seqera.tower.exchange.BaseResponse
 
 /**
+ * Model a workflow trace heartbeat response
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */

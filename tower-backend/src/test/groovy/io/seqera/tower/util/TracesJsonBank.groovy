@@ -20,7 +20,7 @@ import io.micronaut.http.client.BlockingHttpClient
 import io.seqera.tower.domain.User
 import io.seqera.tower.exchange.trace.TraceBeginRequest
 import io.seqera.tower.exchange.trace.TraceCompleteRequest
-import io.seqera.tower.exchange.trace.TraceRecordRequest
+import io.seqera.tower.exchange.trace.TraceProgressRequest
 import io.seqera.tower.exchange.trace.TraceTaskRequest
 import io.seqera.tower.exchange.trace.TraceTaskResponse
 import io.seqera.tower.exchange.trace.TraceWorkflowRequest
@@ -71,15 +71,14 @@ class TracesJsonBank {
         return workflowTrace
     }
 
-    static TraceRecordRequest extractTraceRecord(String workflowLabel, Long taskId, String workflowId, TaskTraceSnapshotStatus taskStatus) {
+    static TraceProgressRequest extractTraceProgress(String workflowLabel, Long taskId, TaskTraceSnapshotStatus taskStatus) {
         File workflowDir = getWorkflowDir(workflowLabel)
 
         String fileNamePart = "task_${taskId}_${taskStatus.name().toLowerCase()}.json"
         File jsonFile = workflowDir.listFiles().sort { it.name }.find { it.name.endsWith(fileNamePart) }
         println "JsonFile=$jsonFile"
 
-        TraceRecordRequest taskTrace = DomainHelper.mapper.readValue(jsonFile, TraceRecordRequest)
-        taskTrace.workflowId = workflowId
+        TraceProgressRequest taskTrace = DomainHelper.mapper.readValue(jsonFile, TraceProgressRequest)
 
         taskTrace
     }

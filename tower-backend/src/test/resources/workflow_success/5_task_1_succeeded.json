@@ -48,6 +48,5 @@
       "cloudZone": "eu-west-1",
       "priceModel": "spot"
     }
-  ],
-  "workflowId": "12345"
+  ]
 }

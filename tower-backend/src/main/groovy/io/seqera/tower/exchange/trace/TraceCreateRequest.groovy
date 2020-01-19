@@ -15,6 +15,7 @@ import groovy.transform.CompileStatic
 import groovy.transform.ToString
 
 /**
+ * Model a workflow trace create request
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
