@@ -165,46 +165,50 @@ class ProgressOperationsImpl implements ProgressOperations {
 
     }
 
+    ProgressData computeStats0(String workflowId, TraceProgressData trace) {
+        assert trace
+
+        final load = store.getWorkflowLoad(workflowId) ?: new WorkflowLoad()
+        load.pending = trace.pending
+        load.submitted = trace.submitted
+        load.running = trace.running
+        load.succeeded = trace.succeeded
+        load.failed = trace.failed
+        load.cached = trace.cached
+        // load and peaks
+        load.loadCpus = trace.loadCpus
+        load.loadMemory = trace.loadMemory
+        load.peakTasks = trace.peakRunning
+        load.peakCpus = trace.peakCpus
+        load.peakMemory = trace.peakMemory
+
+        final processes = new ArrayList<ProcessLoad>(trace.processes.size())
+        for(TraceProgressDetail detail : trace.processes ) {
+            final item = new ProcessLoad()
+            item.process = detail.name
+            item.pending = detail.pending
+            item.submitted = detail.submitted
+            item.running = detail.running
+            item.succeeded = detail.succeeded
+            item.failed = detail.failed
+            item.cached = detail.cached
+            // load and peaks
+            item.loadCpus = detail.loadCpus
+            item.loadMemory = detail.loadMemory
+            item.peakTasks = detail.peakRunning
+            item.peakCpus = detail.peakCpus
+            item.peakMemory = detail.peakMemory
+
+            processes.add(item)
+        }
+
+        new ProgressData( workflowProgress: load, processesProgress: processes )
+    }
+
     ProgressData computeStats(String workflowId) {
         def trace = store.getTraceData(workflowId)
         if( trace ) {
-            def load = store.getWorkflowLoad(workflowId) ?: new WorkflowLoad()
-            load.pending = trace.pending
-            load.submitted = trace.submitted
-            load.running = trace.running
-            load.succeeded = trace.succeeded
-            load.failed = trace.failed
-            load.cached = trace.cached
-            // load and peaks
-            load.loadCpus = trace.loadCpus
-            load.loadMemory = trace.loadMemory
-            load.peakTasks = trace.peakRunning
-            load.peakCpus = trace.peakCpus
-            load.peakMemory = trace.peakMemory
-
-            def processes = new ArrayList<ProcessLoad>()
-            for(TraceProgressDetail detail : trace.processes ) {
-                def item = new ProcessLoad()
-                item.pending = detail.pending
-                item.submitted = detail.submitted
-                item.running = detail.running
-                item.succeeded = detail.succeeded
-                item.failed = detail.failed
-                item.cached = detail.cached
-                // load and peaks
-                item.loadCpus = detail.loadCpus
-                item.loadMemory = detail.loadMemory
-                item.peakTasks = detail.peakRunning
-                item.peakCpus = detail.peakCpus
-                item.peakMemory = detail.peakMemory
-
-                processes.add(item)
-            }
-
-            return new ProgressData(
-                    workflowProgress: load,
-                    processesProgress: processes
-            )
+            return computeStats0(workflowId, trace)
         }
 
         // fallback mechanism
@@ -300,11 +304,11 @@ class ProgressOperationsImpl implements ProgressOperations {
     void persistProgressData(Workflow workflow, ProgressData data) {
         for( ProcessLoad process : data.processesProgress ) {
             process.workflow = workflow
-            process.save()
+            process.save(failOnError:true)
         }
 
         data.workflowProgress.workflow = workflow
-        data.workflowProgress.save()
+        data.workflowProgress.save(failOnError:true)
     }
 
     List<ProgressState> getStats() {

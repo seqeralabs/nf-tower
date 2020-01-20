@@ -18,9 +18,13 @@ import grails.gorm.transactions.Transactional
 import groovy.json.JsonSlurper
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.tower.Application
+import io.seqera.tower.domain.ProcessLoad
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.domain.WorkflowLoad
 import io.seqera.tower.enums.TaskStatus
+import io.seqera.tower.enums.WorkflowStatus
+import io.seqera.tower.exchange.trace.TraceProgressData
+import io.seqera.tower.exchange.trace.TraceProgressDetail
 import io.seqera.tower.service.live.LiveEventsService
 import io.seqera.tower.util.AbstractContainerBaseTest
 import io.seqera.tower.util.DomainCreator
@@ -37,6 +41,8 @@ class ProgressServiceTest extends AbstractContainerBaseTest {
     LiveEventsService liveEventsService
 
     @Inject TransactionService tx
+
+    @Inject ProgressStore store
 
 
     void "compute simple progress" () {
@@ -184,5 +190,47 @@ class ProgressServiceTest extends AbstractContainerBaseTest {
         !map.containsKey('taskCount')
     }
 
+    def 'should persist workflow and process loads' () {
+        given:
+        def creator = new DomainCreator()
+        def svc = (ProgressServiceImpl)progressService
+        and:
+        def wf = creator.createWorkflow(status: WorkflowStatus.SUCCEEDED)
+        def p1 = creator.createProcess(workflow: wf, name:'foo', position:0)
+        def p2 = creator.createProcess(workflow: wf, name:'bar', position:1)
+        and:
+        def t1 = creator.createTask(workflow: wf, status: TaskStatus.COMPLETED, name:'foo', cpus: 1)
+        def t2 = creator.createTask(workflow: wf, status: TaskStatus.COMPLETED, name:'bar', cpus: 4)
+        and:
+        store.putTraceData(wf.id, new TraceProgressData(succeeded: 3, failed: 1, processes: [new TraceProgressDetail(succeeded: 1, name: 'foo'), new TraceProgressDetail(succeeded: 2, failed: 1, name:'bar')]))
+        store.updateStats(wf.id, ['local'] as Set,  [t1, t2] )
+
+        when:
+        tx.withNewTransaction { svc.markWorkflowUnknownStatus0(wf.id) }
+
+        then:
+        def procLoads = ProcessLoad.findAllByWorkflow(wf, [sort:'id'])
+        procLoads.size() == 2
+        and:
+        with(procLoads[0]) {
+            process == 'foo'
+            succeeded == 1
+            failed == 0
+        }
+        with(procLoads[1]) {
+            process == 'bar'
+            succeeded == 2
+            failed == 1
+        }
+                
+        and:
+        with( WorkflowLoad.findByWorkflow(wf) ) {
+            succeeded == 3
+            failed == 1
+            // metrics aggregation
+            cpus == 5
+        }
+
+    }
 
 }

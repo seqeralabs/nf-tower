@@ -23,6 +23,8 @@ import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.ProcessLoad
 import io.seqera.tower.domain.WorkflowLoad
 import io.seqera.tower.enums.TaskStatus
+import io.seqera.tower.exchange.trace.TraceProgressData
+import io.seqera.tower.exchange.trace.TraceProgressDetail
 import io.seqera.tower.util.AbstractContainerBaseTest
 import io.seqera.tower.util.DomainCreator
 /**
@@ -456,6 +458,75 @@ class ProgressOperationsTest extends AbstractContainerBaseTest {
             failed == 1
             cpus == 4
             memoryReq == _4GB
+        }
+    }
+
+
+    def 'should compute progresss stats data' () {
+        given:
+        def WORKFLOW_ID = '12345'
+        def store = Mock(ProgressStore)
+        def svc = Spy(ProgressOperationsImpl)
+        svc.store = store
+        and:
+        def trace = new TraceProgressData(
+                running: 1, submitted: 2, succeeded: 3, failed: 4,
+                loadCpus: 1, loadMemory: 2,
+                peakCpus: 10, peakMemory: 20, peakRunning: 30,
+                processes: [
+                        new TraceProgressDetail(name: 'foo', submitted: 10, succeeded: 11, failed: 12),
+                        new TraceProgressDetail(name: 'bar', submitted: 11, succeeded: 22, failed: 33) ] )
+
+        def load = new WorkflowLoad(
+                cpus: 1, cpuTime: 100, cpuLoad: 200,
+                memoryRss: 300, memoryReq: 400,
+                readBytes: 500, writeBytes: 600,
+                volCtxSwitch: 700, invCtxSwitch: 800,
+                cost: 1001 )
+
+        when:
+        def result = svc.computeStats(WORKFLOW_ID)
+        then:
+        1 * store.getTraceData(WORKFLOW_ID) >> trace
+        1 * store.getWorkflowLoad(WORKFLOW_ID) >> load
+        and:
+        with(result.workflowProgress) {
+            cpus == 1
+            cpuTime == 100
+            cpuLoad == 200
+            memoryRss ==300
+            memoryReq == 400
+            readBytes == 500
+            writeBytes == 600
+            volCtxSwitch == 700
+            invCtxSwitch == 800
+            cost ==1001
+            // from trace
+            running == 1
+            submitted == 2
+            succeeded == 3
+            failed == 4
+            loadCpus == 1
+            loadMemory == 2
+            peakCpus == 10
+            peakMemory == 20
+            peakTasks == 30
+        }
+        and:
+        result.processesProgress.size() ==2
+        and:
+        with(result.processesProgress.get(0)) {
+            process == 'foo'
+            submitted == 10
+            succeeded == 11
+            failed == 12
+        }
+        and:
+        with(result.processesProgress.get(1)) {
+            process == 'bar'
+            submitted == 11
+            succeeded == 22
+            failed == 33
         }
     }
 }

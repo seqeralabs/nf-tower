@@ -166,7 +166,7 @@ class ProgressServiceImpl implements ProgressService {
             log.debug "Marking workflow with Id=$workflowId as UNKNOWN (expire)"
             workflow.status = UNKNOWN
             workflow.duration = computeDuration(workflow.start)
-            workflow.save()
+            workflow.save(failOnError:true)
             // notify audit event
             auditEventPublisher.workflowStatusChangeBySystem(workflowId, "new=$UNKNOWN; was=$RUNNING")
         }
