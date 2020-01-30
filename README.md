@@ -5,6 +5,8 @@
 Nextflow Tower is an open source monitoring and managing platform
 for [Nextflow](https://www.nextflow.io/) workflows. Learn more at [tower.nf](https://tower.nf/).
 
+This repository contains the open-source community version. Distribution packages, deployment scripts, maintenance updates, migration scripts and custom integrations are available to customers of [Seqera Labs](https://seqera.io/)
+
 ## Build the environment
 
 ```bash
