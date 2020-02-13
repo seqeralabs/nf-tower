@@ -47,6 +47,8 @@ import { WorkflowUnknownComponent } from "./component/workflow-unknown/workflow-
 import { LoadingComponent } from './component/loading/loading.component';
 import { TreeListComponent } from "./component/tree-list/TreeListComponent";
 import { WorkflowStatusIconComponent } from "../../workflow-status-icon/workflow-status-icon.component";
+import { WorkflowNoteComponent } from "./component/workflow-note/workflow-note.component";
+import { WorkflowNotesTabComponent} from "./component/workflow-notes-tab/workflow-notes-tab.component";
 
 /*
  * Main application routing strategy
@@ -99,7 +101,8 @@ export class MainRoutingModule { }
     HomeComponent,
     NotificationComponent,
     LandingComponent,
-    TreeListComponent
+    TreeListComponent,
+    WorkflowNoteComponent, WorkflowNotesTabComponent
   ],
   imports: [
     BrowserModule,
@@ -107,7 +110,7 @@ export class MainRoutingModule { }
     HttpClientModule,
     FormsModule,
     ChartistModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },

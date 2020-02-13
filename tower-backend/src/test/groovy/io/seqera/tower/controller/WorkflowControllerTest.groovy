@@ -11,11 +11,6 @@
 
 package io.seqera.tower.controller
 
-import io.micronaut.http.uri.UriBuilder
-import io.seqera.tower.enums.TaskStatus
-import io.seqera.tower.exchange.progress.GetProgressResponse
-import spock.lang.Unroll
-
 import javax.inject.Inject
 import java.time.Instant
 import java.time.OffsetDateTime
@@ -29,6 +24,7 @@ import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.RxHttpClient
 import io.micronaut.http.client.annotation.Client
 import io.micronaut.http.client.exceptions.HttpClientResponseException
+import io.micronaut.http.uri.UriBuilder
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.tower.Application
 import io.seqera.tower.domain.Task
@@ -38,20 +34,22 @@ import io.seqera.tower.domain.WfNextflow
 import io.seqera.tower.domain.WfStats
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.domain.WorkflowComment
+import io.seqera.tower.enums.TaskStatus
+import io.seqera.tower.exchange.progress.GetProgressResponse
 import io.seqera.tower.exchange.task.TaskList
 import io.seqera.tower.exchange.workflow.AddWorkflowCommentRequest
 import io.seqera.tower.exchange.workflow.AddWorkflowCommentResponse
-import io.seqera.tower.exchange.workflow.DeleteWorkflowCommentRequest
 import io.seqera.tower.exchange.workflow.DeleteWorkflowCommentResponse
-import io.seqera.tower.exchange.workflow.ListWorkflowCommentsResponse
 import io.seqera.tower.exchange.workflow.GetWorkflowMetricsResponse
+import io.seqera.tower.exchange.workflow.GetWorkflowResponse
+import io.seqera.tower.exchange.workflow.ListWorkflowCommentsResponse
+import io.seqera.tower.exchange.workflow.ListWorklowResponse
 import io.seqera.tower.exchange.workflow.UpdateWorkflowCommentRequest
 import io.seqera.tower.exchange.workflow.UpdateWorkflowCommentResponse
-import io.seqera.tower.exchange.workflow.GetWorkflowResponse
-import io.seqera.tower.exchange.workflow.ListWorklowResponse
 import io.seqera.tower.service.WorkflowService
 import io.seqera.tower.util.AbstractContainerBaseTest
 import io.seqera.tower.util.DomainCreator
+import spock.lang.Unroll
 
 @MicronautTest(application = Application.class)
 @Transactional
@@ -473,13 +471,14 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         response.status == HttpStatus.OK
         response.body().comments.size() == 2
         and:
-        response.body().comments[0].text == 'Second hello'
+        response.body().comments[0].text == 'First hello'
         response.body().comments[0].author.id == user.id
         response.body().comments[0].author.displayName == user.userName
         and:
-        response.body().comments[1].text == 'First hello'
+        response.body().comments[1].text == 'Second hello'
         response.body().comments[1].author.id == user.id
         response.body().comments[1].author.displayName == user.userName
+
     }
 
     def 'should add a workflow comment' () {
@@ -575,9 +574,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
 
         when: "perform the request to obtain the comments"
         String auth = doJwtLogin(user, client)
-        def ts =  OffsetDateTime.now().truncatedTo(ChronoUnit.MINUTES)
-        def req = new DeleteWorkflowCommentRequest(commentId: comment1.id, timestamp: ts)
-        def delete = HttpRequest.DELETE("/workflow/${workflow.id}/comment", req)
+        def delete = HttpRequest.DELETE("/workflow/${workflow.id}/comment/${comment1.id}")
         def resp = client
                 .toBlocking()
                 .exchange( delete.bearerAuth(auth), DeleteWorkflowCommentResponse )
@@ -587,9 +584,9 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
 
         and:
         // comment1 has been deleted
-        tx.withNewTransaction { WorkflowComment.get(comment1.id) } == null
+        tx.withNewTransaction { WorkflowComment.get(comment1.id).deleted }
 
         // comment2 still here
-        tx.withNewTransaction { WorkflowComment.get(comment2.id) } != null
+        !tx.withNewTransaction { WorkflowComment.get(comment2.id).deleted }
     }
 }
