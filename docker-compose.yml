@@ -2,8 +2,7 @@ version: "3"
 services:
 
   backend:
-    build: ./tower-backend
-    command: bash -c 'tower.sh'
+    image: tower-backend
     networks:
       - frontend
       - backend

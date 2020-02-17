@@ -18,7 +18,7 @@ build:
 	docker build -t tower-web:latest tower-web/
 
 run:
-	docker-compose up --build
+	docker-compose up
 
 deps:
 	./gradlew -q tower-backend:dependencies --configuration ${config}
