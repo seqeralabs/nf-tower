@@ -8,15 +8,15 @@
  * This Source Code Form is "Incompatible With Secondary Licenses", as
  * defined by the Mozilla Public License, v. 2.0.
  */
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import {HttpClient, HttpErrorResponse} from '@angular/common/http';
 import {Workflow} from '../entity/workflow/workflow';
 import {environment} from '../../../../environments/environment';
-import {Observable, Subject, of, ReplaySubject} from 'rxjs';
+import {Observable, of, ReplaySubject, Subject} from 'rxjs';
 import {map, tap} from 'rxjs/operators';
-import {orderBy} from 'lodash';
 import {ProgressData} from '../entity/progress/progress-data';
 import {FilteringParams} from "../util/filtering-params";
+import {TaskData} from "../entity/task/task-data";
 
 
 const endpointUrl = `${environment.apiUrl}/workflow`;
@@ -93,7 +93,7 @@ export class WorkflowService {
       tap((workflow: Workflow) => {
         const isAlreadyInCache: boolean = this.workflowsByIdCache.has(workflow.id);
         if (isAlreadyInCache) {
-          this.workflowsByIdCache.set(workflow.id, workflow)
+          this.workflowsByIdCache.set(workflow.id, workflow);
         }
       })
     );
@@ -101,9 +101,16 @@ export class WorkflowService {
 
   getProgress(workflowId: string): Observable<ProgressData> {
     console.log(`Requesting progress for workflow ${workflowId}`);
-    const url: string = `${endpointUrl}/${workflowId}/progress`;
+    const url = `${endpointUrl}/${workflowId}/progress`;
     return this.http.get(url).pipe(
       map((data: any) => new ProgressData(data.progress))
+    );
+  }
+
+  getTaskById(workflowId: string, taskId: string | number): Observable<TaskData> {
+    const url = `${endpointUrl}/${workflowId}/task/${taskId}`;
+    return this.http.get(url).pipe(
+      map((data: any) => data.task)
     );
   }
 

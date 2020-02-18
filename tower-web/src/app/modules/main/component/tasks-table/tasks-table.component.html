@@ -26,28 +26,6 @@
             <th>wchar</th>
             <th>vol_ctxt</th>
             <th>inv_ctxt</th>
-            <th>workdir</th>
-            <th>script</th>
-            <th>name</th>
-            <th>start</th>
-            <th>complete</th>
-            <th>read_bytes</th>
-            <th>write_bytes</th>
-            <th>syscr</th>
-            <th>syscw</th>
-            <th>env</th>
-            <th>cpus</th>
-            <th>memory</th>
-            <th>time</th>
-            <th>rss</th>
-            <th>vmem</th>
-            <th>attempt</th>
-            <th>error_action</th>
-            <th>executor</th>
-            <th>machineType</th>
-            <th>cloudZone</th>
-            <th>priceModel</th>
-            <th>cost</th>
           </tr>
           </thead>
           <tbody>
@@ -55,4 +33,12 @@
         </table>
     </div>
   </div>
+</div>
+
+<div class="modal fade bd-example-modal-lg" id="exampleModalLong" tabindex="-1" role="dialog"
+     aria-labelledby="task-details-modal" aria-hidden="true">
+  <wt-task-details
+    [workflowId]="workflowId"
+    [taskId]="taskId"
+  ></wt-task-details>
 </div>

@@ -460,4 +460,20 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         }
 
     }
+    void 'should find task by id' () {
+        given:
+        def creator = new DomainCreator()
+        and:
+        def wf1 =  creator.createWorkflow(sessionId: 'aaa-1')
+        def t1 = creator.createTask(workflow: wf1, hash: 'abc', name: 'foo')
+        def t2 = creator.createTask(workflow: wf1, hash: 'xyz', name: 'bar')
+
+        when:
+        println "taskId = $t1.id"
+        def result = taskService.findByTaskId(t1.id)
+        then:
+        result.name == 'foo'
+        result.workflow.id == t1.workflow.id 
+    }
+
 }

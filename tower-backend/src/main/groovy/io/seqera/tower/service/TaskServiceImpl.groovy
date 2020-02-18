@@ -11,7 +11,6 @@
 
 package io.seqera.tower.service
 
-
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -26,6 +25,7 @@ import io.seqera.tower.enums.TaskStatus
 import io.seqera.tower.exceptions.NonExistingWorkflowException
 import io.seqera.tower.exchange.trace.TraceTaskRequest
 import io.seqera.tower.service.audit.AuditEventPublisher
+import io.seqera.util.TupleUtils
 
 @Slf4j
 @Transactional
@@ -181,6 +181,13 @@ class TaskServiceImpl implements TaskService {
         def query = createTaskQuery0(params, filter, true)
         def result = Task.executeQuery(query, params)
         return result[0] as long
+    }
+
+    @Override
+    Task findByTaskId(Long taskId) {
+        final params = TupleUtils.map('taskId', taskId)
+        final query = "from Task t where t.id = :taskId"
+        Task.find(query, params)
     }
 
     private String createTaskQuery0(Map params, String search, boolean count=false) {

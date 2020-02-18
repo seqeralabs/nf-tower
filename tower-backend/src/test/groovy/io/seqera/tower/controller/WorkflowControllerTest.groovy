@@ -14,6 +14,7 @@ package io.seqera.tower.controller
 import io.micronaut.http.uri.UriBuilder
 import io.seqera.tower.enums.TaskStatus
 import io.seqera.tower.exchange.progress.GetProgressResponse
+import io.seqera.tower.exchange.task.TaskGet
 import spock.lang.Unroll
 
 import javax.inject.Inject
@@ -591,5 +592,32 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
 
         // comment2 still here
         tx.withNewTransaction { WorkflowComment.get(comment2.id) } != null
+    }
+
+
+    def 'should get task details' () {
+        given:
+        def creator = new DomainCreator()
+        def user = creator.generateAllowedUser()
+        and:
+        def w1 = creator.createWorkflow(owner: user)
+        def t1 = creator.createTask(workflow: w1, hash: 'abc', name: 'foo')
+        def t2 = creator.createTask(workflow: w1, hash: 'xyz', name: 'bar')
+
+
+        when:
+        def auth = doJwtLogin(user, client)
+        def response = client
+                .toBlocking()
+                .exchange(
+                        HttpRequest.GET("/workflow/${w1.id}/task/${t2.id}") .bearerAuth(auth),
+                        TaskGet )
+
+        then:
+        response.body().task.id == t2.id
+        response.body().task.name == 'bar'
+        response.body().task.hash == 'xyz'
+
+
     }
 }

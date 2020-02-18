@@ -1,0 +1,26 @@
+.modal-dialog {
+  max-width: 100%;
+  width: 1250px;
+
+  .modal-body {
+    height: 77vh;
+    overflow-y: scroll;
+
+    table {
+      tbody {
+        th {
+          width: 15%;
+          background-color: rgba(0,0,0,.03);
+        }
+
+        td:nth-child(2) {
+          width: 25%;
+        }
+
+        td:nth-child(3) {
+          width: 60%;
+        }
+      }
+    }
+  }
+}

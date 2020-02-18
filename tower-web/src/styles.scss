@@ -179,23 +179,13 @@ code {
     overflow-y: hidden !important;
   }
 
-  td.details-control {
+  td {
     cursor: pointer;
   }
 
   .details-table {
     margin-left: 1em;
     table-layout: fixed;
-
-    th:nth-child(1) {
-      width: 20%;
-    }
-    th:nth-child(2) {
-      width: 20%;
-    }
-    th:nth-child(3) {
-      width: 60%;
-    }
 
     div.scrollable {
       max-width: 100%;

@@ -31,6 +31,7 @@ export class Task {
   }
 
   /* Storage capacity values */
+  get humanizedDisk(): string { return FormatterUtil.humanizeStorageCapacity(this.data.disk, 1) }
   get humanizedMemory(): string { return FormatterUtil.humanizeStorageCapacity(this.data.memory, 1) }
   get humanizedVmem(): string { return FormatterUtil.humanizeStorageCapacity(this.data.vmem, 1) }
   get humanizedRss(): string { return FormatterUtil.humanizeStorageCapacity(this.data.rss, 1) }
@@ -59,6 +60,8 @@ export class Task {
   }
 
   get humanizedCost(): string {
+    if( this.data.cost===0 && (this.data.realtime==null || this.data.machineType==null || this.data.cloudZone==null) )
+      return '';
     return FormatterUtil.formatMoney(this.data.cost, 10);
   }
 

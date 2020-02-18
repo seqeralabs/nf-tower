@@ -13,12 +13,18 @@ package io.seqera.tower.exchange.task
 
 
 import io.seqera.tower.domain.Task
+import io.seqera.tower.exchange.BaseResponse
 
-class TaskGet {
+class TaskGet implements BaseResponse {
 
     Task task
+    String message
 
     static TaskGet of(Task task) {
         new TaskGet(task: task)
+    }
+
+    static error(String message) {
+        new TaskGet(message: message)
     }
 }
