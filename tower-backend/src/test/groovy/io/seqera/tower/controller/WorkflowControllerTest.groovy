@@ -597,12 +597,13 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
 
     def 'should get task details' () {
         given:
+        def WID = 'xyz-1'
         def creator = new DomainCreator()
         def user = creator.generateAllowedUser()
         and:
-        def w1 = creator.createWorkflow(owner: user)
-        def t1 = creator.createTask(workflow: w1, hash: 'abc', name: 'foo')
-        def t2 = creator.createTask(workflow: w1, hash: 'xyz', name: 'bar')
+        def w1 = creator.createWorkflow(owner: user, id: WID)
+        def t1 = creator.createTask(workflow: w1, hash: 'abc', name: 'foo', taskId: 1)
+        def t2 = creator.createTask(workflow: w1, hash: 'xyz', name: 'bar', taskId: 2)
 
 
         when:
@@ -610,7 +611,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         def response = client
                 .toBlocking()
                 .exchange(
-                        HttpRequest.GET("/workflow/${w1.id}/task/${t2.id}") .bearerAuth(auth),
+                        HttpRequest.GET("/workflow/${WID}/task/2") .bearerAuth(auth),
                         TaskGet )
 
         then:

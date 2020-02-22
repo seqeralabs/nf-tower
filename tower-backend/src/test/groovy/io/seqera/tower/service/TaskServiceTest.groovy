@@ -458,22 +458,40 @@ class TaskServiceTest extends AbstractContainerBaseTest {
             status == TaskStatus.COMPLETED
             cost == 0.25
         }
-
     }
+
     void 'should find task by id' () {
         given:
         def creator = new DomainCreator()
         and:
-        def wf1 =  creator.createWorkflow(sessionId: 'aaa-1')
-        def t1 = creator.createTask(workflow: wf1, hash: 'abc', name: 'foo')
-        def t2 = creator.createTask(workflow: wf1, hash: 'xyz', name: 'bar')
+        def wf1 =  creator.createWorkflow(id: 'aaa-1')
+        def t1 = creator.createTask(workflow: wf1, hash: 'abc', name: 'foo', taskId: 1)
+        def t2 = creator.createTask(workflow: wf1, hash: 'xyz', name: 'bar', taskId: 2)
+        and:
+        def wf2 =  creator.createWorkflow(id: 'bbb-2')
+        def t3 = creator.createTask(workflow: wf2, hash: 'pqt', name: 'baz', taskId: 1)
 
         when:
-        println "taskId = $t1.id"
-        def result = taskService.findByTaskId(t1.id)
+        def r1 = taskService.findByWorkflowAndTaskId('aaa-1', 1)
         then:
-        result.name == 'foo'
-        result.workflow.id == t1.workflow.id 
+        r1.id == t1.id
+        r1.name == 'foo'
+        r1.taskId == 1
+
+        when:
+        def r2 = taskService.findByWorkflowAndTaskId('aaa-1', 2)
+        then:
+        r2.id == t2.id
+        r2.name == 'bar'
+        r2.taskId == 2
+
+
+        when:
+        def r3 = taskService.findByWorkflowAndTaskId('bbb-2', 1)
+        then:
+        r3.id == t3.id
+        r3.name == 'baz'
+        r3.taskId == 1
     }
 
 }

@@ -100,6 +100,12 @@ class Task implements TaskDef {
         exitStatus
     }
 
+    @JsonGetter('script')
+    String serialiseScript() {
+        def result = getScript()
+        return result ? result.stripIndent() : result
+    }
+
     static mapping = {
         data lazy: false
         workflow lazy: true

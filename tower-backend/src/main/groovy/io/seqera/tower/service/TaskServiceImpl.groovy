@@ -183,13 +183,6 @@ class TaskServiceImpl implements TaskService {
         return result[0] as long
     }
 
-    @Override
-    Task findByTaskId(Long taskId) {
-        final params = TupleUtils.map('taskId', taskId)
-        final query = "from Task t where t.id = :taskId"
-        Task.find(query, params)
-    }
-
     private String createTaskQuery0(Map params, String search, boolean count=false) {
         final statusesToSearch = TaskStatus.findStatusesByRegex(search)
         final String filter = search ? search.contains('*') ? search.replaceAll(/\*/, '%') : "${search}%".toString() : null
@@ -223,6 +216,13 @@ class TaskServiceImpl implements TaskService {
         }
 
         return query
+    }
+
+    @Override
+    Task findByWorkflowAndTaskId(String workflowId, Long taskId) {
+        final params = TupleUtils.map('wid', workflowId,'tid', taskId)
+        final query = "from Task t join fetch t.data d where t.workflow.id = :wid and t.taskId = :tid"
+        Task.find(query, params)
     }
 
 }

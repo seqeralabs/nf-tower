@@ -177,11 +177,9 @@ class WorkflowController extends BaseController {
     @Get("/{workflowId}/task/{taskId}")
     HttpResponse<TaskGet> getTaskById(String workflowId, Long taskId, Authentication authentication) {
         final user = userService.getByAuth(authentication)
-        final task = taskService.findByTaskId(taskId)
+        final task = taskService.findByWorkflowAndTaskId(workflowId, taskId)
         if( !task )
             return HttpResponse.badRequest(TaskGet.error("Oops .. Unable to find task with Id=$taskId"))
-        if( task.workflow.id != workflowId )
-            return HttpResponse.badRequest(TaskGet.error("Oops .. Not a valid task workflow Id=$workflowId"))
         if( task.workflow.owner.id != user.id )
             return HttpResponse.badRequest(TaskGet.error("Oops .. User is not the owner of requested task"))
 

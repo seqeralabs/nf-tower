@@ -28,6 +28,6 @@ interface TaskService {
 
     long countTasks(String workflowId, String filter)
 
-    Task findByTaskId(Long taskId)
+    Task findByWorkflowAndTaskId(String workflowId, Long taskId)
 
 }
