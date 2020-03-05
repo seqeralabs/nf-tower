@@ -56,7 +56,7 @@ export class Task {
 
   /* Code values */
   get humanizedExit(): string {
-    return this.data.exit == null || this.data.exit === 2147483647 ? '' : `${this.data.exit}`;
+    return this.data.exit == null || this.data.exit == 2147483647 ? '' : `${this.data.exit}`;
   }
 
   get humanizedCost(): string {
