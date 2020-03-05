@@ -5,7 +5,10 @@
 Nextflow Tower is an open source monitoring and managing platform
 for [Nextflow](https://www.nextflow.io/) workflows. Learn more at [tower.nf](https://tower.nf/).
 
-This repository contains the open-source community version. Distribution packages, deployment scripts, maintenance updates, migration scripts and custom integrations are available to customers of [Seqera Labs](https://seqera.io/)
+## Requirements 
+
+* Java 8
+* Docker engine
 
 ## Build the environment
 
@@ -95,7 +98,8 @@ By default it uses [H2](https://www.h2database.com), an embedded database meant 
 
 * For common problems, doubts and feedback please use the [Gitter community channel](https://gitter.im/nf-tower/community) 
   or the [GitHub issues page](https://github.com/seqeralabs/nf-tower/issues). 
-* Commercial support is provided by [Seqera Labs](https://www.seqera.io/).
+* This source code is distributed as it is for community adoption. 
+* Distribution packages, deployment scripts, maintenance updates, migration scripts and custom integrations are available to customers of [Seqera Labs](https://seqera.io/).
  
 
 ## License
