@@ -22,7 +22,8 @@ const authorizationErrorCodes: number[] = [401, 403];
 export class ErrorInterceptor implements HttpInterceptor {
 
   constructor(private authService: AuthService,
-              private notificationService: NotificationService) {
+              private notificationService: NotificationService,
+              private router: Router) {
   }
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
@@ -33,10 +34,10 @@ export class ErrorInterceptor implements HttpInterceptor {
         }
         console.log('Authorization error intercepted', error);
 
-        if (this.authService.isUserAuthenticated && error.status === 401) {
+        if (this.authService.isUserAuthenticated && error.status == 401) {
           this.notificationService.showErrorNotification('Session expired');
           this.authService.logoutAndGoHome();
-        } else if (error.status === 403) {
+        } else if (error.status == 403) {
           this.notificationService.showErrorNotification('Forbidden access');
         }
 

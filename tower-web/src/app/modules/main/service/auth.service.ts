@@ -104,8 +104,8 @@ export class AuthService {
   }
 
   private parseJwt(token: string): any {
-    const base64Url = token.split('.')[1];
-    const decodedBase64 = decodeURIComponent(atob(base64Url).split('')
+    let base64Url = token.split('.')[1];
+    let decodedBase64 = decodeURIComponent(atob(base64Url).split('')
       .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
       .join(''));
 

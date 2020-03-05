@@ -28,6 +28,11 @@
     }
   }
 
+  &.active {
+    border-left-width: 6px;
+    padding-left: 0;
+  }
+
   p {
     font-size: 0.9em;
   }
