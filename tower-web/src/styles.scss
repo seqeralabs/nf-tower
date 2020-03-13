@@ -219,25 +219,25 @@ code {
     padding-top: 0.3em;
     padding-bottom: 0.4em;
 
-    &.new {
+    &.NEW {
       background-color: $clr-pending;
     }
-    &.submitted {
+    &.SUBMITTED {
       background-color: $clr-submitted;
     }
-    &.running {
+    &.RUNNING {
       background-color: $clr-running;
     }
-    &.cached {
+    &.CACHED {
       background-color: $clr-cached;
     }
-    &.completed {
+    &.COMPLETED {
       background-color: $clr-succeed;
     }
-    &.failed {
+    &.FAILED {
       background-color: $clr-failed;
     }
-    &.aborted {
+    &.ABORTED {
       background-color: $clr-aborted;
     }
   }

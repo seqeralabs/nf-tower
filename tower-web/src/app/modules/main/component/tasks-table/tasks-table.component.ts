@@ -68,11 +68,11 @@ export class TasksTableComponent implements OnInit, OnChanges {
       orderMulti: false,
       rowId: (rowData) => `tr-${rowData[0]}`,
       columns: [
-        {name: "taskId", className: 'details-control', orderable: true, render: (taskId) => `<span class="mdi mdi-plus-circle-outline" data-toggle="modal" data-target="#exampleModalLong"></span>&nbsp&nbsp${taskId}`},
+        {name: "taskId", className: 'details-control', orderable: true, render: (taskId) => `<span class="mdi mdi-plus-circle-outline" data-toggle="modal" data-target="#taskDetailModal"></span>&nbsp&nbsp${taskId}`},
         {name: "process", orderable: false},
         {name: "tag", orderable: false},
         {name: "hash", orderable: false},
-        {name: "status", orderable: false, render: (status) => `<span class="badge badge-pill ${status.toLowerCase()}">${convertTaskStatusToProgressLabel(status)}</span>`},
+        {name: "status", orderable: false, render: (status) => `<span class="badge badge-pill ${status}">${convertTaskStatusToProgressLabel(status)}</span>`},
         {name: "exit", orderable: false},
         {name: "container", orderable: false },
         {name: "nativeId", orderable: false},
@@ -112,20 +112,20 @@ export class TasksTableComponent implements OnInit, OnChanges {
               task.data.tag,
               task.data.hash,
               task.statusTag,
-              task.humanizedExit,
-              task.data.container,
+              task.exitFmt,
+              task.containerFmt,
               task.data.nativeId,
-              task.humanizedSubmit,
-              task.humanizedDuration,
-              task.humanizedRealtime,
-              task.data.pcpu,
+              task.submitFmt,
+              task.durationFmt,
+              task.realtimeFmt,
+              task.pcpuFmt,
               task.data.pmem,
-              task.humanizedPeakRss,
-              task.humanizedPeakVmem,
-              task.humanizedRchar,
-              task.humanizedWchar,
-              task.data.volCtxt,
-              task.data.invCtxt
+              task.peakRssFmt,
+              task.peakVmemFmt,
+              task.rcharFmt,
+              task.wcharFmt,
+              task.volCtxtFmt,
+              task.invCtxtFmt
             ]) : [];
 
           return JSON.stringify(json);
@@ -140,7 +140,7 @@ export class TasksTableComponent implements OnInit, OnChanges {
     tableBody.off('click', 'td');
     tableBody.on('click', 'td',(event) => {
       event.target.setAttribute('data-toggle', 'modal');
-      event.target.setAttribute('data-target', '#exampleModalLong');
+      event.target.setAttribute('data-target', '#taskDetailModal');
       const targetTr = $(event.target).closest('tr');
       const targetRow = this.dataTable.row(targetTr);
       const isRowBeingShown: boolean = targetRow.child.isShown();

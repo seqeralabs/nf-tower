@@ -27,15 +27,7 @@ export class TaskDetailsComponent implements OnChanges, OnInit {
   }
 
   ngOnInit() {
-  }
-
-  ftmAction(x): string {
-    return x != null && x !== '-' ? '(action: ' + x + ')' : '';
-  }
-
-
-  fmt(x): string {
-    return x == null || x === '' ? '-' : x.toString().trim();
+    this.task = new Task({});
   }
 
 }
