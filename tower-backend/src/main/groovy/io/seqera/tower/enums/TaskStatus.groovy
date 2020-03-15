@@ -21,7 +21,22 @@ enum TaskStatus {
     CACHED,     // task cached
     COMPLETED,  // completed successfully
     FAILED,     // completed with error
-    ABORTED     // execution aborted
+    ABORTED;    // execution aborted
+
+    private final static Map<String,TaskStatus> displayLabel
+
+    static {
+        // some statuses are displayed in the UI using a different
+        // label e.g. NEW => PENDING
+        displayLabel = new LinkedHashMap<>(10)
+        displayLabel.PENDING = NEW
+        displayLabel.SUBMITTED = SUBMITTED
+        displayLabel.RUNNING = RUNNING
+        displayLabel.CACHED = CACHED
+        displayLabel.SUCCEEDED = COMPLETED
+        displayLabel.FAILED = FAILED
+        displayLabel.ABORTED = ABORTED
+    }
 
     static Collection<TaskStatus> findStatusesByRegex(String criteria) {
         if( !criteria )
@@ -29,7 +44,10 @@ enum TaskStatus {
         if( !criteria.contains('*') )
             criteria += '*'
 
-        values().findAll { StringUtils.like(it.name(), criteria) }
+        displayLabel
+                .entrySet()
+                .findAll { entry -> StringUtils.like(entry.key, criteria) }
+                .collect { entry -> entry.value }
     }
 
     static private List<TaskStatus> TERMINAL = [COMPLETED, FAILED, ABORTED, CACHED]

@@ -30,9 +30,14 @@ class TaskStatusTest extends Specification {
         STR         | EXPECTED
         null        | []
         'run'       | [TaskStatus.RUNNING]
-        'C'         | [TaskStatus.CACHED, TaskStatus.COMPLETED]
-        'c*'        | [TaskStatus.CACHED, TaskStatus.COMPLETED]
-        '*ing'      | [TaskStatus.RUNNING]
+        'C'         | [TaskStatus.CACHED]
+        'c*'        | [TaskStatus.CACHED]
+        'pend'      | [TaskStatus.NEW]
+        'pending'   | [TaskStatus.NEW]
+        'succeeded' | [TaskStatus.COMPLETED]
+        'fail'      | [TaskStatus.FAILED]
+        'abort'     | [TaskStatus.ABORTED]
+        '*ing'      | [TaskStatus.NEW, TaskStatus.RUNNING] // matches 'pending' (ie. NEW) and 'running'
     }
 
     def 'should create a map' () {

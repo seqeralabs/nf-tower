@@ -322,7 +322,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         'submitted' | [1l]             | 'hash'        | 'asc'
         'run*'      | [2l]             | 'hash'        | 'asc'
         'fail*'     | [3l]             | 'hash'        | 'asc'
-        'comp*'     | [4l]             | 'hash'        | 'asc'
+        'succ*'     | [4l]             | 'hash'        | 'asc'   // this matches `COMPLETED` status
     }
 
     void "try to get the list of tasks from a nonexistent workflow"() {

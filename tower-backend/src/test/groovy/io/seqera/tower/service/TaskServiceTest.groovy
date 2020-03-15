@@ -370,7 +370,7 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         'FOO*'      | 'duration'  | 'asc'  | 10    | 0      | [2,1]
         'bar*'      | 'duration'  | 'asc'  | 10    | 0      | [3]
         'running'   | 'taskId'    | 'asc'  | 10    | 0      | [2,3]
-        'COMPLET*'  |'taskId'     | 'asc'  | 10    | 0      | [1]
+        'SUCCEED*'  |'taskId'     | 'asc'  | 10    | 0      | [1]           // this matches `COMPLETED` status
         'UNKNOWN'   | 'taskId'    | 'asc'  | 10    | 0      | []
     }
 
@@ -413,7 +413,7 @@ class TaskServiceTest extends AbstractContainerBaseTest {
         'submitted' | [1l]
         'run*'      | [2l]
         'fail*'     | [3l]
-        'comp*'     | [4l]
+        'succeed*'  | [4l]  // this matches `COMPLETED` status
     }
 
     void "try to find some tasks for a nonexistent workflow"() {
