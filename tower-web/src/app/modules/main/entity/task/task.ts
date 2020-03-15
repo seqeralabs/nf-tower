@@ -21,8 +21,8 @@ export class Task {
     this.data = json.task as TaskData;
   }
 
-  get statusTag(): string {
-    return this.data && this.data.status ? TaskStatus[this.data.status].toString() : TaskStatus.NEW.toString();
+  get statusFmt(): string {
+    return this.data && this.data.status!=null ? TaskStatus[this.data.status].toString() : TaskStatus.NEW.toString();
   }
 
   get nameFmt(): string {

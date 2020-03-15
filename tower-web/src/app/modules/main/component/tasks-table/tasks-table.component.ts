@@ -111,7 +111,7 @@ export class TasksTableComponent implements OnInit, OnChanges {
               task.data.process,
               task.data.tag,
               task.data.hash,
-              task.statusTag,
+              task.statusFmt,
               task.exitFmt,
               task.containerFmt,
               task.data.nativeId,
