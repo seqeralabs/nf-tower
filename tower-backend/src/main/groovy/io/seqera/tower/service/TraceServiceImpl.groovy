@@ -224,8 +224,20 @@ class TraceServiceImpl implements TraceService {
 
     @Override
     Workflow handleFlowComplete(TraceCompleteRequest request, User user) {
+        if( !request.workflow )
+            throw new IllegalStateException("Missing completion request workflow")
+
+        if( !request.workflow.id )
+            throw new IllegalStateException("Missing completion request workflow id")
+
         if( !request.workflow.checkIsComplete() )
             throw new IllegalStateException("Workflow status should be complete -- current=${request.workflow.status}")
+
+        // update live progress
+        if( request.progress ) {
+            log.debug "> Complete update progress"
+            progressService.updateProgress(request.workflow.id, request.progress)
+        }
 
         final workflow = workflowService.updateWorkflow(request.workflow, request.metrics)
         checkWorkflowSaveErrors(workflow)

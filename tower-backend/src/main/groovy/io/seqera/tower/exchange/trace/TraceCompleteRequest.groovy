@@ -27,5 +27,6 @@ class TraceCompleteRequest {
 
     Workflow workflow
     List<WorkflowMetrics> metrics
+    TraceProgressData progress
 
 }
