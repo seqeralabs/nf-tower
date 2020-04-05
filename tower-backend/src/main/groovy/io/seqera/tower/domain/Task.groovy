@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonSetter
 import com.fasterxml.jackson.databind.ObjectMapper
 import grails.gorm.annotation.Entity
 import groovy.transform.CompileDynamic
+import groovy.util.logging.Slf4j
 import io.seqera.tower.enums.TaskStatus
 import io.seqera.tower.service.cloudprice.CloudPriceModel
 
@@ -26,6 +27,7 @@ import io.seqera.tower.service.cloudprice.CloudPriceModel
  * Workflow task info
  * see https://www.nextflow.io/docs/latest/tracing.html#execution-report
  */
+@Slf4j
 @Entity
 @JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version', 'workflow', 'data'])
 @CompileDynamic
@@ -268,5 +270,16 @@ class Task implements TaskDef {
 
     String toString() {
         "Task[id=$id; taskId=$taskId, status=$status; dataId=${data.id}]"
+    }
+
+    // patch tag deserialization -- https://github.com/seqeralabs/nf-tower/issues/225
+    @JsonSetter('tag')
+    void deserializeTag(def value) {
+        if( value == null )
+            return
+        if( value instanceof String )
+            setTag(value)
+        else
+            log.warn "Unable to deserialize tag [class=${value.getClass().getName()}; taskId=$taskId] value=$value"
     }
 }
