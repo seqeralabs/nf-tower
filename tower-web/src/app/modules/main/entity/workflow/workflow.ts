@@ -90,7 +90,7 @@ export class Workflow {
   }
 
   get displayName(): string {
-    return this.data.manifest.name != null ? this.data.manifest.name : this.data.projectName;
+    return this.data.manifest && this.data.manifest.name != null ? this.data.manifest.name : this.data.projectName;
   }
 
   get nextflowVersion(): string {
