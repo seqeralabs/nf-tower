@@ -70,7 +70,7 @@ dependencies {
     
     compile "ch.qos.logback:logback-classic:1.2.3"
 
-    annotationProcessor "io.micronaut.configuration:micronaut-openapi"
+    compileOnly "io.micronaut.configuration:micronaut-openapi"
     compile "io.swagger.core.v3:swagger-annotations"
 
     testCompileOnly "io.micronaut:micronaut-inject-groovy"
