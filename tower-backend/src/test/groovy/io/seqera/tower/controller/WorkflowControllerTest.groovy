@@ -11,12 +11,6 @@
 
 package io.seqera.tower.controller
 
-import io.micronaut.http.uri.UriBuilder
-import io.seqera.tower.enums.TaskStatus
-import io.seqera.tower.exchange.progress.GetProgressResponse
-import io.seqera.tower.exchange.task.TaskGet
-import spock.lang.Unroll
-
 import javax.inject.Inject
 import java.time.Instant
 import java.time.OffsetDateTime
@@ -30,6 +24,7 @@ import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.RxHttpClient
 import io.micronaut.http.client.annotation.Client
 import io.micronaut.http.client.exceptions.HttpClientResponseException
+import io.micronaut.http.uri.UriBuilder
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.tower.Application
 import io.seqera.tower.domain.Task
@@ -39,20 +34,24 @@ import io.seqera.tower.domain.WfNextflow
 import io.seqera.tower.domain.WfStats
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.domain.WorkflowComment
+import io.seqera.tower.enums.TaskStatus
+import io.seqera.tower.exchange.progress.GetProgressResponse
+import io.seqera.tower.exchange.task.TaskGet
 import io.seqera.tower.exchange.task.TaskList
 import io.seqera.tower.exchange.workflow.AddWorkflowCommentRequest
 import io.seqera.tower.exchange.workflow.AddWorkflowCommentResponse
 import io.seqera.tower.exchange.workflow.DeleteWorkflowCommentRequest
 import io.seqera.tower.exchange.workflow.DeleteWorkflowCommentResponse
-import io.seqera.tower.exchange.workflow.ListWorkflowCommentsResponse
 import io.seqera.tower.exchange.workflow.GetWorkflowMetricsResponse
+import io.seqera.tower.exchange.workflow.GetWorkflowResponse
+import io.seqera.tower.exchange.workflow.ListWorkflowCommentsResponse
+import io.seqera.tower.exchange.workflow.ListWorkflowResponse
 import io.seqera.tower.exchange.workflow.UpdateWorkflowCommentRequest
 import io.seqera.tower.exchange.workflow.UpdateWorkflowCommentResponse
-import io.seqera.tower.exchange.workflow.GetWorkflowResponse
-import io.seqera.tower.exchange.workflow.ListWorklowResponse
 import io.seqera.tower.service.WorkflowService
 import io.seqera.tower.util.AbstractContainerBaseTest
 import io.seqera.tower.util.DomainCreator
+import spock.lang.Unroll
 
 @MicronautTest(application = Application.class)
 @Transactional
@@ -158,10 +157,10 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
 
         and: "perform the request to obtain the workflows"
         String accessToken = doJwtLogin(owner, client)
-        HttpResponse<ListWorklowResponse> response = client.toBlocking().exchange(
+        HttpResponse<ListWorkflowResponse> response = client.toBlocking().exchange(
                 HttpRequest.GET("/workflow/list")
                            .bearerAuth(accessToken),
-                ListWorklowResponse.class
+                ListWorkflowResponse.class
         )
 
         expect: "the workflows data is properly obtained"
@@ -205,10 +204,10 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
 
         and: "perform the request to obtain the workflows"
         String accessToken = doJwtLogin(owner, client)
-        HttpResponse<ListWorklowResponse> response = client.toBlocking().exchange(
+        HttpResponse<ListWorkflowResponse> response = client.toBlocking().exchange(
                 HttpRequest.GET(uri)
                            .bearerAuth(accessToken),
-                ListWorklowResponse.class
+                ListWorkflowResponse.class
         )
 
         expect: "the workflows data is properly obtained"

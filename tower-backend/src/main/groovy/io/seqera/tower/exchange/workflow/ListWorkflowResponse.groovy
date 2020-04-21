@@ -11,11 +11,20 @@
 
 package io.seqera.tower.exchange.workflow
 
-class ListWorklowResponse {
+import groovy.transform.CompileStatic
+import io.seqera.tower.exchange.BaseResponse
 
+@CompileStatic
+class ListWorkflowResponse implements BaseResponse {
+
+    String message
     List<GetWorkflowResponse> workflows
 
-    static ListWorklowResponse of(List<GetWorkflowResponse> workflows) {
-        new ListWorklowResponse(workflows: workflows)
+    static ListWorkflowResponse of(List<GetWorkflowResponse> workflows) {
+        new ListWorkflowResponse(workflows: workflows)
+    }
+
+    static ListWorkflowResponse error(String message) {
+        return new ListWorkflowResponse(message:message)
     }
 }

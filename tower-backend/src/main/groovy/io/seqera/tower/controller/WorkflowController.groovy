@@ -16,6 +16,7 @@ import javax.inject.Inject
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
 import groovy.util.logging.Slf4j
+import io.micronaut.context.annotation.Value
 import io.micronaut.http.HttpParameters
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
@@ -43,7 +44,7 @@ import io.seqera.tower.exchange.workflow.DeleteWorkflowCommentResponse
 import io.seqera.tower.exchange.workflow.GetWorkflowMetricsResponse
 import io.seqera.tower.exchange.workflow.GetWorkflowResponse
 import io.seqera.tower.exchange.workflow.ListWorkflowCommentsResponse
-import io.seqera.tower.exchange.workflow.ListWorklowResponse
+import io.seqera.tower.exchange.workflow.ListWorkflowResponse
 import io.seqera.tower.exchange.workflow.UpdateWorkflowCommentRequest
 import io.seqera.tower.exchange.workflow.UpdateWorkflowCommentResponse
 import io.seqera.tower.service.TaskService
@@ -59,6 +60,12 @@ import org.grails.datastore.mapping.validation.ValidationException
 @Controller("/workflow")
 @Slf4j
 class WorkflowController extends BaseController {
+
+    @Value('${tower.workflow.list.max-allowed:100}')
+    Integer WORKFLOW_LIST_MAX_ALLOWED
+
+    @Value('${tower.workflow.tasks.max-allowed:100}')
+    Integer WORKFLOW_TASKS_MAX_ALLOWED
 
     @Inject WorkflowService workflowService
     @Inject TaskService taskService
@@ -82,9 +89,11 @@ class WorkflowController extends BaseController {
     @Get("/list")
     @Transactional
     @Secured(['ROLE_USER'])
-    HttpResponse<ListWorklowResponse> list(Authentication authentication, HttpParameters filterParams) {
+    HttpResponse<ListWorkflowResponse> list(Authentication authentication, HttpParameters filterParams) {
         Long max = filterParams.getFirst('max', Long.class, 50l)
         Long offset = filterParams.getFirst('offset', Long.class, 0l)
+        if( max>WORKFLOW_LIST_MAX_ALLOWED )
+            return HttpResponse.badRequest(ListWorkflowResponse.error("Workflow list max parameter cannot be greater than ${WORKFLOW_LIST_MAX_ALLOWED} (current value=$max)"))
 
         String search = filterParams.getFirst('search', String.class, '')
         String searchRegex = search ? search.contains('*') ? search.replaceAll(/\*/, '%') : "${search}%" : null
@@ -94,7 +103,7 @@ class WorkflowController extends BaseController {
         List<GetWorkflowResponse> result = workflows.collect { Workflow workflow ->
             GetWorkflowResponse.of(workflow)
         }
-        HttpResponse.ok(ListWorklowResponse.of(result))
+        HttpResponse.ok(ListWorkflowResponse.of(result))
     }
 
     /**
@@ -162,6 +171,8 @@ class WorkflowController extends BaseController {
         String orderProperty = filterParams.getFirst('order[0][column]', String.class, 'taskId')
         String orderDir = filterParams.getFirst('order[0][dir]', String.class, 'asc')
         String search = filterParams.getFirst('search', String.class, null)
+        if( max > WORKFLOW_TASKS_MAX_ALLOWED )
+            return HttpResponse.badRequest(TaskList.error("Workflow tasks length parameter cannot be greater than ${WORKFLOW_TASKS_MAX_ALLOWED} (current value=$max)"))
 
         List<Task> tasks = taskService.findTasks(workflowId, search, orderProperty, orderDir, max, offset)
         List<TaskGet> result = tasks.collect {

@@ -11,9 +11,12 @@
 
 package io.seqera.tower.exchange.task
 
-// TODO rename to ListTaskResponse
-class TaskList {
+import io.seqera.tower.exchange.BaseResponse
 
+// TODO rename to ListTaskResponse
+class TaskList implements BaseResponse {
+
+    String message
     // TODO could not this be refactored to `List<Task>` ?
     List<TaskGet> tasks
     Long total
@@ -22,4 +25,7 @@ class TaskList {
         new TaskList(tasks: tasks, total: total)
     }
 
+    static TaskList error(String message) {
+        new TaskList(message:message)
+    }
 }
