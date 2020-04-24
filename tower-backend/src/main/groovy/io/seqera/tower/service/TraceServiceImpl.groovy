@@ -22,6 +22,7 @@ import grails.gorm.transactions.NotTransactional
 import grails.gorm.transactions.TransactionService
 import grails.gorm.transactions.Transactional
 import groovy.transform.Canonical
+import groovy.transform.EqualsAndHashCode
 import groovy.util.logging.Slf4j
 import io.micronaut.context.annotation.Value
 import io.micronaut.context.event.ShutdownEvent
@@ -42,6 +43,7 @@ import io.seqera.tower.exchange.trace.TraceWorkflowRequest
 import io.seqera.tower.service.audit.AuditEventPublisher
 import io.seqera.tower.service.cost.CostService
 import io.seqera.tower.service.progress.ProgressService
+import org.springframework.transaction.annotation.Propagation
 import org.springframework.validation.FieldError
 
 @Slf4j
@@ -49,6 +51,9 @@ import org.springframework.validation.FieldError
 @Transactional
 class TraceServiceImpl implements TraceService {
 
+    private static final Random random = new Random()
+
+    @EqualsAndHashCode
     @Canonical
     private static class TaskEntry {
         Task task
@@ -60,6 +65,9 @@ class TraceServiceImpl implements TraceService {
 
     @Value('${trace.tasks.buffer.count:10000}')
     Integer bufferCount
+
+    @Value('${trace.tasks.maxRetries:2}')
+    Integer maxRetries
 
     @Inject WorkflowService workflowService
     @Inject CostService costService
@@ -94,28 +102,69 @@ class TraceServiceImpl implements TraceService {
         // save the tasks
         receiver
                 .observeOn(Schedulers.io())
-                .subscribe { task -> saveTask(task) }
+                .subscribe( { task -> safeSaveTask(task) }, { err-> log.error("Unexpected error while saving task",err) })
 
         // aggregate metrics
         receiver
                 .observeOn(Schedulers.computation())
                 .buffer(bufferTimeout.toMillis(), TimeUnit.MILLISECONDS, bufferCount)
                 .flatMapIterable { List<TaskEntry> entries -> entries.groupBy { it.workflow.id }.values() }
-                .subscribe({ aggregateMetrics(it) }, { err-> log.error("Unexpected task receiver error",err) })
+                .subscribe({ sasfeAggregateMetrics(it) }, { err-> log.error("Unexpected error while aggregating metrics",err) })
 
         return taskProcessor
     }
 
     protected TaskEntry checkTask(TaskEntry entry) {
+        try {
         if( entry.task.status.terminated )
             entry.task.cost = costService.computeCost(entry.task)
+        }
+        catch( Exception e ) {
+            log.error("Unable to determine compute cost for taskId=${entry.task.taskId}; workflow Id=$entry.workflow.id", e)
+        }
+
         return entry
     }
 
+    @NotTransactional
+    protected void safeSaveTask(TaskEntry entry) {
+        int retry = 0
+        while(true) try {
+            saveTask(entry)
+            return
+        }
+        catch( Exception e ) {
+            log.error("Failed to save task entry id=${entry?.task?.id}; taskId=${entry?.task?.taskId}; workflow id=${entry?.workflow?.id}; retry=$retry", e)
+            if( retry>=maxRetries )
+                break
+            retry ++
+            sleep( 50  + random.nextInt(500) )
+        }
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
     protected Task saveTask(TaskEntry entry) {
+        log.trace "Saving task entry=$entry"
         taskService.saveTask(entry.task, entry.workflow)
     }
 
+    @NotTransactional
+    protected sasfeAggregateMetrics(List<TaskEntry> entries) {
+        int retry = 0
+        while(true) try {
+            aggregateMetrics(entries)
+            return
+        }
+        catch( Exception e ) {
+            log.error("Failed to aggregate metrics for task entries=${entries?.task?.id}; taskId=${entries?.task?.taskId}; workkflow id=${entries?.workflow?.id}; retry=$retry", e)
+            if( retry>=maxRetries )
+                break
+            retry ++
+            sleep( 50  + random.nextInt(500) )
+        }
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
     protected aggregateMetrics(List<TaskEntry> entries) {
         log.trace "Trace aggregating metrics workflowId=${entries.first()?.workflow?.id} size=${entries.size()}"
         def workflowId = entries.first().workflow.id
@@ -266,7 +315,9 @@ class TraceServiceImpl implements TraceService {
         progressService.updateProgress(workflowId, progress)
 
         // save & aggregate metrics
-        Workflow workflow = Workflow.get(workflowId)
+        final workflow = Workflow.get(workflowId)
+        if( !workflow )
+            throw new IllegalArgumentException("Invalid trace workflow id: $workflowId")
         for( Task task : tasks )
             taskProcessor.onNext(new TaskEntry(task, workflow))
     }

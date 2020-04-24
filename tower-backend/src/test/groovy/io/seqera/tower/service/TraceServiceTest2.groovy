@@ -18,6 +18,7 @@ import io.micronaut.context.annotation.Property
 import io.micronaut.test.annotation.MicronautTest
 import io.seqera.tower.Application
 import io.seqera.tower.domain.Task
+import io.seqera.tower.enums.TaskStatus
 import io.seqera.tower.exchange.trace.TraceProgressData
 import io.seqera.tower.exchange.trace.TraceProgressDetail
 import io.seqera.tower.exchange.trace.TraceProgressRequest
@@ -28,6 +29,8 @@ import io.seqera.tower.util.DomainCreator
 import io.seqera.tower.util.DomainHelper
 import io.seqera.tower.util.TaskTraceSnapshotStatus
 import io.seqera.tower.util.TracesJsonBank
+import spock.lang.Ignore
+
 /**
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
@@ -175,6 +178,56 @@ class TraceServiceTest2 extends AbstractContainerBaseTest {
             volCtxSwitch == req.tasks*.volCtxt.sum()
             invCtxSwitch == req.tasks*.invCtxt.sum()
         }
+
+    }
+
+    @Ignore
+    void 'should trace under stress' () {
+        given:
+        def domain = new DomainCreator()
+        def WORKFLOW_ID = 'xyz'
+        def session = UUID.randomUUID().toString()
+        // see file `src/test/resources/workflow_success/2_task_1_submitted.json`
+        def TASK1 = 1L
+        
+        // ----------------------------------------
+        // request for a task with SUBMITTED status
+        // ----------------------------------------
+        def wf = domain.createWorkflow(id: WORKFLOW_ID, sessionId: session)
+        and:
+        def req = TracesJsonBank.extractTraceProgress('success', TASK1, TaskTraceSnapshotStatus.SUBMITTED)
+        and:
+        def taskProcessorTest = (traceService).taskProcessor.test()
+        def processes = [new TraceProgressDetail(index: 1, name: 'foo', succeeded: 1), new TraceProgressDetail(index: 2, name:'bar', running: 1) ]
+        req.progress = new TraceProgressData(running: 1, succeeded: 2, processes: processes)
+
+        when:
+        def base = req.tasks[0]
+        for( int i=1; i<=100; i++) {
+            def copy = base.clone()
+            req.tasks[0].taskId = i
+            req.tasks[0].hash = "hash/${i}"
+            req.tasks[0].status = TaskStatus.SUBMITTED
+            traceService.handleTaskTrace(WORKFLOW_ID, req.progress, req.tasks)
+        }
+//        sleep 100
+//        for( int i=1; i<=100; i++) {
+//            req.tasks[0].taskId = i
+//            req.tasks[0].hash = "hash/${i}"
+//            req.tasks[0].status = TaskStatus.COMPLETED
+//            traceService.handleTaskTrace(WORKFLOW_ID, req.progress, req.tasks)
+//        }
+
+        then:
+        progressStore.getTraceData(WORKFLOW_ID) == req.progress
+        and:
+        taskProcessorTest.assertValueCount(100)
+
+        and:
+        // task was saved
+        sleep 300
+        Task.withNewTransaction {Task.findAllByWorkflow(wf).size() } == 200
+
 
     }
 
