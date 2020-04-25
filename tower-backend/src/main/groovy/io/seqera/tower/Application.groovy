@@ -12,6 +12,7 @@
 package io.seqera.tower
 
 import groovy.transform.CompileStatic
+import groovy.util.logging.Slf4j
 import io.micronaut.runtime.Micronaut
 import io.swagger.v3.oas.annotations.OpenAPIDefinition
 import io.swagger.v3.oas.annotations.info.Contact
@@ -30,9 +31,11 @@ import io.swagger.v3.oas.annotations.info.License
             contact = @Contact(url = "https://seqera.io", name = "Paolo Di Tommaso", email = "p@seqera.io")
     )
 )
+@Slf4j
 @CompileStatic
 class Application {
     static void main(String[] args) {
+        log.info "++ Tower backend starting ++"
         Micronaut.run(Application)
     }
 }
