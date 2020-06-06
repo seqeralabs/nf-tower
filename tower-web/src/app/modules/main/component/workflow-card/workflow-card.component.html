@@ -1,22 +1,48 @@
-<div class="card my-2" [class.active]="currentWorkflowId == workflow.id" [class.collapsed]="sidebarCollapsed" [ngClass]="{'workflow--succeed': workflow.isSuccessful, 'workflow--running': workflow.isRunning, 'workflow--failed': workflow.isFailed, 'workflow--partial': workflow.isPartialFailed, 'workflow--unknown': workflow.isUnknownStatus}">
+<div
+  class="card my-2"
+  [class.active]="currentWorkflowId == workflow.id"
+  [class.collapsed]="sidebarCollapsed"
+  [ngClass]="{'workflow--succeed': workflow.isSuccessful,
+              'workflow--submitted': workflow.isSubmitted,
+              'workflow--running': workflow.isRunning,
+              'workflow--failed': workflow.isFailed,
+              'workflow--partial': workflow.isPartialFailed,
+              'workflow--unknown': workflow.isUnknownStatus}">
   <!-- Full card for expanded sidebar -->
   <div class="card-body" *ngIf="!sidebarCollapsed">
     <h5 class="card-title">
-      <span class="mdi mr-1" [ngClass]="{'mdi-check-circle-outline': workflow.isSuccessful, 'mdi-progress-check': workflow.isRunning, 'mdi-alert-circle-outline': workflow.isFailed || workflow.isPartialFailed, 'mdi-help-circle-outline': workflow.isUnknownStatus}"></span>
+      <!-- See icons https://cdn.materialdesignicons.com/3.5.95/ -->
+      <span
+        class="mdi mr-1"
+        [ngClass]="{'mdi-check-circle-outline': workflow.isSuccessful,
+                    'mdi-loading mdi-spin': workflow.isRunning || workflow.isSubmitted,
+                    'mdi-alert-circle-outline': workflow.isFailed || workflow.isPartialFailed,
+                    'mdi-help-circle-outline': workflow.isUnknownStatus}" >
+      </span>
       <span class="project-name">{{workflow.displayName}}</span>
     </h5>
     <div class="card-content">
         <p class="mb-0"><span class="mdi mdi-run"></span> {{workflow.data.runName}}</p>
-        <p class="mb-0"><span class="mdi mdi-clock-outline"></span> Duration: {{workflow.humanizedDuration}}</p>
-        <p class="mb-0"><span class="mdi mdi-calendar"></span> Started: {{workflow.startDateFormatted}} </p>
+        <p class="mb-0"><span class="mdi mdi-timer-sand"></span> Duration: {{workflow.humanizedDuration}}</p>
+        <p class="mb-0" *ngIf="!workflow.data.start"><span class="mdi mdi-calendar"></span> Submitted: {{workflow.submitDateFormatted}} </p>
+        <p class="mb-0" *ngIf="workflow.data.start"><span class="mdi mdi-calendar"></span> Started: {{workflow.startDateFormatted}} </p>
     </div>
     <div class="btn-delete">
-      <button type="button" class="btn btn-outline-danger btn-sm" [disabled]="workflow.isRunning" (click)="deleteWorkflow(workflow, $event)"><span class="mdi mdi-trash-can"></span></button>
+      <button type="button" class="btn btn-outline-danger btn-sm" [disabled]="workflow.notCanDelete" (click)="deleteWorkflow(workflow, $event)"><span class="mdi mdi-trash-can"></span></button>
     </div>
   </div>
 
   <!-- Mini icon button for collapsed sidebar -->
   <div class="sidebar-wf-icon" *ngIf="sidebarCollapsed">
-    <span data-toggle="tooltip" title="{{workflow.data.projectName}} - {{workflow.data.runName}}" class="mdi mdi-24px d-block p-2" [ngClass]="{'mdi-check-circle-outline': workflow.isSuccessful, 'mdi-progress-check': workflow.isRunning, 'mdi-alert-circle-outline': workflow.isFailed || workflow.isPartialFailed, 'mdi-help-circle-outline': workflow.isUnknownStatus}"></span>
+    <span
+      data-toggle="tooltip"
+      title="{{workflow.data.projectName}} - {{workflow.data.runName}}"
+      class="mdi mdi-24px d-block p-2"
+      [ngClass]="{'mdi-check-circle-outline': workflow.isSuccessful,
+                  'mdi-loading mdi-spin': workflow.isSubmitted,
+                  'mdi-progress-check': workflow.isRunning,
+                  'mdi-alert-circle-outline': workflow.isFailed || workflow.isPartialFailed,
+                  'mdi-help-circle-outline': workflow.isUnknownStatus}">
+    </span>
   </div>
 </div>

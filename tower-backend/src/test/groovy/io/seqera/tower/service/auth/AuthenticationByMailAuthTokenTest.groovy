@@ -19,11 +19,11 @@ import io.micronaut.security.authentication.AuthenticationFailed
 import io.micronaut.security.authentication.UserDetails
 import io.micronaut.test.annotation.MicronautTest
 import io.micronaut.test.annotation.MockBean
-import io.seqera.util.TokenHelper
 import io.seqera.tower.domain.User
-import io.seqera.tower.service.mail.MailService
 import io.seqera.tower.service.UserService
 import io.seqera.tower.service.UserServiceImpl
+import io.seqera.tower.service.mail.MailService
+import io.seqera.util.TokenHelper
 import spock.lang.Specification
 /**
  *
@@ -38,70 +38,6 @@ class AuthenticationByMailAuthTokenTest extends Specification {
     @Inject
     UserService userService
 
-    def 'should inject auth duration property' () {
-        expect:
-        authProvider.authMailDuration == Duration.ofMinutes(30)
-    }
-
-
-    def 'should allow access new user' () {
-        given: "register a user"
-        User user = userService.access('user@seqera.io')
-
-        when:
-        def result = authProvider.authenticate0(user.email, user.authToken)
-
-        then:
-        result instanceof UserDetails
-        result.username == 'user@seqera.io'
-    }
-
-    def 'should reject user access' () {
-        given: "register a user"
-        User user = userService.access('user@seqera.io')
-
-        when:
-        authProvider.authMailDuration = Duration.ofMillis(100)
-        sleep 200 // <-- wait longer than expected token duration
-
-        def result = authProvider.authenticate0(user.email, user.authToken)
-
-        then: "it should return a failure because the token expired"
-        result instanceof AuthenticationFailed
-    }
-
-
-    def 'should auth with email' () {
-        given:
-        def EMAIL = 'foo@gmail.com'
-        def TOKEN = 'xyz'
-        def USER = new User(email: EMAIL)
-        def userService = Mock(UserService)
-        AuthenticationByMailAuthToken provider = Spy(AuthenticationByMailAuthToken, constructorArgs: [userService])
-
-        when:
-        def result = provider.authenticate0(EMAIL, TOKEN)
-        then:
-        1 * userService.findByEmailAndAuthToken (EMAIL,TOKEN) >> USER
-        1 * provider.isAuthTokenExpired(USER) >> false
-        1 * userService.findAuthoritiesOfUser(USER) >> ['role_x']
-        then:
-        result instanceof UserDetails
-        (result as UserDetails).username == EMAIL
-        (result as UserDetails).roles == ['role_x']
-
-        when:
-        result = provider.authenticate0(EMAIL, TOKEN)
-        then:
-        1 * userService.findByEmailAndAuthToken (EMAIL,TOKEN) >> USER
-        1 * provider.isAuthTokenExpired(USER) >> true
-        0 * userService.findAuthoritiesOfUser(USER) >> null
-        then:
-        result instanceof AuthFailure
-        (result as AuthFailure).message.get() == ("Authentication token expired for user: $EMAIL")
-
-    }
-
 
     @MockBean(MailService)
     MailService mockMailService() {
@@ -110,13 +46,88 @@ class AuthenticationByMailAuthTokenTest extends Specification {
 
     @MockBean(UserServiceImpl)
     UserService mockUserService() {
-        final now = Instant.now()
-        final tkn = TokenHelper.createHexToken()
-        GroovyMock(UserServiceImpl) {
-            access(_ as String) >> { String email -> new User(email:email, userName: email, authToken: tkn, authTime: now) }
-            findByEmailAndAuthToken(_ as String, _ as String) >> { args -> new User(email:args[0], userName:args[0], authToken: args[1], authTime: now) }
-            findAuthoritiesOfUser(_ as User) >> ['role_a', 'role_b']
+        Mock(UserServiceImpl)
+    }
+
+    def 'should inject auth duration property' () {
+        expect:
+        authProvider.authMailDuration == Duration.ofMinutes(30)
+    }
+
+
+    def 'should allow access new user' () {
+        given: 
+        def email = 'user@seqera.io'
+        def now = Instant.now()
+        def tkn = TokenHelper.createHexToken()
+        def USER = new User(id: 100, email:email, userName: email, authToken: tkn, authTime: now)
+        def ROLES = ['role_x', 'role_z']
+
+        when:
+        def result = authProvider.authenticate0(USER.getUid(), USER.authToken)
+
+        then:
+        userService.findByUidAndAuthToken(USER.getUid(), USER.authToken) >> USER
+        userService.findAuthoritiesByUser(USER) >> ROLES
+
+        and:
+        result instanceof UserDetails
+        with( (UserDetails) result ) {
+            username == USER.getUid()
+            roles == ROLES
         }
     }
+
+    def 'should reject user access' () {
+        given:
+        def email = 'user@seqera.io'
+        def now = Instant.now()
+        def tkn = TokenHelper.createHexToken()
+        def USER = new User(id: 100, email:email, userName: email, authToken: tkn, authTime: now)
+        def ROLES = ['role_x', 'role_z']
+
+        when:
+        authProvider.authMailDuration = Duration.ofMillis(100)
+        sleep 200 // <-- wait longer than expected token duration
+
+        def result = authProvider.authenticate0(USER.getUid(), USER.authToken)
+
+        then:
+        result instanceof AuthenticationFailed
+    }
+
+
+    def 'should auth with email' () {
+        given:
+        def EMAIL = 'foo@gmail.com'
+        def TOKEN = 'xyz'
+        def USER = new User(id: 100, email: EMAIL)
+        def UID = USER.getUid()
+        def userService = Mock(UserService)
+        AuthenticationByMailAuthToken provider = Spy(AuthenticationByMailAuthToken, constructorArgs: [userService])
+
+        when:
+        def result = provider.authenticate0(UID, TOKEN)
+        then:
+        1 * userService.findByUidAndAuthToken (UID,TOKEN) >> USER
+        1 * provider.isAuthTokenExpired(USER) >> false
+        1 * userService.findAuthoritiesByUser(USER) >> ['role_x']
+        then:
+        result instanceof UserDetails
+        (result as UserDetails).username == UID
+        (result as UserDetails).roles == ['role_x']
+
+        when:
+        result = provider.authenticate0(UID, TOKEN)
+        then:
+        1 * userService.findByUidAndAuthToken (UID,TOKEN) >> USER
+        1 * provider.isAuthTokenExpired(USER) >> true
+        0 * userService.findAuthoritiesByUser(USER) >> null
+        then:
+        result instanceof AuthFailure
+        (result as AuthFailure).message.get() == ("Authentication token expired for user: $UID")
+
+    }
+
 
 }

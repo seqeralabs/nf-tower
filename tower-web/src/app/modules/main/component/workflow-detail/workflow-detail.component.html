@@ -1,5 +1,6 @@
 <div *ngIf="workflow" class="tw-workflow">
-  <div class="card" [ngClass]="{'running': workflow.isRunning,
+  <div class="card" [ngClass]="{'submitted': workflow.isSubmitted,
+                                'running': workflow.isRunning,
                                 'succeed': workflow.isSuccessful,
                                 'failed': workflow.isFailed || workflow.isUnknownStatus,
                                 'partial': workflow.isPartialFailed}">

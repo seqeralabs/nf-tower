@@ -14,7 +14,6 @@ package io.seqera.tower.domain
 
 import java.time.OffsetDateTime
 
-import com.fasterxml.jackson.annotation.JsonGetter
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import grails.gorm.annotation.Entity
 import groovy.transform.CompileDynamic
@@ -23,23 +22,19 @@ import groovy.transform.CompileDynamic
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
 @Entity
-@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version', 'workflow', 'user'])
+@JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version', 'workflow', 'author'])
 @CompileDynamic
 class WorkflowComment {
 
-    Long id
-    User user
+    /*
+     * Not sure about this relationship. One side it's required to keep track
+     * the author of the comment. On the other hand any user should be able to
+     * delete its records without compromising the comments history
+     */
+    User author
     String text
     OffsetDateTime dateCreated
     OffsetDateTime lastUpdated
-
-    // -- DTO field
-    Author author
-
-    @JsonGetter('author')
-    Author serializeAuthor() {
-        user != null ? new Author(user) : null
-    }
 
     static belongsTo = [workflow: Workflow]
 
@@ -48,25 +43,6 @@ class WorkflowComment {
     }
 
     static mapping = {
-        user fetch: 'join'
         autoTimestamp false
-    }
-
-    static transients = ['author']
-
-    static class Author {
-        Long id
-        String displayName
-        String organization
-        String avatarUrl
-
-        Author() {}
-
-        Author(User user) {
-            this.id = user.id
-            this.displayName = user.userName
-            this.organization = user.organization
-            this.avatarUrl = user.avatar
-        }
     }
 }

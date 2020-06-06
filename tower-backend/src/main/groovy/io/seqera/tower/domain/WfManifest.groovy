@@ -15,11 +15,14 @@ package io.seqera.tower.domain
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonSetter
 import groovy.transform.CompileDynamic
+import groovy.transform.EqualsAndHashCode
+
 /**
  * Model workflow manifest attribute
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
+@EqualsAndHashCode
 @CompileDynamic
 class WfManifest {
 

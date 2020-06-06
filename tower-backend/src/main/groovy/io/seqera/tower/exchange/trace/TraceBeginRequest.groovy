@@ -11,6 +11,7 @@
 
 package io.seqera.tower.exchange.trace
 
+import com.fasterxml.jackson.annotation.JsonSetter
 import groovy.transform.CompileStatic
 import groovy.transform.ToString
 import io.seqera.tower.domain.Workflow
@@ -25,5 +26,12 @@ class TraceBeginRequest {
 
     Workflow workflow
     List<String> processNames
+    Boolean towerLaunch
+
+    @JsonSetter
+    @Deprecated
+    void setLaunchId(String id) {
+        this.towerLaunch = id!=null
+    }
 
 }

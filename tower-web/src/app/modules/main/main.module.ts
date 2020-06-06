@@ -10,7 +10,7 @@
  */
 
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { MainComponent } from './main.component';
 import { SidebarComponent } from './component/sidebar/sidebar.component';
@@ -47,25 +47,27 @@ import { WorkflowUnknownComponent } from "./component/workflow-unknown/workflow-
 import { LoadingComponent } from './component/loading/loading.component';
 import { TreeListComponent } from "./component/tree-list/TreeListComponent";
 import { WorkflowStatusIconComponent } from "../../workflow-status-icon/workflow-status-icon.component";
-import {TaskDetailsComponent} from "./component/task-details/task-details.component";
+import { TaskDetailsComponent } from "./component/task-details/task-details.component";
+import {AppConfigService} from './service/app-config.service';
 
 /*
  * Main application routing strategy
  */
 const routes: Routes = [
-  {path: '',                component: HomeComponent,
-   children: [
-     {path: 'watch/:id', component: WorkflowDetailComponent, canActivate: [AuthGuard]},
-     {path: 'profile',      component: UserProfileComponent, canActivate: [AuthGuard]},
-     {path: 'tokens',       component: AccessTokenComponent, canActivate: [AuthGuard]},
-     {path: 'welcome',      component: WelcomeComponent, canActivate: [AuthGuard]},
-     {path: 'login',        component: LoginComponent},
-   ]
+  {
+    path: '', component: HomeComponent,
+    children: [
+      { path: 'watch/:id', component: WorkflowDetailComponent, canActivate: [AuthGuard] },
+      { path: 'profile', component: UserProfileComponent, canActivate: [AuthGuard] },
+      { path: 'tokens', component: AccessTokenComponent, canActivate: [AuthGuard] },
+      { path: 'welcome', component: WelcomeComponent, canActivate: [AuthGuard] },
+      { path: 'login', component: LoginComponent },
+    ]
   },
-  {path: 'auth',         component: AuthComponent},
-  {path: 'logout',       component: LogoutComponent},
+  { path: 'auth', component: AuthComponent },
+  { path: 'logout', component: LogoutComponent },
 
-  {path: '**', redirectTo: ''}
+  { path: '**', redirectTo: '' }
 ];
 
 @NgModule({
@@ -73,6 +75,12 @@ const routes: Routes = [
   exports: [RouterModule],
 })
 export class MainRoutingModule { }
+
+const appInitializerFn = (appConfig: AppConfigService) => {
+  return () => {
+    return appConfig.loadAppConfig();
+  };
+};
 
 /*
  * Define the main application module
@@ -109,9 +117,11 @@ export class MainRoutingModule { }
     HttpClientModule,
     FormsModule,
     ChartistModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
   ],
   providers: [
+    AppConfigService,
+    { provide: APP_INITIALIZER, useFactory: appInitializerFn, multi: true, deps: [AppConfigService] },
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true }
   ],

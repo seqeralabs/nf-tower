@@ -26,14 +26,14 @@ class MysqlSchemaCreator {
         final env = [MYSQL_ROOT_PASSWORD: 'root', MYSQL_USER: 'tower', MYSQL_PASSWORD: 'tower', MYSQL_DATABASE: 'tower']
 
         def container = new FixedHostPortGenericContainer("mysql:5.6")
-                .withFixedExposedPort(3307, 3306)
+                .withFixedExposedPort(3306, 3306)
                 .withEnv(env)
                 .waitingFor(Wait.forListeningPort())
-                .waitingFor(Wait.forLogMessage(/MySQL init process done.*/, 1))
+                .waitingFor(Wait.forLogMessage(/.*MySQL init process done.*/, 1))
 
         container.start()
 
-        def ctx = ApplicationContext.build(Application, 'mysql').start()
+        def ctx = ApplicationContext.build(Application, 'mysql-create').start()
         try {
             User.withNewTransaction {User.count()} == 0
         }

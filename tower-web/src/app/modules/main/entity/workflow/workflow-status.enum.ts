@@ -9,7 +9,7 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 export enum WorkflowStatus {
-
+  SUBMITTED = 'SUBMITTED',
   RUNNING = 'RUNNING',
   SUCCEEDED = 'SUCCEEDED',
   FAILED = 'FAILED',

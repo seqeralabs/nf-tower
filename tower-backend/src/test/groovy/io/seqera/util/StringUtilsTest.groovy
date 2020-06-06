@@ -11,9 +11,9 @@
 
 package io.seqera.util
 
+
 import spock.lang.Specification
 import spock.lang.Unroll
-
 /**
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
@@ -41,4 +41,47 @@ class StringUtilsTest extends Specification {
         'x.y_w-z@that.com'  | '*@this.com'  | false
     }
 
+
+    def 'should find similar strings' () {
+
+        expect:
+        StringUtils.findSimilar(ITEMS, STR) == EXPECTED
+
+        where:
+        STR         | ITEMS                 | EXPECTED
+        'foo'       | []                    | []
+        'foa'       | ['foo', 'bar']        | ['foo']
+        'foa'       | ['foo', 'bar']        | ['foo']
+        'helo'      | ['Hola', 'Hello', 'Ciao']  | ['Hello']
+
+    }
+
+    @Unroll
+    def 'should get url protocol' () {
+        expect:
+        StringUtils.getUrlProtocol(STR)  == EXPECTED
+        where:
+        EXPECTED    | STR
+        'ftp'       | 'ftp://abc.com'
+        's3'        | 's3://bucket/abc'
+        null        | '3s://bucket/abc'
+        null        | 'abc:xyz'
+        null        | '/a/bc/'
+    }
+
+    @Unroll
+    def 'should validate sha1 string' () {
+        expect:
+        StringUtils.isSha1String(STR) == EXPECTED
+        where:
+        STR             | EXPECTED
+        null            | false
+        ''              | false
+        '12bc'          | false
+        '7299bc8a'      | true
+        '4c5b348c'      | true
+        'foo'           | false
+        'hello_world'   | false
+
+    }
 }

@@ -11,6 +11,7 @@
 
 package io.seqera.tower.exchange.trace
 
+import com.fasterxml.jackson.annotation.JsonSetter
 import groovy.transform.CompileStatic
 import groovy.transform.ToString
 
@@ -26,4 +27,11 @@ class TraceCreateRequest {
     String runName
     String projectName
     String repository
+    String workflowId
+
+    @JsonSetter
+    @Deprecated
+    void setLaunchId(String id) {
+        this.workflowId = id
+    }
 }

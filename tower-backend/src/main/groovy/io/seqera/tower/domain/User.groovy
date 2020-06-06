@@ -14,9 +14,13 @@ package io.seqera.tower.domain
 import java.time.Instant
 import java.time.OffsetDateTime
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import grails.gorm.annotation.Entity
 import groovy.transform.CompileDynamic
+import groovy.transform.Memoized
+import io.seqera.util.H8UserOptionsType
+import io.seqera.util.HashEncoder
 
 @Entity
 @JsonIgnoreProperties(['dirtyPropertyNames', 'errors', 'dirty', 'attached', 'version', 'workflows', 'accessTokens'])
@@ -41,9 +45,16 @@ class User {
     Boolean disabled
     Boolean notification
 
+    UserOptions options
+
     OffsetDateTime dateCreated
     OffsetDateTime lastUpdated
     OffsetDateTime lastAccess
+
+    @JsonIgnore
+    AccessToken getDefaultAccessToken() {
+        accessTokens.find { it.name == AccessToken.DEFAULT_TOKEN }
+    }
 
     static hasMany = [workflows: Workflow, accessTokens: AccessToken]
 
@@ -60,9 +71,21 @@ class User {
         description(nullable: true, maxSize: 1000)
         avatar(nullable: true, url: true)
         lastAccess(nullable: true)
+        options nullable: true
     }
 
     static mapping = {
         cache  true
+        options type: H8UserOptionsType
+    }
+
+    @JsonIgnore
+    @Memoized
+    String getUid() {
+        HashEncoder.encode(id)
+    }
+
+    static Long decodeUid(String authId) {
+        return HashEncoder.decodeLong(authId)
     }
 }

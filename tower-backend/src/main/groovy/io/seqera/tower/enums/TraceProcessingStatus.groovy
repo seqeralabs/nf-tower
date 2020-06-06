@@ -12,9 +12,6 @@
 package io.seqera.tower.enums
 
 enum TraceProcessingStatus {
-
-    OK, KO
-
-    String toString() { super.toString() }
-
+    OK,
+    KO
 }

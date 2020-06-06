@@ -1,3 +1,5 @@
+.terraform
+*.tfstate*
 Thumbs.db
 .DS_Store
 .gradle
@@ -19,3 +21,7 @@ mysql-data/
 .settings
 .classpath
 **/build-info.properties
+elb-logs/*
+cloud-deployment
+.vscode/*
+.env

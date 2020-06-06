@@ -63,7 +63,7 @@ class AuthenticationByApiToken implements AuthenticationProvider {
         // update lasts access token
         tokenService.updateLastUsedAsync(token)
 
-        List<String> authorities = userService.findAuthoritiesOfUser(user)
-        return new UserDetails(user.email, authorities)
+        List<String> authorities = userService.findAuthoritiesByUser(user)
+        return new UserDetails(user.getUid(), authorities)
     }
 }

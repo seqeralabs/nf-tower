@@ -14,6 +14,7 @@ package io.seqera.tower
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import io.micronaut.runtime.Micronaut
+import io.seqera.tower.util.RuntimeInfo
 import io.swagger.v3.oas.annotations.OpenAPIDefinition
 import io.swagger.v3.oas.annotations.info.Contact
 import io.swagger.v3.oas.annotations.info.Info
@@ -25,7 +26,7 @@ import io.swagger.v3.oas.annotations.info.License
 @OpenAPIDefinition(
     info = @Info(
             title = "Nextflow Tower",
-            version = "19.08.0",
+            version = "20.06.0",
             description = "Nextflow Tower service API",
             license = @License(name = "MPL 2.0", url = "https://www.mozilla.org/en-US/MPL/2.0/"),
             contact = @Contact(url = "https://seqera.io", name = "Paolo Di Tommaso", email = "p@seqera.io")
@@ -35,7 +36,7 @@ import io.swagger.v3.oas.annotations.info.License
 @CompileStatic
 class Application {
     static void main(String[] args) {
-        log.info "++ Tower backend starting ++"
+        log.info "++ Tower backend starting ++ ${RuntimeInfo.info('; ')}"
         Micronaut.run(Application)
     }
 }

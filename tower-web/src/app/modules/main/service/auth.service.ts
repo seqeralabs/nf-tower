@@ -9,18 +9,20 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 import { Injectable } from '@angular/core';
-import {BehaviorSubject, Observable, of, Subject} from "rxjs";
-import {map, mergeMap, tap} from "rxjs/operators";
+import {BehaviorSubject, Observable} from "rxjs";
+import {map, tap} from "rxjs/operators";
 import {User} from "../entity/user/user";
-import {HttpClient} from "@angular/common/http";
+import {HttpClient, HttpErrorResponse} from '@angular/common/http';
 import {environment} from "src/environments/environment";
-import {UserData} from "../entity/user/user-data";
+import {DescribeUserResponse, UserData} from '../entity/user/user-data';
 import {AccessGateResponse} from "../entity/gate";
 import {Router} from "@angular/router";
+import {NotificationService} from './notification.service';
 
 const authEndpointUrl = `${environment.apiUrl}/login`;
 const userEndpointUrl = `${environment.apiUrl}/user`;
 const gateEndpointUrl = `${environment.apiUrl}/gate`;
+const JWT_COOKIE = 'JWT';
 
 @Injectable({
   providedIn: 'root'
@@ -32,7 +34,8 @@ export class AuthService {
   private userSubject: BehaviorSubject<User>;
 
   constructor(private http: HttpClient,
-              private router: Router) {
+              private router: Router,
+              private notificationService: NotificationService) {
     this.userSubject = new BehaviorSubject(this.getPersistedUser());
     this.user$ = this.userSubject.asObservable();
   }
@@ -45,30 +48,26 @@ export class AuthService {
     return this.userSubject.value;
   }
 
-
-  auth(email: string, authToken: string): Observable<User> {
-    return this.http.post(authEndpointUrl, {username: email, password: authToken}).pipe(
-      mergeMap((authData: any) => this.requestUserProfileInfo(authData)),
-      tap((user: User) => this.setAuthUser(user))
-    );
+  get authEndpointUrl(): string {
+    return authEndpointUrl;
   }
 
-  private requestUserProfileInfo(authData: any): Observable<User> {
-    const userData: UserData = {email: authData.username, jwtAccessToken: authData.access_token, roles: authData.roles} as UserData;
-
-    return this.http.get(`${userEndpointUrl}/`, {headers: {Authorization: `Bearer ${userData.jwtAccessToken}`}}).pipe(
-      map((data: any) => {
-        userData.id = data.user.id;
-        userData.userName = data.user.userName;
-        userData.firstName = data.user.firstName;
-        userData.lastName = data.user.lastName;
-        userData.organization = data.user.organization;
-        userData.description = data.user.description;
-        userData.avatar = data.user.avatar;
-        userData.notification = data.user.notification;
-        return new User(userData);
-      })
-    );
+  setAuthorizedUser(): void {
+    this
+      .http
+      .get<DescribeUserResponse>(`${userEndpointUrl}/`, {withCredentials: true})
+      .pipe( map((response) => new User(response.user)) )
+      .subscribe(
+          (user) => {
+            this.router.navigate(['']);
+            this.setAuthUser(user);
+          },
+          (resp: HttpErrorResponse) => {
+            console.warn('Failed to fetch user data');
+            this.notificationService.showErrorNotification(resp.error.message);
+            this.router.navigate(['']);
+          }
+        );
   }
 
   private setAuthUser(user: User): void {
@@ -77,7 +76,7 @@ export class AuthService {
   }
 
   access(email: string, captcha: string): Observable<AccessGateResponse> {
-    return this.http.post<AccessGateResponse>(`${gateEndpointUrl}/access`, {email: email, captcha: captcha});
+    return this.http.post<AccessGateResponse>(`${gateEndpointUrl}/access`, {email, captcha});
   }
 
   update(user: User): Observable<string> {
@@ -98,18 +97,14 @@ export class AuthService {
     this.router.navigate(['/']);
   }
 
-  private logout(): void {
+  logout(): void {
     this.removeUser();
+    this.deleteCookie(JWT_COOKIE);
     this.userSubject.next(null);
   }
 
-  private parseJwt(token: string): any {
-    let base64Url = token.split('.')[1];
-    let decodedBase64 = decodeURIComponent(atob(base64Url).split('')
-      .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-      .join(''));
-
-    return JSON.parse(decodedBase64);
+  private deleteCookie(cookieName: string) {
+    document.cookie = cookieName + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
   }
 
   private persistUser(user: User): void {

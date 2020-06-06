@@ -60,7 +60,7 @@ class ProgressOperationsImpl implements ProgressOperations {
 
         for( Task it : tasks ) {
             executors.add(it.executor)
-            if( it.status.terminated )
+            if( it.status.terminal )
                 terminated.add(it)
         }
         
@@ -144,7 +144,7 @@ class ProgressOperationsImpl implements ProgressOperations {
         /*
          * decrement the load if the execution is terminated
          */
-        if( task.status.isTerminated() ) {
+        if( task.status.isTerminal() ) {
             // if there's a status transition from RUNNING to DONE
             // decrement the load for the task
             if( previous == TaskStatus.RUNNING ) {

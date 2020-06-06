@@ -55,17 +55,20 @@ export class WorkflowDetailComponent implements OnInit, OnDestroy {
       (resp: HttpErrorResponse) => {
           this.notificationService.showErrorNotification(resp.error.message);
       }
-    )
+    );
   }
 
   private reactToWorkflowReceived(workflow: Workflow): void {
     this.workflow = workflow;
-    if (this.workflow.isRunning) {
+    if (this.workflow.isRunning || this.workflow.isSubmitted) {
       this.subscribeToWorkflowLiveEvents(workflow);
     }
   }
 
   private subscribeToWorkflowLiveEvents(workflow: Workflow): void {
+    if (this.workflowEventsSubscription) {
+      this.workflowEventsSubscription.unsubscribe();
+    }
     this.workflowEventsSubscription = this.serverSentEventsWorkflowService.connectToWorkflowEventsStream(workflow).subscribe(
       (event: LiveUpdate) => this.reactToEvent(event),
       (event: LiveUpdate) => this.reactToErrorEvent(event)
@@ -80,11 +83,9 @@ export class WorkflowDetailComponent implements OnInit, OnDestroy {
   }
 
   private reactToEvent(event: LiveUpdate): void {
-    console.log('Live workflow event received', event);
     if (event.isWorkflowUpdate) {
+      // console.log(`** React to workflow update - current workflow id=${this.workflow.id} - received workflow id=${event.workflowId}`)
       this.reactToWorkflowUpdateEvent(event);
-      this.unsubscribeFromWorkflowLiveEvents();
-
     } else if (event.isProgressUpdate) {
       this.reactToProgressUpdateEvent(event);
     }
@@ -101,7 +102,7 @@ export class WorkflowDetailComponent implements OnInit, OnDestroy {
   private reactToProgressUpdateEvent(event: LiveUpdate): void {
     this.workflowService.getProgress(event.workflowId).subscribe((progress: ProgressData) => {
       this.workflowService.updateProgress(progress, this.workflow);
-    })
+    });
   }
 
   private reactToErrorEvent(event: LiveUpdate): void {

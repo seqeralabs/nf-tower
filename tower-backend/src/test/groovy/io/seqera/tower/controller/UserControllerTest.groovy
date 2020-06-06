@@ -24,7 +24,7 @@ import io.micronaut.test.annotation.MicronautTest
 import io.seqera.tower.Application
 import io.seqera.tower.domain.User
 import io.seqera.tower.exchange.user.EnableUserResponse
-import io.seqera.tower.exchange.user.GetUserResponse
+import io.seqera.tower.exchange.user.DescribeUserResponse
 import io.seqera.tower.exchange.user.ListUserResponse
 import io.seqera.tower.util.AbstractContainerBaseTest
 import io.seqera.tower.util.DomainCreator
@@ -47,10 +47,10 @@ class UserControllerTest extends AbstractContainerBaseTest {
 
         when: "perform the request to obtain the info the user"
         String accessToken = doJwtLogin(user, client)
-        HttpResponse<GetUserResponse> response = client.toBlocking().exchange(
+        HttpResponse<DescribeUserResponse> response = client.toBlocking().exchange(
                 HttpRequest.GET("/user/")
                         .bearerAuth(accessToken),
-                GetUserResponse.class
+                DescribeUserResponse.class
         )
 
         then: 'the user info has been obtained properly'
@@ -174,7 +174,7 @@ class UserControllerTest extends AbstractContainerBaseTest {
         when:
         String accessToken = doJwtLogin(admin, client)
         def req = HttpRequest.GET("/user/get/${user.id}")
-        def resp = client.toBlocking().exchange(req.bearerAuth(accessToken), GetUserResponse)
+        def resp = client.toBlocking().exchange(req.bearerAuth(accessToken), DescribeUserResponse)
         then:
         resp.status() == HttpStatus.OK
         and:

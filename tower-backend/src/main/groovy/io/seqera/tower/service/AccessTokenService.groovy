@@ -11,6 +11,7 @@
 
 package io.seqera.tower.service
 
+import javax.annotation.PreDestroy
 import java.time.Duration
 import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
@@ -28,6 +29,7 @@ import io.reactivex.subjects.PublishSubject
 import io.seqera.tower.domain.AccessToken
 import io.seqera.tower.domain.User
 import io.seqera.tower.exceptions.EntityException
+import io.seqera.tower.util.RxHelper
 import io.seqera.tower.validation.ValidationHelper
 import io.seqera.util.TokenHelper
 import org.grails.datastore.mapping.validation.ValidationException
@@ -126,8 +128,13 @@ abstract class AccessTokenService {
         }
     }
 
-    void stop() {
-        flushLastAccessUpdates(null)
+
+    @PreDestroy
+    protected void destroy() {
+        if( lastAccessUpdater ) {
+            lastAccessUpdater.onComplete()
+            RxHelper.await(lastAccessUpdater)
+        }
     }
 }
 

@@ -21,12 +21,10 @@ import io.micronaut.context.event.StartupEvent
 import io.micronaut.runtime.context.scope.refresh.RefreshEvent
 import io.micronaut.security.authentication.UserDetails
 import io.micronaut.security.event.LoginSuccessfulEvent
-import io.seqera.tower.service.AccessTokenService
 import io.seqera.tower.service.audit.AuditEvent
 import io.seqera.tower.service.audit.AuditEventPublisher
 import io.seqera.tower.service.audit.AuditService
 import io.seqera.tower.service.cron.CronService
-import io.seqera.tower.service.live.LiveEventsService
 /**
  * Implements application events dispatching logic
  * 
@@ -36,8 +34,6 @@ import io.seqera.tower.service.live.LiveEventsService
 @Singleton
 class ApplicationEventDispatcherImpl implements ApplicationEventDispatcher {
 
-    @Inject LiveEventsService liveEventsService
-    @Inject AccessTokenService tokenService
     @Inject AuditEventPublisher eventPublisher
     @Inject @Nullable CronService cronService
     @Inject @Nullable AuditService auditService
@@ -53,8 +49,6 @@ class ApplicationEventDispatcherImpl implements ApplicationEventDispatcher {
 
     void onShutdown(ShutdownEvent event) {
         log.info "Application shutting down"
-        liveEventsService.stop()
-        tokenService.stop()
         cronService?.stop()
     }
 
@@ -64,21 +58,11 @@ class ApplicationEventDispatcherImpl implements ApplicationEventDispatcher {
 
     void onUserLogin(LoginSuccessfulEvent event) {
         try {
-            final user = fetchUserDetails(event.source)
-            eventPublisher.userSignIn(user)
+            eventPublisher.userSignIn((UserDetails)event.source)
         }
         catch (Exception e) {
             log.error "Unable to process user sign-in audit event | ${e.message ?: e}"
         }
-    }
-
-    private String fetchUserDetails(source) {
-        if( source instanceof UserDetails ) {
-            return source.username
-        }
-
-        log.warn "Cannot fetch user details -- source=$source"
-        return null
     }
 
     void onAuditEvent(AuditEvent event) {

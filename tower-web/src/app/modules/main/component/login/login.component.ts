@@ -9,21 +9,22 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 
-import {Component, NgZone, OnInit, ViewChild} from '@angular/core';
-import {ActivatedRoute, Router} from "@angular/router";
-import {HttpErrorResponse} from "@angular/common/http";
+import {AfterViewInit, Component, Inject, NgZone, OnInit, ViewChild} from '@angular/core';
+import {HttpClient, HttpErrorResponse} from '@angular/common/http';
 import {NgForm} from "@angular/forms";
 import {AuthService} from "src/app/modules/main/service/auth.service";
 import {NotificationService} from "src/app/modules/main/service/notification.service";
 import {AccessGateState} from "src/app/modules/main/entity/gate";
 import {environment} from "../../../../../environments/environment";
+import {AppConfigService} from '../../service/app-config.service';
+import { DOCUMENT } from '@angular/common';
 
 @Component({
   selector: 'wt-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, AfterViewInit {
 
   State = AccessGateState;
 
@@ -35,9 +36,16 @@ export class LoginComponent implements OnInit {
   state: AccessGateState;
   captchaResponse;
   captchaKey = environment.captchaKey;
+  showGitHubLogin = false;
+  showOpenidLogin = false;
+  showDefaultLogin = true;
+  loginPath: string = null;
 
   constructor(private ngZone: NgZone,
+              private httpClient: HttpClient,
               private authService: AuthService,
+              private appConfigService: AppConfigService,
+              @Inject(DOCUMENT) private document: Document,
               private notificationService: NotificationService) {
     this.isSubmitted = false;
     this.state = null;
@@ -46,6 +54,19 @@ export class LoginComponent implements OnInit {
   ngOnInit() {
     if( this.captchaKey ) {
       this.addCaptchaScript();
+    }
+    // check the login path
+    console.log(`Login auth-types=${this.appConfigService.getConfig().authTypes}; login-path=${this.appConfigService.getConfig().loginPath}`);
+    this.loginPath = this.appConfigService.getConfig().loginPath;
+    this.showGitHubLogin = this.appConfigService.getConfig().authTypes.indexOf('github')>-1;
+    this.showOpenidLogin = this.appConfigService.getConfig().authTypes.indexOf('oidc')>-1;
+    this.showDefaultLogin = this.loginPath === '/login' || this.loginPath == null;
+  }
+
+  ngAfterViewInit() {
+    // redirect to the external auth provider
+    if( !this.showDefaultLogin ) {
+      this.document.location.href = this.loginPath;
     }
   }
 

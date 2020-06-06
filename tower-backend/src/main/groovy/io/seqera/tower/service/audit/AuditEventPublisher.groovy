@@ -25,6 +25,7 @@ import io.micronaut.context.event.ApplicationEventPublisher
 import io.micronaut.http.context.ServerRequestContext
 import io.micronaut.http.server.util.HttpClientAddressResolver
 import io.micronaut.security.authentication.Authentication
+import io.micronaut.security.authentication.UserDetails
 import io.micronaut.security.utils.SecurityService
 import io.seqera.tower.domain.Mail
 import io.seqera.tower.domain.MailAttachment
@@ -181,16 +182,31 @@ class AuditEventPublisher {
         eventPublisher.publishEvent(event)
     }
 
-    void userSignIn(String userId) {
+    void userSignIn(UserDetails details) {
+        if( !details ) {
+            log.warn ("Missing login event user details")
+            return
+        }
+
+        final attrs = details.getAttributes('roles','username')
+        final login = attrs.get('preferred_username')
+        String authId = attrs.get('oauth2Provider')
+        if( authId && login )
+            authId += '/' + login
+
         final address = getClientAddress()
+        final userId = details.username
         final event = new AuditEvent(
                 clientIp:address,
                 type: AuditEventType.user_sign_in,
                 principal: userId,
-                target: userId )
+                target: userId,
+                status: authId )
 
+        log.debug "User sign in event=$event"
         eventPublisher.publishEvent(event)
     }
+
 
     /**
      * Send an email notification the user when the workflow execution completes

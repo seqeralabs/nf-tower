@@ -8,13 +8,12 @@
  * This Source Code Form is "Incompatible With Secondary Licenses", as
  * defined by the Mozilla Public License, v. 2.0.
  */
-import {Component, Input, OnInit} from '@angular/core';
-import {User} from "../../entity/user/user";
-import {AuthService} from "../../service/auth.service";
+import {Component, OnInit} from '@angular/core';
 import {HttpClient, HttpErrorResponse} from "@angular/common/http";
 import {environment} from "../../../../../environments/environment";
-import {GetDefaultTokenResponse, ListAccessTokensResponse} from "../../entity/access-token";
+import {GetDefaultTokenResponse} from "../../entity/access-token";
 import {NotificationService} from "../../service/notification.service";
+import {TowerUtil} from "../../util/tower-util";
 
 @Component({
   selector: 'wt-welcome',
@@ -37,12 +36,12 @@ export class WelcomeComponent implements OnInit {
 
   private makeNextflowCommand(): string {
     const cmd = 'nextflow run hello -with-tower ';
-    let endpoint = this.getEndpointUrl();
+    const endpoint = TowerUtil.getEndpointUrl();
     return endpoint ? cmd + endpoint : cmd;
   }
 
   private makeNextflowConfig(token: string): string {
-    let endpoint = this.getEndpointUrl();
+    const endpoint = TowerUtil.getEndpointUrl();
     let result = 'tower {\n';
     result += `  accessToken = '${token}'\n`;
     if( endpoint != null )
@@ -53,7 +52,7 @@ export class WelcomeComponent implements OnInit {
   }
 
   private fetchDefaultToken() {
-    let url = `${environment.apiUrl}/token/default`;
+    const url = `${environment.apiUrl}/token/default`;
     this.httpClient.get<GetDefaultTokenResponse>(url)
       .subscribe(
         resp => {
@@ -67,14 +66,5 @@ export class WelcomeComponent implements OnInit {
       );
   }
 
-  private getEndpointUrl(): string {
-    const url = new URL(window.location.href);
-    const base = url.origin;
-    if( !base.endsWith('://tower.nf') ) {
-      return base + '/api'
-    }
-    else {
-      return null;
-    }
-  }
+
 }

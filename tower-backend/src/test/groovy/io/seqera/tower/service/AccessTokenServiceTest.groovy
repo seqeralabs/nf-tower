@@ -43,7 +43,7 @@ class AccessTokenServiceTest extends AbstractContainerBaseTest {
     def 'should find user tokens' () {
 
         given:
-        User user = tx.withNewTransaction { new DomainCreator().generateAllowedUser() }
+        User user = tx.withNewTransaction { new DomainCreator().createAllowedUser() }
 
         when:
         def tokens = tokenService.findByUser(user)
@@ -65,7 +65,7 @@ class AccessTokenServiceTest extends AbstractContainerBaseTest {
 
     def 'should delete by token id' () {
         given:
-        User user = User.withNewTransaction { new DomainCreator().generateAllowedUser() }
+        User user = User.withNewTransaction { new DomainCreator().createAllowedUser() }
 
         when:
         def tokens = tokenService.findByUser(user)
@@ -127,7 +127,7 @@ class AccessTokenServiceTest extends AbstractContainerBaseTest {
     def 'should get token by name and user' () {
 
         given:
-        User user = tx.withNewTransaction { new DomainCreator().generateAllowedUser() }
+        User user = tx.withNewTransaction { new DomainCreator().createAllowedUser() }
         
         expect:
         tokenService.getByNameAndUser('default', user).name == 'default'
@@ -192,7 +192,7 @@ class AccessTokenServiceTest extends AbstractContainerBaseTest {
         given:
         def creator = new DomainCreator()
         def user = creator.createUser()
-        def token = creator.createAccesToken(user:user, name:'foo')
+        def token = creator.createAccessToken(user:user, name:'foo')
         def ts = Instant.now().truncatedTo(ChronoUnit.SECONDS).plusSeconds(10)
 
         when:
@@ -211,7 +211,7 @@ class AccessTokenServiceTest extends AbstractContainerBaseTest {
         given:
         def creator = new DomainCreator()
         def user = creator.createUser()
-        def token = creator.createAccesToken(user:user, name:'foo')
+        def token = creator.createAccessToken(user:user, name:'foo')
         and:
         def subscriber =  tokenService.lastAccessUpdater.test()
 

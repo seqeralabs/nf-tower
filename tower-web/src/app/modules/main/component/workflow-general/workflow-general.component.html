@@ -5,12 +5,12 @@
       <li data-toggle="tooltip" title="Workflow unique ID"><span class="mr-3 mdi mdi-24px"><img src="assets/identifier-icon.svg"></span> {{workflow.id}}</li>
       <li data-toggle="tooltip" title="Execution start timestamp"><span class="mr-3 mdi mdi-24px mdi-calendar"></span> {{workflow.startDateFormatted}}</li>
       <li data-toggle="tooltip" title="Revision & Git commit ID"><span class="mr-3 mdi mdi-24px mdi-source-commit"></span> {{workflow.humanizedRevision}}</li>
-      <li data-toggle="tooltip" title="Nextflow session ID"><span class="mr-3 mdi mdi-24px mdi-restore-clock"></span> {{workflow.data.sessionId}}</li>
-      <li data-toggle="tooltip" title="User name"><span class="mr-3 mdi mdi-24px mdi-account"></span> {{workflow.data.userName}}</li>
-      <li data-toggle="tooltip" title="Work directory"><span class="mr-3 mdi mdi-24px mdi-server"></span> {{workflow.data.workDir}}</li>
+      <li data-toggle="tooltip" title="Nextflow session ID"><span class="mr-3 mdi mdi-24px mdi-restore-clock"></span> {{workflow.sessionIdFormatted}}</li>
+      <li data-toggle="tooltip" title="User name"><span class="mr-3 mdi mdi-24px mdi-account"></span> {{workflow.userNameFormatted}}</li>
+      <li data-toggle="tooltip" title="Work directory"><span class="mr-3 mdi mdi-24px mdi-server"></span> {{workflow.workDirFormatted}}</li>
       <li data-toggle="tooltip" title="Container image"><span class="mr-3 mdi mdi-24px mdi-docker"></span> {{workflow.humanizedContainer}}</li>
-      <li data-toggle="tooltip" title="Executor(s) used to run the jobs"><span class="mr-3 mdi mdi-24px mdi-settings" ></span> {{workflow.executorNames || '-'}}</li>
-      <li data-toggle="tooltip" title="Nextflow version"><span class="mr-3 mdi mdi-24px"><img src="assets/nextflow-icon-128x128.svg"></span> {{workflow.nextflowVersion}}</li>
+      <li data-toggle="tooltip" title="Executor(s) used to run the jobs"><span class="mr-3 mdi mdi-24px mdi-settings" ></span> {{workflow.executorsFormatted}}</li>
+      <li data-toggle="tooltip" title="Nextflow version"><span class="mr-3 mdi mdi-24px"><img src="assets/nextflow-icon-128x128.svg"></span> {{workflow.nextflowVerFormatted}}</li>
     </ul>
   </div>
 </div>

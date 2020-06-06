@@ -11,15 +11,19 @@
 
 package io.seqera.tower.service.auth
 
+import javax.inject.Inject
+import javax.inject.Singleton
+
+import groovy.transform.CompileStatic
+import groovy.util.logging.Slf4j
 import io.micronaut.security.authentication.providers.AuthoritiesFetcher
 import io.reactivex.Flowable
 import io.seqera.tower.service.UserService
 import org.reactivestreams.Publisher
 
-import javax.inject.Inject
-import javax.inject.Singleton
-
+@Slf4j
 @Singleton
+@CompileStatic
 class AuthoritiesFetcherService implements AuthoritiesFetcher {
 
     private UserService userService
@@ -30,8 +34,13 @@ class AuthoritiesFetcherService implements AuthoritiesFetcher {
     }
 
     @Override
-    Publisher<List<String>> findAuthoritiesByUsername(String username) {
-        Flowable.just(userService.findAuthoritiesByEmail(username))
+    Publisher<List<String>> findAuthoritiesByUsername(String identity) {
+        // it can be either email or userId
+        final roles = identity.contains('@')
+                ? userService.findAuthoritiesByEmail(identity)
+                : userService.findAuthoritiesByUid(identity)
+        log.debug "Find authority for user=$identity; roles=$roles"
+        return Flowable.just(roles)
     }
 
 }

@@ -14,18 +14,16 @@ package io.seqera.tower.controller
 import javax.inject.Inject
 
 import grails.gorm.transactions.Transactional
+import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import io.micronaut.context.annotation.Value
-import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
-import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Put
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
-import io.micronaut.security.rules.SecurityRule
 import io.seqera.tower.domain.Task
 import io.seqera.tower.enums.TraceProcessingStatus
 import io.seqera.tower.exchange.trace.TraceAliveRequest
@@ -54,9 +52,10 @@ import io.seqera.tower.service.live.LiveEventsService
  * Implements the `trace` API
  *
  */
-@Controller("/trace")
-@Secured(SecurityRule.IS_ANONYMOUS)
 @Slf4j
+@CompileStatic
+@Secured(['ROLE_USER'])
+@Controller("/trace")
 class TraceController extends BaseController {
 
     @Value('${tower.server-url}')
@@ -69,7 +68,6 @@ class TraceController extends BaseController {
 
     @Post("/alive")
     @Transactional
-    @Secured(['ROLE_USER'])
     @Deprecated
     HttpResponse<TraceAliveResponse> alive(@Body TraceAliveRequest req) {
         log.debug "Receiving trace alive [workflowId=${req.workflowId}]"
@@ -79,7 +77,6 @@ class TraceController extends BaseController {
 
     @Post("/workflow")
     @Transactional
-    @Secured(['ROLE_USER'])
     @Deprecated
     HttpResponse<TraceWorkflowResponse> workflow(@Body TraceWorkflowRequest req, Authentication authentication) {
         try {
@@ -107,7 +104,6 @@ class TraceController extends BaseController {
 
     @Post("/task")
     @Transactional
-    @Secured(['ROLE_USER'])
     @Deprecated
     HttpResponse<TraceTaskResponse> task(@Body TraceTaskRequest req, Authentication authentication) {
         log.info "Receiving task trace request [workflowId=${req.workflowId}; tasks=${req.tasks?.size()}; user=${authentication.name}]"
@@ -136,38 +132,34 @@ class TraceController extends BaseController {
     }
 
     @Post("/init")
-    @Secured(['ROLE_USER'])
     @Deprecated
     HttpResponse<TraceInitResponse> init(TraceInitRequest req, Authentication authentication) {
         log.info "Receiving trace init [user=${authentication.getName()}]"
-        final workflowId = traceService.createWorkflowKey()
+        final workflowId = workflowService.createWorkflowKey()
         final resp = new TraceInitResponse(workflowId: workflowId)
         log.info "Created new workflow ID=${workflowId} [user=${authentication.getName()}]"
         HttpResponse.ok(resp)
     }
 
-    @Get("/ping")
-    @Secured(SecurityRule.IS_ANONYMOUS)
-    HttpResponse<String> ping(HttpRequest req) {
-        log.info "Trace ping from ${req.remoteAddress}"
-        HttpResponse.ok('pong')
-    }
 
     // --== new api ==--
 
     @Post("/create")
-    @Secured(['ROLE_USER'])
     HttpResponse<TraceCreateResponse> flowCreate(TraceCreateRequest req, Authentication authentication) {
         log.info "> Trace create request [user=${authentication.getName()}]"
-        final workflowId = traceService.createWorkflowKey()
+        // note: when the execution is launched from Tower the workflowId is already given
+        // and the a workflow entity should exists
+        if( req.workflowId && !workflowService.get(req.workflowId) )
+            return HttpResponse.badRequest(new TraceCreateResponse(message: "Unknown workflow launch id=$req.workflowId"))
+
+        final workflowId = req.workflowId ?: workflowService.createWorkflowKey()
         final resp = new TraceCreateResponse(workflowId: workflowId)
-        log.info "> Created new workflow ID=${workflowId} [user=${authentication.getName()}]"
+        log.info "> Created new workflow id=${workflowId} [user=${authentication.getName()}]${req.workflowId ? ' [from tower]' :''}"
         HttpResponse.ok(resp)
     }
 
     @Put("/{workflowId}/begin")
     @Transactional
-    @Secured(['ROLE_USER'])
     HttpResponse<TraceBeginResponse> flowBegin(final String workflowId, @Body TraceBeginRequest req, Authentication authentication) {
         try {
             log.info( "> Receiving trace for workflow begin [workflowId=${workflowId}; user=${authentication.name}]")
@@ -190,7 +182,6 @@ class TraceController extends BaseController {
 
     @Put("/{workflowId}/complete")
     @Transactional
-    @Secured(['ROLE_USER'])
     HttpResponse<TraceCompleteResponse> flowComplete(final String workflowId, @Body TraceCompleteRequest req, Authentication authentication) {
         try {
             log.info("> Receiving trace for workflow completion [workflowId=${workflowId}; user=${authentication.name}]")
@@ -213,7 +204,6 @@ class TraceController extends BaseController {
 
     @Put("/{workflowId}/progress")
     @Transactional
-    @Secured(['ROLE_USER'])
     HttpResponse<TraceProgressResponse> record(String workflowId, @Body TraceProgressRequest req, Authentication authentication) {
         log.info "> Receiving trace tasks progress [workflowId=${workflowId}; tasks=${req.tasks?.size()}; user=${authentication.name}]"
 
@@ -243,7 +233,6 @@ class TraceController extends BaseController {
 
     @Put("/{workflowId}/heartbeat")
     @Transactional
-    @Secured(['ROLE_USER'])
     HttpResponse<TraceHeartbeatResponse> heartbeat(String workflowId, @Body TraceHeartbeatRequest req) {
         log.debug "> Receiving trace heartbeat [workflowId=${workflowId}]"
         traceService.handleHeartbeat(workflowId, req.progress)

@@ -44,13 +44,13 @@ class ProgressOperationsTest extends AbstractContainerBaseTest {
     static final _7GB = 7 * _1GB
 
     @Inject
+    ApplicationContext ctx
+
+    @Inject
     ProgressOperationsImpl progressOp
 
     @Inject
     TransactionService tx
-
-    @Inject
-    ApplicationContext ctx
 
     @Singleton
     ProgressStore getStatsStore() {
@@ -462,7 +462,7 @@ class ProgressOperationsTest extends AbstractContainerBaseTest {
     }
 
 
-    def 'should compute progresss stats data' () {
+    def 'should compute progress stats data' () {
         given:
         def WORKFLOW_ID = '12345'
         def store = Mock(ProgressStore)

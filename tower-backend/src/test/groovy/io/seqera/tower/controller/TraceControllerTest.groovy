@@ -62,7 +62,7 @@ class TraceControllerTest extends AbstractContainerBaseTest {
 
     void 'should response to to hello' () {
         given: 'an allowed user'
-        User user = new DomainCreator().generateAllowedUser()
+        User user = new DomainCreator().createAllowedUser()
 
         when: 'send a save request'
         MutableHttpRequest request = HttpRequest.POST('/trace/init', new TraceInitRequest(sessionId: 'xyz'))
@@ -79,7 +79,7 @@ class TraceControllerTest extends AbstractContainerBaseTest {
 
     void 'should handle an alive request' () {
         given: 'an allowed user'
-        User user = new DomainCreator().generateAllowedUser()
+        User user = new DomainCreator().createAllowedUser()
 
         and: 'a workflow'
         Workflow workflow = new DomainCreator().createWorkflow()
@@ -96,7 +96,7 @@ class TraceControllerTest extends AbstractContainerBaseTest {
 
     void 'should update workflow status' () {
         given: 'an allowed user'
-        User user = new DomainCreator().generateAllowedUser()
+        User user = new DomainCreator().createAllowedUser()
 
         and: 'a workflow'
         Workflow workflow = new DomainCreator().createWorkflow(status: WorkflowStatus.UNKNOWN)
@@ -115,7 +115,7 @@ class TraceControllerTest extends AbstractContainerBaseTest {
 
     void "save a new workflow given a start trace"() {
         given: 'an allowed user'
-        User user = new DomainCreator().generateAllowedUser()
+        User user = new DomainCreator().createAllowedUser()
         and: 'a workflow started JSON trace'
         TraceWorkflowRequest trace = TracesJsonBank.extractWorkflowJsonTrace('success', null, WorkflowTraceSnapshotStatus.STARTED)
         and:
@@ -149,7 +149,7 @@ class TraceControllerTest extends AbstractContainerBaseTest {
 
     void "save a new task given a submit trace"() {
         given: 'an allowed user'
-        User user = new DomainCreator().generateAllowedUser()
+        User user = new DomainCreator().createAllowedUser()
 
         and: 'a workflow'
         Workflow workflow = new DomainCreator().createWorkflow()
@@ -214,7 +214,7 @@ class TraceControllerTest extends AbstractContainerBaseTest {
 
     void "save traces simulated from a complete sequence"() {
         given: 'an allowed user'
-        User user = new DomainCreator().generateAllowedUser()
+        User user = new DomainCreator().createAllowedUser()
 
         and: 'a nextflow simulator'
         NextflowSimulator nextflowSimulator = new NextflowSimulator(user: user, workflowLabel: 'simulation', client: client.toBlocking(), sleepBetweenRequests: 0)

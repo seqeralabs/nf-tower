@@ -11,20 +11,20 @@
 
 package io.seqera.tower.service.auth
 
+import javax.inject.Inject
+import java.time.Instant
+
 import io.micronaut.security.authentication.UserDetails
 import io.micronaut.test.annotation.MicronautTest
 import io.micronaut.test.annotation.MockBean
-import io.seqera.tower.service.AccessTokenService
-import io.seqera.util.TokenHelper
 import io.seqera.tower.domain.AccessToken
 import io.seqera.tower.domain.User
-import io.seqera.tower.service.mail.MailService
+import io.seqera.tower.service.AccessTokenService
 import io.seqera.tower.service.UserService
 import io.seqera.tower.service.UserServiceImpl
+import io.seqera.tower.service.mail.MailService
+import io.seqera.util.TokenHelper
 import spock.lang.Specification
-
-import javax.inject.Inject
-import java.time.Instant
 
 @MicronautTest
 class AuthenticationByApiTokenTest extends Specification {
@@ -35,16 +35,38 @@ class AuthenticationByApiTokenTest extends Specification {
     @Inject
     UserService userService
 
+    @MockBean(MailService)
+    MailService mockMailService() {
+        GroovyMock(MailService)
+    }
+
+    @MockBean(UserServiceImpl)
+    UserService mockUserService() {
+        Mock(UserServiceImpl)
+    }
+
     def 'should allow access new user' () {
-        given: "register a user"
-        User user = userService.access('user@seqera.io')
+        given:
+        def email = 'user@seqera.io'
+        def now = Instant.now()
+        def TOKEN = TokenHelper.createHexToken()
+        and:
+        def USER = new User(id:100, email:email, userName: email, authToken: TOKEN, authTime: now, accessTokens: [new AccessToken(token: 'token')])
+        def ROLES = ['ROLE_X']
 
         when:
-        def result = authProvider.authToken0(user.accessTokens.first().token)
+        def result = authProvider.authToken0(TOKEN)
 
         then:
+        userService.getByAccessToken(TOKEN) >> USER
+        userService.findAuthoritiesByUser(USER) >> ROLES
+
+        and:
         result instanceof UserDetails
-        result.username == 'foo'
+        with( (UserDetails) result ) {
+            username == USER.getUid()
+            roles == ROLES
+        }
     }
 
     def 'should auth with user name' () {
@@ -52,7 +74,7 @@ class AuthenticationByApiTokenTest extends Specification {
         def NAME = 'the_user_name'
         def EMAIL = 'foo@gmail'
         def TOKEN = 'xyz'
-        def USER = new User(userName: NAME, email:EMAIL)
+        def USER = new User(id: 100, userName: NAME, email:EMAIL)
         def userService = Mock(UserService)
         def tokenService = Mock(AccessTokenService)
         def provider = Spy(AuthenticationByApiToken)
@@ -63,28 +85,14 @@ class AuthenticationByApiTokenTest extends Specification {
         def result = provider.authToken0(TOKEN)
         then:
         1 * userService.getByAccessToken(TOKEN) >> USER
-        1 * userService.findAuthoritiesOfUser(USER) >> ['role_a', 'role_b']
+        1 * userService.findAuthoritiesByUser(USER) >> ['role_a', 'role_b']
         1 * tokenService.updateLastUsedAsync(TOKEN)
         then:
         result instanceof UserDetails
-        (result as UserDetails).username == EMAIL
+        (result as UserDetails).username == USER.getUid()
         (result as UserDetails).roles == ['role_a', 'role_b']
 
     }
 
-    @MockBean(MailService)
-    MailService mockMailService() {
-        GroovyMock(MailService)
-    }
 
-    @MockBean(UserServiceImpl)
-    UserService mockUserService() {
-        final now = Instant.now()
-        final tkn = TokenHelper.createHexToken()
-        GroovyMock(UserServiceImpl) {
-            access(_ as String) >> { String email -> new User(email:email, userName: email, authToken: tkn, authTime: now, accessTokens: [new AccessToken(token: 'token')]) }
-            getByAccessToken(_ as String) >> { args -> new User(email:'foo', userName:'foo', authToken: args[0], authTime: now) }
-            findAuthoritiesOfUser(_ as User) >> ['role_a', 'role_b']
-        }
-    }
 }

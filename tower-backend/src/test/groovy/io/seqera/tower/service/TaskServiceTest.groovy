@@ -19,6 +19,7 @@ import io.seqera.tower.Application
 import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.enums.TaskStatus
+import io.seqera.tower.exceptions.AbortTransactionException
 import io.seqera.tower.exceptions.NonExistingWorkflowException
 import io.seqera.tower.exchange.trace.TraceTaskRequest
 import io.seqera.tower.service.cloudprice.CloudPriceModel
@@ -458,6 +459,52 @@ class TaskServiceTest extends AbstractContainerBaseTest {
             status == TaskStatus.COMPLETED
             cost == 0.25
         }
+    }
+
+    void 'should reject task save' () {
+        given:
+        def creator = new DomainCreator()
+        Workflow workflow = creator.createWorkflow()
+        and:
+        def req = TracesJsonBank.extractTraceProgress('success', 1, TaskTraceSnapshotStatus.SUCCEEDED)
+
+        when:
+        def taskId = taskService
+                .saveTask(req.tasks[0], workflow)
+                .getId()
+        then:
+        Task.get(taskId).status == TaskStatus.COMPLETED
+
+        when:
+        req = TracesJsonBank.extractTraceProgress('success', 1, TaskTraceSnapshotStatus.SUBMITTED)
+        and:
+        taskService.saveTask(req.tasks[0], workflow)
+        then:
+        // failed because the task was already in a termination status
+        thrown(AbortTransactionException)
+    }
+
+    void 'should reject task submit' () {
+        given:
+        def creator = new DomainCreator()
+        Workflow workflow = creator.createWorkflow()
+        and:
+        def req = TracesJsonBank.extractTraceProgress('success', 1, TaskTraceSnapshotStatus.RUNNING)
+
+        when:
+        def taskId = taskService
+                .saveTask(req.tasks[0], workflow)
+                .getId()
+        then:
+        Task.get(taskId).status == TaskStatus.RUNNING
+
+        when:
+        req = TracesJsonBank.extractTraceProgress('success', 1, TaskTraceSnapshotStatus.SUBMITTED)
+        and:
+        taskService.saveTask(req.tasks[0], workflow)
+        then:
+        // failed because the task was already in a termination status
+        thrown(AbortTransactionException)
     }
 
     void 'should find task by id' () {

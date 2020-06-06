@@ -8,10 +8,10 @@
  * This Source Code Form is "Incompatible With Secondary Licenses", as
  * defined by the Mozilla Public License, v. 2.0.
  */
-import {WorkflowData} from "./workflow-data";
-import {WorkflowStatus} from "./workflow-status.enum";
-import {ProgressData} from "../progress/progress-data";
-import {FormatterUtil} from "../../util/formatter-util";
+import {WorkflowData} from './workflow-data';
+import {WorkflowStatus} from './workflow-status.enum';
+import {ProgressData} from '../progress/progress-data';
+import {FormatterUtil} from '../../util/formatter-util';
 
 export class Workflow {
 
@@ -28,6 +28,10 @@ export class Workflow {
 
   get id(): string {
     return this.data.id;
+  }
+
+  get isSubmitted(): boolean {
+    return this.data.status === WorkflowStatus.SUBMITTED;
   }
 
   get isRunning(): boolean {
@@ -47,15 +51,23 @@ export class Workflow {
   }
 
   get isCompleted(): boolean {
-    return !this.isRunning && !this.isUnknownStatus;
+    return this.data.status === WorkflowStatus.SUCCEEDED || this.data.status === WorkflowStatus.FAILED;
   }
 
   get isUnknownStatus(): boolean {
     return this.data.status == null || this.data.status === WorkflowStatus.UNKNOWN;
   }
 
+  get canRelaunch(): boolean {
+    return this.launchId!=null && (this.isCompleted || this.isUnknownStatus);
+  }
+
+  get notCanDelete(): boolean {
+    return this.isSubmitted || this.isRunning;
+  }
+
   get humanizedDuration(): string {
-    return FormatterUtil.humanizeDuration(this.data.duration);
+    return this.data.duration ? FormatterUtil.humanizeDuration(this.data.duration) : '-';
   }
 
   get briefCommitId(): string {
@@ -63,17 +75,29 @@ export class Workflow {
   }
 
   get humanizedRevision(): string {
-    let result = this.data.revision;
+    let result = this.data.commitId;
     if( result == null )
-      return 'n/a';
-    if( this.briefCommitId )
-      result += ` (${this.briefCommitId})`;
+      return '-';
+    if( this.data.revision )
+      result += ` (${this.data.revision})`;
     return result;
+  }
+
+  get sessionIdFormatted(): string {
+    return this.data.sessionId ? this.data.sessionId.toString() : '-';
+  }
+
+  get userNameFormatted(): string {
+    return this.data.userName ? this.data.userName : '-';
+  }
+
+  get workDirFormatted(): string {
+    return this.data.workDir ? this.data.workDir : '-';
   }
 
   get humanizedContainer(): string {
     if( !this.data.container || !this.data.containerEngine )
-      return 'n/a';
+      return '-';
     return `${this.data.container} (${this.data.containerEngine})`;
   }
 
@@ -82,7 +106,11 @@ export class Workflow {
   }
 
   get startDateFormatted(): string {
-    return FormatterUtil.formatDate(this.data.start);
+    return this.data.start ? FormatterUtil.formatDate(this.data.start) : '-';
+  }
+
+  get submitDateFormatted(): string {
+    return this.data.submit ? FormatterUtil.formatDate(this.data.submit) : '-';
   }
 
   get exitStatus(): string {
@@ -93,19 +121,23 @@ export class Workflow {
     return this.data.manifest && this.data.manifest.name != null ? this.data.manifest.name : this.data.projectName;
   }
 
-  get nextflowVersion(): string {
+  get nextflowVerFormatted(): string {
+    if( !this.data.nextflow || !this.data.nextflow.version )
+      return '-';
     let result = this.data.nextflow.version;
-    if( result == null )
-      return 'n/a';
     if( this.data.nextflow.build )
       result = `${result} build ${this.data.nextflow.build}`;
     return result;
   }
 
-  get executorNames(): string {
+  get executorsFormatted(): string {
     if( this.progress.workflowProgress.executorNames )
       return this.progress.workflowProgress.executorNames.join(',');
     else
-      return 'n/a';
+      return '-';
+  }
+
+  get launchId(): string {
+    return this.data.launchId;
   }
 }

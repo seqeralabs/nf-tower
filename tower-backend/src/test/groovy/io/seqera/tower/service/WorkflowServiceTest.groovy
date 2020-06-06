@@ -12,7 +12,6 @@
 package io.seqera.tower.service
 
 import javax.inject.Inject
-import javax.validation.ValidationException
 import java.time.OffsetDateTime
 import java.time.temporal.ChronoUnit
 
@@ -72,8 +71,8 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         workflow.status == WorkflowStatus.RUNNING
         workflow.submit
         !workflow.complete
-        Workflow.withNewTransaction { Workflow.count() } == 1
-        WorkflowProcess.withNewTransaction { WorkflowProcess.count() } == 3
+        Workflow.withNewTransaction { Workflow.get(workflow.id) } != null
+        WorkflowProcess.withNewTransaction { WorkflowProcess.findAllByWorkflow(workflow).size() } == 3
     }
 
     void "start a workflow given a started trace, then complete the workflow given a succeeded trace"() {
@@ -230,7 +229,7 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         }
 
         then: "the workflow has validation errors"
-        thrown(ValidationException)
+        thrown(IllegalArgumentException)
 
         Workflow.withNewTransaction {
             Workflow.count() == 0
@@ -405,14 +404,14 @@ class WorkflowServiceTest extends AbstractContainerBaseTest {
         def t1 = t0.minusMinutes(10)
         def t2 = t0
         WorkflowComment.withNewTransaction {
-            new WorkflowComment(user: user,
+            new WorkflowComment(author: user,
                     text: 'First hello',
                     workflow: workflow,
                     lastUpdated: t1,
                     dateCreated: t1)
                     .save(failOnError:true)
 
-            new WorkflowComment(user: user,
+            new WorkflowComment(author: user,
                     text: 'Second hello',
                     workflow: workflow,
                     lastUpdated: t2,

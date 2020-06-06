@@ -85,7 +85,6 @@ class TokenController  extends BaseController {
     @Delete("/delete/{tokenId}")
     HttpResponse delete(Long tokenId, Authentication authentication) {
         try {
-            final user = userService.getByAuth(authentication)
             final count = accessTokenService.deleteById(tokenId)
             eventPublisher.accessTokenDeleted(tokenId)
 

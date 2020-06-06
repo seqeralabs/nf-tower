@@ -14,13 +14,14 @@ package io.seqera.util
 import groovy.transform.CompileStatic
 
 /**
+ * Helper class to handle single value object creation
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
 @CompileStatic
 class TupleUtils {
 
-    static List single(obj) {
+    static <T> List<T> single(T obj) {
         final ret = new ArrayList(1)
         ret.add(obj)
         return ret
@@ -41,20 +42,20 @@ class TupleUtils {
         return ret
     }
 
-    static Map map(k1, v1) {
+    static <K,V> Map<K,V> map(k1, v1) {
         final result = new HashMap(1)
         result.put(k1,v1)
         return result
     }
 
-    static Map map(k1, v1, k2, v2) {
+    static <K,V> Map<K,V> map(k1, v1, k2, v2) {
         final result = new HashMap(2)
         result.put(k1,v1)
         result.put(k2,v2)
         return result
     }
 
-    static Map map(k1, v1, k2, v2, k3, v3) {
+    static <K,V> Map<K,V> map(k1, v1, k2, v2, k3, v3) {
         final result = new HashMap(3)
         result.put(k1,v1)
         result.put(k2,v2)

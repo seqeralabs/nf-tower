@@ -16,12 +16,21 @@ import io.seqera.tower.enums.LiveAction
 import io.seqera.tower.exchange.live.LiveUpdate
 
 /**
+ * Common trait for event publishing operations
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
 trait LiveEventsTrait {
 
     abstract void publishEvent(LiveUpdate traceSseResponse)
+
+    void publishWorkflowEvent(Long targetUserId, String workflowId) {
+        publishEvent(LiveUpdate.of(targetUserId, workflowId, LiveAction.WORKFLOW_UPDATE)  )
+    }
+
+    void publishProgressEvent(Long targetUserId, String workflowId) {
+        publishEvent(LiveUpdate.of(targetUserId, workflowId, LiveAction.PROGRESS_UPDATE))
+    }
 
     void publishWorkflowEvent(Workflow workflow) {
         publishEvent(LiveUpdate.of(workflow.owner.id, workflow.id, LiveAction.WORKFLOW_UPDATE))

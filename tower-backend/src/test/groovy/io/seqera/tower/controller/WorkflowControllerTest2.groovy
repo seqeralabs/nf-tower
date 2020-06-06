@@ -40,7 +40,7 @@ class WorkflowControllerTest2 extends AbstractContainerBaseTest {
     def 'should not allow more than max workflows' () {
         given:
         def creator = new DomainCreator()
-        def owner = creator.generateAllowedUser()
+        def owner = creator.createAllowedUser()
 
         and: "perform the request to obtain the workflows"
         String login = doJwtLogin(owner, client)
@@ -58,7 +58,7 @@ class WorkflowControllerTest2 extends AbstractContainerBaseTest {
     def 'should not allow more than max tasks' () {
         given:
         def creator = new DomainCreator()
-        def owner = creator.generateAllowedUser()
+        def owner = creator.createAllowedUser()
 
         and: "perform the request to obtain the workflows"
         String login = doJwtLogin(owner, client)

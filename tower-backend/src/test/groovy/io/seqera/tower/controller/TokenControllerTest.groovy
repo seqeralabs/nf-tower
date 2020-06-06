@@ -56,7 +56,7 @@ class TokenControllerTest extends AbstractContainerBaseTest {
 
     def 'should return the list of tokens owned by the user' () {
         given:
-        User owner = tx.withNewTransaction { new DomainCreator().generateAllowedUser() }
+        User owner = tx.withNewTransaction { new DomainCreator().createAllowedUser() }
 
         when:
         String accessToken = doJwtLogin(owner, client)
@@ -74,7 +74,7 @@ class TokenControllerTest extends AbstractContainerBaseTest {
     def 'should return an empty list' () {
         given:
         User owner = tx.withNewTransaction {
-            def u = new DomainCreator().generateAllowedUser();
+            def u = new DomainCreator().createAllowedUser();
             tokenService.deleteByUser(u)
             return u
         }
@@ -95,7 +95,7 @@ class TokenControllerTest extends AbstractContainerBaseTest {
 
     def 'should return the list of tokens as json' () {
         given:
-        User owner = tx.withNewTransaction { new DomainCreator().generateAllowedUser() }
+        User owner = tx.withNewTransaction { new DomainCreator().createAllowedUser() }
 
         when:
         String accessToken = doJwtLogin(owner, client)
@@ -113,7 +113,7 @@ class TokenControllerTest extends AbstractContainerBaseTest {
         User user
         AccessToken token
         tx.withNewTransaction {
-            user = new DomainCreator().generateAllowedUser()
+            user = new DomainCreator().createAllowedUser()
             token = tokenService.createToken('foo',user)
         }
 
@@ -140,7 +140,7 @@ class TokenControllerTest extends AbstractContainerBaseTest {
         User user1 = tx.withNewTransaction { new DomainCreator().createUser() }
         and:
         User user2 = tx.withNewTransaction {
-            def u=new DomainCreator().generateAllowedUser()
+            def u=new DomainCreator().createAllowedUser()
             tokenService.createToken('foo',u)
             tokenService.createToken('bar',u)
             return u
@@ -167,7 +167,7 @@ class TokenControllerTest extends AbstractContainerBaseTest {
 
     def 'should create token' () {
         given:
-        User user = tx.withNewTransaction { new DomainCreator().generateAllowedUser() }
+        User user = tx.withNewTransaction { new DomainCreator().createAllowedUser() }
 
         when:
         String auth = doJwtLogin(user, client)
@@ -186,7 +186,7 @@ class TokenControllerTest extends AbstractContainerBaseTest {
 
     def 'should *not* create token' () {
         given:
-        User user = tx.withNewTransaction { new DomainCreator().generateAllowedUser() }
+        User user = tx.withNewTransaction { new DomainCreator().createAllowedUser() }
 
         when:
         // tries to create with a name already used `default`
@@ -227,7 +227,7 @@ class TokenControllerTest extends AbstractContainerBaseTest {
         User user
         AccessToken token
         tx.withNewTransaction {
-            user = new DomainCreator().generateAllowedUser()
+            user = new DomainCreator().createAllowedUser()
             token = tokenService.createToken('foo',user)
         }
 
@@ -246,7 +246,7 @@ class TokenControllerTest extends AbstractContainerBaseTest {
     def 'should crate default token if not exists' () {
         given:
         User user = tx.withNewTransaction {
-            def u = new DomainCreator().generateAllowedUser();
+            def u = new DomainCreator().createAllowedUser();
             u.accessTokens.clear()
             return u
         }

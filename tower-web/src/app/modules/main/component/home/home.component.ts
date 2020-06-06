@@ -35,8 +35,8 @@ export class HomeComponent implements OnInit {
   private userEventsSubscription: Subscription;
 
   searchingText: string;
-  offset: number = 0;
-  sidebarCollapsed: boolean = false;
+  offset = 0;
+  sidebarCollapsed = false;
   isSearchTriggered: boolean;
   isNextPageLoadTriggered: boolean;
 
@@ -50,7 +50,6 @@ export class HomeComponent implements OnInit {
               private router: Router) {
   }
 
-
   ngOnInit() {
     this.version = environment.version;
     this.commitId = environment.commitId;
@@ -58,14 +57,13 @@ export class HomeComponent implements OnInit {
     this.authService.user$.subscribe(
       (user: User) => {
         this.user = user;
-        if (!this.user) {
-          return;
+        if (this.user) {
+          console.log('Watching for workflow events for ',this.user);
+          this.workflowService.workflows$.subscribe((workflows: Workflow[]) => {
+            this.receiveWorkflows(workflows);
+            this.subscribeToUserLiveEvents();
+          });
         }
-
-        this.workflowService.workflows$.subscribe((workflows: Workflow[]) => {
-          this.receiveWorkflows(workflows);
-          this.subscribeToUserLiveEvents();
-        });
       }
     );
   }
@@ -74,23 +72,23 @@ export class HomeComponent implements OnInit {
     this.workflows = this.isWorkflowsInitiatied ? this.workflows : [];
     const newWorkflows: Workflow[] = differenceBy(emittedWorkflows, this.workflows, (w: Workflow) => w.id);
 
-    //Paginating event: concat the newly received workflows to the current ones
+    // Paginating event: concat the newly received workflows to the current ones
     if (this.isNextPageLoadTriggered) {
       this.workflows = concat(this.workflows, newWorkflows);
     }
-    //Searching event: replace the workflows with the newly received ones from server
+    // Searching event: replace the workflows with the newly received ones from server
     else if (this.isSearchTriggered) {
       this.workflows = emittedWorkflows;
     }
-    //Search is currently active: keep the filtered workflows, drop the ones no longer present (delete event) and ignore the new ones (live update event)
+    // Search is currently active: keep the filtered workflows, drop the ones no longer present (delete event) and ignore the new ones (live update event)
     else if (this.isSearchActive) {
       this.workflows = intersectionBy(this.workflows, emittedWorkflows, (workflow: Workflow) => workflow.id);
     }
-    //No search currently active (initialization event, live update event, delete event)
+    // No search currently active (initialization event, live update event, delete event)
     else {
       this.workflows = emittedWorkflows;
     }
-    this.workflows = orderBy(this.workflows, [(w: Workflow) => w.data.start], ['desc']);
+    this.workflows = orderBy(this.workflows, [(w: Workflow) => w.data.submit], ['desc']);
     this.offset = this.workflows.length;
 
     this.isSearchTriggered = false;
@@ -111,7 +109,7 @@ export class HomeComponent implements OnInit {
   private reactToDataEvent(event: LiveUpdate) {
     console.log('Live user event received', event);
     this.workflowService.getWorkflow(event.workflowId, true).subscribe((workflow: Workflow) => {
-      this.workflowService.updateWorkflow(workflow)
+      this.workflowService.updateWorkflow(workflow);
     });
   }
 

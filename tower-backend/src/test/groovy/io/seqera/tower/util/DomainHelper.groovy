@@ -30,4 +30,8 @@ class DomainHelper {
         return JsonOutput.prettyPrint(writer.toString())
     }
 
+    static <T> T fromJson(String json, Class<T> valueType) {
+        mapper.readValue(json,valueType)
+    }
+
 }

@@ -15,6 +15,7 @@ import javax.inject.Inject
 
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
+import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import io.micronaut.context.annotation.Value
 import io.micronaut.http.HttpParameters
@@ -27,7 +28,6 @@ import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Put
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
-import io.micronaut.security.rules.SecurityRule
 import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.domain.WorkflowComment
@@ -57,8 +57,10 @@ import org.grails.datastore.mapping.validation.ValidationException
 /**
  * Implements the `workflow` API
  */
-@Controller("/workflow")
 @Slf4j
+@CompileStatic
+@Secured(['ROLE_USER'])
+@Controller("/workflow")
 class WorkflowController extends BaseController {
 
     @Value('${tower.workflow.list.max-allowed:100}')
@@ -88,7 +90,6 @@ class WorkflowController extends BaseController {
 
     @Get("/list")
     @Transactional
-    @Secured(['ROLE_USER'])
     HttpResponse<ListWorkflowResponse> list(Authentication authentication, HttpParameters filterParams) {
         Long max = filterParams.getFirst('max', Long.class, 50l)
         Long offset = filterParams.getFirst('offset', Long.class, 0l)
@@ -114,7 +115,6 @@ class WorkflowController extends BaseController {
      */
     @Get("/{workflowId}")
     @Transactional(readOnly = true)
-    @Secured(['ROLE_USER'])
     HttpResponse<GetWorkflowResponse> get(String workflowId, Authentication authentication) {
         final workflow = workflowService.get(workflowId)
         if (!workflow)
@@ -143,7 +143,6 @@ class WorkflowController extends BaseController {
      * @return The http response
      */
     @Transactional(readOnly = true)
-    @Secured(['ROLE_USER'])
     @Get('/{workflowId}/progress')
     @CompileDynamic
     HttpResponse<GetProgressResponse> progress(String workflowId) {
@@ -164,7 +163,6 @@ class WorkflowController extends BaseController {
 
     @Get("/{workflowId}/tasks")
     @Transactional
-    @Secured(SecurityRule.IS_ANONYMOUS)
     HttpResponse<TaskList> tasks(String workflowId, HttpParameters filterParams) {
         int max = filterParams.getFirst('length', Integer.class, 10)
         Long offset = filterParams.getFirst('start', Long.class, 0l)
@@ -184,7 +182,6 @@ class WorkflowController extends BaseController {
     }
 
     @Transactional
-    @Secured(['ROLE_USER'])
     @Get("/{workflowId}/task/{taskId}")
     HttpResponse<TaskGet> getTaskById(String workflowId, Long taskId, Authentication authentication) {
         final user = userService.getByAuth(authentication)
@@ -198,7 +195,6 @@ class WorkflowController extends BaseController {
     }
 
     @Transactional
-    @Secured(['ROLE_USER'])
     @Delete('/{workflowId}')
     HttpResponse delete(String workflowId, Authentication authentication) {
         final user = userService.getByAuth(authentication)
@@ -210,7 +206,6 @@ class WorkflowController extends BaseController {
     }
 
     @Transactional
-    @Secured(['ROLE_USER'])
     @Get('/{workflowId}/metrics')
     @CompileDynamic
     HttpResponse<GetWorkflowMetricsResponse> metrics(String workflowId) {
@@ -229,7 +224,6 @@ class WorkflowController extends BaseController {
     }
 
     @Transactional
-    @Secured(['ROLE_USER'])
     @Get('/{workflowId}/comments')
     @CompileDynamic
     HttpResponse<ListWorkflowCommentsResponse> listComments(String workflowId) {
@@ -248,7 +242,6 @@ class WorkflowController extends BaseController {
     }
 
     @Transactional
-    @Secured(['ROLE_USER'])
     @Post('/{workflowId}/comment/add')
     @CompileDynamic
     HttpResponse<AddWorkflowCommentResponse> addComment(Authentication authentication, String workflowId, AddWorkflowCommentRequest request) {
@@ -259,14 +252,14 @@ class WorkflowController extends BaseController {
                 return HttpResponse.notFound(new AddWorkflowCommentResponse(message:"Oops... Can't find workflow ID $workflowId"))
 
             final comment = new WorkflowComment()
-            comment.user = user
+            comment.author = user
             comment.workflow = workflow
             comment.text = request.text
             comment.dateCreated = request.timestamp
             comment.lastUpdated = request.timestamp
-            final record = comment.save(failOnError: true)
+            final commentId = comment.save(failOnError: true).id
 
-            return HttpResponse.ok( AddWorkflowCommentResponse.withComment(record) )
+            return HttpResponse.ok( AddWorkflowCommentResponse.withId(commentId) )
         }
         catch(ValidationException e) {
             final msg = "Oops... Unable to add comment -- " + ValidationHelper.formatErrors(e)
@@ -282,7 +275,6 @@ class WorkflowController extends BaseController {
     }
 
     @Transactional
-    @Secured(['ROLE_USER'])
     @Put('/{workflowId}/comment')
     @CompileDynamic
     HttpResponse<UpdateWorkflowCommentResponse> updateComment(Authentication authentication, String workflowId, UpdateWorkflowCommentRequest request) {
@@ -300,8 +292,8 @@ class WorkflowController extends BaseController {
             if (!comment)
                 return HttpResponse.notFound(new UpdateWorkflowCommentResponse(message:"Oops... Can't find workflow comment with ID $request.commentId"))
 
-            // user can only modify its own comment
-            if( comment.user.id != user.id )
+            // user can only modify it's own comment
+            if( comment.author.id != user.id )
                 return HttpResponse.badRequest(new UpdateWorkflowCommentResponse(message:"Oops.. You are not allowed to modify this comment"))
 
             // make sure it match the workflow id
@@ -328,7 +320,6 @@ class WorkflowController extends BaseController {
     }
 
     @Transactional
-    @Secured(['ROLE_USER'])
     @Delete('/{workflowId}/comment')
     @CompileDynamic
     HttpResponse<DeleteWorkflowCommentResponse> deleteComment(Authentication authentication, String workflowId, DeleteWorkflowCommentRequest request) {
@@ -347,7 +338,7 @@ class WorkflowController extends BaseController {
                 return HttpResponse.notFound(new DeleteWorkflowCommentResponse(message:"Oops... Can't find workflow comment with ID $request.commentId"))
 
             // user can only modify it's own comment
-            if( comment.user.id != user.id )
+            if( comment.author.id != user.id )
                 return HttpResponse.badRequest(new DeleteWorkflowCommentResponse(message:"Oops.. You are not allowed to delete this comment"))
 
             // make sure it match the workflow id

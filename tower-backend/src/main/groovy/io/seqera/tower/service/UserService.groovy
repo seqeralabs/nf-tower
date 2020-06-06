@@ -17,7 +17,9 @@ import io.seqera.tower.domain.User
 
 interface UserService {
 
-    User create(String email, String authority)
+    User create(String email)
+
+    User getOrCreate(String email)
 
     User updateUserAuthToken(User user)
 
@@ -25,11 +27,16 @@ interface UserService {
 
     User getByEmail(String email)
 
+    User getByUid(String uid)
+
     User update(User existingUser, User updatedUserData)
 
     void delete(User existingUser)
 
+    @Deprecated
     User findByEmailAndAuthToken(String email, String token)
+
+    User findByUidAndAuthToken(String uid, String token)
 
     List<User> list()
 
@@ -37,9 +44,12 @@ interface UserService {
 
     List<User> list(int offset, int max)
 
+    @Deprecated
     List<String> findAuthoritiesByEmail(String email)
 
-    List<String> findAuthoritiesOfUser(User user)
+    List<String> findAuthoritiesByUser(User user)
+
+    List<String> findAuthoritiesByUid(String uid)
 
     User getByAccessToken(String token)
 

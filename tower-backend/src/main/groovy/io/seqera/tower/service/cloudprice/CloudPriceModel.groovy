@@ -20,6 +20,6 @@ import groovy.transform.CompileStatic
  */
 @CompileStatic
 enum CloudPriceModel {
-    standard, spot;
-    String toString() { super.toString() }
+    standard,
+    spot;
 }

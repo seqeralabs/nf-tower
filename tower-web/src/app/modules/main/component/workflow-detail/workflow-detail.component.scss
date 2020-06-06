@@ -7,6 +7,10 @@
   border-left: 0;
   border-right: 0;
 
+  &.submitted {
+    border-top-color: $clr-submitted;
+  }
+
   &.running {
     border-top-color: $clr-running;
   }

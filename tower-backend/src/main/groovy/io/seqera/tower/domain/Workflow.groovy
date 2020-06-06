@@ -40,46 +40,43 @@ class Workflow {
     OffsetDateTime complete
     OffsetDateTime dateCreated
     OffsetDateTime lastUpdated
-    
     Boolean resume
-    Boolean success
 
     String sessionId
-
     String projectDir
     String profile
     String homeDir
     String workDir
     String container
     String commitId
-    String errorMessage
     String repository
     String containerEngine
     String scriptFile
     String userName
     String launchDir
     String runName
-    String errorReport
     String scriptId
     String revision
-    Integer exitStatus
     String commandLine
     String projectName
     String scriptName
-
-    Long duration
     WorkflowStatus status
-
     //Multi-value properties encoded as JSON
     String configFiles
     String configText
     String params
-
     WfManifest manifest
     WfNextflow nextflow
+
+    Integer exitStatus
+    String errorMessage
+    String errorReport
+    Long duration
     WfStats stats
     Boolean deleted
-    
+    Boolean success
+    String launchId
+
     @Deprecated Long peakLoadCpus
     @Deprecated Long peakLoadTasks
     @Deprecated Long peakLoadMemory
@@ -179,6 +176,15 @@ class Workflow {
         deleted(nullable: true)
         dateCreated(nullable: true)
         lastUpdated(nullable: true)
+
+        start(nullable: true)
+        scriptName(nullable: true)
+        projectDir(nullable: true)
+        homeDir(nullable: true)
+        scriptFile(nullable: true)
+        launchDir(nullable: true)
+        profile(nullable: true)
+        launchId(nullable: true, maxSize: 22)
     }
 
     static mapping = {

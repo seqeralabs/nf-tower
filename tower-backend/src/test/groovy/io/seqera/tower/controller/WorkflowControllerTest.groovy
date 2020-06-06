@@ -70,7 +70,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
     void "get a workflow"() {
         given: "a workflow with some metrics"
         DomainCreator creator = new DomainCreator()
-        final user = creator.generateAllowedUser()
+        final user = creator.createAllowedUser()
         Workflow workflow = creator.createWorkflow(
                 complete: OffsetDateTime.now(),
                 owner: user,
@@ -122,7 +122,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         Workflow workflow = creator.createWorkflow()
 
         when: "perform the request to obtain the progress"
-        String accessToken = doJwtLogin(creator.generateAllowedUser(), client)
+        String accessToken = doJwtLogin(creator.createAllowedUser(), client)
         HttpResponse<GetProgressResponse> response = client.toBlocking().exchange(
                 HttpRequest.GET("/workflow/${workflow.id}/progress")
                         .bearerAuth(accessToken),
@@ -138,7 +138,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         given: 'a user owner of the workflow'
         User owner
         User.withNewTransaction {
-            owner = new DomainCreator().generateAllowedUser()
+            owner = new DomainCreator().createAllowedUser()
         }
 
         and: "some workflows owned by the user and ordered by start date in ascending order"
@@ -176,7 +176,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         given: 'a user owner of the workflow'
         User owner
         User.withNewTransaction {
-            owner = new DomainCreator().generateAllowedUser()
+            owner = new DomainCreator().createAllowedUser()
         }
 
         and: "some workflows owned by the user and ordered by start date in descending order (recent first)"
@@ -228,7 +228,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
 
     void "try to get a non-existing workflow"() {
         when: "perform the request to obtain a non-existing workflow"
-        String accessToken = doJwtLogin(new DomainCreator().generateAllowedUser(), client)
+        String accessToken = doJwtLogin(new DomainCreator().createAllowedUser(), client)
         client.toBlocking().exchange(
                 HttpRequest.GET("/workflow/100")
                         .bearerAuth(accessToken),
@@ -255,7 +255,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         tasks << firstTask
 
         and: "perform the request to obtain the tasks of the workflow"
-        String accessToken = doJwtLogin(new DomainCreator().generateAllowedUser(), client)
+        String accessToken = doJwtLogin(new DomainCreator().createAllowedUser(), client)
         HttpResponse<TaskList> response = client.toBlocking().exchange(
                 HttpRequest.GET("/workflow/${workflow.id}/tasks")
                            .bearerAuth(accessToken),
@@ -291,7 +291,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
                   .build()
 
         and: "perform the request to obtain the tasks of the workflow"
-        String accessToken = doJwtLogin(new DomainCreator().generateAllowedUser(), client)
+        String accessToken = doJwtLogin(new DomainCreator().createAllowedUser(), client)
         HttpResponse<TaskList> response = client.toBlocking().exchange(
                 HttpRequest.GET(uri)
                         .bearerAuth(accessToken),
@@ -305,28 +305,28 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
 
         where: 'the search params are'
         search      | expectedTaskIds  | orderProperty | orderDirection
-        'hash*'     | [1l, 2l, 3l, 4l] | 'hash'        | 'asc'
-        'tag*'      | [1l, 2l, 3l, 4l] | 'process'     | 'asc'
-        'process*'  | [1l, 2l, 3l, 4l] | 'tag'         | 'asc'
+        'hash*'     | [1l, 2l, 3l, 4l] | null          | null
+        'tag*'      | [1l, 2l, 3l, 4l] | null          | null
+        'process*'  | [1l, 2l, 3l, 4l] | null          | null
 
-        'hash1'     | [1l]             | 'hash'        | 'asc'
-        'HASH1'     | [1l]             | 'hash'        | 'asc'
-        'process2'  | [2l]             | 'hash'        | 'asc'
-        'PROCESS2'  | [2l]             | 'hash'        | 'asc'
-        'tag3'      | [3l]             | 'hash'        | 'asc'
-        'TAG3'      | [3l]             | 'hash'        | 'asc'
+        'hash1'     | [1l]             | 'submit'      | 'asc'
+        'HASH1'     | [1l]             | 'duration'    | 'asc'
+        'process2'  | [2l]             | 'realtime'    | 'asc'
+        'PROCESS2'  | [2l]             | 'peakRss'     | 'asc'
+        'tag3'      | [3l]             | 'peakVmem'    | 'asc'
+        'TAG3'      | [3l]             | 'rchar'       | 'asc'
 
-        'submit*'   | [1l]             | 'hash'        | 'asc'
-        'SUBMITTED' | [1l]             | 'hash'        | 'asc'
-        'submitted' | [1l]             | 'hash'        | 'asc'
-        'run*'      | [2l]             | 'hash'        | 'asc'
-        'fail*'     | [3l]             | 'hash'        | 'asc'
-        'succ*'     | [4l]             | 'hash'        | 'asc'   // this matches `COMPLETED` status
+        'submit*'   | [1l]             | 'wchar'       | 'asc'
+        'SUBMITTED' | [1l]             | 'volCtxt'     | 'asc'
+        'submitted' | [1l]             | 'invCtxt'     | 'asc'
+        'run*'      | [2l]             | null          | null
+        'fail*'     | [3l]             | null          | null
+        'succ*'     | [4l]             | null          | null   // this matches `COMPLETED` status
     }
 
     void "try to get the list of tasks from a nonexistent workflow"() {
         when: "perform the request to obtain the tasks from a non-existing workflow"
-        String accessToken = doJwtLogin(new DomainCreator().generateAllowedUser(), client)
+        String accessToken = doJwtLogin(new DomainCreator().createAllowedUser(), client)
         HttpResponse<TaskList> response = client.toBlocking().exchange(
                 HttpRequest.GET("/workflow/100/tasks")
                         .bearerAuth(accessToken),
@@ -346,10 +346,10 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         User user
         Workflow workflow
         tx.withNewTransaction {
-            user = creator.generateAllowedUser()
+            user = creator.createAllowedUser()
             workflow = creator.createWorkflow(owner: user)
             creator.createWorkflowMetrics(workflow)
-            new WorkflowComment(user: user, text: 'Hello', workflow: workflow, dateCreated: now, lastUpdated: now).save(failOnError:true)
+            new WorkflowComment(author: user, text: 'Hello', workflow: workflow, dateCreated: now, lastUpdated: now).save(failOnError:true)
         }
         
         when:
@@ -369,7 +369,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
     void "should not delete a workflow" () {
         given:
         def creator = new DomainCreator()
-        User user = creator.generateAllowedUser()
+        User user = creator.createAllowedUser()
 
         when:
         String auth = doJwtLogin(user, client)
@@ -387,7 +387,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
     void 'should get workflow metrics' () {
         given:
         def creator = new DomainCreator(validate: false)
-        def user = creator.generateAllowedUser()
+        def user = creator.createAllowedUser()
         Workflow workflow = creator.createWorkflow(
                 manifest: new WfManifest(defaultBranch: 'master'),
                 stats: new WfStats(computeTimeFmt: '(a few seconds)'),
@@ -417,7 +417,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
     void 'should return error message when metrics not found' () {
         given:
         def creator = new DomainCreator()
-        def user = creator.generateAllowedUser()
+        def user = creator.createAllowedUser()
 
         when: "perform the request to obtain the meticd"
         def auth = doJwtLogin(user, client)
@@ -437,13 +437,13 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
     void 'should get workflow comments' () {
         given:
         def creator = new DomainCreator(validate: false)
-        def user = creator.generateAllowedUser()
+        def user = creator.createAllowedUser()
         Workflow workflow = creator.createWorkflow()
 
         def t0 = OffsetDateTime.now()
         WorkflowComment.withNewTransaction {
             new WorkflowComment(
-                    user: user,
+                    author: user,
                     text: 'First hello',
                     workflow: workflow,
                     dateCreated: t0,
@@ -452,7 +452,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
                     .save(failOnError:true)
 
             new WorkflowComment(
-                    user: user,
+                    author: user,
                     text: 'Second hello',
                     workflow: workflow,
                     dateCreated: t0.plusMinutes(5),
@@ -472,20 +472,14 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         then:
         response.status == HttpStatus.OK
         response.body().comments.size() == 2
-        and:
         response.body().comments[0].text == 'Second hello'
-        response.body().comments[0].author.id == user.id
-        response.body().comments[0].author.displayName == user.userName
-        and:
         response.body().comments[1].text == 'First hello'
-        response.body().comments[1].author.id == user.id
-        response.body().comments[1].author.displayName == user.userName
     }
 
     def 'should add a workflow comment' () {
         given:
         def creator = new DomainCreator(validate: false)
-        def user = creator.generateAllowedUser()
+        def user = creator.createAllowedUser()
         Workflow workflow = creator.createWorkflow()
 
         when: "perform the request to obtain the comments"
@@ -499,26 +493,23 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
 
         then:
         resp.status == HttpStatus.OK
-        resp.body().comment.text == 'Great job'
-        resp.body().comment.id != null
-        resp.body().comment.author.id == user.id
-        resp.body().comment.author.displayName == user.userName
-        
+        resp.body().commentId != null
+
         and:
         workflowService.getComments(workflow).size() ==1
-        workflowService.getComments(workflow)[0].id == resp.body().comment.id
+        workflowService.getComments(workflow)[0].id == resp.body().commentId
     }
 
     def 'should update a workflow comment' () {
         given:
         def creator = new DomainCreator(validate: false)
-        def user = creator.generateAllowedUser()
+        def user = creator.createAllowedUser()
         Workflow workflow = creator.createWorkflow()
 
         def t0 = OffsetDateTime.now().truncatedTo(ChronoUnit.MINUTES).minusMinutes(10)
         def comment = tx.withNewTransaction {
             new WorkflowComment(
-                    user: user,
+                    author: user,
                     text: 'First comment',
                     workflow: workflow,
                     dateCreated: t0,
@@ -549,13 +540,13 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
     def 'should delete a workflow comment' () {
         given:
         def creator = new DomainCreator(validate: false)
-        def user = creator.generateAllowedUser()
+        def user = creator.createAllowedUser()
         Workflow workflow = creator.createWorkflow()
 
         def t0 = OffsetDateTime.now().truncatedTo(ChronoUnit.MINUTES).minusMinutes(10)
         def comment1 = tx.withNewTransaction {
             new WorkflowComment(
-                    user: user,
+                    author: user,
                     text: 'First comment',
                     workflow: workflow,
                     dateCreated: t0,
@@ -565,7 +556,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
 
         def comment2 = tx.withNewTransaction {
             new WorkflowComment(
-                    user: user,
+                    author: user,
                     text: 'Second comment',
                     workflow: workflow,
                     dateCreated: t0,
@@ -598,7 +589,7 @@ class WorkflowControllerTest extends AbstractContainerBaseTest {
         given:
         def WID = 'xyz-1'
         def creator = new DomainCreator()
-        def user = creator.generateAllowedUser()
+        def user = creator.createAllowedUser()
         and:
         def w1 = creator.createWorkflow(owner: user, id: WID)
         def t1 = creator.createTask(workflow: w1, hash: 'abc', name: 'foo', taskId: 1)

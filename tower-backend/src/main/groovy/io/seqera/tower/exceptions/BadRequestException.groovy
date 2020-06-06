@@ -9,25 +9,17 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 
-package io.seqera.util
+package io.seqera.tower.exceptions
 
-
-import ch.qos.logback.classic.spi.ILoggingEvent
-import ch.qos.logback.core.filter.Filter
-import ch.qos.logback.core.spi.FilterReply
 import groovy.transform.CompileStatic
-
-import ch.qos.logback.classic.Level
-import static ch.qos.logback.classic.Level.ERROR
+import groovy.transform.InheritConstructors
 
 /**
+ * Exception thrown when a malformed request is received
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
 @CompileStatic
-class H8WarnFilter extends Filter<ILoggingEvent> {
-    @Override
-    FilterReply decide(ILoggingEvent event) {
-        return event.message.startsWith("HHH90000022:") ? FilterReply.DENY : FilterReply.NEUTRAL
-    }
+@InheritConstructors
+class BadRequestException extends TowerException {
 }

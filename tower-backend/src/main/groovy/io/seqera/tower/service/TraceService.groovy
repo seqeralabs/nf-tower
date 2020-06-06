@@ -11,6 +11,7 @@
 
 package io.seqera.tower.service
 
+import grails.gorm.transactions.Transactional
 import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.User
 import io.seqera.tower.domain.Workflow
@@ -20,9 +21,8 @@ import io.seqera.tower.exchange.trace.TraceProgressData
 import io.seqera.tower.exchange.trace.TraceTaskRequest
 import io.seqera.tower.exchange.trace.TraceWorkflowRequest
 
+@Transactional
 interface TraceService {
-
-    String createWorkflowKey()
 
     @Deprecated Workflow processWorkflowTrace(TraceWorkflowRequest request, User user)
 

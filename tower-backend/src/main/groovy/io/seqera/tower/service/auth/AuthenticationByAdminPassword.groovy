@@ -17,8 +17,6 @@ import javax.inject.Inject
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import io.micronaut.context.annotation.Value
-import io.micronaut.http.HttpRequest
-import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.RxHttpClient
 import io.micronaut.http.client.annotation.Client
 import io.micronaut.security.authentication.AuthenticationProvider
@@ -26,7 +24,6 @@ import io.micronaut.security.authentication.AuthenticationRequest
 import io.micronaut.security.authentication.AuthenticationResponse
 import io.micronaut.security.authentication.UserDetails
 import io.reactivex.Flowable
-import io.seqera.tower.exchange.captcha.CaptchaVerifyResponse
 import io.seqera.tower.service.UserService
 import org.reactivestreams.Publisher
 /**
@@ -38,14 +35,12 @@ import org.reactivestreams.Publisher
 @CompileStatic
 class AuthenticationByAdminPassword implements AuthenticationProvider {
 
-    @Value('${tower.captcha.secret-key}')
-    @Nullable
-    String captchaSecretKey
-
     @Value('${tower.admin.user:`admin`}')
+    @Nullable
     String adminUsername
 
     @Value('${tower.admin.password:``}')
+    @Nullable
     String adminPassword
 
     private UserService userService
@@ -66,11 +61,14 @@ class AuthenticationByAdminPassword implements AuthenticationProvider {
     }
 
     protected AuthenticationResponse authenticate0(String identity, String secret) {
-        if( !adminUsername || !adminPassword )
-           return new AuthFailure()
-
-        if( adminUsername!=identity )
+        if( !adminUsername || !adminPassword ) {
             return new AuthFailure()
+        }
+
+        if( adminUsername!=identity ) {
+            return new AuthFailure()
+        }
+
 
         if ( !isValidSecret(secret) ) {
             // a more explanatory message should be returned
@@ -82,28 +80,7 @@ class AuthenticationByAdminPassword implements AuthenticationProvider {
     }
 
     protected boolean isValidSecret(String secret) {
-        // when the captcha secret key is not specified in the
-        // config file the `secret`is expected to be the plain password
-        // the needs to be identical to the one in the config file
-        if( !captchaSecretKey || !secret.contains('\t') ) {
-            return secret == adminPassword
-        }
-        // when the captcha key is given the secret is expected to be a tab separated values pair
-        // where the first element is the password and the second value is the captcha response string
-        else {
-            final tokens = secret.tokenize('\t')
-            return tokens[0] == adminPassword && validateCaptcha(tokens[1])
-        }
-    }
-
-    protected boolean validateCaptcha(String captcha) {
-        final url = "https://www.google.com/recaptcha/api/siteverify?secret=$captchaSecretKey&response=${captcha}"
-        final resp = httpClient.toBlocking().exchange(HttpRequest.POST(url, ''), CaptchaVerifyResponse)
-        final result = resp.status() == HttpStatus.OK && resp.body().success
-        if( !result ) {
-            log.info "Captcha verification failed for user=$adminUsername; resp=${resp.body()}"
-        }
-        return result
+        secret == adminPassword
     }
 
 }

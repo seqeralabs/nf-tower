@@ -56,5 +56,5 @@ export interface WorkflowData {
   params: any;
   configFiles: string[];
   configText: string;
-
+  launchId: string;
 }

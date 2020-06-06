@@ -1,11 +1,12 @@
-@import "~src/assets/variables";
+@import "./src/assets/variables";
 
 
 .spinner-border {
   color: $clr-running;
-  font-size: 5px;
+  font-size: 1.1rem;
   width: 2.9rem;
   height: 2.9rem;
+  animation-duration: $run-spin-duration;
 }
 
 .workflow-status {
@@ -26,6 +27,10 @@
   &.partial {
     color: $clr-partial;
   }
+
+  &.submitted {
+    color: $clr-submitted;
+  }
 }
 
 .status-icon {
@@ -34,4 +39,9 @@
 
 .live-off {
   color: $clr-failed;
+}
+
+.mdi-loading.mdi-spin.submitted::before {
+  animation-duration: $submit-spin-duration;
+  animation-direction: reverse;
 }

@@ -19,20 +19,26 @@ import javax.validation.ValidationException
 import java.time.OffsetDateTime
 
 import grails.gorm.DetachedCriteria
+import grails.gorm.transactions.NotTransactional
+import grails.gorm.transactions.TransactionService
 import grails.gorm.transactions.Transactional
 import groovy.transform.CompileDynamic
 import groovy.util.logging.Slf4j
+import io.micronaut.context.ApplicationContext
+import io.seqera.tower.domain.HashSequenceGenerator
 import io.seqera.tower.domain.ProcessLoad
 import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.TaskData
 import io.seqera.tower.domain.User
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.domain.WorkflowComment
+import io.seqera.tower.domain.WorkflowKey
 import io.seqera.tower.domain.WorkflowLoad
 import io.seqera.tower.domain.WorkflowMetrics
 import io.seqera.tower.domain.WorkflowProcess
 import io.seqera.tower.enums.WorkflowStatus
 import io.seqera.tower.exceptions.NonExistingWorkflowException
+import io.seqera.tower.exchange.trace.TraceBeginRequest
 import io.seqera.tower.exchange.trace.TraceWorkflowRequest
 import io.seqera.tower.service.audit.AuditEventPublisher
 import io.seqera.tower.service.progress.ProgressService
@@ -44,7 +50,18 @@ class WorkflowServiceImpl implements WorkflowService {
 
     @Inject ProgressService progressService
     @Inject AuditEventPublisher auditEventPublisher
+    @Inject ApplicationContext appCtx
 
+    @NotTransactional
+    String createWorkflowKey() {
+        final transactionService = appCtx.getBean(TransactionService)
+        final record = transactionService.withTransaction { new WorkflowKey() .save() }
+        final workflowId = HashSequenceGenerator.getHash(record.id)
+        transactionService.withTransaction { record.workflowId=workflowId; record.save() }
+        return workflowId
+    }
+
+    @Override
     @CompileDynamic
     @Transactional(readOnly = true)
     Workflow get(String id) {
@@ -69,6 +86,7 @@ class WorkflowServiceImpl implements WorkflowService {
 
     Workflow processTraceWorkflowRequest(TraceWorkflowRequest request, User owner) {
         if( request.workflow.checkIsRunning() ) {
+            checkRequiredFields(request.workflow)
             final workflow = saveNewWorkflow(request.workflow, owner)
 
             // save the process names
@@ -85,7 +103,24 @@ class WorkflowServiceImpl implements WorkflowService {
         }
     }
 
+    private void checkRequiredFields(Workflow workflow) {
+        // validate
+        if( !workflow.start ) throw new IllegalArgumentException("Missing field 'start' for workflow id=${workflow.id}")
+        if( !workflow.workDir ) throw new IllegalArgumentException("Missing field 'workDir' for workflow id=${workflow.id}")
+        if( !workflow.userName ) throw new IllegalArgumentException("Missing field 'userName' for workflow id=${workflow.id}")
+        if( !workflow.sessionId ) throw new IllegalArgumentException("Missing field 'sessionId' for workflow id=${workflow.id}")
+        if( !workflow.commandLine ) throw new IllegalArgumentException("Missing field 'commandLine' for workflow id=${workflow.id}")
+        if( !workflow.scriptName ) throw new IllegalArgumentException("Missing field 'scriptName' for workflow id=${workflow.id}")
+        if( !workflow.projectDir ) throw new IllegalArgumentException("Missing field 'projectDir' for workflow id=${workflow.id}")
+        if( !workflow.homeDir ) throw new IllegalArgumentException("Missing field 'homeDir' for workflow id=${workflow.id}")
+        if( !workflow.scriptFile ) throw new IllegalArgumentException("Missing field 'scriptFile' for workflow id=${workflow.id}")
+        if( !workflow.launchDir ) throw new IllegalArgumentException("Missing field 'launchDir' for workflow id=${workflow.id}")
+        if( !workflow.runName ) throw new IllegalArgumentException("Missing field 'runName' for workflow id=${workflow.id}")
+
+    }
+
     private Workflow saveNewWorkflow(Workflow workflow, User owner) {
+        // configure missing fields
         workflow.submit = workflow.start
         workflow.owner = owner
         workflow.status = WorkflowStatus.RUNNING
@@ -100,18 +135,70 @@ class WorkflowServiceImpl implements WorkflowService {
         return workflow
     }
 
-    @Override
-    Workflow createWorkflow(Workflow workflow, List<String> processNames, User user) {
-        saveNewWorkflow(workflow, user)
 
+    @Override
+    Workflow createWorkflow(TraceBeginRequest request, User user) {
+        checkRequiredFields(request.workflow)
+
+        if( !request.towerLaunch ) {
+            final workflow = saveNewWorkflow(request.workflow, user)
+            saveProcessNames(workflow, request.processNames)
+            return workflow
+        }
+
+        else {
+            if( !request.workflow.id )
+                throw new IllegalStateException("Missing launch workflow id=$request.launchId")
+            final Workflow workflow = get(request.workflow.id)
+            if( !workflow )
+                throw new IllegalStateException("Unable to find launch workflow id=$request.workflow.id")
+            if( workflow.owner.id != user.id )
+                throw new IllegalStateException("Illegal workflow owner user -- current id=${workflow.owner.id}; expected id=$user.id")
+            // TODO: check the status is SUBMITTED
+
+            workflow.start = OffsetDateTime.now()
+            workflow.status = RUNNING
+            // copy attributes from request
+            workflow.resume = request.workflow.resume
+            workflow.sessionId = request.workflow.sessionId
+            workflow.projectDir = request.workflow.projectDir
+            workflow.profile = request.workflow.profile
+            workflow.homeDir = request.workflow.homeDir
+            workflow.workDir = request.workflow.workDir
+            workflow.container = request.workflow.container
+            workflow.commitId = request.workflow.commitId
+            workflow.repository = request.workflow.repository
+            workflow.containerEngine = request.workflow.containerEngine
+            workflow.scriptFile = request.workflow.scriptFile
+            workflow.launchDir = request.workflow.launchDir
+            workflow.runName = request.workflow.runName
+            workflow.scriptId = request.workflow.scriptId
+            workflow.revision = request.workflow.revision
+            workflow.commandLine = request.workflow.commandLine
+            workflow.projectName = request.workflow.projectName
+            workflow.scriptName = request.workflow.scriptName
+            workflow.status = request.workflow.status
+            workflow.configFiles = request.workflow.configFiles
+            workflow.configText = request.workflow.configText
+            workflow.params = request.workflow.params
+            workflow.manifest = request.workflow.manifest
+            workflow.nextflow = request.workflow.nextflow
+            // finally save it
+            workflow.save()
+            // add process names
+            saveProcessNames(workflow, request.processNames)
+            return workflow
+        }
+    }
+
+
+    protected void saveProcessNames(Workflow workflow, List<String> processNames) {
         // save the process names
         for( int i=0; i<processNames?.size(); i++ ) {
             final name = processNames[i]
             final p = new WorkflowProcess(name: name, position: i, workflow: workflow)
             p.save()
         }
-
-        return workflow
     }
 
     @Override
@@ -119,14 +206,14 @@ class WorkflowServiceImpl implements WorkflowService {
     Workflow updateWorkflow(Workflow workflow, List<WorkflowMetrics> metrics) {
         Workflow existingWorkflow = Workflow.get(workflow.id)
         if (!existingWorkflow) {
-            throw new NonExistingWorkflowException("Can't find workflow record with ID=${workflow.id}")
+            throw new NonExistingWorkflowException("Can't find workflow with id=${workflow.id}")
         }
 
         updateMutableFields(existingWorkflow, workflow)
         associateMetrics(existingWorkflow, metrics)
 
         existingWorkflow.save()
-        existingWorkflow
+        return existingWorkflow
     }
 
     private void updateMutableFields(Workflow workflowToUpdate, Workflow originalWorkflow) {

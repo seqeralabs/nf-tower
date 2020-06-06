@@ -69,7 +69,7 @@ class WorkflowDeleteJob implements CronJob {
 
     protected void deleteWorkflowMarkedForDeletion() {
         try {
-            log.debug "Checking workflow marked for deletion"
+            log.trace "Checking workflow marked for deletion"
             deleteWorkflowMarkedForDeletion0()
         }
         catch( Exception e ) {

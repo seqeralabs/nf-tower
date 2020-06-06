@@ -11,13 +11,16 @@
 
 package io.seqera.tower.enums
 
-enum WorkflowStatus {
+import io.seqera.util.TupleUtils
 
+enum WorkflowStatus {
+    SUBMITTED,
     RUNNING,
     SUCCEEDED,
     FAILED,
     UNKNOWN
 
-    String toString() { super.toString() }
-
+    static List<WorkflowStatus> active() {
+       TupleUtils.pair( SUBMITTED, RUNNING )
+    }
 }

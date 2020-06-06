@@ -27,11 +27,11 @@ export class NotificationService {
   }
 
 
-  showSuccessNotification(message: string, autohide: boolean = true, msDelay: number = 3000): void {
+  showSuccessNotification(message: string, autohide: boolean = true, msDelay: number = 5000): void {
     this.showNotification(new Notification(NotificationType.SUCCESS, message, autohide, msDelay));
   }
 
-  showErrorNotification(message: string, autohide: boolean = true, msDelay: number = 3000): void {
+  showErrorNotification(message: string, autohide: boolean = true, msDelay: number = 5000): void {
     this.showNotification(new Notification(NotificationType.ERROR, message, autohide, msDelay));
   }
 

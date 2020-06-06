@@ -35,6 +35,10 @@ class CronServiceImpl implements CronService {
     @Inject WorkflowDeleteJob workflowDeleteCronJob
     @Inject WorkflowWatchdogJob workflowWatchdogJob
 
+    /*
+     * Use MN built-in task scheduler
+     * https://guides.micronaut.io/micronaut-scheduled/guide/index.html
+     */
     @Inject @Named(TaskExecutors.SCHEDULED)
     TaskScheduler taskScheduler
 

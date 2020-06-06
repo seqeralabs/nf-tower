@@ -20,31 +20,28 @@ import {WorkflowService} from "../../service/workflow.service";
   templateUrl: './workflow-stats.component.html',
   styleUrls: ['./workflow-stats.component.scss']
 })
-export class WorkflowStatsComponent implements OnInit, OnChanges {
+export class WorkflowStatsComponent implements OnChanges {
 
   @Input()
   workflow: Workflow;
 
-  private durationTimerSubscription: Subscription;
-
-  constructor(private workflowService: WorkflowService) {
-  }
-
-  ngOnInit() {
-  }
+  private durationTimer: Subscription;
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (this.durationTimerSubscription) {
-      this.durationTimerSubscription.unsubscribe();
+    if (this.durationTimer) {
+      this.durationTimer.unsubscribe();
     }
 
-    if (this.workflow.isCompleted) {
+    let begin: Date;
+    if( this.workflow.isSubmitted )
+      begin = this.workflow.data.submit;
+    else if( this.workflow.isRunning )
+      begin = this.workflow.data.start;
+    else
       return;
-    }
 
-    this.durationTimerSubscription = interval(1000).subscribe(() => {
-      const now: Date = new Date();
-      this.workflow.data.duration = differenceInMilliseconds(now, this.workflow.data.start);
+    this.durationTimer = interval(1000).subscribe(() => {
+      this.workflow.data.duration = differenceInMilliseconds(new Date(), begin);
     });
   }
 

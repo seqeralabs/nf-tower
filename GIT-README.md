@@ -64,3 +64,13 @@ To sign Git commits with a GPG key on Mac use [GPG Suite](https://gpgtools.org/)
 Read more: 
 https://gist.github.com/danieleggert/b029d44d4a54b328c0bac65d46ba4c65
 
+## Misc 
+
+Resolve files with conflic 
+
+    git checkout --theirs/--ours path/to/file
+
+
+Merge unrelatd histories 
+
+    git merge <branch> --squash -n --allow-unrelated-histories

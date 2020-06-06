@@ -11,10 +11,9 @@
 
 package io.seqera.tower.domain
 
-
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
-import org.hashids.Hashids
+import io.seqera.util.HashEncoder
 import org.hibernate.HibernateException
 import org.hibernate.MappingException
 import org.hibernate.engine.spi.SharedSessionContractImplementor
@@ -33,20 +32,18 @@ class HashSequenceGenerator extends SequenceStyleGenerator {
 
     public final static String SEQUENCE_NAME = 'tw_sequence'
 
-    static private Hashids hashIds = new Hashids("tower rocks!", 8);
-
     static String getHash(Long id) {
-        hashIds.encode(id)
+        HashEncoder.encode(id)
     }
 
     static Long fromHash(String key) {
-        hashIds.decode(key)[0]
+        HashEncoder.decodeLong(key)
     }
 
     @Override
     Serializable generate(SharedSessionContractImplementor session, Object object) throws HibernateException {
         final num = (Long)super.generate(session, object)
-        final hash = hashIds.encode(num)
+        final hash = HashEncoder.encode(num)
         return hash
     }
 

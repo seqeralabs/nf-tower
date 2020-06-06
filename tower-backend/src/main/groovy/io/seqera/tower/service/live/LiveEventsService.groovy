@@ -25,10 +25,11 @@ interface LiveEventsService {
 
     Publisher<Event<List<LiveUpdate>>> getEventPublisher()
 
-    void stop()
-
     void publishWorkflowEvent(Workflow workflow)
 
     void publishProgressEvent(Workflow workflow)
 
+    void publishWorkflowEvent(Long targetUserId, String workflowId)
+
+    void publishProgressEvent(Long targetUserId, String workflowId)
 }

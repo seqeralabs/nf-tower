@@ -16,9 +16,12 @@ import io.seqera.tower.domain.User
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.domain.WorkflowComment
 import io.seqera.tower.domain.WorkflowMetrics
+import io.seqera.tower.exchange.trace.TraceBeginRequest
 import io.seqera.tower.exchange.trace.TraceWorkflowRequest
 
 interface WorkflowService {
+
+    String createWorkflowKey()
 
     /**
      * Get a {@link Workflow} by its primary the key
@@ -28,7 +31,7 @@ interface WorkflowService {
      */
     Workflow get(String id)
 
-    Workflow createWorkflow(Workflow workflow, List<String> processName, User user)
+    Workflow createWorkflow(TraceBeginRequest request, User user)
 
     Workflow updateWorkflow(Workflow workflow, List<WorkflowMetrics> metrics)
 

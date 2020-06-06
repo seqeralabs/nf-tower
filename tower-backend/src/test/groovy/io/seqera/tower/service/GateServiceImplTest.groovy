@@ -11,29 +11,15 @@
 
 package io.seqera.tower.service
 
-import javax.inject.Inject
 
-import io.micronaut.context.ApplicationContext
-import io.micronaut.test.annotation.MicronautTest
 import io.seqera.tower.domain.User
 import spock.lang.Specification
 /**
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
-@MicronautTest
 class GateServiceImplTest extends Specification {
 
-    @Inject
-    ApplicationContext context
-
-    def 'should bind properties' () {
-        given:
-        GateServiceImpl userService = context.getBean(GateServiceImpl)
-        expect:
-        userService.appName == 'Nextflow Tower'
-        userService.serverUrl == 'http://localhost:8000'
-    }
 
     def 'should load text template' () {
         given:
@@ -87,12 +73,12 @@ class GateServiceImplTest extends Specification {
         service.serverUrl = 'http://host.com'
 
         expect:
-        service.buildAccessUrl(new User(email:EMAIL, authToken: 'abc')) == EXPECTED
+        service.buildAccessUrl(new User(id: 100, email:EMAIL, authToken: 'abc')) == EXPECTED
 
         where:
         EMAIL               | EXPECTED
-        'yo@gmail.com'      | 'http://host.com/auth?email=yo%40gmail.com&authToken=abc'
-        'yo+xyz@gmail.com'  | 'http://host.com/auth?email=yo%2Bxyz%40gmail.com&authToken=abc'
+        'yo@gmail.com'      | 'http://host.com/auth?uid=yvQZRvQK&token=abc'
+        'yo+xyz@gmail.com'  | 'http://host.com/auth?uid=yvQZRvQK&token=abc'
     }
 
     def 'should get user enable url' () {

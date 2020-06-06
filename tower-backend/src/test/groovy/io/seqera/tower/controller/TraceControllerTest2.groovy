@@ -41,6 +41,7 @@ import io.seqera.tower.exchange.trace.TraceHeartbeatResponse
 import io.seqera.tower.exchange.trace.TraceProgressData
 import io.seqera.tower.exchange.trace.TraceProgressRequest
 import io.seqera.tower.exchange.trace.TraceProgressResponse
+import io.seqera.tower.service.WorkflowService
 import io.seqera.tower.service.auth.AuthenticationByApiToken
 import io.seqera.tower.service.progress.ProgressStore
 import io.seqera.tower.util.AbstractContainerBaseTest
@@ -61,6 +62,8 @@ class TraceControllerTest2 extends AbstractContainerBaseTest {
 
     @Inject ProgressStore progressStore
 
+    @Inject WorkflowService workflowService
+
     protected HttpRequest appendBasicAuth(User user, MutableHttpRequest request) {
         request.basicAuth(AuthenticationByApiToken.ID, user.accessTokens.first().token)
     }
@@ -68,7 +71,7 @@ class TraceControllerTest2 extends AbstractContainerBaseTest {
 
     void 'should response to to hello' () {
         given: 'an allowed user'
-        User user = new DomainCreator().generateAllowedUser()
+        User user = new DomainCreator().createAllowedUser()
 
         when: 'send a save request'
         MutableHttpRequest request = HttpRequest.POST('/trace/create', new TraceCreateRequest())
@@ -85,7 +88,7 @@ class TraceControllerTest2 extends AbstractContainerBaseTest {
 
     void "save a new workflow given a start trace"() {
         given: 'an allowed user'
-        User user = new DomainCreator().generateAllowedUser()
+        User user = new DomainCreator().createAllowedUser()
         and: 'a workflow started JSON trace'
         TraceBeginRequest trace = TracesJsonBank.extractTraceBeginRequest('success', null)
         def workflowId = trace.workflow.id
@@ -115,7 +118,7 @@ class TraceControllerTest2 extends AbstractContainerBaseTest {
     def 'should complete trace workflow' () {
         given: 'an allowed user'
         def creator = new DomainCreator()
-        User user = creator.generateAllowedUser()
+        User user = creator.createAllowedUser()
         def workflow = creator.createWorkflow(owner: user)
         TraceCompleteRequest completion = TracesJsonBank.extractTraceCompleteRequest('success', workflow.id)
 
@@ -132,7 +135,7 @@ class TraceControllerTest2 extends AbstractContainerBaseTest {
 
     void 'should handle an heartbeat request' () {
         given: 'an allowed user'
-        User user = new DomainCreator().generateAllowedUser()
+        User user = new DomainCreator().createAllowedUser()
 
         and: 'a workflow'
         Workflow workflow = new DomainCreator().createWorkflow()
@@ -151,7 +154,7 @@ class TraceControllerTest2 extends AbstractContainerBaseTest {
 
     void 'should update workflow status' () {
         given: 'an allowed user'
-        User user = new DomainCreator().generateAllowedUser()
+        User user = new DomainCreator().createAllowedUser()
 
         and: 'a workflow'
         Workflow workflow = new DomainCreator().createWorkflow(status: WorkflowStatus.UNKNOWN)
@@ -172,7 +175,7 @@ class TraceControllerTest2 extends AbstractContainerBaseTest {
 
     void "save a new task given a submit trace"() {
         given: 'an allowed user'
-        User user = new DomainCreator().generateAllowedUser()
+        User user = new DomainCreator().createAllowedUser()
 
         and: 'a workflow'
         Workflow workflow = new DomainCreator().createWorkflow()

@@ -48,7 +48,7 @@ class LiveEventsControllerTest extends Specification {
 
     void "save traces simulated from a complete sequence and subscribe to the live events in the mean time"() {
         given: 'an allowed user'
-        User user = new DomainCreator().generateAllowedUser()
+        User user = new DomainCreator().createAllowedUser()
 
         and: 'a nextflow simulator'
         NextflowSimulator nextflowSimulator = new NextflowSimulator(user: user, workflowLabel: 'simulation', client: client.toBlocking(), sleepBetweenRequests: 0)

@@ -25,6 +25,7 @@ import io.seqera.tower.domain.UserRole
 import io.seqera.tower.exceptions.NonExistingUserException
 import io.seqera.tower.util.AbstractContainerBaseTest
 import io.seqera.tower.util.DomainCreator
+import io.seqera.util.HashEncoder
 import io.seqera.util.StringUtils
 import org.grails.datastore.mapping.validation.ValidationException as GrailsValidationException
 import spock.lang.IgnoreIf
@@ -47,7 +48,7 @@ class UserServiceTest extends AbstractContainerBaseTest {
         def EMAIL = 'random@email.com'
 
         when:
-        User user = userService.create(EMAIL,'ROLE_USER')
+        User user = userService.create(EMAIL)
         then:
         user.email == EMAIL 
         user.userName == 'random'
@@ -65,7 +66,7 @@ class UserServiceTest extends AbstractContainerBaseTest {
 
     def 'should normalise email to lowercase' () {
         when:
-        User user = userService.create('BIG_ADDRESS@email.com','ROLE_USER')
+        User user = userService.create('BIG_ADDRESS@email.com')
         then:
         user.email == 'big_address@email.com'
         user.userName == 'big-address'
@@ -79,7 +80,7 @@ class UserServiceTest extends AbstractContainerBaseTest {
         assert (userService as UserServiceImpl).trustedEmails.find { StringUtils.like(EMAIL, it) }
 
         when:
-        User user = userService.create(EMAIL,'ROLE_USER')
+        User user = userService.create(EMAIL)
         then:
         user.email == EMAIL
         user.userName == 'me'
@@ -315,27 +316,46 @@ class UserServiceTest extends AbstractContainerBaseTest {
         record == null
     }
 
-    def 'should find user by principal' () {
+    def 'should find a user by user id and token' () {
         given:
+        def random = HashEncoder.encode( 200 )
         def creator = new DomainCreator()
-        creator.createUser(email: 'foo@bar.com', authToken: 'secret')
+        def user = creator.createUser(email: 'foo@bar.com', authToken: 'secret')
 
         when:
-        def principal = Mock(Principal) { getName() >> 'foo@bar.com' }
+        def record = userService.findByUidAndAuthToken(user.getUid(), 'secret')
+        then:
+        record.id == user.id
+
+        // cases on email should be ignored
+        when:
+        record = userService.findByUidAndAuthToken(random, 'secret')
+        then:
+        !record
+
+        when:
+        record = userService.findByUidAndAuthToken('foo', 'secret')
+        then:
+        noExceptionThrown()
+        !record
+
+    }
+
+    def 'should find user by principal' () {
+        given:
+        def MISSING = HashEncoder.encode(123)
+        def creator = new DomainCreator()
+        def user = creator.createUser(email: 'foo@bar.com', authToken: 'secret')
+
+        when:
+        def principal = Mock(Principal) { getName() >> user.getUid() }
         def record = userService.getByAuth(principal)
         then:
         record.email == 'foo@bar.com'
 
-        // cases do not matter
+        // id does not match
         when:
-        principal = Mock(Principal) { getName() >> 'FOO@Bar.com' }
-        record = userService.getByAuth(principal)
-        then:
-        record.email == 'foo@bar.com'
-
-        // cases do not matter
-        when:
-        principal = Mock(Principal) { getName() >> 'FOO@Bar%' }
+        principal = Mock(Principal) { getName() >> MISSING }
         record = userService.getByAuth(principal)
         then:
         record == null
@@ -367,5 +387,17 @@ class UserServiceTest extends AbstractContainerBaseTest {
         record = userService.getByEmail(null)
         then:
         record == null
+    }
+
+    def 'should find authorities' () {
+        given:
+        def creator = new DomainCreator()
+        def user = creator.createAllowedUser()
+
+        when:
+        def roles = userService.findAuthoritiesByUid(user.getUid())
+        println roles 
+        then:
+        roles == ['ROLE_USER']
     }
 }

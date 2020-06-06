@@ -22,6 +22,7 @@ import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.TaskData
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.enums.TaskStatus
+import io.seqera.tower.exceptions.AbortTransactionException
 import io.seqera.tower.exceptions.NonExistingWorkflowException
 import io.seqera.tower.exchange.trace.TraceTaskRequest
 import io.seqera.tower.service.audit.AuditEventPublisher
@@ -92,6 +93,11 @@ class TaskServiceImpl implements TaskService {
 
         Task existingTask = Task.findByWorkflowAndTaskId(workflow, task.taskId)
         if (existingTask) {
+            if( existingTask.status.isTerminal() )
+                throw new AbortTransactionException("Task id=$existingTask.id already in a terminal status=$existingTask.status - requested change status=${task.status}; workflow id=$workflow.id")
+            if( existingTask.status > task.status )
+                throw new AbortTransactionException("Task id=$existingTask.id status=$existingTask.status is ahead of requested change status=${task.status}; workflow id=$workflow.id")
+
             updateMutableFields(existingTask, task)
             existingTask.save()
             return existingTask

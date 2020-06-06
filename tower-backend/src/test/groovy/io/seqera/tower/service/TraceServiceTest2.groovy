@@ -64,18 +64,11 @@ class TraceServiceTest2 extends AbstractContainerBaseTest {
         def req = TracesJsonBank.extractTraceProgress('success', TASK1, TaskTraceSnapshotStatus.SUBMITTED)
         def prog = new TraceProgressData(running: 1, succeeded: 2, processes: [new TraceProgressDetail(index: 1, name: 'foo', succeeded: 1), new TraceProgressDetail(index: 2, name:'bar', running: 1) ])
         req.progress = prog
-        and:
-        def taskProcessorTest = (traceService).taskProcessor.test()
 
         when:
         traceService.handleTaskTrace(WORKFLOW_ID, req.progress, req.tasks)
         then:
         progressStore.getTraceData(WORKFLOW_ID) == req.progress
-        and:
-        taskProcessorTest.assertValueCount(1)
-        taskProcessorTest.values()[0].task.hash == HASH1
-        taskProcessorTest.values()[0].task.taskId == TASK1
-        taskProcessorTest.values()[0].workflow.id == WORKFLOW_ID
 
         and:
         // task was saved
@@ -126,8 +119,6 @@ class TraceServiceTest2 extends AbstractContainerBaseTest {
         def prog = new TraceProgressData(running: 0, succeeded: 3, processes: [new TraceProgressDetail(index: 1, name: 'foo', succeeded: 1), new TraceProgressDetail(index: 2, name:'bar', succeeded: 2) ])
         req.progress = prog
         assert req.tasks.size() == 2
-        and:
-        def taskProcessorTest = (traceService).taskProcessor.test()
 
         // ----------------------------------------
         // request for a task with SUCCEEDED status
@@ -136,9 +127,6 @@ class TraceServiceTest2 extends AbstractContainerBaseTest {
         traceService.handleTaskTrace(WORKFLOW_ID, req.progress, req.tasks)
 
         then:
-        taskProcessorTest.valueCount() == 2
-
-        and:
         with(progressStore.getTraceData(WORKFLOW_ID)) {
             running == 0
             succeeded == 3

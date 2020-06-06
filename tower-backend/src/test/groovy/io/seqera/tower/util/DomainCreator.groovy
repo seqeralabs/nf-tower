@@ -11,6 +11,7 @@
 
 package io.seqera.tower.util
 
+import java.sql.DriverManager
 import java.time.Instant
 import java.time.OffsetDateTime
 
@@ -24,11 +25,11 @@ import io.seqera.tower.domain.TaskData
 import io.seqera.tower.domain.User
 import io.seqera.tower.domain.UserRole
 import io.seqera.tower.domain.Workflow
-import io.seqera.tower.domain.WorkflowComment
 import io.seqera.tower.domain.WorkflowLoad
 import io.seqera.tower.domain.WorkflowMetrics
 import io.seqera.tower.domain.WorkflowProcess
 import io.seqera.tower.enums.TaskStatus
+import io.seqera.util.CompactUuid
 import org.grails.datastore.mapping.validation.ValidationException
 import org.hibernate.Session
 
@@ -40,35 +41,43 @@ class DomainCreator {
     Boolean failOnError = true
     Boolean withNewTransaction = true
 
-    static void cleanupDatabase() {
-        Workflow.withNewTransaction {
-            ProcessLoad.where { true }.deleteAll()
-            WorkflowLoad.where { true }.deleteAll()
-            WorkflowProcess.where { true }.deleteAll()
-            WorkflowComment.where { true }.deleteAll()
-            WorkflowMetrics.where { true }.deleteAll()
-            Task.where { true }.deleteAll()
-            TaskData.where { true }.deleteAll()
-            Workflow.where { true }.deleteAll()
-            AccessToken.where { true }.deleteAll()
-            UserRole.where { true }.deleteAll()
-            Role.where { true }.deleteAll()
-            User.where { true }.deleteAll()
+    static dropDb(Map<String,String> config) {
+        Class.forName(config['flyway.driver'])
+        def connection = DriverManager.getConnection(config['flyway.url'],config['flyway.user'],config['flyway.password']);
+        connection.createStatement().executeUpdate('DROP DATABASE tower')
+        connection.createStatement().executeUpdate('CREATE DATABASE tower')
+        connection.close()
+    }
+
+    static String listTablesDDL(String db) {
+        switch (db) {
+            case 'h2': return "select t.table_name from information_schema.tables t where t.table_name like 'TW_%' and t.table_type like '%TABLE'"
+            case 'mysql': return "select t.table_name from information_schema.tables t where t.table_schema = 'tower' and t.table_name not like 'flyway%' and t.table_type like '%TABLE'"
+            default: throw new IllegalArgumentException("Unknown db type: %db")
         }
     }
 
-    static void cleanupMysqlDb() {
+    static String checkConstraintsDDL(String db, boolean enable=false) {
+        switch (db) {
+            case 'h2': return "SET REFERENTIAL_INTEGRITY ${enable.toString().toUpperCase()};"
+            case 'mysql': return "SET FOREIGN_KEY_CHECKS=${enable?1:0};"
+            default: throw new IllegalArgumentException("Unknown db type: %db")
+        }
+    }
+
+    static void cleanupDb(String db) {
+
         User.withNewSession { Session session ->
             User.withNewTransaction {
-                def tables = session.createSQLQuery("select t.table_name from information_schema.tables t where t.table_schema = 'tower' and t.table_name not like 'flyway%' and t.table_type like '%TABLE'").list()
-                session.createSQLQuery("SET FOREIGN_KEY_CHECKS=0;").executeUpdate()
+                def tables = session.createSQLQuery(listTablesDDL(db)).list()
+                session.createSQLQuery(checkConstraintsDDL(db,false)).executeUpdate()
                 try {
                     tables.each {
                         session.createSQLQuery("truncate table $it").executeUpdate()
                     }
                 }
                 finally {
-                    session.createSQLQuery("SET FOREIGN_KEY_CHECKS=1;").executeUpdate()
+                    session.createSQLQuery(checkConstraintsDDL(db,true)).executeUpdate()
                 }
             }
         }
@@ -99,6 +108,7 @@ class DomainCreator {
         fields.commandLine = fields.containsKey('commandLine') ? fields.commandLine : "./nextflow-19.05.0-TOWER-all run hello -with-tower"
         fields.projectName = fields.containsKey('projectName') ? fields.projectName : "nextflow-io/hello"
         fields.scriptName = fields.containsKey('scriptName') ? fields.scriptName : "main.nf"
+        fields.launchId = fields.containsKey('launchId') ? fields.launchId : null
 
         createInstance(workflow, fields)
     }
@@ -206,12 +216,13 @@ class DomainCreator {
         fields.userName =  fields.containsKey('userName') ? fields.userName : "user${generateUniqueNamePart()}"
         fields.authToken = fields.containsKey('authToken') ? fields.authToken : "authToken${generateUniqueNamePart()}"
         fields.authTime =  fields.containsKey('authTime') ? fields.authTime : Instant.now()
-        fields.accessTokens = fields.containsKey('accessTokens') ? fields.accessTokens : [new DomainCreator(save: false).createAccesToken(user: user)]
+        fields.accessTokens = fields.containsKey('accessTokens') ? fields.accessTokens : [new DomainCreator(save: false).createAccessToken(user: user)]
         
         createInstance(user, fields)
     }
 
-    AccessToken createAccesToken(Map fields = [:]) {
+
+    AccessToken createAccessToken(Map fields = [:]) {
         AccessToken accessToken = new AccessToken()
 
         fields.token =  fields.containsKey('token') ? fields.token : "accessToken${generateUniqueNamePart()}"
@@ -258,11 +269,11 @@ class DomainCreator {
         createInstance(role, fields)
     }
 
-    User generateAllowedUser() {
+    User createAllowedUser() {
         createUserWithRole([:], 'ROLE_USER')
     }
 
-    User generateNotAllowedUser() {
+    User createNotAllowedUser() {
         createUserWithRole([:], 'ROLE_INVALID')
     }
 

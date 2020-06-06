@@ -9,18 +9,16 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 
-package io.seqera.tower.exchange.user
+package io.seqera.util
 
-import groovy.transform.CompileStatic
-import io.seqera.tower.domain.User
-import io.seqera.tower.exchange.BaseResponse
+import io.seqera.tower.domain.UserOptions
+import io.seqera.util.H8AbstractJsonType
 
 /**
+ * Implements a custom Hibernate type for class {@link UserOptions}
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
-@CompileStatic
-class GetUserResponse implements BaseResponse {
-    User user
-    String message
+class H8UserOptionsType extends H8AbstractJsonType<UserOptions> {
+
 }

@@ -8,7 +8,7 @@
  * This Source Code Form is "Incompatible With Secondary Licenses", as
  * defined by the Mozilla Public License, v. 2.0.
  */
-import {Injectable} from '@angular/core';
+import {Injectable, EventEmitter} from '@angular/core';
 import {HttpClient, HttpErrorResponse} from '@angular/common/http';
 import {Workflow} from '../entity/workflow/workflow';
 import {environment} from '../../../../environments/environment';
@@ -25,6 +25,7 @@ const endpointUrl = `${environment.apiUrl}/workflow`;
   providedIn: 'root'
 })
 export class WorkflowService {
+  progressChangeEvent: EventEmitter<Workflow> = new EventEmitter();
 
   private workflowsByIdCache: Map<string | number, Workflow>;
   private workflowsSubject: Subject<Workflow[]>;
@@ -140,6 +141,7 @@ export class WorkflowService {
 
   updateProgress(progress: ProgressData, workflow: Workflow): void {
     workflow.progress = progress;
+    this.progressChangeEvent.emit(workflow);
   }
 
   private isWorkflowsCacheEmpty(): boolean {

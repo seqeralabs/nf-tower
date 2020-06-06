@@ -30,7 +30,7 @@ import io.micronaut.security.rules.SecurityRule
 import io.seqera.tower.domain.User
 import io.seqera.tower.exchange.user.DeleteUserResponse
 import io.seqera.tower.exchange.user.EnableUserResponse
-import io.seqera.tower.exchange.user.GetUserResponse
+import io.seqera.tower.exchange.user.DescribeUserResponse
 import io.seqera.tower.exchange.user.ListUserResponse
 import io.seqera.tower.service.GateService
 import io.seqera.tower.service.UserService
@@ -54,14 +54,14 @@ class UserController extends BaseController {
 
     @Get('/')
     @Transactional
-    HttpResponse<GetUserResponse> profile(Authentication authentication) {
+    HttpResponse<DescribeUserResponse> profile(Authentication authentication) {
         final User user = userService.getByAuth(authentication)
         if (!user) {
-            return HttpResponse.badRequest(new GetUserResponse(message: "Cannot find user with name ${authentication.getName()}"))
+            return HttpResponse.badRequest(new DescribeUserResponse(message: "Cannot find user with name ${authentication.getName()}"))
         }
 
-        log.debug "Getting profile for user id=${user.id} userName=${user.userName} email=${user.email}n"
-        HttpResponse.ok(new GetUserResponse(user: user))
+        log.debug "Getting profile for user id=${user.id} userName=${user.userName} email=${user.email}"
+        HttpResponse.ok(new DescribeUserResponse(user: user))
     }
 
     @Post("/update")
@@ -126,12 +126,12 @@ class UserController extends BaseController {
     @Get('/get/{userId}')
     @Secured(['ADMIN'])
     @Transactional
-    HttpResponse<GetUserResponse> get(Long userId) {
+    HttpResponse<DescribeUserResponse> get(Long userId) {
         final user = User.get(userId)
         if( !user )
-            return HttpResponse.badRequest(new GetUserResponse(message: "Cannot find user with ID=$userId"))
+            return HttpResponse.badRequest(new DescribeUserResponse(message: "Cannot find user with ID=$userId"))
 
-        HttpResponse.ok(new GetUserResponse(user:user))
+        HttpResponse.ok(new DescribeUserResponse(user:user))
     }
 
 

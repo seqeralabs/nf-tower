@@ -11,6 +11,9 @@
 
 package io.seqera.tower.util
 
+import java.time.OffsetDateTime
+import java.time.temporal.ChronoUnit
+
 import groovy.util.logging.Slf4j
 import io.micronaut.http.HttpMethod
 import io.micronaut.http.HttpRequest
@@ -31,7 +34,6 @@ abstract class AbstractContainerBaseTest extends Specification {
     static final String env = System.getenv('MICRONAUT_ENVIRONMENTS')
     static GenericContainer DATABASE_CONTAINER
     static boolean isMySql = env?.contains('mysql')
-
     static Map mysqlConfig = [
             MYSQL_ROOT_PASSWORD: 'root',
             MYSQL_USER: 'tower',
@@ -57,18 +59,20 @@ abstract class AbstractContainerBaseTest extends Specification {
     protected String doJwtLogin(User user, HttpClient client) {
         HttpRequest request = HttpRequest.create(HttpMethod.POST, '/login')
                 .accept(MediaType.APPLICATION_JSON_TYPE)
-                .body(new UsernamePasswordCredentials(user.email, user.authToken))
+                .body(new UsernamePasswordCredentials(user.getUid(), user.authToken))
         HttpResponse<AccessRefreshToken> response = client.toBlocking().exchange(request, AccessRefreshToken)
 
         response.body.get().accessToken
     }
 
+
     void cleanup() {
-        if( isMySql )
-            DomainCreator.cleanupMysqlDb()
-        else
-            DomainCreator.cleanupDatabase()
+        DomainCreator.cleanupDb( isMySql ? 'mysql' : 'h2' )
     }
 
+
+    boolean tsEquals(OffsetDateTime ts1, OffsetDateTime ts2, ChronoUnit unit=ChronoUnit.MINUTES) {
+        ts1.truncatedTo(unit)==ts2.truncatedTo(unit)
+    }
 
 }

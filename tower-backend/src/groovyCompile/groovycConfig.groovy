@@ -19,7 +19,7 @@ withConfig(configuration) {
     ast(CompileStatic)
 
     //@ToString(includeNames = true, includeSuper = true, includePackage = false, ignoreNulls = true). Interfaces excluded
-    source(unitValidator: { SourceUnit unit -> !unit.AST.classes.any { ClassNode node -> node.isInterface() } }) {
+    source(unitValidator: { SourceUnit unit -> !unit.AST.classes.any { ClassNode node -> node.isInterface() || node.isEnum() } }) {
         ast(includeNames: true, includePackage: false, ignoreNulls: true, ToString)
     }
 

@@ -16,6 +16,9 @@ import groovy.util.logging.Slf4j
 import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Error
+import io.seqera.util.CompactUuid
+import io.seqera.tower.exceptions.TowerException
+import io.seqera.tower.exchange.BaseResponse
 import io.seqera.tower.exchange.MessageResponse
 /**
  * Implements a base controller class with common helpers
@@ -40,9 +43,27 @@ abstract class BaseController {
             log.error(err,e)
         }
         catch(Throwable t) {
-            log.error("Dawn.. something went really wrong | ${e}", t)
+            log.error("Damn.. something went really wrong | ${e}", t)
         }
         return HttpResponse.badRequest(new MessageResponse(msg))
+    }
+
+
+    def <R extends BaseResponse> HttpResponse<R> handle (Throwable t, Class<R> responseType) {
+        final resp = responseType.newInstance()
+        def msg = t.message
+        if( t instanceof TowerException && msg ) {
+            log.warn msg
+            (resp as GroovyObject).setProperty('message', msg)
+        }
+        else {
+            msg = t.message ?: t.cause?.message ?: "Oops .. unable to process request"
+            msg += " - Error ID: ${CompactUuid.generate()}"
+            (resp as GroovyObject).setProperty('message', msg)
+            log.error(msg, t)
+        }
+
+        return HttpResponse.badRequest(resp)
     }
 
 }

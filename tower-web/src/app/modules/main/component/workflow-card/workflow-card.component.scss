@@ -50,6 +50,23 @@
   padding: 1rem;
 }
 
+.workflow--submitted {
+  border-left-color: $clr-submitted;
+
+  &.active {
+    border-color: $clr-submitted;
+  }
+
+  .card-title, .sidebar-wf-icon {
+    color: $clr-submitted;
+  }
+
+  .mdi-loading.mdi-spin::before {
+    animation-duration: $submit-spin-duration;
+    animation-direction: reverse;
+  }
+}
+
 .workflow--succeed {
   border-left-color: $clr-succeed;
 
@@ -71,6 +88,10 @@
 
   .card-title, .sidebar-wf-icon {
     color: $clr-running;
+  }
+
+  .mdi-loading.mdi-spin::before {
+    animation-duration: $run-spin-duration;
   }
 }
 

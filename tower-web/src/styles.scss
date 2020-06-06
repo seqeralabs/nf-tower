@@ -1,5 +1,15 @@
 /* You can add global styles to this file, and also import other style files */
+
+@import '~@angular/material/theming';
+@include mat-core();
+$tower-web-primary: mat-palette($mat-indigo);
+$tower-web-accent: mat-palette($mat-pink, A200, A100, A400);
+$tower-web-warn: mat-palette($mat-red);
+$tower-web-theme: mat-light-theme($tower-web-primary, $tower-web-accent, $tower-web-warn);
+@include angular-material-theme($tower-web-theme);
+
 @import "./src/assets/variables";
+@import "../node_modules/bootstrap/scss/bootstrap.scss";
 
 html {
   font-size: $font-size-root;
@@ -22,6 +32,10 @@ code {
   background-color: #f8f9fa!important;
   padding: 4px 6px;
   border-radius: 2px;
+}
+
+small {
+  font-size: 90%;
 }
 
 #navbar {
@@ -77,6 +91,7 @@ code {
   position: absolute;
   top: calc(#{$navbar-height} + 2px);
   right: 0;
+  z-index: 1051;
 }
 
 /* callout styles */
@@ -295,4 +310,87 @@ footer {
 // patch tooltip flicking -- https://github.com/valor-software/ngx-bootstrap/issues/3075#issuecomment-363461060
 .tooltip {
   pointer-events: none;
+}
+
+.form-control::-webkit-input-placeholder {
+  font-style: italic;
+}
+
+.ng-touched.ng-invalid {
+  @extend .is-invalid;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.cdk-overlay-container {
+  z-index: 9999 !important;
+}
+
+::-webkit-input-placeholder {
+  font-style: italic;
+  color: #6c757d !important;
+  opacity: 1;
+}
+
+.dropdown-item:active, .mat-option:active span {
+  color: #fff !important;
+  text-decoration: none;
+}
+
+.mat-autocomplete-panel {
+  border-radius: 0.25rem !important;
+  padding: 0.5rem 0 !important;
+
+  .mat-option {
+    height: 28px !important;
+    padding: 0 !important;
+
+    &:hover {
+      background-color: #f8f9fa !important;
+    }
+
+    &:active {
+      background-color: #007bff !important;
+    }
+
+    .mat-option-text {
+      padding: 0.25rem 1.5rem !important;
+      font-size: 1rem;
+    }
+  }
+}
+
+.dropdown-item {
+  cursor: pointer;
+}
+
+.button-spinner {
+  display: inline-block;
+
+  &::before {
+    animation-duration: $run-spin-duration;
+  }
+}
+
+@keyframes loading-dots {
+  0%, 20% {
+    color: rgba(0,0,0,0);
+    text-shadow:
+      .25em 0 0 rgba(0,0,0,0),
+      .5em 0 0 rgba(0,0,0,0);}
+  40% {
+    color: white;
+    text-shadow:
+      .25em 0 0 rgba(0,0,0,0),
+      .5em 0 0 rgba(0,0,0,0);}
+  60% {
+    text-shadow:
+      .25em 0 0 white,
+      .5em 0 0 rgba(0,0,0,0);}
+  80%, 100% {
+    text-shadow:
+      .25em 0 0 white,
+      .5em 0 0 white;}
 }

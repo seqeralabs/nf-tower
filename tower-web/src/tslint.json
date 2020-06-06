@@ -19,11 +19,11 @@
     ],
     "one-line": [
       true,
-      "check-open-brace",
-      "check-catch"
+      "check-open-brace"
     ],
     "curly": [false],
     "whitespace": [false],
-    "no-trailing-whitespace": [false]
+    "no-trailing-whitespace": [false],
+    "no-output-on-prefix": [false]
   }
 }

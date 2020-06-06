@@ -79,17 +79,41 @@ class UserServiceImpl implements UserService {
         User.find(query, params)
     }
 
+    @Override
+    User findByUidAndAuthToken(String uid, String token) {
+        try {
+            final userId = User.decodeUid(uid)
+            final params = TupleUtils.map('userId', userId, 'token',token)
+            final args = TupleUtils.map('cache',true)
+            final query = "from User u where u.id=:userId and u.authToken=:token"
+            User.find(query, params, args)
+        }
+        catch (IllegalArgumentException e) {
+            log.warn "Invalid user uid=$uid"
+            return null
+        }
+    }
+
+    @Deprecated
     @CompileDynamic
     List<String> findAuthoritiesByEmail(String email) {
         User user = getByEmail(email)
-        findAuthoritiesOfUser(user)
+        return user ? findAuthoritiesByUser(user) : Collections.<String>emptyList()
     }
 
-    @CompileDynamic
-    List<String> findAuthoritiesOfUser(User user) {
-        List<UserRole> rolesOfUser = UserRole.findAllByUser(user)
+    List<String> findAuthoritiesByUser(User user) {
+        findRolesByUserId0(user.id)
+    }
 
-        return rolesOfUser.role.authority
+    List<String> findAuthoritiesByUid(String uid) {
+        findRolesByUserId0(User.decodeUid(uid))
+    }
+
+    List<String> findRolesByUserId0(Long userId) {
+        final params = TupleUtils.map('userId',userId)
+        final args = TupleUtils.map('cache', true)
+        final rolesOfUser = (List<UserRole>) UserRole.executeQuery('from UserRole where user.id=:userId', params, args)
+        return rolesOfUser*.role.authority
     }
 
     protected String makeUserNameFromEmail(String email) {
@@ -112,7 +136,7 @@ class UserServiceImpl implements UserService {
     }
 
     @CompileDynamic
-    protected String checkUniqueName(final String userName ) {
+    protected String checkUniqueName(final String userName) {
         int count=0
         String result = userName
         while (User.countByUserName(result)) {
@@ -124,9 +148,9 @@ class UserServiceImpl implements UserService {
         return result
     }
 
-    User create(String email, String authority) {
+    User create(String email) {
         assert email, "Missing user email field"
-        final result = create0(email.toLowerCase(), authority)
+        final result = create0(email.toLowerCase(), 'ROLE_USER')
         eventPublisher.userCreated(result.id)
         return result
     }
@@ -160,6 +184,11 @@ class UserServiceImpl implements UserService {
         return user
     }
 
+    @Override
+    User getOrCreate(String email) {
+        final user = getByEmail(email)
+        !user ? create(email) : updateUserAuthToken(user)
+    }
 
     protected String getAvatarUrl(String email) {
         assert email
@@ -203,7 +232,7 @@ class UserServiceImpl implements UserService {
     User updateUserAuthToken(User user) {
         user.authTime = Instant.now()
         user.authToken = TokenHelper.createHexToken()
-        return user.save()
+        return user.save(failOnError:true)
     }
 
     @CompileDynamic
@@ -249,15 +278,24 @@ class UserServiceImpl implements UserService {
     @Override
     User getByAuth(Principal principal) {
         assert principal
-        final email = principal.getName()
-        if( !email )
+        final identity = principal.getName()
+        if( !identity )
             throw new IllegalArgumentException("Missing principal name field")
-        getByEmail(email)
+
+        identity.contains('@')
+                ?  getByEmail(identity)
+                :  getByUid(identity)
     }
 
     @Override
     User getByEmail(String email) {
         User.find("from User where lower(email) = :email", [email: email?.toLowerCase()])
+    }
+
+    @Override
+    User getByUid(String uid) {
+        final id = User.decodeUid(uid)
+        User.get(id)
     }
 
     @CompileDynamic

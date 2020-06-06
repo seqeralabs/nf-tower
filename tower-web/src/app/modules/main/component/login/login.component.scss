@@ -1,4 +1,4 @@
-@import "~src/assets/variables";
+@import "./src/assets/variables";
 
 .registered {
   text-align: center;
@@ -6,4 +6,20 @@
 
 .sent-email {
   font-weight: bold;
+}
+
+a.github {
+  color: white;
+  border-color: black;
+  background-color: black;
+  vertical-align: middle;
+  padding: 0;
+  margin: 0;
+  display:table;
+}
+
+span.mdi-github-circle {
+  font-size: 2em;
+  padding: 0 0.2em 0 0;
+  margin: 0;
 }

@@ -175,6 +175,9 @@ class ProgressServiceImpl implements ProgressService {
             target.persistProgressData(workflowId)
             store.deleteData(workflowId)
         }
+        else if( workflow.status==SUBMITTED ) {
+            log.debug "Pending submission for workflow Id=$workflowId"
+        }
         else if( workflow.status!=UNKNOWN ) {
             log.warn "Invalid status for workflow Id=$workflowId | Expected status=UNKNOWN; found=$workflow.status"
         }
@@ -207,6 +210,9 @@ class ProgressServiceImpl implements ProgressService {
             target.persistProgressData(workflowId)
             // notify audit event
             auditEventPublisher.workflowStatusChangeBySystem(workflowId, "complete=${workflow.complete}")
+        }
+        else if( workflow.status==SUBMITTED ) {
+            log.debug "Pending submission for workflow Id=$workflowId"
         }
         else {
             log.warn "Invalid status for workflow Id=$workflowId | Expected status=UNKNOWN; found=$workflow.status"

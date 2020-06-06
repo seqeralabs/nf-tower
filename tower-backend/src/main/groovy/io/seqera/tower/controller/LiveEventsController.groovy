@@ -13,6 +13,7 @@ package io.seqera.tower.controller
 
 import javax.inject.Inject
 
+import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import io.micronaut.http.HttpRequest
 import io.micronaut.http.annotation.Controller
@@ -29,9 +30,10 @@ import org.reactivestreams.Publisher
  * Server Sent Events endpoints to receive live updates in the client.
  *
  */
-@Controller("/live")
-@Secured(SecurityRule.IS_ANONYMOUS)
 @Slf4j
+@CompileStatic
+@Secured(SecurityRule.IS_AUTHENTICATED)
+@Controller("/live")
 class LiveEventsController {
 
     UserService userService

@@ -12,6 +12,7 @@
 package io.seqera.tower.service.live
 
 import javax.annotation.PostConstruct
+import javax.annotation.PreDestroy
 import javax.inject.Singleton
 import java.time.Duration
 
@@ -83,7 +84,8 @@ class LiveEventsServiceImpl implements LiveEventsService, LiveEventsTrait {
         buffer.offer(liveUpdate)
     }
 
-    void stop() {
+    @PreDestroy
+    protected void destroy() {
         buffer?.terminateAndAwait()
     }
 

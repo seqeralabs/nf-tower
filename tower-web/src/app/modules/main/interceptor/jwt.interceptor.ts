@@ -16,18 +16,11 @@ import {User} from "../entity/user/user";
 
 @Injectable()
 export class JwtInterceptor implements HttpInterceptor {
+
   constructor(private authService: AuthService) {}
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    let currentUser: User = this.authService.currentUser;
-    if (currentUser) {
-      request = request.clone({
-        setHeaders: {
-          Authorization: `Bearer ${currentUser.data.jwtAccessToken}`
-        }
-      });
-    }
-
-    return next.handle(request);
+    const authorized = request.clone({ withCredentials: true });
+    return next.handle(authorized);
   }
 }

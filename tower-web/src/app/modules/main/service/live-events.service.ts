@@ -16,7 +16,7 @@ import {User} from "../entity/user/user";
 import {LiveUpdate} from "../entity/live/live-update";
 import {filter} from "rxjs/operators";
 
-const endpointUrl: string = `${environment.apiUrl}/live`;
+const endpointUrl = `${environment.apiUrl}/live`;
 
 @Injectable({
   providedIn: 'root'
@@ -55,7 +55,7 @@ export class LiveEventsService {
     if (this.events$) {
       return;
     }
-    const sseUrl: string = `${endpointUrl}/`;
+    const sseUrl = `${endpointUrl}/`;
     this.connect(sseUrl);
   }
 
@@ -64,7 +64,7 @@ export class LiveEventsService {
     this.events$ = this.eventsSubject.asObservable();
 
     console.log('Connecting to receive live events', url);
-    const eventSource: EventSource = new EventSource(url);
+    const eventSource: EventSource = new EventSource(url, {withCredentials: true});
 
     eventSource.addEventListener('open', () => {
       console.log('Connection established', new Date().toISOString());
@@ -83,7 +83,7 @@ export class LiveEventsService {
         if (event.isError) {
           this.eventsSubject.error(event);
         } else {
-          this.eventsSubject.next(event)
+          this.eventsSubject.next(event);
         }
       });
 

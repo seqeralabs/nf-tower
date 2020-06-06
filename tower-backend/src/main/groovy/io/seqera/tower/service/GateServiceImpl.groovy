@@ -62,7 +62,7 @@ class GateServiceImpl implements GateService {
         boolean isNew
         if( !result.user ) {
             isNew = true
-            result.user = userService.create(email, 'ROLE_USER')
+            result.user = userService.create(email)
         }
         else if( result.user.trusted ) {
             isNew = false
@@ -132,7 +132,7 @@ class GateServiceImpl implements GateService {
     }
 
     protected String buildAccessUrl(User user) {
-        String accessUrl = "${serverUrl}/auth?email=${URLEncoder.encode(user.email,'UTF-8')}&authToken=${user.authToken}"
+        String accessUrl = "${serverUrl}/auth?uid=${user.getUid()}&token=${user.authToken}"
         return new URI(accessUrl).toString()
     }
 

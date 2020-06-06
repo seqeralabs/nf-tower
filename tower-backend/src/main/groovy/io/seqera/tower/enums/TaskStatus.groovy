@@ -52,9 +52,7 @@ enum TaskStatus {
 
     static private List<TaskStatus> TERMINAL = [COMPLETED, FAILED, ABORTED, CACHED]
 
-    String toString() { super.toString() }
-
-    boolean isTerminated() { this in TERMINAL }
+    boolean isTerminal() { this in TERMINAL }
 
     boolean isRunning() { this == RUNNING }
 

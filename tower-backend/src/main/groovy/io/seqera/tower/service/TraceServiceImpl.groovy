@@ -12,29 +12,30 @@
 package io.seqera.tower.service
 
 import javax.annotation.PostConstruct
+import javax.annotation.PreDestroy
 import javax.inject.Inject
 import javax.inject.Singleton
 import javax.validation.ValidationException
 import java.time.Duration
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Phaser
 import java.util.concurrent.TimeUnit
 
 import grails.gorm.transactions.NotTransactional
-import grails.gorm.transactions.TransactionService
 import grails.gorm.transactions.Transactional
 import groovy.transform.Canonical
+import groovy.transform.CompileStatic
 import groovy.transform.EqualsAndHashCode
 import groovy.util.logging.Slf4j
 import io.micronaut.context.annotation.Value
-import io.micronaut.context.event.ShutdownEvent
-import io.micronaut.runtime.event.annotation.EventListener
-import io.reactivex.Observable
+import io.reactivex.BackpressureStrategy
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
-import io.seqera.tower.domain.HashSequenceGenerator
 import io.seqera.tower.domain.Task
 import io.seqera.tower.domain.User
 import io.seqera.tower.domain.Workflow
 import io.seqera.tower.domain.WorkflowKey
+import io.seqera.tower.exceptions.AbortTransactionException
 import io.seqera.tower.exchange.trace.TraceBeginRequest
 import io.seqera.tower.exchange.trace.TraceCompleteRequest
 import io.seqera.tower.exchange.trace.TraceProgressData
@@ -43,12 +44,14 @@ import io.seqera.tower.exchange.trace.TraceWorkflowRequest
 import io.seqera.tower.service.audit.AuditEventPublisher
 import io.seqera.tower.service.cost.CostService
 import io.seqera.tower.service.progress.ProgressService
+import io.seqera.tower.util.ThreadPoolBuilder
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.validation.FieldError
 
 @Slf4j
 @Singleton
 @Transactional
+@CompileStatic
 class TraceServiceImpl implements TraceService {
 
     private static final Random random = new Random()
@@ -60,85 +63,92 @@ class TraceServiceImpl implements TraceService {
         Workflow workflow
     }
 
-    @Value('${trace.tasks.buffer.time:5s}')
-    Duration bufferTimeout
-
     @Value('${trace.tasks.buffer.count:10000}')
-    Integer bufferCount
+    Integer bufferSize
 
-    @Value('${trace.tasks.maxRetries:2}')
-    Integer maxRetries
+    @Value('${trace.tasks.thread-pool.min-size:10}')
+    Integer poolMinSize
+
+    @Value('${trace.tasks.thread-pool.max-size:100}')
+    Integer poolMaxSize
+
+    @Value('${trace.tasks.thread-pool.queue-size:1000}')
+    Integer poolQueueSize
+
+    @Value('${trace.tasks.thread-pool.termination-timeout:30s}')
+    Duration poolTerminationTimeout
+
+    @Value('${trace.tasks.maxRetries:3}')
+    Integer maxAttempts
 
     @Inject WorkflowService workflowService
     @Inject CostService costService
     @Inject TaskService taskService
-    @Inject TransactionService transactionService
     @Inject ProgressService progressService
     @Inject AuditEventPublisher eventPublisher
 
-    PublishSubject<TaskEntry> taskProcessor
+    private Phaser phaser
+    private ExecutorService taskSaveExecutor
 
     @PostConstruct
     void init() {
-        log.debug "+ Creating trace tasks publisher buffer-count=$bufferCount; buffer-time=$bufferTimeout"
-        taskProcessor = createTaskPublisher()
+        log.info "+ Creating trace service poolMinSize=$poolMinSize; poolMaxSize=$poolMaxSize; poolQueueSize=$poolQueueSize; maxAttempts=$maxAttempts; aggregate bufferCount=$bufferSize; poolTerminationTimeout=$poolTerminationTimeout"
+        phaser = new Phaser()
+        phaser.register()
+        // executor to save tasks
+        taskSaveExecutor = ThreadPoolBuilder.io(poolMinSize,poolMaxSize,poolQueueSize,'trace-pool')
     }
 
-    @EventListener
-    void cleanup(ShutdownEvent event) {
-        log.debug "+ Flushing trace tasks publisher"
+    @PreDestroy
+    void cleanup() {
+        log.info "< Flushing trace tasks publisher"
         // the onComplete event is needed to flush partial buffered task entries
-        taskProcessor.onComplete()
+        phaser.arriveAndAwaitAdvance()
+        // shutdown the thread pool
+        taskSaveExecutor.shutdown()
+        taskSaveExecutor.awaitTermination(poolTerminationTimeout.toMillis(), TimeUnit.MILLISECONDS)
     }
 
-    protected PublishSubject<TaskEntry> createTaskPublisher() {
-
-        taskProcessor = PublishSubject.<TaskEntry>create()
-
-        // check everything is fine
-        Observable<TaskEntry> receiver = taskProcessor
-                .map { TaskEntry task -> checkTask(task) }
-
-        // save the tasks
-        receiver
-                .observeOn(Schedulers.io())
-                .subscribe( { task -> safeSaveTask(task) }, { err-> log.error("Unexpected error while saving task",err) })
-
-        // aggregate metrics
-        receiver
-                .observeOn(Schedulers.computation())
-                .buffer(bufferTimeout.toMillis(), TimeUnit.MILLISECONDS, bufferCount)
-                .flatMapIterable { List<TaskEntry> entries -> entries.groupBy { it.workflow.id }.values() }
-                .subscribe({ sasfeAggregateMetrics(it) }, { err-> log.error("Unexpected error while aggregating metrics",err) })
-
-        return taskProcessor
-    }
-
-    protected TaskEntry checkTask(TaskEntry entry) {
+    @NotTransactional
+    protected TaskEntry safeCheckTask(TaskEntry entry) {
         try {
-        if( entry.task.status.terminated )
-            entry.task.cost = costService.computeCost(entry.task)
+            return checkTask(entry)
         }
-        catch( Exception e ) {
+        catch( Throwable e ) {
             log.error("Unable to determine compute cost for taskId=${entry.task.taskId}; workflow Id=$entry.workflow.id", e)
+            return entry
         }
+    }
 
+    @Transactional(propagation = Propagation.REQUIRED)
+    protected TaskEntry checkTask(TaskEntry entry) {
+        if( entry.task.status.terminal )
+            entry.task.cost = costService.computeCost(entry.task)
         return entry
     }
 
     @NotTransactional
     protected void safeSaveTask(TaskEntry entry) {
-        int retry = 0
+        int attempt = 1
         while(true) try {
             saveTask(entry)
             return
         }
+        catch( AbortTransactionException e ) {
+            log.warn(e.message)
+            break
+        }
         catch( Exception e ) {
-            log.error("Failed to save task entry id=${entry?.task?.id}; taskId=${entry?.task?.taskId}; workflow id=${entry?.workflow?.id}; retry=$retry", e)
-            if( retry>=maxRetries )
+            def msg = "Failed to save task entry id=${entry?.task?.id}; taskId=${entry?.task?.taskId}; workflow id=${entry?.workflow?.id}; attempt=$attempt"
+            if( attempt++ >= maxAttempts ) {
+                log.error(msg, e)
                 break
-            retry ++
-            sleep( 50  + random.nextInt(500) )
+            }
+            // sleep and try it again
+            final delay=50  + random.nextInt(500)
+            msg += "; cause=${e.message ?: e.toString()}; await $delay msg and retry"
+            log.error(msg)
+            sleep(delay)
         }
     }
 
@@ -149,18 +159,23 @@ class TraceServiceImpl implements TraceService {
     }
 
     @NotTransactional
-    protected sasfeAggregateMetrics(List<TaskEntry> entries) {
-        int retry = 0
+    protected safeAggregateMetrics(List<TaskEntry> entries) {
+        int attempt = 1
         while(true) try {
             aggregateMetrics(entries)
             return
         }
         catch( Exception e ) {
-            log.error("Failed to aggregate metrics for task entries=${entries?.task?.id}; taskId=${entries?.task?.taskId}; workkflow id=${entries?.workflow?.id}; retry=$retry", e)
-            if( retry>=maxRetries )
+            def msg = "Failed to aggregate metrics for task entries=${entries?.task?.id}; taskId=${entries?.task?.taskId}; workkflow id=${entries?.workflow?.id}; attempt=$attempt"
+            if( attempt++ >= maxAttempts ) {
+                log.error(msg, e)
                 break
-            retry ++
-            sleep( 50  + random.nextInt(500) )
+            }
+            // sleep and try it again
+            final delay = 50  + random.nextInt(500)
+            msg += "; cause=${e.message ?: e.toString()}; await $delay msg and retry"
+            log.error(msg)
+            sleep(delay)
         }
     }
 
@@ -170,15 +185,6 @@ class TraceServiceImpl implements TraceService {
         def workflowId = entries.first().workflow.id
         def tasks = entries.collect { it.task }
         progressService.aggregateMetrics(workflowId, tasks)
-    }
-
-
-    @NotTransactional
-    String createWorkflowKey() {
-        final record = transactionService.withTransaction { new WorkflowKey() .save() }
-        final workflowId = HashSequenceGenerator.getHash(record.id)
-        transactionService.withTransaction { record.workflowId=workflowId; record.save() }
-        return workflowId
     }
 
 
@@ -265,7 +271,8 @@ class TraceServiceImpl implements TraceService {
         if( !request.workflow.checkIsRunning() )
             throw new IllegalStateException("Workflow status should be running -- current=${request.workflow.status}")
 
-        final workflow = workflowService.createWorkflow(request.workflow, request.processNames, user)
+        final workflow = workflowService.createWorkflow(request, user)
+
         progressService.updateProgress(workflow.id, TraceProgressData.EMPTY)
         eventPublisher.workflowCreation(workflow.id)
         return workflow
@@ -318,13 +325,47 @@ class TraceServiceImpl implements TraceService {
         final workflow = Workflow.get(workflowId)
         if( !workflow )
             throw new IllegalArgumentException("Invalid trace workflow id: $workflowId")
+        if( !tasks )
+            return
+
+        // save tasks using a rx publisher in separate thread
+        final publisher = createTasksPublisher()
         for( Task task : tasks )
-            taskProcessor.onNext(new TaskEntry(task, workflow))
+            publisher.onNext(new TaskEntry(task, workflow))
+        publisher.onComplete()
     }
 
     @Override
     void handleHeartbeat(String workflowId, TraceProgressData progress) {
         workflowService.markForRunning(workflowId)
         progressService.updateProgress(workflowId, progress)
+    }
+
+    protected PublishSubject<TaskEntry> createTasksPublisher() {
+        phaser.bulkRegister(2)
+
+        PublishSubject<TaskEntry> subject = PublishSubject.create()
+
+        def receiver = subject
+                .toFlowable(BackpressureStrategy.BUFFER)
+                .parallel()
+                .runOn( Schedulers.from(taskSaveExecutor) )
+                .map { TaskEntry task -> safeCheckTask(task) }
+                .sequential()
+                .share()
+
+        // save tasks
+        receiver
+                .doOnComplete { phaser.arriveAndDeregister() }
+                .subscribe( { task -> safeSaveTask(task) }, { err-> log.error("Unexpected error while saving task",err) })
+
+        // aggregate metrics
+        receiver
+                .buffer(bufferSize)
+                .flatMapIterable { List<TaskEntry> entries -> entries.groupBy { it.workflow.id }.values() }
+                .doOnComplete { phaser.arriveAndDeregister() }
+                .subscribe({ safeAggregateMetrics(it) }, { err-> log.error("Unexpected error while aggregating metrics",err) })
+
+        return subject
     }
 }

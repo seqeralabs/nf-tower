@@ -28,6 +28,4 @@ enum AuditEventType {
     user_updated,
     user_deleted,
     user_sign_in
-
-    @Override String toString() { super.toString() }
 }

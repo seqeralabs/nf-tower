@@ -56,7 +56,7 @@ class AuthenticationByMailAuthToken implements AuthenticationProvider {
         if( identity==AuthenticationByApiToken.ID )
             return new AuthFailure('Skipping mail auth for API token')
 
-        final user = userService.findByEmailAndAuthToken(identity, token)
+        final user = userService.findByUidAndAuthToken(identity, token)
         if (!user) {
             // a more explanatory message should be returned
             return new AuthFailure("Unknow user with identity: $identity")
@@ -70,8 +70,8 @@ class AuthenticationByMailAuthToken implements AuthenticationProvider {
         // user is OK -- update last access timestamp
         userService.updateLastAccessTime(user.id)
 
-        List<String> authorities = userService.findAuthoritiesOfUser(user)
-        return new UserDetails(user.email, authorities)
+        List<String> roles = userService.findAuthoritiesByUser(user)
+        return new UserDetails(identity, roles)
     }
 
     protected boolean isAuthTokenExpired(User user) {

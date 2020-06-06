@@ -12,13 +12,15 @@ export interface UserData {
   id: number;
   userName: string;
   email: string;
-  roles: string[];
-  jwtAccessToken: string;
-
   firstName: string;
   lastName: string;
   organization: string;
   description: string;
   notification: boolean;
   avatar: string;
+}
+
+export interface DescribeUserResponse {
+    message: string;
+    user: UserData;
 }

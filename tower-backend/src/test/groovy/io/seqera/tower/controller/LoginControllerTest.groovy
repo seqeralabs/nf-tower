@@ -59,7 +59,7 @@ class LoginControllerTest extends AbstractContainerBaseTest {
         when: "do the login request attaching userName and authToken as credentials"
         HttpRequest request = HttpRequest.create(HttpMethod.POST, '/login')
                                          .accept(MediaType.APPLICATION_JSON_TYPE)
-                                         .body(new UsernamePasswordCredentials(user.email, user.authToken))
+                                         .body(new UsernamePasswordCredentials(user.getUid(), user.authToken))
         HttpResponse<AccessRefreshToken> response = client.toBlocking().exchange(request, AccessRefreshToken)
 
         then:
@@ -88,7 +88,7 @@ class LoginControllerTest extends AbstractContainerBaseTest {
         when: "do the login request attaching userName and authToken as credentials"
         HttpRequest request = HttpRequest.create(HttpMethod.POST, '/login')
                                          .accept(MediaType.APPLICATION_JSON_TYPE)
-                                         .body(new UsernamePasswordCredentials(user.email, user.authToken))
+                                         .body(new UsernamePasswordCredentials(user.getUid(), user.authToken))
         client.toBlocking().exchange(request, AccessRefreshToken)
 
         then: "the server responds UNAUTHORIZED"
@@ -114,7 +114,7 @@ class LoginControllerTest extends AbstractContainerBaseTest {
         when: "do the login request attaching a bad authToken"
         HttpRequest request = HttpRequest.create(HttpMethod.POST, '/login')
                                           .accept(MediaType.APPLICATION_JSON_TYPE)
-                                          .body(new UsernamePasswordCredentials(user.email, 'badToken'))
+                                          .body(new UsernamePasswordCredentials(user.getUid(), 'badToken'))
         client.toBlocking().exchange(request, AccessRefreshToken)
 
         then: "the server responds UNAUTHORIZED"

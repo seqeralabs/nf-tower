@@ -11,6 +11,6 @@
 
 
 allprojects {
-    version "19.08.0"
+    version "20.06.0"
     group "io.seqera"
 }

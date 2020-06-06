@@ -149,7 +149,7 @@ class GateServiceTest extends AbstractContainerBaseTest {
         def mail = pendingEmails()[0]
         mail.to == user.email
         mail.subject == 'Nextflow Tower Sign in'
-        mail.body.contains("${serverUrl}/auth?email=${resp.user.email.replaceAll('@','%40')}&authToken=${resp.user.authToken}")
+        mail.body.contains("${serverUrl}/auth?uid=${resp.user.getUid()}&token=${resp.user.authToken}")
 
     }
 
@@ -218,7 +218,7 @@ class GateServiceTest extends AbstractContainerBaseTest {
     def 'should build auth email' () {
         given:
         def RECIPIENT = 'alice@domain.com'
-        def user = new User(email: RECIPIENT, userName:'Mr Foo', authToken: 'xyz')
+        def user = new User(id: 100, email: RECIPIENT, userName:'Mr Foo', authToken: 'xyz')
         def mailer = Mock(MailService)
         def service = new GateServiceImpl()
         service.mailService = mailer
@@ -233,9 +233,9 @@ class GateServiceTest extends AbstractContainerBaseTest {
         mail.to == RECIPIENT
 
         // text email
-        mail.text.contains('http://localhost:1234/auth?email=alice%40domain.com&authToken=xyz')
+        mail.text.contains("http://localhost:1234/auth?uid=${user.getUid()}&token=xyz")
         // html email
-        mail.body.contains('http://localhost:1234/auth?email=alice%40domain.com&authToken=xyz')
+        mail.body.contains("http://localhost:1234/auth?uid=${user.getUid()}&token=xyz")
     }
 
     def 'should build a new user email' () {
@@ -332,5 +332,12 @@ class GateServiceTest extends AbstractContainerBaseTest {
         pendingEmails()[0].subject.startsWith('You now have beta access to Nextflow Tower!')
     }
 
+    def 'should bind properties' () {
+        given:
+        GateServiceImpl svc = (GateServiceImpl) gateService
+        expect:
+        svc.appName == 'Nextflow Tower'
+        svc.serverUrl == 'http://localhost:8000'
+    }
 
 }
