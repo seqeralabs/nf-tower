@@ -36,7 +36,7 @@
     "humanize-duration-ts": "^2.0.0",
     "jquery": "^3.5.0",
     "kind-of": "^6.0.3",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "minimist": "^1.2.5",
     "moment": "^2.24.0",
     "ng-chartist": "^4.1.0",
