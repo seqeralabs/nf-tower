@@ -1,5 +1,5 @@
 # Step 1: Build the app in image 'builder'
-FROM node:11.14.0-alpine AS builder
+FROM node:12.0.0-alpine AS builder
 
 RUN npm config set unsafe-perm true
 RUN npm install -g @angular/cli
