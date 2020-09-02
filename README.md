@@ -3,7 +3,19 @@
 [![Chat on Gitter](https://img.shields.io/gitter/room/nf-tower/community.svg?colorB=26af64&style=popout)](https://gitter.im/nf-tower/community)
 
 Nextflow Tower is an open source monitoring and managing platform
-for [Nextflow](https://www.nextflow.io/) workflows. Learn more at [tower.nf](https://tower.nf/).
+for [Nextflow](https://www.nextflow.io/) workflows. 
+
+## Availibility
+A free-to-use public Tower service is availible at [tower.nf](https://tower.nf/).
+
+The community version of Tower is available from this repository. It can be deployed in a 
+user's own environment and has features for single users to monitor their Nextflow 
+pipelines, deployed anywhere.
+
+The fully-featured enterprise version of Tower is availible from Seqera Labs. It can be
+deployed in a customers own on-premise or cloud environment and includes advanced workflow
+management, resource optimization and enterprise-grade support. To learn more, please 
+visit [Seqera Labs](https://seqera.io).
 
 ## Requirements 
 
