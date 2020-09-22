@@ -16,6 +16,7 @@ tower:
   trustedEmails:
     - '*@seqera.io'
     - 'paolo.ditommaso@gmail.com'
+    - 'jfernandez74@gmail.com'
   trace:
     timeout: 90s
   cron:
@@ -50,8 +51,8 @@ grails:
 mail:
   from: "paolo.ditommaso+tower@gmail.com"
   smtp:
-    host: email-smtp.eu-west-1.amazonaws.com
-    port: 587
+    host: "${TOWER_SMTP_HOST:email-smtp.eu-west-1.amazonaws.com}"
+    port: "${TOWER_SMTP_PORT:587}"
     auth: true
     user: "${TOWER_SMTP_USER:`missing smtp user`}"
     password: "${TOWER_SMTP_PASSWORD:`missing smtp password`}"
