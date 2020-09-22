@@ -16,7 +16,6 @@ tower:
   trustedEmails:
     - '*@seqera.io'
     - 'paolo.ditommaso@gmail.com'
-    - 'jfernandez74@gmail.com'
   trace:
     timeout: 90s
   cron:
