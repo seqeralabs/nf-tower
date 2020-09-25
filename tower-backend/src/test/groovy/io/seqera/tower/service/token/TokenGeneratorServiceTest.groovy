@@ -7,16 +7,30 @@ import io.seqera.tower.util.AbstractContainerBaseTest
 import javax.inject.Inject
 
 @MicronautTest(application = Application.class)
-class TokenGeneratorServiceTest extends AbstractContainerBaseTest{
+class TokenGeneratorServiceTest extends AbstractContainerBaseTest {
 
     @Inject
     TokenGeneratorService tokenGeneratorService
 
-    void "a unique token id is generated" () {
+    void "a unique token id is generated with desired length"() {
         when:
         String token = tokenGeneratorService.generateRandomId();
 
         then:
         token.size() == 20
+    }
+
+    void "a set of unique tokens have no collisions"() {
+        given:
+        def testSequenceLength = 100
+        def tokens = []
+
+        when:
+        1.upto(testSequenceLength) {
+            tokens.add(tokenGeneratorService.generateRandomId())
+        }
+
+        then:
+        tokens.unique().size() == testSequenceLength
     }
 }

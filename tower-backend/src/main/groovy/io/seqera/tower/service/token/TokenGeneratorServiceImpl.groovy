@@ -1,20 +1,29 @@
 package io.seqera.tower.service.token
 
 import groovy.transform.CompileStatic
-import org.apache.commons.lang3.RandomStringUtils
 
 import javax.inject.Singleton
+import java.security.SecureRandom
 
 @Singleton
 @CompileStatic
 class TokenGeneratorServiceImpl implements TokenGeneratorService {
 
-    private static final int TOKEN_RANDOM_AGGREGATOR_LENGTH = 7;
+    private static final int TOKEN_LENGTH = 20
+    private String CHAR_SEQUENCE = "012345679ABCDEFGHIJKLMNOPQRSTUVWXYabcdefghijklmnopqrstuvwxy"
 
     @Override
     String generateRandomId() {
-        Date date = new Date();
+        SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");
 
-        return RandomStringUtils.randomNumeric(TOKEN_RANDOM_AGGREGATOR_LENGTH) + date.getTime()
+        StringBuilder stringBuilder = StringBuilder.newInstance();
+
+        1.upto(TOKEN_LENGTH) {
+            int randomInt = secureRandom.nextInt(CHAR_SEQUENCE.length());
+
+            stringBuilder.append(CHAR_SEQUENCE.charAt(randomInt));
+        }
+
+        return stringBuilder.toString();
     }
 }
