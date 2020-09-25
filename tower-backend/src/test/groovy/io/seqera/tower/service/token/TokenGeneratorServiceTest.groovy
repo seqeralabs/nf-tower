@@ -22,15 +22,17 @@ class TokenGeneratorServiceTest extends AbstractContainerBaseTest {
 
     void "a set of unique tokens have no collisions"() {
         given:
-        def testSequenceLength = 100
-        def tokens = []
+        def testSequenceLength = 1000000
+        def tokens = [:]
 
         when:
         1.upto(testSequenceLength) {
-            tokens.add(tokenGeneratorService.generateRandomId())
+            def token = tokenGeneratorService.generateRandomId()
+
+            tokens << [(token): token]
         }
 
         then:
-        tokens.unique().size() == testSequenceLength
+        tokens.size() == testSequenceLength
     }
 }
