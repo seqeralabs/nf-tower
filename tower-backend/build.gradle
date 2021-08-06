@@ -84,8 +84,8 @@ dependencies {
     }
     testCompile "io.micronaut.test:micronaut-test-spock"
 
-    testCompile "org.testcontainers:testcontainers:1.11.2"
-    testCompile "org.testcontainers:spock:1.11.2"
+    testCompile "org.testcontainers:testcontainers:1.15.1"
+    testCompile "org.testcontainers:spock:1.15.1"
     testCompile "org.subethamail:subethasmtp:3.1.7"
     testCompile 'net.bytebuddy:byte-buddy:1.9.12'
     testCompile "org.objenesis:objenesis:2.1"
