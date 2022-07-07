@@ -38,7 +38,7 @@
     "kind-of": "^6.0.3",
     "lodash": "^4.17.21",
     "minimist": "^1.2.5",
-    "moment": "^2.24.0",
+    "moment": "^2.29.4",
     "ng-chartist": "^4.1.0",
     "ngx-bootstrap": "^5.5.0",
     "ngx-virtual-scroller": "^3.0.3",
