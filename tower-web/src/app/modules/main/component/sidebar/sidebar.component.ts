@@ -15,10 +15,12 @@ import {WorkflowService} from "src/app/modules/main/service/workflow.service";
 import {AuthService} from "src/app/modules/main/service/auth.service";
 import {NotificationService} from "src/app/modules/main/service/notification.service";
 import { ActivatedRoute, Router, NavigationEnd, Params } from '@angular/router';
-import {debounceTime, distinctUntilChanged, filter} from 'rxjs/operators';
+import {debounceTime, distinctUntilChanged, filter, takeUntil} from 'rxjs/operators';
 import {FormControl} from "@angular/forms";
 import {FilteringParams} from "../../util/filtering-params";
-
+import { Subject } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDeleteDialogComponent} from '../confirm-delete-dialog/confirm-delete-dialog.component';
 declare let $: any;
 
 @Component({
@@ -27,6 +29,8 @@ declare let $: any;
   styleUrls: ['./sidebar.component.scss']
 })
 export class SidebarComponent implements OnInit, OnDestroy, OnChanges {
+
+  private destroy$ = new Subject<void>();
 
   @Input()
   workflows: Workflow[];
@@ -55,7 +59,8 @@ export class SidebarComponent implements OnInit, OnDestroy, OnChanges {
               private authService: AuthService,
               private workflowService: WorkflowService,
               private router: Router,
-              private route: ActivatedRoute) {}
+              private route: ActivatedRoute,
+              private dialog: MatDialog) {}
 
 
   ngOnInit() {
@@ -94,6 +99,7 @@ export class SidebarComponent implements OnInit, OnDestroy, OnChanges {
   ngOnDestroy(): void {
     // TODO: Decide if this line required or not. It breaks routing.
     // this.router.navigate(['/']);
+    this.destroy$.next();
   }
 
   collapseSidebar(): void {
@@ -144,13 +150,24 @@ export class SidebarComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   deleteWorkflow(workflow: Workflow): void {
-    const confirm = prompt(`Please confirm the deletion of the workflow '${workflow.data.runName}' typing its name below (operation is not recoverable):`);
-    if (confirm != workflow.data.runName) {
-      return;
-    }
 
-    this.workflowToDelete = workflow;
-    this.onDeleteWorkflow.next(workflow);
+    this.dialog.open(ConfirmDeleteDialogComponent, {
+      data: {
+        runName: workflow.data.runName
+      },
+      maxWidth: '90%',
+      width: '300px',
+      hasBackdrop: true,
+      disableClose: true
+    }).afterClosed()
+      .pipe(takeUntil(this.destroy$)).subscribe(
+        confirmDelete => {
+          if(confirmDelete){
+            this.workflowToDelete = workflow;
+            this.onDeleteWorkflow.next(workflow);
+          }
+        }
+      );
   }
 
 }
