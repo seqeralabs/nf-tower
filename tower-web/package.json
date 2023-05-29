@@ -37,7 +37,7 @@
     "jquery": "^3.5.0",
     "kind-of": "^6.0.3",
     "lodash": "^4.17.21",
-    "minimist": "^1.2.5",
+    "minimist": "^1.2.6",
     "moment": "^2.24.0",
     "ng-chartist": "^4.1.0",
     "ngx-bootstrap": "^5.5.0",
