@@ -1,0 +1,14 @@
+<mat-form-field class="form-field--full-width">
+  <label for="">
+    {{message}}
+  </label>
+  <input type="text" matInput [formControl]="control">
+  <mat-hint *ngIf="control.touched && control.dirty && noMatch$ | async">
+    Name doesn't match
+  </mat-hint>
+</mat-form-field>
+<mat-dialog-actions class="actions">
+  <button data-cy="dialog-btn-cancel" class="btn btn-secondary btn-sm" matDialogClose>Cancel</button>
+  <button data-cy="dialog-btn-delete" class="btn btn-danger btn-sm" [disabled]="noMatch$ | async" (click)="confirmDelete()">Delete</button>
+</mat-dialog-actions>
+

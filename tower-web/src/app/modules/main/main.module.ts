@@ -49,6 +49,7 @@ import { TreeListComponent } from "./component/tree-list/TreeListComponent";
 import { WorkflowStatusIconComponent } from "../../workflow-status-icon/workflow-status-icon.component";
 import { TaskDetailsComponent } from "./component/task-details/task-details.component";
 import {AppConfigService} from './service/app-config.service';
+import { ConfirmDeleteDialogModule } from './component/confirm-delete-dialog/confirm-delete-dialog.component';
 
 /*
  * Main application routing strategy
@@ -118,6 +119,7 @@ const appInitializerFn = (appConfig: AppConfigService) => {
     FormsModule,
     ChartistModule,
     ReactiveFormsModule,
+    ConfirmDeleteDialogModule
   ],
   providers: [
     AppConfigService,
